@@ -1,0 +1,46 @@
+{
+  "schema": "hst-decomp.modules.v1",
+  "title": "Hot Shots Tennis: Get a Grip",
+  "title_id": "UCUS98701",
+  "region": "NA",
+  "disc_version": "1.01",
+  "disc_image_sha256": "0fc63bc934246bfb3e18cf8edc6f36f2a3256a6ff500ab090b3aebf44c3ddffa",
+  "modules": [
+    {
+      "name": "EBOOT.BIN",
+      "origin": "PSP_GAME/SYSDIR/EBOOT.BIN",
+      "description": "the decrypted (and, if compressed, inflated) game executable",
+      "sha256": "ee39c40ee70af6bb5c76a0789898a9dc8c0a6ddcd0bd4d9d76f6200537f34bbe",
+      "size": 4178820,
+      "load_segments": [
+        {
+          "flags": 7,
+          "start": 0,
+          "file_offset": 84,
+          "file_end": 3186720,
+          "memory_end": 3458176
+        }
+      ],
+      "functions_file": "data/functions-EBOOT.BIN.txt",
+      "function_count": 9804
+    },
+    {
+      "name": "hstp_trans_main.prx",
+      "origin": "PSP_GAME/USRDIR/bundle_data/trial/hstp_trans.pbp (DATA.PSP)",
+      "description": "the decrypted Sharing Version (game-sharing trial) executable",
+      "sha256": "5418712bbe4a4339cf30e5c78b486924f1d24fe313d8bf8b0d56fdc3132fe6ec",
+      "size": 4952948,
+      "load_segments": [
+        {
+          "flags": 7,
+          "start": 0,
+          "file_offset": 96,
+          "file_end": 3879664,
+          "memory_end": 4151168
+        }
+      ],
+      "functions_file": "data/functions-hstp_trans_main.prx.txt",
+      "function_count": 9830
+    }
+  ]
+}

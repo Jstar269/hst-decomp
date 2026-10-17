@@ -1,0 +1,46 @@
+/* HSTMATCH module=EBOOT.BIN start=0x00102370 end=0x00102400 symbol=FUN_00102370 lang=c++ */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+
+class Sub {
+public:
+    virtual void v00(); virtual void v01(); virtual void v02(); virtual void v03();
+    virtual void v04(); virtual void v05(); virtual void v06(); virtual void v07();
+    virtual void v08(); virtual void v09(); virtual void v10(); virtual void v11();
+};
+
+struct Elem {
+    char pad[0x20];
+    Sub *sub;
+};
+
+template <class T> struct It {
+    T *p_;
+    It(T *p) : p_(p) {}
+    T &operator*() const { return *p_; }
+    It &operator++() { ++p_; return *this; }
+};
+template <class T> inline bool operator==(const It<T> &a, const It<T> &b) { return a.p_ == b.p_; }
+template <class T> inline bool operator!=(const It<T> &a, const It<T> &b) { return !(a == b); }
+
+template <class T> struct Vec {
+    T *data_;
+    unsigned size_;
+    unsigned cap_;
+    It<T> begin() const { return It<T>(data_); }
+    It<T> end() { return It<T>(data_ + size_); }
+};
+
+struct Container {
+    int pad0;
+    Vec<void *> v0;
+    Vec<Elem *> v1;
+};
+
+extern "C" void FUN_00102370(Container *self)
+{
+    for (It<Elem *> it = self->v1.begin(); it != self->v1.end(); ++it) {
+        if ((*it)->sub != 0) {
+            (*it)->sub->v10();
+        }
+    }
+}

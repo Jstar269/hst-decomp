@@ -1,0 +1,55 @@
+/* HSTMATCH module=EBOOT.BIN start=0x00118908 end=0x00118980 symbol=FUN_00118908 lang=c99 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+typedef unsigned char undefined;
+typedef unsigned char byte;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long long ulonglong;
+typedef long long longlong;
+typedef unsigned char uchar;
+typedef unsigned char bool;
+typedef unsigned long long undefined8;
+typedef int code();
+#define true 1
+#define false 0
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+typedef unsigned char undefined1;
+typedef unsigned short undefined2;
+typedef unsigned int undefined4;
+
+
+void FUN_00118908(int param_1)
+{
+  int outer = 0;
+  int middle = 0;
+  int inner = 0;
+  char *parent = (char *)param_1;
+  do {
+    *(int *)(param_1 + 0xf4) = 0;
+    middle = 0;
+    {
+      char *row = parent;
+      do {
+        inner = 0;
+        {
+          char *item = row;
+          do {
+            *(int *)(item + 0x104) = 0;
+            *(int *)(item + 0x108) = 0;
+            *(int *)(item + 0x10c) = 0;
+            *(int *)(item + 0x110) = 0;
+            inner += 5;
+            *(int *)(item + 0x114) = 0;
+            item += 0x14;
+          } while (inner < 6);
+        }
+        *(int *)(row + inner * 4 + 0x104) = 0;
+        middle++;
+        row += 0x2c;
+      } while (middle < 2);
+    }
+    outer++;
+    param_1 += 4;
+    parent += 0x58;
+  } while (outer < 4);
+}

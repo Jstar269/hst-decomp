@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""Quality report over the exact sources in src/ (they all match; this is about how they read).
+
+    python tools/hstlint.py [--json try/lint-report.json] [--show KIND]
+
+Checks:
+  header      malformed HSTMATCH header, header not on the first line, or missing/unknown second-line
+              provenance note
+  lang        file extension disagrees with the header's lang= (.c is lang=c99, .cpp is lang=c++)
+  dupcond     `if (X)` immediately nested inside `if (X)` (a matching idiom)
+  volatile    `volatile` qualifier
+  selfassign  `x = x;`
+  goto        `goto` statements
+  idiom-noted note line declares a "matching idiom"
+  protos      functions/globals declared with different types in different sources (whole-tree
+              consistency: a unified decomp needs one declaration per symbol)
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import hstmatch as M
+
+# The note kinds the campaign importer accepts (campaign reports/import_hst_sources_v14.py KIND_PATTERNS; keep
+# them identical): a note the importer cannot classify keeps the source out of the ledger.
+NOTE_KINDS = (("clone", re.compile(r"Clone of src/\S+ \(hstclone\.py tag [\w./-]+\)")),
+              ("corrected", re.compile(r"Ghidra pseudocode \(hstgen\.py tag [^)]+\) corrected by hand")),
+              ("generated", re.compile(r"Mechanical translation of Ghidra pseudocode \(hstgen\.py tag [\w./-]+\)")),
+              ("library", re.compile(r"Library source: newlib ")),
+              ("template", re.compile(r"[^.;]*\(template instance, hsttmpl\.py tag [\w./-]+\)")),
+              ("hand", re.compile(r"Hand-written reconstruction\b")))
+DUPCOND = re.compile(r"if\s*\(([^()\n]*(?:\([^()\n]*\)[^()\n]*)*)\)\s*\{\s*\n?\s*if\s*\(\1\)")
+SELF = re.compile(r"(?<![\w.>])(\w+)\s*=\s*\1\s*;")
+DECL = re.compile(r"^(?:extern\s+)?(?:\"C\"\s+)?([A-Za-z_][\w\s\*]*?)\s*\b((?:FUN|DAT|PTR)_[0-9a-fA-F]{8})\b\s*(\([^;{]*\)|\[[^\]]*\])?\s*;",
+                  re.M)
+
+
+def norm(s: str) -> str:
+    s = re.sub(r"/\*.*?\*/", "", s)
+    s = re.sub(r"\b(extern|static|const)\b", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    s = re.sub(r"\s*([*(),\[\]])\s*", r"\1", s)
+    # drop parameter names: keep types only (last identifier in each comma part when >1 token)
+    m = re.match(r"(.*)\((.*)\)$", s)
+    if m:
+        parts = []
+        for p in m.group(2).split(","):
+            toks = re.findall(r"[A-Za-z_]\w*|\*+|\.\.\.|\[\]", p)
+            if len(toks) > 1 and re.match(r"[A-Za-z_]", toks[-1]) and toks[-1] not in (
+                    "int", "char", "short", "long", "float", "double", "void", "unsigned", "signed"):
+                toks = toks[:-1]
+            parts.append(" ".join(toks))
+        s = f"{m.group(1)}({','.join(parts)})"
+    return s
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--json", type=Path, default=M.ROOT / "try" / "lint-report.json")
+    ap.add_argument("--show", help="print the files flagged with this check")
+    args = ap.parse_args()
+    flags = defaultdict(list)
+    kinds = defaultdict(int)
+    decls = defaultdict(lambda: defaultdict(list))
+    for p in sorted((M.ROOT / "src").rglob("*")):
+        if p.suffix not in (".c", ".cpp"):
+            continue
+        rel = p.relative_to(M.ROOT).as_posix()
+        try:
+            text = p.read_text(encoding="utf-8")
+        except FileNotFoundError:  # renamed by a concurrent agent while scanning
+            continue
+        lines = text.splitlines()
+        try:
+            h = M.parse_header(p)
+            if not lines[0].startswith("/* HSTMATCH ") and rel not in flags["header"]:
+                flags["header"].append(rel)
+            if (h["lang"] == "c++") != (p.suffix == ".cpp"):
+                flags["lang"].append(rel)
+        except Exception:  # noqa: BLE001 - any parse failure is a finding
+            flags["header"].append(rel)
+        comments = re.findall(r"/\*.*?\*/", text[:4000], re.S)
+        note = comments[1] if len(comments) > 1 and len(lines) > 1 and lines[1].startswith("/*") else ""
+        kind = next((k for k, rx in NOTE_KINDS if rx.search(note)), None)
+        if kind is None and rel not in flags["header"]:
+            flags["header"].append(rel)
+        kinds[kind or "unknown"] += 1
+        if "matching idiom" in note:
+            flags["idiom-noted"].append(rel)
+        body = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+        if DUPCOND.search(body):
+            flags["dupcond"].append(rel)
+        if re.search(r"\bvolatile\b", body):
+            flags["volatile"].append(rel)
+        if SELF.search(body):
+            flags["selfassign"].append(rel)
+        if re.search(r"\bgoto\b", body):
+            flags["goto"].append(rel)
+        if kind == "clone":
+            continue  # clones repeat their exemplar's declarations
+        module = M.parse_header(p)["module"]
+        for m in DECL.finditer(body):
+            ret, name, tail = m.group(1), m.group(2), m.group(3) or ""
+            if ret.strip() in ("return", "else", "goto"):
+                continue
+            decls[(module, name)][norm(f"{ret}{tail}")].append(rel)
+    conflicts = {f"{mod}:{name}": {sig: files for sig, files in sigs.items()}
+                 for (mod, name), sigs in decls.items() if len(sigs) > 1}
+    report = {"sources": sum(kinds.values()), "note_kinds": dict(kinds),
+              "flags": {k: len(v) for k, v in flags.items()},
+              "declared_symbols": len(decls), "conflicting_symbols": len(conflicts),
+              "files": {k: v for k, v in flags.items()}, "conflicts": conflicts}
+    args.json.write_text(json.dumps(report, indent=1), encoding="utf-8")
+    print(json.dumps({k: report[k] for k in ("sources", "note_kinds", "flags", "declared_symbols",
+                                               "conflicting_symbols")}, indent=1))
+    if args.show:
+        for f in flags.get(args.show, []):
+            print(f)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

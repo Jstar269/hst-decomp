@@ -1,0 +1,5 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x0028f3ac end=0x0028f3d8 symbol=FUN_0028f3ac lang=c++ */
+/* Clone of src/eboot/FUN_0008822c.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+extern "C" void FUN_0028f3ac(...)
+{
+}

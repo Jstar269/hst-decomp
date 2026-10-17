@@ -1,0 +1,6 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x00147f10 end=0x00147f54 symbol=FUN_00147f10 */
+/* Clone of src/eboot/FUN_0028c760.cpp (hstclone.py tag x14): addresses substituted; exact match verified; names and types await human review. */
+struct Arg1 { int v; };
+extern "C" void FUN_00148894(void *a, Arg1 b);
+extern "C" void FUN_00148664(void *a, int b, void *c);
+extern "C" void FUN_00147f10(void *a, void *b) { Arg1 x; x.v = 1; FUN_00148894(a, x); FUN_00148664(a, 1, b); }

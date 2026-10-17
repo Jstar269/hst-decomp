@@ -1,0 +1,149 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x0012705c end=0x00127444 symbol=FUN_0012705c lang=c++ */
+/* Clone of src/eboot/deque_init_range_0011be88.cpp (hstclone.py tag c28): addresses substituted; exact match verified; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* MSL-style deque of 12-byte elements (42 per 504-byte block, block pointers held in a cdeque with a
+   trailing null slot): range initialisation from a pair of deque iterators (forward-iterator overload).
+   distance() takes the iterators by value; max_size() is an inline function with a guarded static local
+   (guard 0x3e47d0, value 0x2d1708). Names provisional. */
+extern "C" {
+struct Reent_0012705c { int pad[3]; void *err; };
+Reent_0012705c *FUN_0000fe3c(void);
+int FUN_0000f3e8(void *stream, const char *format, ...);
+void FUN_0000d530(void);
+void *FUN_00000bcc(unsigned size);
+extern char DAT_003810fc[]; /* "deque construction length error" */
+extern char DAT_002d1750[]; /* "Memory allocation failure" */
+extern char DAT_003e47d0;       /* max_size() static-local guard */
+extern unsigned DAT_002d1708;    /* max_size() static local */
+}
+#pragma inline_depth(8)
+inline void *operator new(unsigned, void *p) { return p; }
+
+struct Elem_0012705c {
+    int a; int b; float c;
+    Elem_0012705c(const Elem_0012705c &o) : a(o.a), b(o.b), c(o.c) {}
+};
+typedef Elem_0012705c *Block_0012705c;
+
+struct BlkIter_0012705c {
+    Block_0012705c *ptr;
+    Block_0012705c *beg;
+    Block_0012705c *first;
+    Block_0012705c *end;
+    BlkIter_0012705c &operator++()
+    {
+        if (++ptr == end)
+            ptr = beg;
+        return *this;
+    }
+    Block_0012705c &operator*() const { return *ptr; }
+};
+inline int operator-(const BlkIter_0012705c &x, const BlkIter_0012705c &y)
+{
+    Block_0012705c *f = x.first;
+    int d = x.ptr - y.ptr;
+    if (x.ptr >= f) {
+        if (y.ptr < f)
+            d -= x.end - x.beg;
+    } else {
+        if (y.ptr >= f)
+            d += x.end - x.beg;
+    }
+    return d;
+}
+
+struct Iter_0012705c {
+    BlkIter_0012705c i_;
+    Elem_0012705c *cur_;
+    Elem_0012705c *end_;
+    Iter_0012705c &operator++()
+    {
+        if (++cur_ == end_) {
+            ++i_;
+            cur_ = *i_;
+            end_ = cur_ + 42;
+        }
+        return *this;
+    }
+    Elem_0012705c &operator*() const { return *cur_; }
+    Iter_0012705c() {}
+};
+inline int operator-(const Iter_0012705c &x, const Iter_0012705c &y)
+{
+    return (y.end_ - y.cur_) + ((x.i_ - y.i_) * 42 - (x.end_ - x.cur_));
+}
+
+template <class It> inline int distance_0012705c(It first, It last) { return last - first; }
+
+struct Buf_0012705c {
+    unsigned cap_;
+    unsigned size_;
+    unsigned start_;
+    Block_0012705c *data_;
+    unsigned size() const { return size_; }
+    unsigned capacity() const { return cap_ == 0 ? 0 : cap_ - 1; }
+    Block_0012705c &back() { return data_[(start_ + size_ - 1) % cap_]; }
+};
+extern "C" {
+void FUN_00128cac(Buf_0012705c *self, unsigned n);              /* reserve */
+void FUN_0012880c(Buf_0012705c *self, unsigned n);              /* resize */
+void FUN_00128a68(Buf_0012705c *self, const Block_0012705c &x);          /* push_back */
+}
+
+struct Alloc_0012705c {
+    Elem_0012705c *allocate(unsigned n)
+    {
+        Elem_0012705c *p = (Elem_0012705c *)FUN_00000bcc(n * sizeof(Elem_0012705c));
+        if (p == 0) {
+            FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002d1750);
+            FUN_0000d530();
+        }
+        return p;
+    }
+    void construct(Elem_0012705c *p, const Elem_0012705c &v) { new (p) Elem_0012705c(v); }
+};
+
+struct ForwardTag_0012705c {};
+struct Deque_0012705c {
+    Buf_0012705c buf_;
+    unsigned start_;
+    unsigned size_;
+    unsigned max_size() const
+    {
+        if (!DAT_003e47d0) {
+            DAT_002d1708 = 0xffffffd2;
+            DAT_003e47d0 = 1;
+        }
+        return DAT_002d1708;
+    }
+    unsigned capacity() const
+    {
+        unsigned s = buf_.size();
+        return s == 0 ? 0 : (s - 1) * 42;
+    }
+};
+extern "C" Iter_0012705c FUN_00129ed8(Deque_0012705c *self, unsigned pos);
+
+extern "C" void FUN_0012705c(Deque_0012705c *self, Iter_0012705c first, Iter_0012705c last, ForwardTag_0012705c)
+{
+    unsigned n = (unsigned)distance_0012705c(first, last);
+    if (n != 0) {
+        if (n > self->max_size()) {
+            FUN_0000f3e8(FUN_0000fe3c()->err, DAT_003810fc);
+            FUN_0000d530();
+        }
+        FUN_00128cac(&self->buf_, 2);
+        FUN_0012880c(&self->buf_, 1);
+        Alloc_0012705c a;
+        do {
+            if (self->buf_.size() == self->buf_.capacity())
+                FUN_00128cac(&self->buf_, 2 * self->buf_.size());
+            self->buf_.back() = a.allocate(42);
+            FUN_00128a68(&self->buf_, 0);
+        } while (self->capacity() < n);
+        self->start_ = (self->capacity() - n) / 2;
+        Iter_0012705c i = FUN_00129ed8(self, 0);
+        for (; self->size_ < n; ++i, ++self->size_, ++first)
+            a.construct(&*i, *first);
+    }
+}

@@ -1,0 +1,295 @@
+version = 1
+SPDX-PackageName = "Hot Shots Tennis: Get a Grip (PSP) matching decompilation"
+
+# Licensing map (REUSE specification 3.x). The licence texts are in LICENSES/. See README.md, "Licensing", and
+# THIRD_PARTY.md. When several annotations match a path, the LAST one in this file is the effective one, so the
+# specific entries come after the generic ones. `python tools/hstreuse.py check` verifies the coverage.
+
+# The reconstructed code. The GPL grant covers only the project's own contributions: it grants no rights in the
+# original work of Sony Computer Entertainment, Clap Hanz or anyone else (see README.md, "Licensing").
+[[annotations]]
+path = ["src/**", "wip/**", "symbols/**"]
+SPDX-FileCopyrightText = "2026 Jstar269 and contributors"
+SPDX-License-Identifier = "GPL-3.0-or-later"
+
+# Project-authored tools, documentation and headers.
+[[annotations]]
+path = [
+  "tools/**",
+  "toolchain/**",
+  "ghidra/scripts/**",
+  "ghidra/run_commit_decompile.ps1",
+  "ghidra/boundaries-*.txt",
+  "data/**",
+  "include/**",
+  "docs/**",
+  "README.md",
+  "CONTRIBUTING.md",
+  "THIRD_PARTY.md",
+  "hst-config.example.json",
+  ".gitignore",
+  ".gitattributes",
+  "REUSE.toml",
+  "ORIGINS.json",
+]
+SPDX-FileCopyrightText = "2026 Jstar269 and contributors"
+SPDX-License-Identifier = "MIT"
+
+# Third-party material keeps its own terms: newlib's licence list (third_party/newlib/newlib-*-COPYING.NEWLIB), and,
+# below, the newlib-derived sources in src/.
+[[annotations]]
+path = "third_party/**"
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright held by the authors named in the files (Red Hat Incorporated, the Regents of the University of California, and others)"
+SPDX-License-Identifier = "LicenseRef-Newlib-COPYING-NEWLIB"
+
+# ... except the project's own explanation of it.
+[[annotations]]
+path = "third_party/newlib/README.md"
+precedence = "override"
+SPDX-FileCopyrightText = "2026 Jstar269 and contributors"
+SPDX-License-Identifier = "MIT"
+
+# BEGIN generated newlib annotations (tools/hstreuse.py newlib --write); do not edit by hand
+# One annotation per distinct set of notices. The files are the upstream newlib files preprocessed with
+# their comments kept, so the licences of the notices inside them (and of the newlib headers they include)
+# apply; precedence = "override" makes these win over the generic src/** annotation above.
+
+[[annotations]]
+path = [
+  "src/eboot/__mcmp_00012370.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1991 by AT&T",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Gay-AT-T AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/_Balloc_00011a80_00011a80.c",
+  "src/eboot/__lo0bits_00011e1c.c",
+  "src/eboot/__s2b_00011c74.c",
+  "src/eboot/__ulp_00012554.c",
+  "src/eboot/_b2d_000125c4_000125c4.c",
+  "src/eboot/_multadd_00011b64_00011b64.c",
+  "src/eboot/_ratio_0001284c_0001284c.c",
+  "src/sharing_main/_Balloc_00011a80.c",
+  "src/sharing_main/__mcmp_00012370.c",
+  "src/sharing_main/_b2d_000125c4.c",
+  "src/sharing_main/_lo0bits_00011e1c.c",
+  "src/sharing_main/_mprec_log10_000128ec.c",
+  "src/sharing_main/_multadd_00011b64.c",
+  "src/sharing_main/_ratio_0001284c.c",
+  "src/sharing_main/_s2b_00011c74.c",
+  "src/sharing_main/_ulp_00012554.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1989-2000 On-Line Applications Research Corporation (OAR)",
+  "Copyright (c) 1991 by AT&T",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Gay-AT-T AND LicenseRef-Newlib-OAR AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/sharing_main/strcasecmp_000146ec.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1993 Martin Birgmeier",
+  "Copyright (c) 1994, 1997, 2001, 2002, 2003, 2004 Red Hat Incorporated",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Red-Hat AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/_mbtowc_r_00010ee4.c",
+  "src/eboot/bsearch_0000d66c.c",
+  "src/eboot/memchr_00010f24.c",
+  "src/eboot/memcmp_0001100c.c",
+  "src/eboot/strcat_00014788_00014788.c",
+  "src/eboot/strchr_00014834.c",
+  "src/eboot/strcpy_000149a8.c",
+  "src/eboot/strncmp_00014a58.c",
+  "src/eboot/strrchr_00014cfc_00014cfc.c",
+  "src/sharing_main/_mbtowc_r_00010ee4.c",
+  "src/sharing_main/bsearch_0000d684.c",
+  "src/sharing_main/memchr_00010f24.c",
+  "src/sharing_main/memcmp_0001100c.c",
+  "src/sharing_main/strcat_00014788.c",
+  "src/sharing_main/strchr_00014834.c",
+  "src/sharing_main/strcpy_000149a8.c",
+  "src/sharing_main/strncmp_00014a58.c",
+  "src/sharing_main/strrchr_00014cfc.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1993 Martin Birgmeier",
+  "Copyright (c) 1994, 1997, 2001, 2002, 2003, 2004, 2005 Red Hat Incorporated",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Red-Hat AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/abort_0000d518.c",
+  "src/sharing_main/abort_0000d530.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1989-2000 On-Line Applications Research Corporation (OAR)",
+  "Copyright (c) 1993 Martin Birgmeier",
+  "Copyright (c) 1994, 1997, 2001, 2002, 2003, 2004, 2005 Red Hat Incorporated",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Red-Hat AND LicenseRef-Newlib-OAR AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/kernel_rem_pio2f_0000a550.c",
+  "src/sharing_main/kernel_rem_pio2f_0000a568.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (C) 1993 by Sun Microsystems, Inc.",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Sun-fdlibm"
+
+[[annotations]]
+path = [
+  "wip/ieee754_powf_00008544.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (C) 1993 by Sun Microsystems, Inc.",
+  "2026 Jstar269 and contributors",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Sun-fdlibm AND GPL-3.0-or-later"
+
+[[annotations]]
+path = [
+  "src/eboot/atan2f_0000c6dc.c",
+  "src/eboot/sqrtf_0000d3e8.c",
+  "src/sharing_main/atan2f_0000c6f4.c",
+  "src/sharing_main/sqrtf_0000d400.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (C) 1993 by Sun Microsystems, Inc.",
+  "Copyright (c) 1989-2000 On-Line Applications Research Corporation (OAR)",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-Sun-fdlibm AND LicenseRef-Newlib-OAR AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/_cleanup_0000f30c_0000f30c.c",
+  "src/eboot/_iprintf_r_00012a90_00012a90.c",
+  "src/eboot/_siprintf_r_00014348_00014348.c",
+  "src/eboot/_vsiprintf_r_0001ad18_0001ad18.c",
+  "src/eboot/fiprintf_0000f3b4.c",
+  "src/eboot/lflush_00013d88_00013d88.c",
+  "src/eboot/std_0000f13c_0000f13c.c",
+  "src/sharing_main/_cleanup_0000f30c.c",
+  "src/sharing_main/_iprintf_r_00012a90.c",
+  "src/sharing_main/_siprintf_r_00014348.c",
+  "src/sharing_main/_vsiprintf_r_0001ad18.c",
+  "src/sharing_main/lflush_00013d88.c",
+  "src/sharing_main/std_0000f13c.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1989-2000 On-Line Applications Research Corporation (OAR)",
+  "Copyright (c) 1990 The Regents of the University of California",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-UCB-Advertising-Notice AND LicenseRef-Newlib-OAR AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/_wcrtomb_r_0001ad68_0001ad68.c",
+  "src/eboot/_wcsrtombs_r_0001ae24_0001ae24.c",
+  "src/sharing_main/_mbrtowc_r_00010e10.c",
+  "src/sharing_main/_wcrtomb_r_0001ad68.c",
+  "src/sharing_main/_wcsrtombs_r_0001ae24.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1989-2000 On-Line Applications Research Corporation (OAR)",
+  "Copyright (c) 1990 The Regents of the University of California",
+  "Copyright (c) 1993 Martin Birgmeier",
+  "Copyright (c) 1994, 1997, 2001, 2002, 2003, 2004, 2005 Red Hat Incorporated",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-UCB-Advertising-Notice AND LicenseRef-Newlib-Red-Hat AND LicenseRef-Newlib-OAR AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/__strtok_r_00015ee8.c",
+  "src/eboot/strtok_r_00015f98.c",
+  "src/sharing_main/__strtok_r_00015ee8.c",
+  "src/sharing_main/strtok_r_00015f98.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1988 Regents of the University of California",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-UCB-BSD-3-Clause AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/sharing_main/_strtoul_r_00016498.c",
+  "src/sharing_main/_strtoull_r_00016694.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1990 Regents of the University of California",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-UCB-BSD-4-Clause AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/sharing_main/_strtol_r_00015fb4.c",
+  "src/sharing_main/_strtoll_r_000161c8.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1990 The Regents of the University of California",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-UCB-BSD-4-Clause AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/qsort_00012b20.c",
+  "src/sharing_main/qsort_00012b20.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1992, 1993 The Regents of the University of California",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-UCB-BSD-4-Clause AND LicenseRef-Newlib-Birgmeier"
+
+[[annotations]]
+path = [
+  "src/eboot/__sprint_00016be4_00016be4.c",
+  "src/eboot/__sprint_00017cd8.c",
+  "src/eboot/cvt_00019860_00019860.c",
+  "src/eboot/exponent_00019a28.c",
+  "src/sharing_main/__sprint_00016be4.c",
+  "src/sharing_main/__sprint_00017cd8.c",
+  "src/sharing_main/cvt_00019860.c",
+  "src/sharing_main/exponent_00019a28.c",
+]
+precedence = "override"
+SPDX-FileCopyrightText = [
+  "Copyright (c) 1989-2000 On-Line Applications Research Corporation (OAR)",
+  "Copyright (c) 1990 The Regents of the University of California",
+  "Copyright (c) 1991 by AT&T",
+  "Copyright (c) 1993 Martin Birgmeier",
+]
+SPDX-License-Identifier = "LicenseRef-Newlib-UCB-BSD-4-Clause AND LicenseRef-Newlib-UCB-Advertising-Notice AND LicenseRef-Newlib-Gay-AT-T AND LicenseRef-Newlib-OAR AND LicenseRef-Newlib-Birgmeier"
+# END generated newlib annotations

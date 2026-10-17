@@ -1,0 +1,83 @@
+/* HSTMATCH module=EBOOT.BIN start=0x0019695c end=0x00196aac symbol=FUN_0019695c lang=c++ */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* MSL-style tree insert-at: length check ("tree::insert length_error"), allocate a 20-byte node into a
+   holder that references the allocator (an empty member at tree+4), copy-construct the 8-byte value,
+   release, link under the parent, ++size, rebalance (0x6445c), update leftmost. Names provisional. */
+extern "C" {
+struct Reent_0019695c { int pad[3]; void *err; };
+Reent_0019695c *FUN_0000fe3c(void);
+int FUN_0000f3e8(void *stream, const char *format, ...);
+void FUN_0000d518(void);
+void *FUN_00000bcc(unsigned size);
+void FUN_00000a00(void *p);
+extern char DAT_002e15e4[];
+extern char DAT_002c2884[];
+}
+inline void *operator new(unsigned, void *p) throw() { return p; }
+
+struct Value_0019695c {
+    int a, b;
+    Value_0019695c(const Value_0019695c &o) : a(o.a), b(o.b) {}
+};
+struct Node_0019695c {
+    Node_0019695c *left_;
+    Node_0019695c *right_;
+    unsigned parent_;
+    Value_0019695c value_;
+    void set_parent(Node_0019695c *p) { parent_ = (unsigned)p | (parent_ & 1); }
+};
+extern "C" void FUN_0006445c(Node_0019695c *x, Node_0019695c *root);
+
+struct Alloc_0019695c {
+    Node_0019695c *allocate(unsigned n)
+    {
+        Node_0019695c *p = (Node_0019695c *)FUN_00000bcc(n * sizeof(Node_0019695c));
+        if (p == 0) {
+            FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002c2884);
+            FUN_0000d518();
+        }
+        return p;
+    }
+    void deallocate(Node_0019695c *p) { FUN_00000a00(p); }
+};
+
+struct Holder_0019695c {
+    Alloc_0019695c *a_;
+    Node_0019695c *p_;
+    Holder_0019695c(Alloc_0019695c &a, Node_0019695c *p) : a_(&a), p_(p) {}
+    ~Holder_0019695c() { if (p_) a_->deallocate(p_); }
+    Node_0019695c *get() const { return p_; }
+    Node_0019695c *release() { Node_0019695c *t = p_; p_ = 0; return t; }
+};
+
+struct Tree_0019695c {
+    unsigned size_;
+    Node_0019695c *root_;
+    Node_0019695c *x8_;
+    Node_0019695c *leftmost_;
+    Alloc_0019695c &alloc() { return *(Alloc_0019695c *)&root_; }
+};
+
+extern "C" Node_0019695c *FUN_0019695c(Tree_0019695c *t, Node_0019695c *parent, bool left, bool leftmost,
+                                       const Value_0019695c &v)
+{
+    if (t->size_ == 0xffffffff) {
+        FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002e15e4);
+        FUN_0000d518();
+    }
+    Alloc_0019695c &a = t->alloc();
+    Holder_0019695c h(a, a.allocate(1));
+    new (&h.get()->value_) Value_0019695c(v);
+    Node_0019695c *n = h.release();
+    n->left_ = n->right_ = 0;
+    n->set_parent(parent);
+    if (left)
+        parent->left_ = n;
+    else
+        parent->right_ = n;
+    ++t->size_;
+    FUN_0006445c(n, t->root_);
+    if (leftmost)
+        t->leftmost_ = n;
+    return n;
+}

@@ -1,0 +1,29 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x001c4a70 end=0x001c4ad4 symbol=FUN_001c4a70 lang=c99 */
+/* Clone of src/eboot/list_walk_001b6db0.c (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: restructured with a typed list node/self struct and typed callee arguments (fixes the argument-setup order); exact match verified; names and types await human review. */
+typedef struct Node { struct Node *prev; struct Node *next; int val; } Node;
+typedef struct Self {
+  char pad0[0x3c];
+  int f3c;
+  int f40;
+  char pad1[0xf4 - 0x44];
+  Node head;
+} Self;
+
+extern int FUN_001c72f4(char *, int *, int **, int *);
+
+void FUN_001c4a70(Self *self)
+{
+  Node *n;
+  char buf[8];
+  int *p;
+
+  n = self->head.next;
+  if (n != &self->head) {
+    do {
+      p = &self->f40;
+      FUN_001c72f4(buf, &self->f3c, &p, &n->val);
+      n = n->next;
+    } while (n != &self->head);
+  }
+}

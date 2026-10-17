@@ -1,0 +1,36 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x0006e39c end=0x0006e418 symbol=FUN_0006e39c lang=c99 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+typedef unsigned char uchar;
+
+typedef struct { int pad[3]; } Blob12;
+typedef struct { int pad[4]; } Blob16;
+typedef struct {
+  int b;
+  int c;
+  Blob12 m0;
+  Blob16 m1;
+  float f;
+  uchar g;
+} Body;
+typedef struct {
+  int a;
+  Body body;
+} Obj;
+
+extern Blob16 *FUN_0006e418(Blob16 *, const Blob16 *);
+extern Blob12 *FUN_0006e458(Blob12 *, const Blob12 *);
+
+Obj *FUN_0006e39c(Obj *self, const Obj *src)
+{
+  Body *d;
+
+  self->a = src->a;
+  d = &self->body;
+  d->b = src->body.b;
+  d->c = src->body.c;
+  FUN_0006e458(&d->m0, &src->body.m0);
+  FUN_0006e418(&d->m1, &src->body.m1);
+  d->f = src->body.f;
+  d->g = src->body.g;
+  return self;
+}

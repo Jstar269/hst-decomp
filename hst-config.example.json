@@ -1,0 +1,36 @@
+{
+  "_about": "Copy this file to hst-config.json (gitignored) and replace every placeholder with a path on your machine. Any key can instead be set with the environment variable HST_<KEY> (upper case, e.g. HST_CAMPAIGN_ROOT), which overrides the file. Keys starting with an underscore are comments. 'host' paths are paths on the machine that runs the tools (JSON needs backslashes doubled); 'wsl' paths are as seen from inside WSL and are pasted into sh command lines, so $HOME is allowed. Check the result with: python tools/hstconfig.py check",
+
+  "_campaign_root": "host. Campaign directory with ledger/campaign.json (the function list and load segments of each module) and inputs/revision-selection.json (where your own decrypted retail modules live). The exact-match tools read retail bytes through it. Used by hstmatch, hstdiff, hstdis, hstcov, hstclone, hstfamilies, hstgen, hstqueue, hsttmpl, hstlib, hstsample.",
+  "campaign_root": "C:\\hst\\campaign-build",
+
+  "_pspdev_bin": "wsl. Directory inside WSL with the PSPDEV binutils psp-ld, psp-objcopy and psp-objdump. hstmatch links and extracts with them; hstdiff disassembles with them.",
+  "pspdev_bin": "/mnt/c/hst/toolchain/pspdev/bin",
+
+  "_mwcc_native": "wsl. Directory inside WSL, on the native Linux filesystem (not /mnt/c), holding the wibo binary and builds/<build>/mwccpsp.exe (mwccpsp 3.0.1 build 219 is builds/219/mwccpsp.exe).",
+  "mwcc_native": "$HOME/hst-mwcc",
+
+  "_gcc_home": "wsl. Directory inside WSL with the decomp.me Sony psp-gcc kits: psp-gcc-1.3.1/ and psp-gcc-1.7.1/ (needed by sources whose header says cc=gcc131-* or cc=gcc171-*; the kits are 32-bit Linux programs and need libc6-i386).",
+  "gcc_home": "$HOME/hst-gcc",
+
+  "_newlib_home": "wsl. Directory inside WSL with the newlib source trees <version>/newlib-<version>/newlib and the generated include directories inc-<version>. Only hstnewlib.py (library reconstruction) needs it.",
+  "newlib_home": "$HOME/hst-newlib",
+
+  "_newlib_obj_root": "host. Host-visible path of the library objects built from newlib, one directory per configuration such as 1.14.0-171-O2. Only hstlib.py index needs it. From Windows a WSL directory is \\\\wsl.localhost\\<distribution>\\home\\<user>\\...",
+  "newlib_obj_root": "\\\\wsl.localhost\\Ubuntu\\home\\<user>\\hst-newlib\\obj",
+
+  "_ext_root": "host. Maintainers only: directory for the isolated workspaces of external agent lanes (not needed to build or verify). It may not exist yet.",
+  "ext_root": "C:\\hst\\ext-lanes",
+
+  "_mwcc_builds_dir": "host. Directory with the decomp.me mwccpsp builds as <build>/mwccpsp.exe. hstsample.py records the digest of the build in its manifest; nothing else needs it.",
+  "mwcc_builds_dir": "C:\\hst\\compilers\\decompme-mwccpsp\\builds",
+
+  "_wibo_exe": "host. The wibo binary (the host copy of the one in mwcc_native); hstsample.py records its digest.",
+  "wibo_exe": "C:\\hst\\compilers\\wibo\\wibo-x86_64",
+
+  "_ghidra_headless": "host. Ghidra's support/analyzeHeadless.bat. Only ghidra/run_commit_decompile.ps1 needs it.",
+  "ghidra_headless": "C:\\hst\\ghidra\\ghidra_PUBLIC\\support\\analyzeHeadless.bat",
+
+  "_java_home": "host. The JDK that Ghidra runs on. Only ghidra/run_commit_decompile.ps1 needs it.",
+  "java_home": "C:\\hst\\jdk"
+}

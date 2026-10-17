@@ -1,0 +1,28 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x001ce840 end=0x001ce898 symbol=FUN_001ce840 lang=c++ */
+/* Clone of src/eboot/count_kind_4_5_entries_001c062c.cpp (hstclone.py tag c17b07b): addresses substituted; exact match verified; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+struct Ent {
+    int pad0;
+    unsigned char kind;
+    char pad1[0x33];
+};
+
+struct Obj {
+    Ent ents[15];
+};
+
+static inline unsigned char *KindAt(Obj *o, int i)
+{
+    if (i >= 0 && i < 15) return &o->ents[i].kind;
+    return 0;
+}
+
+extern "C" int FUN_001ce840(Obj *o)
+{
+    int n = 0;
+    for (int i = 0; i < 15; i++) {
+        unsigned char *p = KindAt(o, i);
+        if ((unsigned)(*p - 4) < 2) n++;
+    }
+    return n;
+}
