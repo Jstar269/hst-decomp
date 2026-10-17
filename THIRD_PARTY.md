@@ -140,7 +140,7 @@ None of these is redistributed by this repository. Obtain each from its own sour
 |---|---|---|
 | Metrowerks `mwccpsp` 3.0.1 build 219 | Compiling the game code (`cc` absent or `mwcc219`) | decomp.me's compiler kits, <https://github.com/decompme/compilers> (proprietary compiler) |
 | Sony `psp-gcc` 1.3.1 and 1.7.1 kits | Compiling SDK code (`cc=gcc131-*`, `gcc171-*`) and, as the preprocessor, library sources (without its own headers, `-nostdinc`) | decomp.me's compiler kits (i386 Linux; need `libc6-i386`) |
-| wibo 1.2.0 | Running the Windows compiler on Linux (WSL) | <https://github.com/decompals/wibo>; the maintainers' records give its licence status as "owner-accepted", not "cleared" |
+| wibo 1.2.0 | Running the Windows compiler on Linux (WSL) | <https://github.com/decompals/wibo>; check its licence before use |
 | PSPDEV binutils (`psp-ld`, `psp-objcopy`, `psp-objdump`) | Linking at the retail address, extracting `.text`, disassembly | the PSPDEV toolchain (GNU binutils for the Allegrex target) |
 | newlib 1.13.0 / 1.14.0 / 1.15.0 source trees | Only for `hstnewlib.py` (reproducing the library sources) | upstream releases, <https://sourceware.org/pub/newlib/> (SHA-256 in `third_party/newlib/README.md`) |
 | Ghidra 12.x and a JDK 21 | Only for `ghidra/run_commit_decompile.ps1` and `ghidra/scripts/HstCommitDecompile.java` | <https://ghidra-sre.org/> (Apache-2.0); a JDK distribution of your choice |

@@ -272,8 +272,8 @@ they are excluded from public releases; in a public build those functions come f
 (Sony SDK is excluded at publish time for now; the symbol maps in `symbols/`, the function lists in `data/` and the
 boundary lists in `ghidra/` are not filtered.)
 
-`PRIVATE_PATHS`, next to `EXCLUDED_CLASSES`, lists the maintainer-only files that are never published: research notes
-shared by another private project, and the orchestration of external AI agent lanes.
+`PRIVATE_PATHS`, next to `EXCLUDED_CLASSES`, lists the maintainer-only files that are never published: working research notes,
+and the scripts that run external agent lanes.
 
 ## The private campaign pipeline
 
@@ -307,4 +307,4 @@ effective annotation.
   `wip/ieee754_powf_00008544.c` reconstructs newlib's `ef_pow.c` and carries Sun's fdlibm notice as well as the GPL.
 - Sony SDK and system-library reconstructions are kept out of public releases (see
   [Origin classes and the publish filter](#origin-classes-and-the-publish-filter)).
-- This is not legal advice; consult counsel before any public release.
+- This is not legal advice.

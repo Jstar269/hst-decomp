@@ -44,9 +44,8 @@ ROOT = hstorigin.ROOT
 # user's own copy of the game. To release a class, remove it from this tuple (and re-run hstorigin.py).
 # Classes: game, newlib, mw-runtime, sony-prx, gcc-unattributed.
 EXCLUDED_CLASSES = ("sony-prx", "gcc-unattributed")
-# Maintainer-only files that stay in the private tree: research notes shared by another private project (they
-# document its cheat patches), and the orchestration of external AI agent lanes (it needs private model CLIs and
-# runs them unsandboxed inside isolated lane copies). A trailing "/" excludes a whole directory.
+# Maintainer-only files that stay in the maintainers' tree: working research notes, and the scripts that run
+# external agent lanes (they depend on the maintainers' own tool setup). A trailing "/" excludes a whole directory.
 PRIVATE_PATHS = ("docs/research/", "docs/LANE-TASK.md", "tools/hstauto.sh", "tools/hstsupervise.sh",
                  "tools/hstlane.py")
 # ---------------------------------------------------------------------------------------------------------------
