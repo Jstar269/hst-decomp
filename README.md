@@ -27,17 +27,17 @@ described under [Licensing](#licensing).
 
 ## Status
 
-This repository holds **10,009 exact sources** under `src/` (covering 10,012 functions: a source may cover a short run of
-functions) and 150 near misses under `wip/`. Every source was verified
-EXACT when it was installed and again before it was committed, and the whole tree is re-verified before each
-publication. Coverage of the two executables reconstructed here (`python tools/hstcov.py` after the bootstrap,
+This repository holds **10,073 exact sources** under `src/` (covering 10,075 functions: a source may cover a short run of
+functions) and 156 near misses under `wip/`. Each source is verified EXACT when installed and before
+commit. Before publication, newly added or changed sources are checked again with
+`python tools/hstmatch.py`. Coverage of the two executables reconstructed here (`python tools/hstcov.py` after the bootstrap,
 measured 2026-10-17, counted in code bytes; a function counts when an exact source covers its start address):
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,015 / 9,804 | 641,316 / 2,849,076 | 22.510 % |
-| `hstp_trans_main.prx` (Sharing Version) | 4,997 / 9,830 | 625,132 / 2,914,004 | 21.453 % |
-| **Both** | 10,012 / 19,634 | 1,266,448 / 5,763,080 | 21.975 % |
+| `EBOOT.BIN` | 5,047 / 9,804 | 647,848 / 2,849,076 | 22.739 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,028 / 9,830 | 631,504 / 2,914,004 | 21.671 % |
+| **Both** | 10,075 / 19,634 | 1,279,352 / 5,763,080 | 22.199 % |
 
 The function lists in `data/` are the reviewed boundaries of each module: 19,634 functions, with a few dozen
 candidate spans still open. Runtime and static module surveys found no other game code.
@@ -51,9 +51,9 @@ What the sources are, and are not:
 - Matching proves the *compiled bytes*, not that the source is what the developers wrote. Names are mostly the
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
-- Of the 10,009 sources, 6,192 are address-substituted **clones** of another matched source (retail contains the same
-  code many times), 2,135 are mechanical translations of Ghidra pseudocode, 680 are such translations corrected by
-  hand, 803 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
+- Of the 10,073 sources, 6,224 are address-substituted **clones** of another matched source (retail contains the same
+  code many times), 2,135 are mechanical translations of Ghidra pseudocode, 688 are such translations corrected by
+  hand, 827 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
   translated from newlib sources (17 more are clones of them, counted among the clones).
 - 80 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
   compiled with Metrowerks `mwccpsp`.
@@ -61,7 +61,7 @@ What the sources are, and are not:
   emits (nor does a current GCC in the same way); they cannot be matched until a later kit is available (see
   `docs/MWCC-NOTES.md`).
 - `python tools/hstlint.py` reports how the sources read (matching idioms such as `volatile`, `goto`, duplicated
-  conditions), and 779 symbols are declared with differing types in different sources. Cleaning that up is future
+  conditions), and 789 symbols are declared with differing types in different sources. Cleaning that up is future
   work.
 
 ## Requirements
