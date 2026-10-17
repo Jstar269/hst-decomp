@@ -207,3 +207,4 @@ __dl__FPv = 0x00000a00;   # hstclone s10170158a2r1e
 __dla__FPv = 0x000009e4;   # hstclone s10170158a2r1e
 __nw__FUi = 0x00000bcc;   # hstclone s10170158a2r1e
 __dl__FPv = 0x00000a00;   # hstclone s10170158a3r1e
+__dl__FPv = 0x00000a00;   # hstclone s10170158a4r1e

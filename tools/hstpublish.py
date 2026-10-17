@@ -47,7 +47,7 @@ EXCLUDED_CLASSES = ("sony-prx", "gcc-unattributed")
 # Maintainer-only files that stay in the maintainers' tree: working research notes, and the scripts that run
 # external agent lanes (they depend on the maintainers' own tool setup). A trailing "/" excludes a whole directory.
 PRIVATE_PATHS = ("docs/research/", "docs/LANE-TASK.md", "tools/hstauto.sh", "tools/hstsupervise.sh",
-                 "tools/hstlane.py")
+                 "tools/hstlane.py", "tools/hstrestart.sh", "tools/hstpushprep.sh")
 # ---------------------------------------------------------------------------------------------------------------
 
 MANIFEST = "ORIGINS.json"
