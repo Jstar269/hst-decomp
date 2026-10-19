@@ -35,6 +35,12 @@ path = [
 SPDX-FileCopyrightText = "2026 Jstar269 and contributors"
 SPDX-License-Identifier = "MIT"
 
+# Public GitHub Actions workflow configuration.
+[[annotations]]
+path = ".github/workflows/scorecards.yml"
+SPDX-FileCopyrightText = "2026 Jstar269 and contributors"
+SPDX-License-Identifier = "MIT"
+
 # Third-party material keeps its own terms: newlib's licence list (third_party/newlib/newlib-*-COPYING.NEWLIB), and,
 # below, the newlib-derived sources in src/.
 [[annotations]]

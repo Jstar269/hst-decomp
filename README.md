@@ -64,6 +64,11 @@ What the sources are, and are not:
   conditions), and 853 symbols are declared with differing types in different sources. Cleaning that up is future
   work.
 
+## Automated security analysis
+
+OpenSSF Scorecard runs weekly and on pushes to `main`. It uploads SARIF to GitHub code scanning and does not publish
+a Scorecard badge or change repository settings. The workflow is `.github/workflows/scorecards.yml`.
+
 ## Requirements
 
 The tools run on a **Windows host and drive the compilers inside WSL** (they call `wsl.exe`).
