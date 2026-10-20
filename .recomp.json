@@ -1,0 +1,34 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "Hot Shots Tennis: Get a Grip",
+  "system": "PSP",
+  "type": "decomp",
+  "original": {
+    "region": "USA",
+    "serial": "UCUS98701"
+  },
+  "project": "hst-decomp",
+  "status": "in-progress",
+  "toolchain": [
+    "Metrowerks mwccpsp 3.0.1",
+    "Sony psp-gcc"
+  ],
+  "approach": "Strict matching decompilation: every source in src/ compiles with the original compiler and, linked at its retail address, reproduces that function's retail bytes exactly, with nothing masked.",
+  "maintainers": [
+    {
+      "name": "Jstar269",
+      "link": "https://github.com/Jstar269"
+    }
+  ],
+  "links": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/Jstar269/hst-decomp"
+    },
+    {
+      "label": "Recompilation (Nakagawa Recomp)",
+      "url": "https://github.com/Jstar269/nakagawa-recomp"
+    }
+  ],
+  "notes": "Work in progress: 10,470 of 19,634 functions matched (24.055% of code bytes) across EBOOT.BIN and the Sharing Version module as of 2026-10-20; see the README for current figures. Contains no game data, keys or compilers; Sony SDK reconstructions are not published. Not yet open to outside contributions."
+}
