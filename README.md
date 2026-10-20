@@ -5,7 +5,7 @@
 **C and C++ that compiles back to the exact bytes of the PSP game, one function at a time.**
 
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](#license)
-[![REUSE: per-path licensing](https://img.shields.io/badge/REUSE-per--path%20licensing-green.svg)](REUSE.toml)
+[![REUSE status](https://api.reuse.software/badge/github.com/Jstar269/hst-decomp)](https://api.reuse.software/info/github.com/Jstar269/hst-decomp)
 [![Platform: PSP (UCUS98701)](https://img.shields.io/badge/PSP-UCUS98701-003791.svg)](#what-this-is)
 
 </div>
