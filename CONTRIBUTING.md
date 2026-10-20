@@ -4,7 +4,7 @@ This guide describes how functions are matched, installed and documented in this
 person; the version for automated matching agents is [docs/AGENT-BRIEF.md](docs/AGENT-BRIEF.md), and the two are
 meant to agree.
 
-The repository is not yet open to outside contributions. Contributions are licensed as the README (Licensing) says:
+The repository is not yet open to outside contributions. Contributions are licensed as [Licensing](docs/GUIDE.md#licensing) in the project guide says:
 GPL-3.0-or-later for `src/`, `wip/` and `symbols/`, MIT for the tools, documentation and headers. This guide is for the
 owner and for anyone the owner invites.
 
@@ -29,7 +29,7 @@ owner and for anyone the owner invites.
 
 ## Setting up
 
-Follow *Setup* in the [README](README.md), then check that one function builds:
+Follow [Setup](docs/GUIDE.md#setup) in the project guide, then check that one function builds:
 
 ```
 python tools/hstconfig.py check
