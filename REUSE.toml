@@ -26,6 +26,7 @@ path = [
   "README.md",
   "CONTRIBUTING.md",
   "CODE_OF_CONDUCT.md",
+  "SECURITY.md",
   ".github/**",
   "THIRD_PARTY.md",
   "hst-config.example.json",
