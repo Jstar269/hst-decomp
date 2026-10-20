@@ -255,3 +255,6 @@ mat4_copy_004d270 = 0x0004d5e8;   # hstclone c155507
 mat4_mul_0022570 = 0x00022598;   # hstclone c155507
 mat4_rot_y_004d2cc = 0x0004d644;   # hstclone c155507
 mat4_store_0055044 = 0x00055b64;   # hstclone c155507
+__dl__FPv = 0x00000a00;   # hstclone c192707
+mat4_copy_004d270 = 0x0004d5e8;   # hstclone s10200333g2r1s
+mat4_rot_y_004d2cc = 0x0004d644;   # hstclone s10200333g2r1s
