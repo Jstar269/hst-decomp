@@ -21,6 +21,13 @@
 
   "_ext_root": "host. Maintainers only: directory for the isolated workspaces of external agent lanes (not needed to build or verify). It may not exist yet.",
   "ext_root": "C:\\hst\\ext-lanes",
+  "_nakagawa_root": "host. Optional: a checkout of Nakagawa Recomp; its runtime is the platform layer of the port milestones (hstmilestones.py reads tools/import_audit_baseline.json).",
+  "nakagawa_root": "C:\\src\\nakagawa-recomp",
+
+  "_host_clang": "host. Optional LLVM Clang executable for Windows targets; when absent or unavailable, the Android NDK Clang builds all targets.",
+  "host_clang": "C:\\Program Files\\LLVM\\bin\\clang.exe",
+  "_android_ndk": "host. Android NDK root used for Android targets and as the Windows-target fallback (default: %LOCALAPPDATA%\\Android\\Sdk\\ndk\\30.0.16248370).",
+  "android_ndk": "%LOCALAPPDATA%\\Android\\Sdk\\ndk\\30.0.16248370",
 
   "_mwcc_builds_dir": "host. Directory with the decomp.me mwccpsp builds as <build>/mwccpsp.exe. hstsample.py records the digest of the build in its manifest; nothing else needs it.",
   "mwcc_builds_dir": "C:\\hst\\compilers\\decompme-mwccpsp\\builds",

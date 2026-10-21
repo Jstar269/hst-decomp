@@ -304,7 +304,8 @@ def main() -> int:
             linked = M.ROOT / "build" / args.module / f"{cand.parent.name}__{cand.stem}" / "syms.ld"
             used = set(re.findall(r"^(\S+) = ", linked.read_text(encoding="utf-8"), re.M)) if linked.exists() else set()
             for symbol, address in owned.get(cand, {}).items():
-                if symbol in used and symbol in extra and symbol not in committed:
+                # a name the target's symbol file already defines at this address needs no second line
+                if symbol in used and symbol in extra and symbol not in committed and target_symbols.get(symbol) != address:
                     committed[symbol] = address
             break
     if committed:

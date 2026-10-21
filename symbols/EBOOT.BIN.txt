@@ -222,3 +222,4 @@ __fixdfsi = 0x00022254;   # hstclone ds1011e
 __gedf2 = 0x00021fe0;   # hstclone ds1011e
 __muldf3 = 0x00021748;   # hstclone ds1011e
 _mbtowc_r = 0x00010ee4;   # hstclone ds1011e
+__floatsidf = 0x00022178;   # src/eboot/compose_object_matrix_000e80f0.cpp (agent sn6): (double)int helper, EBOOT twin of the Sharing 0x221a0 (offset -0x28 like __muldf3) [lane sn6]

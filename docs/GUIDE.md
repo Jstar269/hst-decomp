@@ -5,22 +5,23 @@ Everything behind the [README](../README.md): what the sources are, how to set u
 ## What the sources are
 
 The function lists in `data/` are the reviewed boundaries of each module: 19,634 functions, with a few dozen
-candidate spans still open. Runtime and static module surveys found no other game code.
+candidate spans still open. Runtime and static module surveys found no other game code. What counts as done, and
+the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.md).
 
 - Matching proves the *compiled bytes*, not that the source is what the developers wrote. Names are mostly the
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
-- Of the 10,551 sources, 6,462 are address-substituted **clones** of another matched source (retail contains the same
-  code many times), 2,136 are mechanical translations of Ghidra pseudocode, 723 are such translations corrected by
-  hand, 1,031 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
-  translated from newlib sources (20 more are clones of them, counted among the clones).
-- 83 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
+- Of the 10,888 sources, 6,620 are address-substituted **clones** of another matched source (retail contains the same
+  code many times), 2,136 are mechanical translations of Ghidra pseudocode, 744 are such translations corrected by
+  hand, 1,189 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
+  translated from newlib sources (19 more are clones of them, counted among the clones).
+- 82 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
   compiled with Metrowerks `mwccpsp`.
 - Some SDK functions use the Allegrex `ins rd,$zero,...` instruction, which neither published Sony `psp-gcc` kit
   emits (nor does a current GCC in the same way); they cannot be matched until a later kit is available (see
   `docs/MWCC-NOTES.md`).
 - `python tools/hstlint.py` reports how the sources read (matching idioms such as `volatile`, `goto`, duplicated
-  conditions), and 875 symbols are declared with differing types in different sources. Cleaning that up is future
+  conditions), and 1,065 symbols are declared with differing types in different sources. Cleaning that up is future
   work.
 
 Not published here: reconstructions of Sony SDK code, that is, the `psp-gcc`-built SDK runtime of the two
@@ -117,9 +118,50 @@ python tools/hstmatch.py src/eboot/FUN_00000000.c    # specific files
 The result is one line per source (`--quiet` prints only the failures) and a total such as `EXACT 7761/7761`; the exit
 status is 0 only when everything is EXACT. Statuses: `EXACT`, `MISMATCH` (with the number of differing words),
 `COMPILE_FAILED`, `LINK_FAILED`, `MISSING_SYMBOLS`, `UNPLACED_SECTION`, `SECTION_MISMATCH`, `NO_SYMBOL`,
-`MISPLACED`, and `EXACT_EXTRA_FLAGS` (an experiment with `--flags` or a header `extra=`, which never counts as a
-match). `--json out.json` writes the results. Build products go to `build/<module>/<dir>__<stem>/`; a full rebuild
+`MISPLACED`, `EXACT_EXTRA_FLAGS` (an experiment with `--flags` or a header `extra=`, which never counts as a
+match) and `EXACT_FAILS_GATE` (the bytes match but the source fails the fake-match gate of `hstgate.py`: `asm` that emits
+instructions, `.word`/`.byte`/`.incbin`, code-emitting pragmas, or `extra=` in `src/`; it never counts either). `--json out.json` writes the results. Build products go to `build/<module>/<dir>__<stem>/`; a full rebuild
 shares `build/` with any concurrent run, so run one at a time.
+
+## Whole-module build
+
+`hstmatch.py` proves one function at a time. `python tools/hstbuild.py <module>` (a module name, or `all`) is the step
+toward rebuilding a module from source: it takes the objects `hstmatch.py` compiled (the same profile and flags), keeps
+those whose source is EXACT, and links them in place into the module's layout. Every retail byte that no source covers is
+*scaffolding*: assembly (one `.word` section per unmatched function) and blobs generated from your own decrypted module
+into `build/whole/<module>/`; scaffolding is tier 0 and never counts as progress. The default is the *public* build:
+sources of the origin classes the public tree leaves out (the Sony SDK reconstructions) are not compiled; their bytes are
+supplied from your own executable like any other scaffolding and counted separately (`scaffolding.owner_supplied_bytes`);
+`--private` compiles them too.
+
+The scaffolding is relocatable: every word a retail relocation covers has its field cleared and a `.reloc` of the same
+type against a symbol defined as tile + offset, so the link writes it from the layout. The linker script places every
+tile at its retail address in the retail output sections, `psp-ld -q` links, and the build then *generates* the
+relocation tables (a compiled source's entries from its own object, in its own order) and the container (ELF header,
+program header, section header table, `.shstrtab`), assembles the whole file and compares it with the retail module by
+SHA-256. Only `.comment` is copied from the retail file (`container.bytes_from_retail`). The four Sony library modules
+keep their retail container and format-B relocation table. The format and the order of the tables are described in
+[RELOCATION.md](RELOCATION.md). `hstbuild.py` runs `hstmatch.py` on the sources first (`--reuse-isolation
+hstmatch.json` reuses a `hstmatch.py --json` run and its `build/` directories); one run per module at a time
+(`try/build/<module>.lock`).
+
+```
+python tools/hstbuild.py EBOOT.BIN                  # one module
+python tools/hstbuild.py EBOOT.BIN --shift 0x1000   # and the shifted build (gate 5, static half)
+python tools/hstbuild.py all --parallel 6           # all six
+```
+
+`--shift N` links the same objects again with N bytes of padding ahead of the code and N more ahead of the data (a
+multiple of 128 for the game modules) and compares every byte with an expectation computed from the retail image and its
+relocation tables alone. The report then says `shifted_build_passes`, `shifted_runtime: "not run"` (the runtime half is
+for Nakagawa Recomp and the PSP), the numeric-address census and `t3_source_bytes`. `--out-dir` and `--report-dir` keep
+an experiment away from the build's own files; `--mutate flip|drop|swap|addend` builds with one deliberately wrong
+scaffolding relocation record (a check that the comparisons catch it).
+
+Each run writes `try/build/<module>-report.json`: per section whether the link equals retail, per relocation table
+whether the generated table equals retail, the container parts, the sources reproduced in place (their bytes, with
+their relocation-table entries, are tier 2 for `hstprogress.py`), the sources that are EXACT alone but differ in the full
+link, the sources left out and why.
 
 ## Repository layout
 
@@ -127,7 +169,7 @@ shares `build/` with any concurrent run, so run one at a time.
 |---|---|
 | `src/` | The exact-matched sources, by module: `eboot/` (`EBOOT.BIN`), `sharing_main/` (`hstp_trans_main.prx`). Do not edit by hand without re-running the matcher. |
 | `wip/` | Near misses (within a few words of exact) with comments on what differs. Not built by `--all`, not verified. |
-| `data/` | `modules.json` (each module's description, SHA-256 and load segment) and `functions-<module>.txt` (its reviewed function boundaries). `tools/hstbootstrap.py` reads both. |
+| `data/` | `modules.json` (each module's description, SHA-256 and load segment) and `functions-<module>.txt` (its reviewed function boundaries). `tools/hstbootstrap.py` reads both. `blocked_functions.json` lists, by address only, the reviewed functions that a documented search found unmatchable with the available toolchain; `tools/hstattempts.py` and `tools/hstqueue.py` read it. |
 | `symbols/` | `symbols/<module>.txt`: `name = 0xaddr;` maps for names that are not address-named (C++ runtime, vtables, library functions). Append-only in practice. |
 | `include/` | Project-authored headers: `stddef.h`, `stdint.h` (the only headers the MWCC sources see, via `MWCIncludes`) and `stdarg.h`, `float.h`, `limits.h`, which stand in for the compiler's own headers when `hstnewlib.py` preprocesses newlib sources (`-nostdinc`). |
 | `tools/` | The matcher and the other tools, below. |
@@ -184,12 +226,15 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 | Tool | Purpose |
 |---|---|
 | `hstmatch.py` | The matcher: compile, link at the retail address, compare bytes exactly. |
+| `hstxverify.py` | Parse ELF artifacts with a second implementation, enforce reviewed function spans, and optionally rebuild with the pinned compiler and linker. |
+| `hstbuild.py` | The whole-module build: compiles the sources as `hstmatch.py` does, scaffolds every byte no source covers from the retail module, links in retail order and compares section by section and as a whole image (`docs/COMPLETION.md`, tier 2). See [Whole-module build](#whole-module-build). |
 | `hstdiff.py` | After a matcher run, print our disassembly next to retail's. |
 | `hstdis.py` | Disassemble retail functions by address (`hstdis.py 0xADDR`). |
 | `hstcc.py` | Compile one scratch C/C++ file with the retail MWCC flags and print its disassembly with relocations (quick probes; no header, no link; `--build` for experiments with other mwccpsp builds). |
 | `hstconfig.py` | Load, list and check `hst-config.json`; the other tools read their paths through it. |
 | `hstcov.py` | Exact-match coverage per module against the campaign ledger. |
 | `hstobjdiff.py` | Generate an [objdiff](https://github.com/encounter/objdiff) project (`objdiff.json`, objects under `build/objdiff/`) for per-function diffs against retail and a progress report; `check` verifies it against `hstmatch.py` and `hstcov.py` (see `docs/OBJDIFF.md`). |
+| `hstgate.py` | The fake-match gate (`docs/COMPLETION.md`, gate 2): refuses a source with `asm`/`__asm__` that emits instructions, assembler data directives, `#pragma asm`, hand-steered `.text` data or a non-header `#include`; a `register T x asm("$N")` binding is allowed and tagged as an idiom. `hstmatch.py`, `hstlint.py` and `hstlane.py harvest` all call it. |
 | `hstlint.py` | Quality report over `src/` (note kinds, matching idioms, conflicting declarations). |
 | `hstgen.py` | Translate Ghidra pseudocode into candidate C/C++ variants and install the exact ones. |
 | `hstcat.py` | Classify why generated candidates mismatched (frame, register allocation, ...). |
@@ -199,13 +244,17 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 | `hsttmpl.py` | Instantiate known container templates for every element size found in retail. |
 | `hstlib.py` | Find newlib functions in retail by compiled-code signature (`index`, `report`). |
 | `hstnewlib.py` | Turn `hstlib.py` hits into exact library sources (preprocessed with `-nostdinc`: newlib's headers plus `include/`, no compiler header text); `--regenerate` rebuilds installed library sources and their clones from the release, file and function their notes record. |
-| `hstqueue.py` | Build work batches for matching agents. |
+| `hstqueue.py` | Build work batches for matching agents: near misses first (ranked by code bytes per word left), then functions an earlier lane never reached, then fresh ones; never a matched or blocked function. |
+| `hstattempts.py` | Attempt ledger (`try/attempts.json`): one status per function (`exact`, `near`, `skip`, `untouched`, `blocked`) from the batches, the lanes' progress files, `src/`, `wip/` and `data/blocked_functions.json`; `blocked` validates the blocked list. |
+| `hstfamily.py` | Compiler-family predictor (Metrowerks game code versus Sony psp-gcc SDK code) for functions that have no source yet; `evaluate` reports its cross-validated accuracy, `predict` writes `try/family-predictions.json`, which `hstqueue.py --public-first` uses. |
 | `hstreview.py` | Local web app (127.0.0.1) for the owner's human review of matched sources. |
 | `hstsample.py` | Write the reference-function sample manifest (digests of sources, targets and toolchain). |
 | `hstorigin.py` | Classify every source by origin (`game`, `newlib`, `mw-runtime`, `sony-prx`, `gcc-unattributed`) and write `ORIGINS.json`; prints counts and bytes per class. |
 | `hstbootstrap.py` | `--out DIR --eboot FILE --sharing FILE`: check your decrypted executables against `data/modules.json` and write the campaign directory (ledger and input selection) the other tools read. |
 | `hstpublish.py` | `--out DIR`: copy the would-be public tree, without the Sony SDK classes and without anything gitignored, and print what was left out. Never touches a git remote. |
 | `hstpublic.py` | Maintainers: `sync` mirrors the `hstpublish.py` tree into the public-branch worktree and commits it; `check COMMIT` (run by the pre-push hook) refuses a commit that contains a non-publishable source. |
+| `hstprogress.py` | Progress against `docs/COMPLETION.md`: the tier ladder T1-T4 and the strict headline over all six modules' bytes, the public-eligible figures, toolchain-blocked and awaiting-review counts. `--write` refreshes `progress.json` (shields.io endpoint), `docs/progress.svg` and `docs/progress.csv`; run it before each push, then update the README progress section from its output. |
+| `hstport.py` | `python tools/hstport.py` compiles each EBOOT and Sharing source for Windows x64/x86 and Android arm64/armv7/x64 with a host ABI overlay; writes public/private byte-weighted reports under `try/`. `--targets` narrows iteration, `--parallel` sets compiler concurrency, and `--json` prints a summary. |
 | `hstreuse.py` | `check`: every tracked file is covered by exactly one effective `REUSE.toml` annotation; `newlib [--write]`: regenerate the newlib annotations and the table in `third_party/newlib/README.md`. |
 
 Tools that install sources (`hstgen`, `hstclone`, `hsttmpl`, `hstperm`, `hstnewlib`) write into `src/`, and `hstqueue`

@@ -63,6 +63,10 @@ KEYS: dict[str, Key] = {
     "ext_root": Key("host-new", "",
                     "Maintainers only: host directory for the isolated workspaces of external agent lanes "
                     "(not needed to build or verify)."),
+    "nakagawa_root": Key("host", "tools/import_audit_baseline.json",
+                         "Optional: a checkout of Nakagawa Recomp (github.com/Jstar269/nakagawa-recomp), whose runtime is "
+                         "the platform layer of the port milestones. hstmilestones.py reads its reviewed import audit "
+                         "(tools/import_audit_baseline.json) to measure the platform-layer milestone."),
     "mwcc_builds_dir": Key("host", "",
                            "Host directory with the decomp.me mwccpsp builds, <build>/mwccpsp.exe "
                            "(hstsample.py records its digest)."),

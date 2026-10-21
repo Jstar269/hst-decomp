@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Exact-match coverage per module, measured against the campaign ledger's function list.
 
-    python tools/hstcov.py [--json out.json]
+    python tools/hstcov.py [--json out.json]            PRESENCE-based: the sources present in src/ (fast, no proof)
+    python tools/hstcov.py --proofs [--json out.json]   PROOF-based: only the accepted ledger's ranges (tools/hstproof.py)
 
 Denominator: every function the ledger lists for the module (any boundary status), in code bytes.
 Numerator: functions whose start has an exact source in src/ (sources are only installed after hstmatch
@@ -23,15 +24,25 @@ import hstmatch as M
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--json", type=Path)
+    ap.add_argument("--proofs", action="store_true",
+                    help="count only accepted-ledger ranges (tools/hstproof.py) instead of the sources present in src/")
     args = ap.parse_args()
     ledger = json.loads((M.CAMPAIGN / "ledger" / "campaign.json").read_text(encoding="utf-8-sig"))
     spans = defaultdict(list)
     kinds = defaultdict(lambda: defaultdict(int))
-    for p in (M.ROOT / "src").rglob("*"):
-        if p.suffix in (".c", ".cpp"):
-            h = M.parse_header(p)
-            spans[h["module"]].append((h["start"], h["end"]))
-            kinds[h["module"]][h.get("cc", "mwcc219").split("-")[0][:6]] += 1
+    if args.proofs:
+        import hstproof
+        for p in hstproof.accepted_proofs():
+            spans[p["module"]].append((int(p["start"], 16), int(p["end"], 16)))
+            kinds[p["module"]][p["cc"].split("-")[0][:6]] += 1
+    else:
+        for p in (M.ROOT / "src").rglob("*"):
+            if p.suffix in (".c", ".cpp"):
+                h = M.parse_header(p)
+                spans[h["module"]].append((h["start"], h["end"]))
+                kinds[h["module"]][h.get("cc", "mwcc219").split("-")[0][:6]] += 1
+    print("mode: " + ("accepted ledger (proofs from verification runs)" if args.proofs else
+                      "presence-based (sources present in src/; fast, not proofs: --proofs counts the accepted ledger)"))
     rows = []
     tot = defaultdict(int)
     for m in ledger["modules"]:

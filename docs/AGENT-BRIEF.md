@@ -94,6 +94,10 @@ If a function ends within ~6 differing words but not exact, save your best sourc
 `wip/<short_name>_<addr8>.cpp` (same header) with trailing `//` comments: what differs and what you ruled out.
 
 ## Never
+- Put machine code in a source: no `asm`/`__asm__` statements that emit instructions, no `.word`/`.byte`/`.incbin`, no
+  `#pragma asm`, no data steered into `.text`, no `extra=` header in `src/`. `hstmatch.py` reports such a source as
+  EXACT_FAILS_GATE and the harvest refuses it (`tools/hstgate.py`). A `register T x asm("$2")` variable binding is the only
+  allowed use of `asm` (it is tagged as an idiom).
 - Touch anything outside your try directory, the src/wip files you create, appends to MWCC-NOTES.md, and
   symbol-file appends as described above.
 - Edit `tools/`, edit or delete existing lines in `symbols/` (appending as described above is allowed), anything under `<campaign_root>` (the campaign directory named in `hst-config.json`), ledgers, or key files; use git;

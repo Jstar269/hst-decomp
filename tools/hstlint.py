@@ -12,6 +12,8 @@ Checks:
   selfassign  `x = x;`
   goto        `goto` statements
   idiom-noted note line declares a "matching idiom"
+  gate        the fake-match gate of tools/hstgate.py (asm that emits instructions, .word/.byte/.incbin, code-emitting
+              pragmas, extra= headers); gate-idiom lists the sources with an allowed register asm binding
   protos      functions/globals declared with different types in different sources (whole-tree
               consistency: a unified decomp needs one declaration per symbol)
 """
@@ -25,6 +27,7 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import hstgate
 import hstmatch as M
 
 # The note kinds the campaign importer accepts (campaign reports/import_hst_sources_v14.py KIND_PATTERNS; keep
@@ -67,6 +70,7 @@ def main() -> int:
     args = ap.parse_args()
     flags = defaultdict(list)
     kinds = defaultdict(int)
+    gate_kinds = defaultdict(int)
     decls = defaultdict(lambda: defaultdict(list))
     for p in sorted((M.ROOT / "src").rglob("*")):
         if p.suffix not in (".c", ".cpp"):
@@ -85,6 +89,13 @@ def main() -> int:
                 flags["lang"].append(rel)
         except Exception:  # noqa: BLE001 - any parse failure is a finding
             flags["header"].append(rel)
+        gate = hstgate.check_file(p)
+        for f in gate:
+            gate_kinds[f.kind] += 1
+        if hstgate.refusals(gate):
+            flags["gate"].append(rel)
+        if any(f.severity == hstgate.IDIOM for f in gate):
+            flags["gate-idiom"].append(rel)
         comments = re.findall(r"/\*.*?\*/", text[:4000], re.S)
         note = comments[1] if len(comments) > 1 and len(lines) > 1 and lines[1].startswith("/*") else ""
         kind = next((k for k, rx in NOTE_KINDS if rx.search(note)), None)
@@ -112,7 +123,7 @@ def main() -> int:
             decls[(module, name)][norm(f"{ret}{tail}")].append(rel)
     conflicts = {f"{mod}:{name}": {sig: files for sig, files in sigs.items()}
                  for (mod, name), sigs in decls.items() if len(sigs) > 1}
-    report = {"sources": sum(kinds.values()), "note_kinds": dict(kinds),
+    report = {"sources": sum(kinds.values()), "note_kinds": dict(kinds), "gate_findings": dict(gate_kinds),
               "flags": {k: len(v) for k, v in flags.items()},
               "declared_symbols": len(decls), "conflicting_symbols": len(conflicts),
               "files": {k: v for k, v in flags.items()}, "conflicts": conflicts}
@@ -122,7 +133,9 @@ def main() -> int:
     if args.show:
         for f in flags.get(args.show, []):
             print(f)
-    return 0
+    if flags.get("gate"):
+        print(f"GATE: {len(flags['gate'])} source(s) fail the fake-match gate (python tools/hstgate.py --all)")
+    return 1 if flags.get("gate") else 0
 
 
 if __name__ == "__main__":

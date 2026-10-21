@@ -7,6 +7,7 @@
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](#license)
 [![REUSE status](https://api.reuse.software/badge/github.com/Jstar269/hst-decomp)](https://api.reuse.software/info/github.com/Jstar269/hst-decomp)
 [![Platform: PSP (UCUS98701)](https://img.shields.io/badge/PSP-UCUS98701-003791.svg)](#what-this-is)
+[![Strict progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Jstar269/hst-decomp/main/progress.json)](docs/COMPLETION.md)
 
 </div>
 
@@ -19,16 +20,31 @@ does not go in `src/`.
 
 ## Progress
 
-**10,551 exact sources** (10,552 functions) and 283 near misses, measured 2026-10-21 with `python tools/hstcov.py`
+![Progress: the strict figure, the tiers, and the state of every byte of each module](docs/progress.svg)
+
+**10,888 exact sources** (10,889 functions) and 325 near misses, measured 2026-10-21 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,287 / 9,804 | 715,228 / 2,849,076 | 25.104 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,265 / 9,830 | 696,072 / 2,914,004 | 23.887 % |
-| **Both** | 10,552 / 19,634 | 1,411,300 / 5,763,080 | 24.489 % |
+| `EBOOT.BIN` | 5,466 / 9,804 | 801,904 / 2,849,076 | 28.146 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,423 / 9,830 | 769,400 / 2,914,004 | 26.404 % |
+| **Both** | 10,889 / 19,634 | 1,571,304 / 5,763,080 | 27.265 % |
 
 Every source is re-verified with `python tools/hstmatch.py` before it is published.
+
+These are tier-1 figures: functions that match exactly when each is compiled and linked on its own. The project's
+100% is stricter: the whole executables rebuilt byte for byte from source, data included, relocatable and reviewed.
+[`docs/COMPLETION.md`](docs/COMPLETION.md) defines it and reports every tier.
+
+![Milestones: what the source tree can already do, from every byte classified to playing on Windows and Android](docs/progress-milestones.svg)
+
+![Where in the executables: matched code, lane work, near misses, blocked functions and data, by address](docs/progress-map.svg)
+
+![Progress over time: the tier-1 figure and the strict figure](docs/progress-history.svg)
+
+`python tools/hstprogress.py --write` refreshes the four images, `docs/milestones.json`, `progress.json` (the badge) and the history in
+`docs/progress.csv`.
 
 ## Get started
 

@@ -1,0 +1,110 @@
+{
+ "schema": "hst-decomp.milestone-record.v1",
+ "generated": "2026-10-21",
+ "milestones": [
+  {
+   "id": "inventory",
+   "title": "Every byte classified",
+   "progress": 78.82338875071264,
+   "detail": "7,739,812 of 9,819,182 region bytes reviewed; 33 candidate spans open",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "game-code",
+   "title": "Game code matched",
+   "progress": 27.54518394379135,
+   "detail": "1,571,304 of 5,704,460 code bytes (58,620 B of Sony code kept out of this repository are not counted)",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "all-code",
+   "title": "All code matched",
+   "progress": 27.54518394379135,
+   "detail": "1,571,304 of 5,704,460 code bytes (185,228 B of Sony code kept out of this repository are not counted)",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "psp-rebuild",
+   "title": "PSP rebuild",
+   "progress": 0.0,
+   "detail": "no whole-module build report yet (tools/hstbuild.py)",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "psp-moddable",
+   "title": "Moddable PSP rebuild",
+   "progress": 0.0,
+   "detail": "no relocated build report yet (tools/hstbuild.py)",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "full-rebuild",
+   "title": "Every module rebuilt",
+   "progress": 0.0,
+   "detail": "no whole-module build report yet (tools/hstbuild.py)",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "portable-source",
+   "title": "Portable source",
+   "progress": 14.815565364644506,
+   "detail": "845,148 of 5,704,460 code bytes are source that compiles for all 5 host targets (6,694 of 10,828 sources)",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "platform-layer",
+   "title": "Platform layer",
+   "progress": 3.4615384615384617,
+   "detail": "9 of 260 imported system functions complete in Nakagawa; 211 partial or unreviewed, 4 refused or fake, 36 missing",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "windows-hybrid",
+   "title": "Plays on Windows, hybrid",
+   "progress": 0.0,
+   "detail": "no recorded scenario yet",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "windows",
+   "title": "Plays on Windows from source",
+   "progress": 0.0,
+   "detail": "no recorded scenario yet",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "android-hybrid",
+   "title": "Plays on Android, hybrid",
+   "progress": 0.0,
+   "detail": "no recorded scenario yet",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "android",
+   "title": "Plays on Android from source",
+   "progress": 0.0,
+   "detail": "no recorded scenario yet",
+   "reached": null,
+   "regressed": false
+  },
+  {
+   "id": "strict",
+   "title": "Strict 100%",
+   "progress": 0.0,
+   "detail": "every gate of docs/COMPLETION.md",
+   "reached": null,
+   "regressed": false
+  }
+ ]
+}

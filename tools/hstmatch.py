@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Private HST decomp matcher: compile, link at the retail address, compare bytes exactly.
+A source that compares equal but fails the fake-match gate (tools/hstgate.py: asm that emits instructions, data
+directives, code-emitting pragmas, `extra=` in src/) is reported as EXACT_FAILS_GATE, never as EXACT.
 
 Each source file starts with a header comment:
     /* HSTMATCH module=EBOOT.BIN start=0x001a4bc8 end=0x001a4c1c symbol=FUN_001a4bc8 lang=c99 */
@@ -28,6 +30,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hstconfig as CFG  # noqa: E402
+import hstgate  # noqa: E402
 
 # Machine-specific locations (campaign root, PSPDEV binutils, compiler kits) come from hst-config.json
 # (see tools/hstconfig.py). They are looked up when first used, so `--help` and the local tools work
@@ -250,9 +253,12 @@ def main() -> int:
                          "(a full rebuild shares build/ with any concurrent run)")
     paths = args.paths or sorted(p for p in (ROOT / "src").rglob("*") if p.suffix in (".c", ".cpp"))
     jobs = []
+    # HSTMATCH_BUILD_ROOT: a different directory for the build products (tools/hstpromote.py gives every verification
+    # run a fresh one, so no artifact of an earlier run can be read); the comparison is the same
+    build_root = Path(os.environ["HSTMATCH_BUILD_ROOT"]) if os.environ.get("HSTMATCH_BUILD_ROOT") else ROOT / "build"
     for p in paths:
         h = parse_header(p)
-        out = ROOT / "build" / h["module"] / f"{p.resolve().parent.name}__{p.stem}"
+        out = build_root / h["module"] / f"{p.resolve().parent.name}__{p.stem}"
         out.mkdir(parents=True, exist_ok=True)
         for f in out.glob("*"):
             f.unlink()
@@ -378,6 +384,10 @@ def main() -> int:
                         status, detail = "SECTION_MISMATCH", section_diff
                     elif body == target:
                         status, detail = ("EXACT_EXTRA_FLAGS" if h.get("extra") or args.flags is not None else "EXACT"), ""
+                        # gate 2 of docs/COMPLETION.md: bytes pasted in as asm or data directives are not a match
+                        gate = hstgate.refusals(hstgate.check_file(p))
+                        if status == "EXACT" and gate:
+                            status, detail = "EXACT_FAILS_GATE", hstgate.summary(gate)
                     else:
                         n = len(target) // 4
                         diffs = [i for i in range(max(len(body), len(target)) // 4)
