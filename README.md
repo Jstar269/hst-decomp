@@ -19,14 +19,14 @@ does not go in `src/`.
 
 ## Progress
 
-**10,469 exact sources** (10,470 functions) and 256 near misses, measured 2026-10-20 with `python tools/hstcov.py`
+**10,551 exact sources** (10,552 functions) and 283 near misses, measured 2026-10-21 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,255 / 9,804 | 705,552 / 2,849,076 | 24.764 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,215 / 9,830 | 680,744 / 2,914,004 | 23.361 % |
-| **Both** | 10,470 / 19,634 | 1,386,296 / 5,763,080 | 24.055 % |
+| `EBOOT.BIN` | 5,287 / 9,804 | 715,228 / 2,849,076 | 25.104 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,265 / 9,830 | 696,072 / 2,914,004 | 23.887 % |
+| **Both** | 10,552 / 19,634 | 1,411,300 / 5,763,080 | 24.489 % |
 
 Every source is re-verified with `python tools/hstmatch.py` before it is published.
 

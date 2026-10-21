@@ -10,17 +10,17 @@ candidate spans still open. Runtime and static module surveys found no other gam
 - Matching proves the *compiled bytes*, not that the source is what the developers wrote. Names are mostly the
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
-- Of the 10,469 sources, 6,410 are address-substituted **clones** of another matched source (retail contains the same
+- Of the 10,551 sources, 6,462 are address-substituted **clones** of another matched source (retail contains the same
   code many times), 2,136 are mechanical translations of Ghidra pseudocode, 723 are such translations corrected by
-  hand, 1,001 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
-  translated from newlib sources (18 more are clones of them, counted among the clones).
-- 81 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
+  hand, 1,031 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
+  translated from newlib sources (20 more are clones of them, counted among the clones).
+- 83 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
   compiled with Metrowerks `mwccpsp`.
 - Some SDK functions use the Allegrex `ins rd,$zero,...` instruction, which neither published Sony `psp-gcc` kit
   emits (nor does a current GCC in the same way); they cannot be matched until a later kit is available (see
   `docs/MWCC-NOTES.md`).
 - `python tools/hstlint.py` reports how the sources read (matching idioms such as `volatile`, `goto`, duplicated
-  conditions), and 860 symbols are declared with differing types in different sources. Cleaning that up is future
+  conditions), and 875 symbols are declared with differing types in different sources. Cleaning that up is future
   work.
 
 Not published here: reconstructions of Sony SDK code, that is, the `psp-gcc`-built SDK runtime of the two
