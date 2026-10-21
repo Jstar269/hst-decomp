@@ -170,6 +170,13 @@ def retarget(text: str, e_start: int, t_start: int, t_end: int, calls: dict[int,
     head, rest = body.split("\n", 1)
     head = re.sub(r"start=0x[0-9a-fA-F]+", f"start=0x{t_start:08x}", head)
     head = re.sub(r"end=0x[0-9a-fA-F]+", f"end=0x{t_end:08x}", head)
+    # a jump table's base is built with lui/addiu, so the placed .rodata moves with the data mapping
+    rodata = re.search(r"rodata=0x([0-9a-fA-F]+)", head)
+    if rodata:
+        try:
+            head = head.replace(rodata.group(0), f"rodata=0x{map_value('DAT', int(rodata.group(1), 16), e_start, t_start, calls, data):08x}")
+        except KeyError:
+            pass  # no data reference reveals the clone's table: keep the exemplar's placement
     return head + "\n" + rest
 
 

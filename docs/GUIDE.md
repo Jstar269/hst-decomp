@@ -186,6 +186,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 | `hstmatch.py` | The matcher: compile, link at the retail address, compare bytes exactly. |
 | `hstdiff.py` | After a matcher run, print our disassembly next to retail's. |
 | `hstdis.py` | Disassemble retail functions by address (`hstdis.py 0xADDR`). |
+| `hstcc.py` | Compile one scratch C/C++ file with the retail MWCC flags and print its disassembly with relocations (quick probes; no header, no link; `--build` for experiments with other mwccpsp builds). |
 | `hstconfig.py` | Load, list and check `hst-config.json`; the other tools read their paths through it. |
 | `hstcov.py` | Exact-match coverage per module against the campaign ledger. |
 | `hstobjdiff.py` | Generate an [objdiff](https://github.com/encounter/objdiff) project (`objdiff.json`, objects under `build/objdiff/`) for per-function diffs against retail and a progress report; `check` verifies it against `hstmatch.py` and `hstcov.py` (see `docs/OBJDIFF.md`). |

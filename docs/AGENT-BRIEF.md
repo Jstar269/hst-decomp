@@ -24,6 +24,8 @@ sources that compile to the exact retail bytes. Work only as described here.
   Use `--parallel 4` at most. `--flags` and header `extra=` are experiments only and never count.
 - `python tools/hstdiff.py <file>` (after hstmatch) prints our disassembly next to retail's.
 - `python tools/hstdis.py 0xADDR` prints retail disassembly of any reviewed function (callees too).
+- `python tools/hstcc.py <scratch.c|.cpp>` compiles any scratch file with the same flags and prints its
+  disassembly with relocations: use it to test one idiom (does it fold? which vtable offset?) in isolation.
 - Every source starts with a header line, e.g.
   `/* HSTMATCH module=EBOOT.BIN start=0x0011d894 end=0x0011dad8 symbol=FUN_0011d894 lang=c++ */`
   (`lang=c99` for C). `symbol` must be the name your source defines for the function.

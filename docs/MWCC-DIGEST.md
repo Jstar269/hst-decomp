@@ -47,6 +47,7 @@ Topic digest of `MWCC-NOTES.md` (also psp-gcc/newlib), 2026-10-15. `MWCC-NOTES.m
 - A global read in one switch case must be read inside it (at function top = prologue load); two switches' jump tables land in .rodata in REVERSE order (`rodata=` = the second's) (0x88a44).
 - Literal operand of inline `min(const T&,const T&)` (`min(a.max_size(),(unsigned)0x7fffffff)`) = 4-byte .data constant (hstmatch UNPLACED_SECTION .data) (0x192a3c, 0xdfcb0); ret's stack temp (`sw v0,24(sp)` in slot) = inline function returning the constant by value (0x192a3c).
 - Anonymous .data (array initialisers, const& literal temps, then strings in use order) placed with `data=` (0x1a0148); literals + first-defined `static int sock=-1;` reproduce the TU .data (0xbfb94).
+- Decode a lui/lo pair with the SIGN-EXTENDED low half before naming a DAT_: `lui 0x34; lw -31032` = 0x3386c8, not 0x3486c8 (ds10, ds4 0x1233e0; NOTES 2026-10-21).
 
 ## 5. Branches: conditions, if/else, switch, ternary, returns
 - First `||` operand `x<y` goes via a reg, `y>x`/`y<=x` use `at`; `Greater()(n,cap)` for `Less()(cap,n)` fixed it (0xd8c98).
@@ -203,3 +204,4 @@ Topic digest of `MWCC-NOTES.md` (also psp-gcc/newlib), 2026-10-15. `MWCC-NOTES.m
 - 0x1aa450 (wip, 15 words, only s0/s1 naming): the incoming param always gets the HIGHER saved reg than a local holding a call result live across the same calls (p=s1, local=s0), regardless of use counts, live range, declaration order, register/typed/struct params, `self=arg` copies, inline wrappers, dummy params (reverse definition order U5: p=s2,b=s1,c=s0); ret has param_1 in s0, locals in s1, param copy in the first jal's slot; no source shape found. TENSION with section 7's declaration-order rule (which held for locals).
 - 0x195bb0/0x1a24ac twins need a same-file static helper hstmatch can't place (wip/sync_player_profile_001a24ac.cpp); 0x103068/0x103128/0x103480 wait for `__ptmf_scall` in symbols.
 - GCC objects 0x3f8e4/0x3f90c, 0x8544/0x855c, 0x31290/0x313a4 (bb-reorder layout unsolved: duplicated flag-test blocks, packed paths as fall-through; source order, branch polarity, C vs C++, gcc131/171, O1-O3/Os didn't change it), 0x7b84c/0x7d00c, 0x299694: blocked on the retail psp-gcc.
+- DEAD END, do not probe: ret's unfolded `lui;addiu %lo;lw 0(vN)` global read. ~65 spellings and all eleven mwccpsp builds 121-219 fold it to `lui;lw %lo`; 0x22060c, 0x21f0f8, 0xf1828, 0xf2024, 0x2239ec, 0x21f5c4, 0x15dbc8 stay 1 word short per access (NOTES 2026-10-21).
