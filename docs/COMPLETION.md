@@ -48,9 +48,9 @@ denominator.
 
 | Tier | A byte is in this tier when | Measured 2026-10-21 (public sources) |
 | --- | --- | --- |
-| T1 | its function matches exactly in isolation (`hstmatch.py`) | 16.9% of all 9,275,840 bytes (code only; data is not matched yet) |
-| T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | 15.3% (1,423,485 B; `tools/hstbuild.py`, every module's image identical to retail, the rest scaffolding). The charts show T2 again once the relocated-build work is reviewed |
-| T3 | T2, and the shifted build passes (gate 5) | 0%: the static check (`hstbuild.py --shift`) is built; no source counts until the source-level numeric-address scan has run on it |
+| T1 | its function matches exactly in isolation (`hstmatch.py`) | 16.968% (1,573,968 B; code only, matched one function at a time; data is not counted in this tier) |
+| T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | 21.673% (2,010,373 B; code, data and relocation-table bytes the whole-module build produces from source, so it can exceed T1; retail-derived scaffolding is never counted; current public build reports, both game-module images identical and all generated relocation tables equal) |
+| T3 | T2, and the shifted build passes (gate 5) | 18.221% (1,690,197 B; shifted static checks and numeric-address scans passed for counted sources; shifted runtime not run) |
 | T4 = strict | T3, and the source is reviewed (gate 7) | 0% |
 
 Current figures are drawn in [`progress.svg`](progress.svg) and [`progress-map.svg`](progress-map.svg) and computed by

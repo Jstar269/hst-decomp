@@ -11,9 +11,9 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
 - Matching proves the *compiled bytes*, not that the source is what the developers wrote. Names are mostly the
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
-- Of the 10,888 sources, 6,620 are address-substituted **clones** of another matched source (retail contains the same
+- Of the 10,898 sources, 6,625 are address-substituted **clones** of another matched source (retail contains the same
   code many times), 2,136 are mechanical translations of Ghidra pseudocode, 744 are such translations corrected by
-  hand, 1,189 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
+  hand, 1,194 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
   translated from newlib sources (19 more are clones of them, counted among the clones).
 - 82 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
   compiled with Metrowerks `mwccpsp`.
@@ -21,7 +21,7 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
   emits (nor does a current GCC in the same way); they cannot be matched until a later kit is available (see
   `docs/MWCC-NOTES.md`).
 - `python tools/hstlint.py` reports how the sources read (matching idioms such as `volatile`, `goto`, duplicated
-  conditions), and 1,065 symbols are declared with differing types in different sources. Cleaning that up is future
+  conditions), and 1,067 symbols are declared with differing types in different sources. Cleaning that up is future
   work.
 
 Not published here: reconstructions of Sony SDK code, that is, the `psp-gcc`-built SDK runtime of the two
@@ -156,7 +156,10 @@ multiple of 128 for the game modules) and compares every byte with an expectatio
 relocation tables alone. The report then says `shifted_build_passes`, `shifted_runtime: "not run"` (the runtime half is
 for Nakagawa Recomp and the PSP), the numeric-address census and `t3_source_bytes`. `--out-dir` and `--report-dir` keep
 an experiment away from the build's own files; `--mutate flip|drop|swap|addend` builds with one deliberately wrong
-scaffolding relocation record (a check that the comparisons catch it).
+scaffolding relocation record (a check that the comparisons catch it). For compiled-object mutation checks,
+`--mutate-scope compiled --mutate addend` changes a relocation site's in-place addend, while
+`--mutate-scope compiled --mutate instruction` changes a non-relocated text word; both report the source path and
+address.
 
 Each run writes `try/build/<module>-report.json`: per section whether the link equals retail, per relocation table
 whether the generated table equals retail, the container parts, the sources reproduced in place (their bytes, with

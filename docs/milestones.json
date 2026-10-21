@@ -13,40 +13,40 @@
   {
    "id": "game-code",
    "title": "Game code matched",
-   "progress": 27.54518394379135,
-   "detail": "1,571,304 of 5,704,460 code bytes (58,620 B of Sony code kept out of this repository are not counted)",
+   "progress": 27.591884244959207,
+   "detail": "1,573,968 of 5,704,460 code bytes (58,620 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "all-code",
    "title": "All code matched",
-   "progress": 27.54518394379135,
-   "detail": "1,571,304 of 5,704,460 code bytes (185,228 B of Sony code kept out of this repository are not counted)",
+   "progress": 27.591884244959207,
+   "detail": "1,573,968 of 5,704,460 code bytes (185,228 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-rebuild",
    "title": "PSP rebuild",
-   "progress": 0.0,
-   "detail": "no whole-module build report yet (tools/hstbuild.py)",
+   "progress": 22.157392340563607,
+   "detail": "2,010,373 of 9,073,148 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-moddable",
    "title": "Moddable PSP rebuild",
-   "progress": 0.0,
-   "detail": "no relocated build report yet (tools/hstbuild.py)",
+   "progress": 18.62856199413919,
+   "detail": "1,690,197 of 9,073,148 image bytes from source in the relocated build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "full-rebuild",
    "title": "Every module rebuilt",
-   "progress": 0.0,
-   "detail": "no whole-module build report yet (tools/hstbuild.py)",
+   "progress": 22.157392340563607,
+   "detail": "2,010,373 of 9,073,148 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },

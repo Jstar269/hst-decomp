@@ -2,7 +2,8 @@
 """Whole-module build: compile every source, scaffold the rest from the retail bytes, link in retail order, compare.
 
     python tools/hstbuild.py EBOOT.BIN [--parallel 6] [--private] [--src-dir DIR ...] [--reuse-isolation hstmatch.json]
-                             [--shift N] [--out-dir DIR --report-dir DIR] [--mutate KIND --mutate-index K]
+                             [--shift N] [--out-dir DIR --report-dir DIR] [--mutate KIND --mutate-index K
+                              --mutate-scope scaffold|compiled]
 
 This is the step from "each function matches on its own" (tools/hstmatch.py) toward a module that is rebuilt from
 source (docs/COMPLETION.md, tiers 2 and 3). For one module it
@@ -733,7 +734,7 @@ def masked(word: int, rtype: int) -> int:
     return word & 0xFFFF0000
 
 
-MUTATIONS = ("flip", "drop", "swap", "addend")
+MUTATIONS = ("flip", "drop", "swap", "addend", "instruction")
 
 
 def mutate_records(recs: list[RetailRel], kind: str, index: int) -> tuple[list[RetailRel], dict]:
@@ -767,6 +768,66 @@ def mutate_records(recs: list[RetailRel], kind: str, index: int) -> tuple[list[R
         raise ValueError(kind)
     return recs, {"kind": kind, "index": index, "table": r.table, "entry": r.index, "site": f"0x{r.site:08x}",
                   "type": RELOC_NAMES.get(r.type, r.type)}
+
+
+def mutate_compiled_object(prepared: list[Prepared], obj_dir: Path, kind: str, index: int) -> dict:
+    """Change one compiled object's relocation-site addend or one non-relocated text word.
+
+    These are test-only corruptions: the default link and shifted link must both notice them. The relocation-site
+    variant is restricted to R_MIPS_32 and R_MIPS_LO16 records in compiled text so it changes the word represented
+    by an entry in a compiled source's block. The instruction variant skips every relocation site so the linker
+    cannot overwrite the changed word.
+    """
+    if kind not in ("addend", "instruction"):
+        raise ValueError(f"compiled-object mutation does not support {kind!r}")
+    objects = []
+    for q in prepared:
+        path = obj_dir / f"{q.uid}.o"
+        elf = parse_elf(path.read_bytes())
+        text_ids = [i for i, sec in enumerate(elf.secs) if sec.name == ".hst.text" and sec.data is not None]
+        if not text_ids:
+            continue
+        bases = dict(zip(text_ids, aligned_layout([(elf.secs[i].size, elf.secs[i].align) for i in text_ids])))
+        sites: set[int] = set()
+        for relsec in elf.secs:
+            if relsec.type != SHT_REL or relsec.info not in bases or not relsec.data:
+                continue
+            for off in range(0, len(relsec.data), 8):
+                reloc_off, info = struct.unpack_from("<II", relsec.data, off)
+                sites.add(q.text_addr + bases[relsec.info] + reloc_off)
+                rtype = info & 0xFF
+                if kind == "addend" and rtype in (R.R_MIPS_32, R.R_MIPS_LO16):
+                    objects.append((q, path, elf, relsec.info, reloc_off, rtype,
+                                    q.text_addr + bases[relsec.info] + reloc_off))
+        if kind == "instruction":
+            for secid in text_ids:
+                sec = elf.secs[secid]
+                for off in range(0, (len(sec.data) or 0) - 3, 4):
+                    site = q.text_addr + bases[secid] + off
+                    if site not in sites:
+                        objects.append((q, path, elf, secid, off, 0, site))
+    if not objects:
+        raise ValueError(f"no compiled text candidates for {kind}")
+    q, path, elf, secid, off, rtype, site = objects[index % len(objects)]
+    sec = elf.secs[secid]
+    data = bytearray(sec.data or b"")
+    word, = struct.unpack_from("<I", data, off)
+    if kind == "addend":
+        if rtype == R.R_MIPS_32:
+            changed = (word + 4) & 0xFFFFFFFF
+        else:
+            changed = (word & 0xFFFF0000) | ((word + 4) & 0xFFFF)
+        type_name = RELOC_NAMES[rtype]
+        table = ".rel.text"
+    else:
+        changed = word ^ 1
+        type_name = "instruction word"
+        table = None
+    struct.pack_into("<I", data, off, changed)
+    sec.data = bytes(data)
+    path.write_bytes(build_elf(elf))
+    return {"kind": kind, "scope": "compiled", "index": index, "path": q.path,
+            "table": table, "site": f"0x{site:08x}", "type": type_name}
 
 
 # --------------------------------------------------------------------------------------------------------------
@@ -985,7 +1046,10 @@ def link_and_compare(module: str, retail: Retail, prepared: list[Prepared], out_
     scaffold_recs = [r for r in recs if in_scaffold(r.site)]
     fixed = [r for r in recs if not in_scaffold(r.site)]
     if getattr(args, "mutate", None):
-        scaffold_recs, mutation = mutate_records(scaffold_recs, args.mutate, args.mutate_index)
+        if getattr(args, "mutate_scope", "scaffold") == "compiled":
+            mutation = mutate_compiled_object(prepared, obj_dir, args.mutate, args.mutate_index)
+        else:
+            scaffold_recs, mutation = mutate_records(scaffold_recs, args.mutate, args.mutate_index)
         report["mutation"] = mutation
         print(f"  MUTATION {mutation}")
     plan = sorted(scaffold_recs + fixed, key=lambda r: (r.table, r.index))
@@ -1494,12 +1558,20 @@ def main() -> int:
                          "multiple of the module's largest section alignment) and compare it byte for byte with the "
                          "expectation computed from the retail image and its relocation tables (gate 5, static half)")
     ap.add_argument("--mutate", choices=MUTATIONS,
-                    help="testing only: build with one deliberately wrong scaffolding relocation record (see mutate_records)")
+                    help="testing only: inject one corruption; instruction requires --mutate-scope compiled")
     ap.add_argument("--mutate-index", type=int, default=0, help="which eligible record --mutate changes")
+    ap.add_argument("--mutate-scope", choices=("scaffold", "compiled"), default="scaffold",
+                    help="testing only: mutate scaffolding records (default), or a compiled object's addend/instruction")
     ap.add_argument("--out-dir", help="directory for the build products instead of build/whole (an experiment that must not "
                                       "disturb a running build of the same module)")
     ap.add_argument("--report-dir", help="directory for the report instead of try/build (read by hstprogress)")
     args = ap.parse_args()
+    if args.mutate_scope == "compiled" and args.mutate not in ("addend", "instruction"):
+        ap.error("--mutate-scope compiled supports only addend or instruction")
+    if args.mutate == "instruction" and args.mutate_scope != "compiled":
+        ap.error("--mutate instruction requires --mutate-scope compiled")
+    if args.mutate_scope != "scaffold" and args.mutate is None:
+        ap.error("--mutate-scope requires --mutate")
     if args.module == "all":
         led = json.loads((M.CAMPAIGN / "ledger" / "campaign.json").read_text(encoding="utf-8-sig"))
         return max(build(m["name"], args) for m in led["modules"])

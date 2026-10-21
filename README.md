@@ -1,8 +1,15 @@
 <div align="center">
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/brand/hst-decomp-mark-dark.svg">
+  <img src="docs/images/brand/hst-decomp-mark-light.svg" width="96" height="96" alt="hst-decomp mark">
+</picture>
+
 # Hot Shots Tennis: Get a Grip — matching decompilation
 
 **C and C++ that compiles back to the exact bytes of the PSP game, one function at a time.**
+
+A Nakagawa project, alongside [Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp), the PSP-to-native recompiler and player.
 
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](#license)
 [![REUSE status](https://api.reuse.software/badge/github.com/Jstar269/hst-decomp)](https://api.reuse.software/info/github.com/Jstar269/hst-decomp)
@@ -22,14 +29,14 @@ does not go in `src/`.
 
 ![Progress: the strict figure, the tiers, and the state of every byte of each module](docs/progress.svg)
 
-**10,888 exact sources** (10,889 functions) and 325 near misses, measured 2026-10-21 with `python tools/hstcov.py`
+**10,898 exact sources** (10,899 functions) and 329 near misses, measured 2026-10-21 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,466 / 9,804 | 801,904 / 2,849,076 | 28.146 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,423 / 9,830 | 769,400 / 2,914,004 | 26.404 % |
-| **Both** | 10,889 / 19,634 | 1,571,304 / 5,763,080 | 27.265 % |
+| `EBOOT.BIN` | 5,471 / 9,804 | 803,236 / 2,849,076 | 28.193 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,428 / 9,830 | 770,732 / 2,914,004 | 26.449 % |
+| **Both** | 10,899 / 19,634 | 1,573,968 / 5,763,080 | 27.311 % |
 
 Every source is re-verified with `python tools/hstmatch.py` before it is published.
 
@@ -55,10 +62,20 @@ These are tier-1 figures: functions that match exactly when each is compiled and
 To match a new function, read [CONTRIBUTING.md](CONTRIBUTING.md) and the compiler lessons in
 [`docs/MWCC-NOTES.md`](docs/MWCC-NOTES.md).
 
+## The game this repository decompiles, running natively through Nakagawa Recomp
+
+[Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp) runs the game's own PSP code natively on Windows, and
+this presentation capture shows the title in that build. It is the only game imagery in this repository, under
+[`docs/media/`](docs/media), and it is not game data.
+
+![Title screen of Hot Shots Tennis: Get a Grip running natively in Nakagawa Recomp](docs/media/hst-title-screen.png)
+
+<div align="center"><sub>Hot Shots Tennis: Get a Grip belongs to its publisher. This repository contains no game data: you need your own copy of the game, and nothing here downloads one.</sub></div>
+
 ## Legal
 
-No game assets, executables, keys, decryption code or compilers are in this repository, and nothing in it lets you
-obtain the game. The compilers come from [decomp.me's kits](https://github.com/decompme/compilers) and
+No game assets, executables, keys, decryption code or compilers are in this repository, except the presentation
+screenshot in [`docs/media/`](docs/media) described above, and nothing in it lets you obtain the game. The compilers come from [decomp.me's kits](https://github.com/decompme/compilers) and
 [wibo](https://github.com/decompals/wibo) under their vendors' licences ([THIRD_PARTY.md](THIRD_PARTY.md)). This is an
 unofficial fan project, not affiliated with or endorsed by the game's developer or publisher; the game and its
 trademarks belong to their owners.

@@ -418,6 +418,40 @@ class MutationTests(unittest.TestCase):
         addend, _ = B.mutate_records(self.RECS, "addend", 0)
         self.assertEqual(addend[1].target, 0x48)
 
+    def compiled_fixture(self, root: Path) -> tuple[B.Prepared, Path]:
+        obj = make_object([words(0x24020001, 0x24420004, 0x03E00008, 0)],
+                          [("FUN_00001000", 0, 16, GLOBAL_FUNC, 1), ("ext", 0, 0, 1 << 4, 0)],
+                          {1: [(4, 2, R.R_MIPS_LO16)]})
+        data, q = B.prepare_object(Path("src/eboot/test.c"), HEADER, obj, "o00006")
+        obj_dir = root / "obj"
+        obj_dir.mkdir()
+        (obj_dir / f"{q.uid}.o").write_bytes(data)
+        return q, obj_dir
+
+    def test_compiled_addend_mutation_names_the_relocation_in_its_source_block(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            q, obj_dir = self.compiled_fixture(Path(tmp))
+            path = obj_dir / f"{q.uid}.o"
+            before = B.parse_elf(path.read_bytes()).by_name(".hst.text").data
+            info = B.mutate_compiled_object([q], obj_dir, "addend", 0)
+            after = B.parse_elf(path.read_bytes()).by_name(".hst.text").data
+            self.assertEqual(info["path"], q.path)
+            self.assertEqual(info["table"], ".rel.text")
+            self.assertEqual(info["site"], "0x00001004")
+            self.assertEqual(struct.unpack_from("<I", after, 4)[0], struct.unpack_from("<I", before, 4)[0] + 4)
+
+    def test_compiled_instruction_mutation_skips_relocation_sites(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            q, obj_dir = self.compiled_fixture(Path(tmp))
+            path = obj_dir / f"{q.uid}.o"
+            before = B.parse_elf(path.read_bytes()).by_name(".hst.text").data
+            info = B.mutate_compiled_object([q], obj_dir, "instruction", 0)
+            after = B.parse_elf(path.read_bytes()).by_name(".hst.text").data
+            self.assertEqual(info["path"], q.path)
+            self.assertEqual(info["site"], "0x00001000")
+            self.assertNotEqual(struct.unpack_from("<I", after, 0)[0], struct.unpack_from("<I", before, 0)[0])
+            self.assertEqual(struct.unpack_from("<I", after, 4)[0], struct.unpack_from("<I", before, 4)[0])
+
 
 class ContainerTests(unittest.TestCase):
     def sections(self) -> list:
