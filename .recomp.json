@@ -31,5 +31,5 @@
       "url": "https://github.com/Jstar269/nakagawa-recomp"
     }
   ],
-  "notes": "Work in progress across EBOOT.BIN and the Sharing Version module; the progress bar comes from the published objdiff report and the README has the current figures. Contains no game data, keys or compilers; Sony SDK reconstructions are not published. Not yet open to outside contributions."
+  "notes": "Work in progress across the main game program and the Game Sharing module; the progress bar comes from the published objdiff report and the README has the current figures. Contains no game data, keys or compilers; Sony SDK reconstructions are not published. Not yet open to outside contributions."
 }
