@@ -11,12 +11,14 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
 - Matching proves the *compiled bytes*, not that the source is what the developers wrote. Names are mostly the
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
-- As of 2026-10-21, of the 10,898 sources then published, 6,625 are address-substituted **clones** of another matched source (retail contains the same
-  code many times), 2,136 are mechanical translations of Ghidra pseudocode, 744 are such translations corrected by
-  hand, 1,194 are hand-written, 136 are instances of container templates, and 63 are newlib library functions
-  translated from newlib sources (19 more are clones of them, counted among the clones).
+  <!-- hstprogress:begin guide-source-kinds -->
+- Of the 10,957 sources (measured 2026-10-22), 6,654 are address-substituted **clones** of another matched source
+  (retail contains the same code many times), 2,136 are mechanical translations of Ghidra pseudocode, 744 are such
+  translations corrected by hand, 1,224 are hand-written, 136 are instances of container templates, and 63 are newlib
+  library functions translated from newlib sources (19 more are clones of them, counted among the clones).
 - 82 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
   compiled with Metrowerks `mwccpsp`.
+  <!-- hstprogress:end -->
 - Some SDK functions use the Allegrex `ins rd,$zero,...` instruction, which neither published Sony `psp-gcc` kit
   emits (nor does a current GCC in the same way); they cannot be matched until a later kit is available (see
   `docs/MWCC-NOTES.md`).
@@ -256,7 +258,8 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 | `hstbootstrap.py` | `--out DIR --eboot FILE --sharing FILE`: check your decrypted executables against `data/modules.json` and write the campaign directory (ledger and input selection) the other tools read. |
 | `hstpublish.py` | `--out DIR`: copy the would-be public tree, without the Sony SDK classes and without anything gitignored, and print what was left out. Never touches a git remote. |
 | `hstpublic.py` | Maintainers: `sync` mirrors the `hstpublish.py` tree into the public-branch worktree and commits it; `check COMMIT` (run by the pre-push hook) refuses a commit that contains a non-publishable source. |
-| `hstprogress.py` | Progress against `docs/COMPLETION.md`: the tier ladder T1-T4 and the strict headline over all six modules' bytes, the public-eligible figures, toolchain-blocked and awaiting-review counts. `--write` refreshes `progress.json` (shields.io endpoint), `docs/progress.svg` and `docs/progress.csv`; run it before each push, then update the README progress section from its output. `--write` also refreshes `docs/objdiff-report.json` (see `hstreport.py`). |
+| `hstprogress.py` | Progress against `docs/COMPLETION.md`: the tier ladder T1-T4 and the strict headline over all six modules' bytes, the public-eligible figures, toolchain-blocked and awaiting-review counts. `--write` refreshes `progress.json` (shields.io endpoint), `docs/progress.svg`, `docs/progress.csv`, `docs/objdiff-report.json` (see `hstreport.py`) and the generated figure blocks (`<!-- hstprogress:begin NAME -->` ... `<!-- hstprogress:end -->`) in `README.md`, `docs/COMPLETION.md` and this guide; never edit those by hand. `--check-readme` checks every block. |
+| `hstrelease.py` | Maintainers: the whole publish in one command. Dry run by default; `--apply -m MSG` runs push preparation and commits on `full`, refreshes the figures in a clean worktree (with the git-ignored build and port reports copied in), refuses if any published figure would go down, syncs the public worktree and re-matches its new sources; `--push` also pushes and verifies the remote. |
 | `hstreport.py` | Writes `docs/objdiff-report.json`, an objdiff progress report (`report.proto` version 2, JSON form) of the two game modules' matched code, from the same figures as the README table; `--check` compares it with the figures measured now. `.github/workflows/progress-report.yml` uploads it as the artifact `UCUS98701_report` so recomp.fyi can show the matched-code share. Counts only: no game bytes, names or paths; data is reported as unmatched. |
 | `hstport.py` | `python tools/hstport.py` compiles each EBOOT and Sharing source for Windows x64/x86 and Android arm64/armv7/x64 with a host ABI overlay; writes public/private byte-weighted reports under `try/`. `--targets` narrows iteration, `--parallel` sets compiler concurrency, and `--json` prints a summary. |
 | `hstreuse.py` | `check`: every tracked file is covered by exactly one effective `REUSE.toml` annotation; `newlib [--write]`: regenerate the newlib annotations and the table in `third_party/newlib/README.md`. |

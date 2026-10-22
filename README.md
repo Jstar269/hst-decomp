@@ -11,74 +11,95 @@
 
 A Nakagawa project, alongside [Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp), the PSP-to-native recompiler and player.
 
+[![Code matched](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FJstar269%2Fhst-decomp%2Fmain%2Fdocs%2Fobjdiff-report.json&query=%24.measures.matched_code_percent&suffix=%25&label=code%20matched&color=6E9600)](#progress-at-a-glance)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](#license)
 [![REUSE status](https://api.reuse.software/badge/github.com/Jstar269/hst-decomp)](https://api.reuse.software/info/github.com/Jstar269/hst-decomp)
 [![Platform: PSP (UCUS98701)](https://img.shields.io/badge/PSP-UCUS98701-003791.svg)](#what-this-is)
-[![Strict progress](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Jstar269/hst-decomp/main/progress.json)](docs/COMPLETION.md)
 
 </div>
 
 ## What this is
 
-A work-in-progress decompilation of *Hot Shots Tennis: Get a Grip* (PlayStation Portable, UCUS98701). "Matching"
-is strict here: every file in `src/`, compiled with the original compiler (Metrowerks for the game code) and linked at the function's
-retail address, reproduces **that function's retail bytes exactly**, with nothing masked. A source that does not match
-does not go in `src/`.
+A PSP game ships as machine code: instructions for the console's processor, not readable source. This project
+rewrites that code by hand as C and C++, the kind of source the developers originally wrote, for *Hot Shots Tennis:
+Get a Grip* (PlayStation Portable, UCUS98701).
 
-## Progress
+"Matching" means every rewritten function is proven: compiled with the same compiler the developers used, it produces
+exactly the same bytes as the original game. A function that doesn't match yet isn't counted.
 
-![Progress: the strict figure, the tiers, and the state of every byte of each module](docs/progress.svg)
+Why it matters: readable source lets people study how the game works, fix bugs, and run it natively on other
+systems. Nakagawa Recomp already runs the game on Windows from its original code, and the decompiled source will
+let more of it run as real, readable code over time.
 
-**10,924 exact sources** (10,925 functions) and 335 near misses, measured 2026-10-22 with `python tools/hstcov.py`
-and counted in code bytes:
+## Progress at a glance
 
-| Module | Matched / functions | Matched / code bytes | Share of bytes |
-|---|---|---|---|
-| `EBOOT.BIN` | 5,484 / 9,804 | 807,080 / 2,849,076 | 28.328 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,441 / 9,830 | 774,576 / 2,914,004 | 26.581 % |
-| **Both** | 10,925 / 19,634 | 1,581,656 / 5,763,080 | 27.445 % |
+<!-- hstprogress:begin readme-glance -->
 
-Every source is re-verified with `python tools/hstmatch.py` before it is published.
+| | Progress | What it means |
+|---|---|---|
+| **Code matched** | **27.5%** | 10,958 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
+| **Built from source** | **21.7%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
-These are tier-1 figures: functions that match exactly when each is compiled and linked on its own. The project's
-100% is stricter: the whole executables rebuilt byte for byte from source, data included, relocatable and reviewed.
-[`docs/COMPLETION.md`](docs/COMPLETION.md) defines it and reports every tier.
+The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-22.
 
-![Milestones: what the source tree can already do, from every byte classified to playing on Windows and Android](docs/progress-milestones.svg)
+<!-- hstprogress:end -->
 
-![Where in the executables: matched code, lane work, near misses, blocked functions and data, by address](docs/progress-map.svg)
+Decompilation projects usually count a game as done when both numbers reach 100%. More detail, charts and history:
+[Progress report](docs/PROGRESS.md).
 
-![Progress over time: the tier-1 figure and the strict figure](docs/progress-history.svg)
+## See it running
 
-`python tools/hstprogress.py --write` refreshes the four images, `docs/milestones.json`, `progress.json` (the badge) and the history in
-`docs/progress.csv`.
-
-## Get started
-
-1. Bring your own, legally obtained copy of the game and decrypt its two executables yourself.
-2. Install the compilers in WSL and bootstrap the campaign directory: [Setup](docs/GUIDE.md#setup).
-3. Check that everything matches: `python tools/hstmatch.py --all`.
-
-To match a new function, read [CONTRIBUTING.md](CONTRIBUTING.md) and the compiler lessons in
-[`docs/MWCC-NOTES.md`](docs/MWCC-NOTES.md).
-
-## The game this repository decompiles, running natively through Nakagawa Recomp
-
-[Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp) runs the game's own PSP code natively on Windows, and
-this presentation capture shows the title in that build. It is the only game imagery in this repository, under
-[`docs/media/`](docs/media), and it is not game data.
+[Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp) runs the game's own PSP code natively on Windows.
+This presentation capture shows the title screen in that build. It's the only game imagery in this repository, and
+it isn't game data.
 
 ![Title screen of Hot Shots Tennis: Get a Grip running natively in Nakagawa Recomp](docs/media/hst-title-screen.png)
 
 <div align="center"><sub>Hot Shots Tennis: Get a Grip belongs to its publisher. This repository contains no game data: you need your own copy of the game, and nothing here downloads one.</sub></div>
 
+## Can I play it?
+
+Not from this repository: it holds source code only, with no game files, and doesn't build a playable game on its
+own. To play on a PC, use [Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp) with your own copy of the
+game.
+
+## Help out
+
+Matching a function is a puzzle: you write C until the compiler's output equals the original bytes exactly.
+
+1. Bring your own, legally obtained copy of the game and decrypt its two executables yourself.
+2. Install the compilers in WSL and set up the campaign directory: [Setup](docs/GUIDE.md#setup).
+3. Check that everything matches: `python tools/hstmatch.py --all`.
+
+Then read [CONTRIBUTING.md](CONTRIBUTING.md) and the compiler lessons in [`docs/MWCC-NOTES.md`](docs/MWCC-NOTES.md).
+
+## Progress in detail
+
+<!-- hstprogress:begin readme-progress -->
+
+**10,957 exact sources** (10,958 functions) and 349 near misses, measured 2026-10-22 with `python tools/hstcov.py`
+and counted in code bytes:
+
+| Module | Matched / functions | Matched / code bytes | Share of bytes |
+|---|---|---|---|
+| `EBOOT.BIN` | 5,501 / 9,804 | 809,804 / 2,849,076 | 28.423 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,457 / 9,830 | 777,108 / 2,914,004 | 26.668 % |
+| **Both** | 10,958 / 19,634 | 1,586,912 / 5,763,080 | 27.536 % |
+
+<!-- hstprogress:end -->
+
+Every source is re-verified with `python tools/hstmatch.py` before it is published. These figures count each
+function matched on its own. The stricter tiers (the whole executables rebuilt from source, data included,
+relocatable and reviewed) are defined in [`docs/COMPLETION.md`](docs/COMPLETION.md), and
+[`docs/PROGRESS.md`](docs/PROGRESS.md) charts them.
+
 ## Legal
 
 No game assets, executables, keys, decryption code or compilers are in this repository, except the presentation
-screenshot in [`docs/media/`](docs/media) described above, and nothing in it lets you obtain the game. The compilers come from [decomp.me's kits](https://github.com/decompme/compilers) and
-[wibo](https://github.com/decompals/wibo) under their vendors' licences ([THIRD_PARTY.md](THIRD_PARTY.md)). This is an
-unofficial fan project, not affiliated with or endorsed by the game's developer or publisher; the game and its
-trademarks belong to their owners.
+screenshot in [`docs/media/`](docs/media) described above, and nothing in it lets you obtain the game. The compilers
+come from [decomp.me's kits](https://github.com/decompme/compilers) and [wibo](https://github.com/decompals/wibo)
+under their vendors' licences ([THIRD_PARTY.md](THIRD_PARTY.md)). This is an unofficial fan project, not affiliated
+with or endorsed by the game's developer or publisher; the game and its trademarks belong to their owners.
 
 ## License
 
@@ -87,10 +108,7 @@ Licensed by path ([REUSE](https://reuse.software/)): the reconstructed code (`sr
 only the project's own work, not the original game. Sony SDK reconstructions are not published here. Full table:
 [Licensing](docs/GUIDE.md#licensing).
 
-OpenSSF Scorecard ([`.github/workflows/scorecards.yml`](.github/workflows/scorecards.yml)) runs weekly and on
-pushes to `main`, uploading its results to GitHub code scanning; it publishes no badge and changes no settings.
-
 ## Learn more
 
-[Project guide](docs/GUIDE.md) · [Contributing](CONTRIBUTING.md) · [Compiler notes](docs/MWCC-NOTES.md) ·
-[Security](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md)
+[Progress report](docs/PROGRESS.md) · [Project guide](docs/GUIDE.md) · [Contributing](CONTRIBUTING.md) ·
+[Compiler notes](docs/MWCC-NOTES.md) · [Security](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md)

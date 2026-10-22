@@ -6,7 +6,8 @@
                                                  (docs/progress*.svg, drawn by tools/hstviz.py) and
                                                  docs/objdiff-report.json (tools/hstreport.py: the objdiff report recomp.fyi reads)
     python tools/hstprogress.py --check-readme   compare the public code figure with the table in README.md and with
-                                                 docs/objdiff-report.json (exit 1 on a difference)
+                                                 docs/objdiff-report.json, and every generated figure block (below)
+                                                 with the figures measured now (exit 1 on a difference)
     python tools/hstprogress.py --private        also print the all-sources figures (they include unpublished Sony SDK
                                                  reconstructions and are never written to a file)
     python tools/hstprogress.py --proofs         count tier 1 from the accepted ledger (tools/hstproof.py) instead of
@@ -30,6 +31,11 @@ TIERS (each a share of `scope_bytes`):
   T3  T2 and the shifted build passes (gate 5): t3_source_bytes of build reports whose shifted build passed.
   T4  = STRICT headline: T3 and the source is human reviewed (gate 7): 0 until T3 exists. Nothing is estimated.
 
+GENERATED FIGURE BLOCKS. The published figures in README.md (the progress table and the line above it),
+docs/COMPLETION.md (the measured date and the T1-T4 figures) and docs/GUIDE.md (the source-kind breakdown, from the
+note line of every public source and its origin class) sit between `<!-- hstprogress:begin NAME -->` and
+`<!-- hstprogress:end -->`; --write rewrites them and --check-readme checks every one. Do not edit them by hand.
+
 docs/progress.csv keeps one row per day and source. The first rows were seeded from the figures the README showed
 ("readme:<commit>"); they are tier-1, public-eligible, code-byte figures over the two game modules' functions and stay
 as they were (the columns up to `blocked_code_bytes`); newer rows add the scope and tier columns.
@@ -39,6 +45,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime
+import functools
 import hashlib
 import json
 import re
@@ -266,6 +273,164 @@ def compare_readme(fig: dict) -> list[str]:
     return out
 
 
+# --------------------------------------------------------------------------------------------------------------
+# generated figure blocks: `<!-- hstprogress:begin NAME -->` ... `<!-- hstprogress:end -->` in the public documents.
+# --write rewrites every block from the figures measured now; --check-readme compares every block (with the date the
+# block already shows, so a block is not stale only because a day has passed).
+
+BLOCK = re.compile(r"<!-- hstprogress:begin ([\w-]+) -->(.*?)<!-- hstprogress:end -->", re.S)
+BLOCK_FILES = {"README.md": ("readme-glance", "readme-progress"),
+               "docs/COMPLETION.md": ("completion-date", "completion-t1", "completion-t2", "completion-t3",
+                                      "completion-t4"),
+               "docs/GUIDE.md": ("guide-source-kinds",)}
+DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def source_kinds(classes: dict[str, str], root: Path = ROOT) -> dict:
+    """Public sources in src/ by note kind (line 2, tools/hstlint.py) and by origin class; clones of newlib functions
+    are counted separately."""
+    import hstlint
+    kinds: dict[str, int] = {}
+    by_class: dict[str, int] = {}
+    newlib_clones = 0
+    for rel, cls in classes.items():
+        if cls in hstpublish.EXCLUDED_CLASSES or not rel.startswith("src/"):
+            continue
+        text = (root / rel).read_text(encoding="utf-8", errors="replace")
+        lines = text.split("\n", 2)
+        comments = re.findall(r"/\*.*?\*/", text[:4000], re.S)
+        note = comments[1] if len(comments) > 1 and len(lines) > 1 and lines[1].startswith("/*") else ""
+        kind = next((k for k, rx in hstlint.NOTE_KINDS if rx.search(note)), "unknown")
+        kinds[kind] = kinds.get(kind, 0) + 1
+        by_class[cls] = by_class.get(cls, 0) + 1
+        if kind == "clone" and cls == "newlib":
+            newlib_clones += 1
+    return {"sources": sum(kinds.values()), "kinds": kinds, "classes": by_class, "newlib_clones": newlib_clones}
+
+
+def wrap(text: str, first: str = "- ", rest: str = "  ", width: int = 118) -> str:
+    import textwrap
+    return "\n".join(textwrap.wrap(text, width, initial_indent=first, subsequent_indent=rest, break_on_hyphens=False))
+
+
+def render_blocks(fig: dict, ladder: dict, kinds: dict, date: str) -> dict[str, str]:
+    """{block name: text} for every block of BLOCK_FILES."""
+    t = fig["total"]
+    names = {"EBOOT.BIN": "`EBOOT.BIN`", "hstp_trans_main.prx": "`hstp_trans_main.prx` (Sharing Version)"}
+    rows = [f"| {names.get(n, f'`{n}`')} | {r['matched_functions']:,} / {r['functions']:,} | "
+            f"{r['matched_code_bytes']:,} / {r['code_bytes']:,} | {100 * r['matched_code_bytes'] / r['code_bytes']:.3f} % |"
+            for n, r in fig["modules"].items()]
+    readme = "\n".join([
+        f"**{fig['sources']:,} exact sources** ({t['matched_functions']:,} functions) and {fig['near_misses']:,} near "
+        f"misses, measured {date} with `python tools/hstcov.py`",
+        "and counted in code bytes:",
+        "",
+        "| Module | Matched / functions | Matched / code bytes | Share of bytes |",
+        "|---|---|---|---|",
+        *rows,
+        f"| **Both** | {t['matched_functions']:,} / {t['functions']:,} | {t['matched_code_bytes']:,} / {t['code_bytes']:,} | "
+        f"{t['percent_code_bytes']:.3f} % |"])
+    # The plain-language summary at the top of the README: the two figures decompilation projects usually report
+    # (code matched, and how much of the game the whole build reproduces), then the project's own stricter figure.
+    glance = "\n".join([
+        "| | Progress | What it means |",
+        "|---|---|---|",
+        f"| **Code matched** | **{t['percent_code_bytes']:.1f}%** | {t['matched_functions']:,} of the "
+        f"{t['functions']:,} game functions are rewritten as C or C++ that compiles to the game's exact bytes. "
+        "This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |",
+        f"| **Built from source** | **{ladder['t2_percent']:.1f}%** | The share of the game's program files that "
+        "the full build already reproduces, byte for byte, from this source. |",
+        "",
+        "The project's own finish line is stricter: the whole build must also work when moved to another address, "
+        f"and every source must be reviewed by a person. That figure is {ladder['strict_percent']:.1f}%. "
+        f"Measured {date}."])
+    k, c = kinds["kinds"], kinds["classes"]
+    unknown = f", and {k['unknown']:,} have no known note kind" if k.get("unknown") else ""
+    breakdown = wrap(
+        f"Of the {kinds['sources']:,} sources (measured {date}), {k.get('clone', 0):,} are address-substituted "
+        f"**clones** of another matched source (retail contains the same code many times), {k.get('generated', 0):,} "
+        f"are mechanical translations of Ghidra pseudocode, {k.get('corrected', 0):,} are such translations corrected "
+        f"by hand, {k.get('hand', 0):,} are hand-written, {k.get('template', 0):,} are instances of container "
+        f"templates, and {k.get('library', 0):,} are newlib library functions translated from newlib sources "
+        f"({kinds['newlib_clones']:,} more are clones of them, counted among the clones){unknown}.")
+    others = {cls: n for cls, n in sorted(c.items()) if cls not in ("game", "newlib")}
+    rest = ("all others are game code compiled with Metrowerks `mwccpsp`" if not others else
+            f"{c.get('game', 0):,} are game code compiled with Metrowerks `mwccpsp`, and "
+            + ", ".join(f"{n:,} are of origin class `{cls}`" for cls, n in others.items()))
+    compilers = wrap(f"{c.get('newlib', 0):,} of the sources are newlib library functions compiled with Sony's "
+                     f"`psp-gcc` kits; {rest}.")
+    tier = lambda n: f"{ladder[f't{n}_percent']:.3f}% ({ladder[f't{n}_bytes']:,} B"      # noqa: E731
+    return {"readme-glance": glance, "readme-progress": readme, "completion-date": date,
+            "completion-t1": tier(1), "completion-t2": tier(2), "completion-t3": tier(3),
+            "completion-t4": tier(4) + ")", "guide-source-kinds": breakdown + "\n" + compilers}
+
+
+def blocks_in(text: str) -> dict[str, str]:
+    """{name: content} of every block in `text`, the content without the line breaks that frame a multi-line block."""
+    out = {}
+    for m in BLOCK.finditer(text):
+        inner = m.group(2)
+        if "\n" in inner:
+            inner = inner.split("\n", 1)[1].rsplit("\n", 1)[0].strip("\n")
+        out[m.group(1)] = inner
+    return out
+
+
+def rewrite_blocks(text: str, blocks: dict[str, str]) -> tuple[str, list[str]]:
+    """`text` with the content of every named block replaced; and the names of `blocks` it has no block for.
+    A block whose markers are on their own lines stays multi-line, framed by an empty line when it was (so a table
+    inside it ends before the end marker), and the end marker keeps its indentation (markers indented under a list
+    item keep the list one list); an inline block stays inline."""
+    seen = set()
+
+    def sub(m: re.Match) -> str:
+        name, inner = m.group(1), m.group(2)
+        if name not in blocks:
+            return m.group(0)
+        seen.add(name)
+        if "\n" in inner:
+            indent = inner.rsplit("\n", 1)[1]
+            gap = "\n\n" if inner.startswith("\n\n") else "\n"
+            body = gap + blocks[name] + gap + (indent if not indent.strip() else "")
+        else:
+            body = blocks[name]
+        return f"<!-- hstprogress:begin {name} -->{body}<!-- hstprogress:end -->"
+
+    return BLOCK.sub(sub, text), [n for n in blocks if n not in seen]
+
+
+def write_blocks(blocks: dict[str, str], root: Path = ROOT) -> list[str]:
+    """Rewrite the blocks of BLOCK_FILES; the relative paths written. A missing block is an error."""
+    written = []
+    for rel, names in BLOCK_FILES.items():
+        path = root / rel
+        text = path.read_text(encoding="utf-8")
+        new, missing = rewrite_blocks(text, {n: blocks[n] for n in names})
+        if missing:
+            raise SystemExit(f"{rel} has no hstprogress block {', '.join(missing)}")
+        if new != text:
+            path.write_text(new, encoding="utf-8", newline="\n")
+            written.append(rel)
+    return written
+
+
+def compare_blocks(render, root: Path = ROOT) -> list[str]:
+    """Differences between the blocks of BLOCK_FILES and `render(date)` ({name: text}), each block rendered with the
+    date it shows (today's when it shows none)."""
+    out = []
+    for rel, names in BLOCK_FILES.items():
+        have = blocks_in((root / rel).read_text(encoding="utf-8"))
+        for name in names:
+            if name not in have:
+                out.append(f"{rel}: no hstprogress block {name}")
+                continue
+            d = DATE.search(have[name])
+            want = render(d.group(0) if d else datetime.date.today().isoformat())[name]
+            if have[name] != want:
+                out.append(f"{rel}: block {name} differs from the figures measured now")
+    return out
+
+
 def print_figures(fig: dict, sc: dict, ladder: dict, reports: dict) -> None:
     print("Public code figure (what the README table shows: public-eligible sources, the two game modules' reviewed functions)")
     for name, r in fig["modules"].items():
@@ -312,6 +477,7 @@ def main() -> int:
     print("Tier 1 counted from: " + ("the accepted ledger (proofs; tools/hstproof.py)" if args.proofs else
                                      "the sources present in src/ (presence; --proofs counts the accepted ledger)"))
     print_figures(fig, sc, ladder, reports)
+    kinds = functools.cache(lambda: source_kinds(classes))      # read every source once, and only when needed
     status = 0
     if args.check_readme:
         diffs = compare_readme(fig)
@@ -323,7 +489,12 @@ def main() -> int:
         print("objdiff report (docs/objdiff-report.json): " + ("agrees" if not report_diffs else "DIFFERS"))
         for d in report_diffs:
             print("  " + d)
-        status = 1 if diffs or report_diffs else 0
+        block_diffs = compare_blocks(lambda d: render_blocks(fig, ladder, kinds(), d))
+        print("generated figure blocks (README.md, docs/COMPLETION.md, docs/GUIDE.md): "
+              + ("agree" if not block_diffs else "DIFFER (python tools/hstprogress.py --write rewrites them)"))
+        for d in block_diffs:
+            print("  " + d)
+        status = 1 if diffs or report_diffs or block_diffs else 0
     if args.private:
         full = measure(all_modules, include_excluded=True, classes=classes, led=led, from_proofs=args.proofs)
         t = full["total"]
@@ -341,7 +512,9 @@ def main() -> int:
         drawn = [p.relative_to(ROOT).as_posix() for p in hstviz.write()]
         import hstreport  # the objdiff report recomp.fyi reads, from the same figures
         report = hstreport.write(fig, sc).relative_to(ROOT).as_posix()
-        print(f"wrote {JSON_PATH.name}, {CSV_PATH.relative_to(ROOT).as_posix()} ({len(rows)} rows), {', '.join(drawn)}, {report}")
+        docs = write_blocks(render_blocks(fig, ladder, kinds(), args.date))
+        print(f"wrote {JSON_PATH.name}, {CSV_PATH.relative_to(ROOT).as_posix()} ({len(rows)} rows), {', '.join(drawn)}, {report}"
+              + (f"; figure blocks in {', '.join(docs)}" if docs else "; figure blocks unchanged"))
     return status
 
 
