@@ -87,6 +87,9 @@ Licensed by path ([REUSE](https://reuse.software/)): the reconstructed code (`sr
 only the project's own work, not the original game. Sony SDK reconstructions are not published here. Full table:
 [Licensing](docs/GUIDE.md#licensing).
 
+OpenSSF Scorecard ([`.github/workflows/scorecards.yml`](.github/workflows/scorecards.yml)) runs weekly and on
+pushes to `main`, uploading its results to GitHub code scanning; it publishes no badge and changes no settings.
+
 ## Learn more
 
 [Project guide](docs/GUIDE.md) · [Contributing](CONTRIBUTING.md) · [Compiler notes](docs/MWCC-NOTES.md) ·
