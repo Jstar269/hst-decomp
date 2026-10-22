@@ -1,0 +1,66 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x00058384 end=0x0005848c symbol=FUN_00058384 lang=c99 */
+/* Clone of src/eboot/clear_item_states_00057730.c (hstclone.py tag km1): addresses substituted; exact match verified; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* Clears the two per-item records of every entry of the item array (id set to -1, speed 0.0f) and
+   destroys the entry's buffer object.  Layout: 0xe0 = item pointer array, 0xe4 = entry count,
+   0xf0 + k*0x34 = the two records of an item (0x00 = id, 0x20 = state id). */
+/* matching idiom: the loop-head count read uses a second type view of the same member (cast to an
+   identical struct) and the array store indexes with a differently typed index, so that MWCC does
+   not common the two loads/computations; the item pointer is tested twice (nested if) before the
+   destructor call. */
+typedef unsigned int uint;
+
+extern void FUN_000587ac(float, int, int, int);
+extern void FUN_00058814(float, int, int, int, float, float);
+extern void FUN_00056de8(void *, int);
+
+typedef struct {
+  char pad0[0xe0];
+  void **fE0;
+  uint fE4;
+  char padE8[8];
+  char padF0[0x114 - 0xf0];
+} Obj;
+
+typedef struct {
+  char pad0[0xe0];
+  void **fE0;
+  int fE4;
+  char padE8[8];
+  char padF0[0x114 - 0xf0];
+} ObjInt;
+
+#pragma opt_strength_reduction off
+void FUN_00058384(Obj *self)
+{
+  uint i = 0;
+  if (self->fE4 != 0) {
+    do {
+      if ((int)i < 0) {
+      } else if (i < (uint)((ObjInt *)self)->fE4) {
+        uint j = 0;
+        char *p = (char *)self;
+        while (j < 2) {
+          if (*(uint *)(p + 0xf0) == i) {
+            FUN_000587ac(0.0f, (int)self, (int)j, -1);
+          }
+          if (*(uint *)(p + 0x110) == i) {
+            FUN_00058814(0.0f, (int)self, (int)j, -1, 0.0f, 0.0f);
+          }
+          p += 0x34;
+          j++;
+        }
+        {
+          void *q = self->fE0[i];
+          if (q != 0) {
+            if (q != 0) {
+              FUN_00056de8(q, 1);
+              self->fE0[(int)i] = 0;
+            }
+          }
+        }
+      }
+      i++;
+    } while (i < self->fE4);
+  }
+}

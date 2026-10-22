@@ -37,7 +37,7 @@ let more of it run as real, readable code over time.
 
 | | Progress | What it means |
 |---|---|---|
-| **Code matched** | **27.5%** | 10,958 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
+| **Code matched** | **28.1%** | 11,127 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
 | **Built from source** | **21.7%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
 The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-22.
@@ -77,14 +77,14 @@ Then read [CONTRIBUTING.md](CONTRIBUTING.md) and the compiler lessons in [`docs/
 
 <!-- hstprogress:begin readme-progress -->
 
-**10,957 exact sources** (10,958 functions) and 349 near misses, measured 2026-10-22 with `python tools/hstcov.py`
+**11,126 exact sources** (11,127 functions) and 385 near misses, measured 2026-10-22 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,501 / 9,804 | 809,804 / 2,849,076 | 28.423 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,457 / 9,830 | 777,108 / 2,914,004 | 26.668 % |
-| **Both** | 10,958 / 19,634 | 1,586,912 / 5,763,080 | 27.536 % |
+| `EBOOT.BIN` | 5,602 / 9,804 | 828,936 / 2,849,076 | 29.095 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,525 / 9,830 | 789,864 / 2,914,004 | 27.106 % |
+| **Both** | 11,127 / 19,634 | 1,618,800 / 5,763,080 | 28.089 % |
 
 <!-- hstprogress:end -->
 

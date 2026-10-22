@@ -259,3 +259,4 @@ __dl__FPv = 0x00000a00;   # hstclone c192707
 mat4_copy_004d270 = 0x0004d5e8;   # hstclone s10200333g2r1s
 mat4_rot_y_004d2cc = 0x0004d644;   # hstclone s10200333g2r1s
 __dl__FPv = 0x00000a00;   # hstclone ds1011s
+pow = 0x0000c094;   # hstclone fm2od3
