@@ -48,7 +48,7 @@ denominator.
 
 | Tier | A byte is in this tier when | Measured 2026-10-21 (public sources) |
 | --- | --- | --- |
-| T1 | its function matches exactly in isolation (`hstmatch.py`) | 16.968% (1,573,968 B; code only, matched one function at a time; data is not counted in this tier) |
+| T1 | its function matches exactly in isolation (`hstmatch.py`) | 17.051% (1,581,656 B; code only, matched one function at a time; data is not counted in this tier) |
 | T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | 21.673% (2,010,373 B; code, data and relocation-table bytes the whole-module build produces from source, so it can exceed T1; retail-derived scaffolding is never counted; current public build reports, both game-module images identical and all generated relocation tables equal) |
 | T3 | T2, and the shifted build passes (gate 5) | 18.221% (1,690,197 B; shifted static checks and numeric-address scans passed for counted sources; shifted runtime not run) |
 | T4 = strict | T3, and the source is reviewed (gate 7) | 0% |

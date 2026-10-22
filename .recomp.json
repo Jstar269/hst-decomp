@@ -31,5 +31,5 @@
       "url": "https://github.com/Jstar269/nakagawa-recomp"
     }
   ],
-  "notes": "Work in progress: 10,899 of 19,634 functions matched (27.311% of code bytes) across EBOOT.BIN and the Sharing Version module as of 2026-10-21; see the README for current figures. Contains no game data, keys or compilers; Sony SDK reconstructions are not published. Not yet open to outside contributions."
+  "notes": "Work in progress across EBOOT.BIN and the Sharing Version module; the progress bar comes from the published objdiff report and the README has the current figures. Contains no game data, keys or compilers; Sony SDK reconstructions are not published. Not yet open to outside contributions."
 }

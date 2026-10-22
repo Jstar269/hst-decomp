@@ -3,8 +3,10 @@
 
     python tools/hstprogress.py                  print the figures (nothing is written)
     python tools/hstprogress.py --write          write progress.json, today's row of docs/progress.csv and the visuals
-                                                 (docs/progress*.svg, drawn by tools/hstviz.py)
-    python tools/hstprogress.py --check-readme   compare the public code figure with the table in README.md (exit 1 on a difference)
+                                                 (docs/progress*.svg, drawn by tools/hstviz.py) and
+                                                 docs/objdiff-report.json (tools/hstreport.py: the objdiff report recomp.fyi reads)
+    python tools/hstprogress.py --check-readme   compare the public code figure with the table in README.md and with
+                                                 docs/objdiff-report.json (exit 1 on a difference)
     python tools/hstprogress.py --private        also print the all-sources figures (they include unpublished Sony SDK
                                                  reconstructions and are never written to a file)
     python tools/hstprogress.py --proofs         count tier 1 from the accepted ledger (tools/hstproof.py) instead of
@@ -316,7 +318,12 @@ def main() -> int:
         print("README table: " + ("agrees" if not diffs else "DIFFERS"))
         for d in diffs:
             print("  " + d)
-        status = 1 if diffs else 0
+        import hstreport
+        report_diffs = hstreport.differences(fig, sc)
+        print("objdiff report (docs/objdiff-report.json): " + ("agrees" if not report_diffs else "DIFFERS"))
+        for d in report_diffs:
+            print("  " + d)
+        status = 1 if diffs or report_diffs else 0
     if args.private:
         full = measure(all_modules, include_excluded=True, classes=classes, led=led, from_proofs=args.proofs)
         t = full["total"]
@@ -332,7 +339,9 @@ def main() -> int:
         JSON_PATH.write_text(json.dumps(badge(ladder), indent=1) + "\n", encoding="utf-8", newline="\n")
         import hstviz  # the visuals read the CSV just written
         drawn = [p.relative_to(ROOT).as_posix() for p in hstviz.write()]
-        print(f"wrote {JSON_PATH.name}, {CSV_PATH.relative_to(ROOT).as_posix()} ({len(rows)} rows), {', '.join(drawn)}")
+        import hstreport  # the objdiff report recomp.fyi reads, from the same figures
+        report = hstreport.write(fig, sc).relative_to(ROOT).as_posix()
+        print(f"wrote {JSON_PATH.name}, {CSV_PATH.relative_to(ROOT).as_posix()} ({len(rows)} rows), {', '.join(drawn)}, {report}")
     return status
 
 

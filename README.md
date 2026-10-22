@@ -29,14 +29,14 @@ does not go in `src/`.
 
 ![Progress: the strict figure, the tiers, and the state of every byte of each module](docs/progress.svg)
 
-**10,898 exact sources** (10,899 functions) and 329 near misses, measured 2026-10-21 with `python tools/hstcov.py`
+**10,924 exact sources** (10,925 functions) and 335 near misses, measured 2026-10-22 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,471 / 9,804 | 803,236 / 2,849,076 | 28.193 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,428 / 9,830 | 770,732 / 2,914,004 | 26.449 % |
-| **Both** | 10,899 / 19,634 | 1,573,968 / 5,763,080 | 27.311 % |
+| `EBOOT.BIN` | 5,484 / 9,804 | 807,080 / 2,849,076 | 28.328 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,441 / 9,830 | 774,576 / 2,914,004 | 26.581 % |
+| **Both** | 10,925 / 19,634 | 1,581,656 / 5,763,080 | 27.445 % |
 
 Every source is re-verified with `python tools/hstmatch.py` before it is published.
 

@@ -1,0 +1,123 @@
+{
+ "measures": {
+  "fuzzy_match_percent": 27.445,
+  "total_code": "5763080",
+  "matched_code": "1581656",
+  "matched_code_percent": 27.445,
+  "total_data": "3368688",
+  "matched_data": "0",
+  "matched_data_percent": 0.0,
+  "total_functions": 19634,
+  "matched_functions": 10925,
+  "matched_functions_percent": 55.643,
+  "complete_code": "0",
+  "complete_code_percent": 0.0,
+  "complete_data": "0",
+  "complete_data_percent": 0.0,
+  "total_units": 2,
+  "complete_units": 0
+ },
+ "units": [
+  {
+   "name": "EBOOT.BIN",
+   "measures": {
+    "fuzzy_match_percent": 28.328,
+    "total_code": "2849076",
+    "matched_code": "807080",
+    "matched_code_percent": 28.328,
+    "total_data": "1329744",
+    "matched_data": "0",
+    "matched_data_percent": 0.0,
+    "total_functions": 9804,
+    "matched_functions": 5484,
+    "matched_functions_percent": 55.936,
+    "complete_code": "0",
+    "complete_code_percent": 0.0,
+    "complete_data": "0",
+    "complete_data_percent": 0.0,
+    "total_units": 1,
+    "complete_units": 0
+   },
+   "metadata": {
+    "module_name": "EBOOT.BIN",
+    "progress_categories": [
+     "EBOOT.BIN"
+    ]
+   }
+  },
+  {
+   "name": "hstp_trans_main.prx",
+   "measures": {
+    "fuzzy_match_percent": 26.581,
+    "total_code": "2914004",
+    "matched_code": "774576",
+    "matched_code_percent": 26.581,
+    "total_data": "2038944",
+    "matched_data": "0",
+    "matched_data_percent": 0.0,
+    "total_functions": 9830,
+    "matched_functions": 5441,
+    "matched_functions_percent": 55.351,
+    "complete_code": "0",
+    "complete_code_percent": 0.0,
+    "complete_data": "0",
+    "complete_data_percent": 0.0,
+    "total_units": 1,
+    "complete_units": 0
+   },
+   "metadata": {
+    "module_name": "hstp_trans_main.prx",
+    "progress_categories": [
+     "hstp_trans_main.prx"
+    ]
+   }
+  }
+ ],
+ "version": 2,
+ "categories": [
+  {
+   "id": "EBOOT.BIN",
+   "name": "EBOOT.BIN",
+   "measures": {
+    "fuzzy_match_percent": 28.328,
+    "total_code": "2849076",
+    "matched_code": "807080",
+    "matched_code_percent": 28.328,
+    "total_data": "1329744",
+    "matched_data": "0",
+    "matched_data_percent": 0.0,
+    "total_functions": 9804,
+    "matched_functions": 5484,
+    "matched_functions_percent": 55.936,
+    "complete_code": "0",
+    "complete_code_percent": 0.0,
+    "complete_data": "0",
+    "complete_data_percent": 0.0,
+    "total_units": 1,
+    "complete_units": 0
+   }
+  },
+  {
+   "id": "hstp_trans_main.prx",
+   "name": "hstp_trans_main.prx",
+   "measures": {
+    "fuzzy_match_percent": 26.581,
+    "total_code": "2914004",
+    "matched_code": "774576",
+    "matched_code_percent": 26.581,
+    "total_data": "2038944",
+    "matched_data": "0",
+    "matched_data_percent": 0.0,
+    "total_functions": 9830,
+    "matched_functions": 5441,
+    "matched_functions_percent": 55.351,
+    "complete_code": "0",
+    "complete_code_percent": 0.0,
+    "complete_data": "0",
+    "complete_data_percent": 0.0,
+    "total_units": 1,
+    "complete_units": 0
+   }
+  }
+ ]
+}
