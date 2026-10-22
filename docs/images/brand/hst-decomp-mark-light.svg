@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="34 34 172 172" width="172" height="172" role="img" aria-labelledby="t">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="24 24 192 192" width="192" height="192" role="img" aria-labelledby="t">
   <title id="t">hst-decomp</title>
-  <path d="M80,43.87 L80,88.6 L86,96.8 L37.19,96.8 A86 86 0 0 1 80,43.87 Z" fill="#FF9F1C"/>
-  <path d="M91.28,104 L103,120 L93.33,133.2 L35.02,133.2 A86 86 0 0 1 35.5,104 Z" fill="#FF9F1C"/>
-  <path d="M88.06,140.4 L80,151.4 L80,169.6 L49.74,169.6 A86 86 0 0 1 36.45,140.4 Z" fill="#FF9F1C"/>
-  <path d="M80,176.8 L80,196.13 A86 86 0 0 1 55.43,176.8 Z" fill="#FF9F1C"/>
-  <path d="M87.2,40.5 A86 86 0 0 1 152.8,40.5 L152.8,86.25 L128.07,120 L152.8,153.75 L152.8,199.5 A86 86 0 0 1 87.2,199.5 L87.2,153.75 L111.93,120 L87.2,86.25 Z" fill="#10151C"/>
-  <path d="M160,43.87 L160,88.6 L137,120 L160,151.4 L160,196.13 A86 86 0 0 0 160,43.87 Z" fill="#10151C"/>
+  <circle cx="120" cy="120" r="96" fill="#D7F24A"/>
+  <circle cx="120" cy="120" r="93.5" fill="none" stroke="#6E9600" stroke-width="5"/>
+  <g fill="none" stroke="#0F2A44" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M66,45 C74,45 78,51 78,63 L78,102 C78,114 84,120 96,120 C84,120 78,126 78,138 L78,177 C78,189 74,195 66,195"/>
+    <path d="M174,45 C166,45 162,51 162,63 L162,102 C162,114 156,120 144,120 C156,120 162,126 162,138 L162,177 C162,189 166,195 174,195"/>
+  </g>
 </svg>
