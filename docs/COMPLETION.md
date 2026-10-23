@@ -48,7 +48,7 @@ denominator.
 
 | Tier | A byte is in this tier when | Measured <!-- hstprogress:begin completion-date -->2026-10-22<!-- hstprogress:end --> (public sources) |
 | --- | --- | --- |
-| T1 | its function matches exactly in isolation (`hstmatch.py`) | <!-- hstprogress:begin completion-t1 -->17.452% (1,618,800 B<!-- hstprogress:end -->; code only, matched one function at a time; data is not counted in this tier) |
+| T1 | its function matches exactly in isolation (`hstmatch.py`) | <!-- hstprogress:begin completion-t1 -->17.711% (1,642,840 B<!-- hstprogress:end -->; code only, matched one function at a time; data is not counted in this tier) |
 | T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | <!-- hstprogress:begin completion-t2 -->21.673% (2,010,373 B<!-- hstprogress:end -->; code, data and relocation-table bytes the whole-module build produces from source, so it can exceed T1; retail-derived scaffolding is never counted; current public build reports, both game-module images identical and all generated relocation tables equal) |
 | T3 | T2, and the shifted build passes (gate 5) | <!-- hstprogress:begin completion-t3 -->18.221% (1,690,197 B<!-- hstprogress:end -->; shifted static checks and numeric-address scans passed for counted sources; shifted runtime not run) |
 | T4 = strict | T3, and the source is reviewed (gate 7) | <!-- hstprogress:begin completion-t4 -->0.000% (0 B)<!-- hstprogress:end --> |

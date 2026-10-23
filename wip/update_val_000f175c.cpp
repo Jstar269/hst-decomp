@@ -21,11 +21,11 @@ struct Obj {
 };
 
 extern "C" void FUN_000f175c(struct Obj *obj) {
-    float next = 0.0f;
     float old_val = obj->GetVal();
     if (obj->count >= 20) {
+        float next = 0.0f;
         float diff = next - old_val;
-        next = (fabsf(diff) >= 0.01f) ? (old_val + diff * 0.3f) : next;
+        if (fabsf(diff) >= 0.01f) next = old_val + diff * 0.3f;
         obj->val = next;
     }
     float new_val = obj->val;
@@ -38,9 +38,8 @@ extern "C" void FUN_000f175c(struct Obj *obj) {
     obj->count++;
 }
 
-// Near miss: 43/49 words match (6 differing words).
-// Control flow, branches, addresses, and constants are identical.
-// Differing words:
-// 1) FPR register allocation: retail allocates old_val to $f3 and next to $f4, while MWCC allocates old_val to $f4 and next to $f3.
-// 2) Branch delay slot: retail uses `bc1t 0xf17b8` with `nop` in delay slot branching directly to the common `swc1` at 0xf17b8, while MWCC generates `bc1tl 0xf17bc` duplicating the store into the branch-likely delay slot.
-// near miss from lane s10172123g8r1-1 (unreviewed)
+// NEAR MISS (lane sw1): 2 words differ (was 6). `float next = 0.0f;` declared INSIDE the `if (obj->count >= 20)` block plus the if-form
+// `if (fabsf(diff) >= 0.01f) next = old_val + diff * 0.3f;` gives retail's float registers (old_val $f3, next $f4), the `move s0,a0` bnez-slot filler and everything else.
+// Left: the inner branch is `bc1tl 0xf17bc` + duplicated `swc1 $f4,176(s0)` in the slot; retail has plain `bc1t 0xf17b8; nop` onto the shared store.
+// The ternary `next = (cond) ? X : next;` (and `else next = next;`) gives the plain bc1t (as in 0xee8d0, where it is the fix) but swaps old_val/next to $f4/$f3 (6 words).
+// Ruled out (96-file grid: 4 declaration placements x 3 spellings of the compare x 8 spellings of the update; 7 more shapes with temps/bool/`z`): none has both.

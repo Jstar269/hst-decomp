@@ -26,7 +26,13 @@ of an earlier build can be read):
      claimed range lies inside the object's code; the bytes equal the retail bytes, read through the module's own
      program headers from the image the target lock pins; the same for each placed .rodata/.data/.sdata; the link
      script defines exactly the object's undefined names, each at the address the symbol map (or its address name)
-     gives, with placeholders only for names the compared code does not reference.
+     gives, with placeholders only for names the compared code does not reference. A source with same-file helpers
+     (header `helpers=`, tools/hstmatch.py) is checked function by function: every function of the object is the
+     target or a listed helper (each on function boundaries of the locked inventory), alone in its own .text section,
+     linked once at its own retail address, the object's code with only relocation fields filled in, and equal to the
+     retail bytes there; a helper that differs refuses the source. The proof records each helper in `compared` as
+     `.text:<name>`, but claims only the header's [start, end): a helper's bytes are owned (counted) by its own
+     one-function source, so each byte still has one owner.
   5. the source is unchanged since the run started.
 A source that passes all of it gets a proof; any failure is a refusal that names the reason.
 
@@ -205,6 +211,13 @@ class Run:
         if s not in starts or e not in ends:
             raise ProofError("range", f"[{hx(s)}, {hx(e)}) does not start and end on function boundaries of the locked "
                                       "inventory (a partial-function claim)")
+        if h.get("helpers"):
+            if self.profiles[cc].get("compiler") != "mwcc":
+                raise ProofError("profile", "helpers= needs one .text section per function (an mwcc profile)")
+            for name, hs, he in h["helpers"]:
+                if hs not in starts or he not in ends:
+                    raise ProofError("range", f"helper {name} [{hx(hs)}, {hx(he)}) is not a function of the locked "
+                                              "inventory")
         gate = hstgate.refusals(hstgate.check_file(p, self.root))
         if gate:
             raise ProofError("gate", f"fails the fake-match gate: {hstgate.summary(gate)}")
@@ -266,6 +279,8 @@ class Run:
     # -- 4. independent checks of the artifacts
     def compare(self, c: Candidate, obj: bytes, linked: bytes, syms_ld: str, symmap: dict) -> tuple[dict, list]:
         h = c.header
+        if h.get("helpers"):
+            return self.compare_placed(c, obj, linked, syms_ld, symmap)
         start, end = h["start"], h["end"]
         span = end - start
         o, ln = P.Elf(obj, "object"), P.Elf(linked, "linked image")
@@ -320,6 +335,74 @@ class Run:
             n = sum(1 for i in range(0, span, 4) if ours[i:i + 4] != retail[i:i + 4])
             raise ProofError("mismatch", f"independent comparison: {n} of {span // 4} words differ from retail")
         compared = {".text": {"addr": hx(start), "size": span, "sha256": P.sha256(ours)}}
+        self.compare_data(h, o, ln, compared)
+        refs = [(addr + r.offset, r.sym) for sec, addr in place for r in o.relocations(sec)]
+        return compared, self.check_symbols(o, syms_ld, symmap, refs, [(start, start + max(fsize, span))])
+
+    def compare_placed(self, c: Candidate, obj: bytes, linked: bytes, syms_ld: str, symmap: dict) -> tuple[dict, list]:
+        """A helpers= source (tools/hstmatch.py): every function of the object is the header symbol or a listed helper,
+        alone at the start of its own .text section, linked once at its own retail address; the linked code there is the
+        OBJECT's section (not the renamed copy the matcher linked) with only relocation fields filled in; and, followed
+        by the linker's zero fill up to the end of its range, it equals the retail bytes. Each helper is recorded in
+        `compared` as `.text:<name>`; the claimed range stays the target's."""
+        h = c.header
+        o, ln = P.Elf(obj, "object"), P.Elf(linked, "linked image")
+        texts = {s.index: s for s in o.named(".text", P.SHT_PROGBITS)}
+        syms = o.symbols()
+        linked_defs: dict[str, list[int]] = {}
+        for s in ln.symbols():
+            if s.shndx != 0 and s.name:
+                linked_defs.setdefault(s.name, []).append(s.value)
+        compared: dict = {}
+        used: dict[int, str] = {}
+        refs, ranges = [], []
+        for name, start, end in M.placed_functions(h):
+            span = end - start
+            hits = [s for s in syms if s.name == name and s.shndx in texts]
+            if len(hits) != 1:
+                raise ProofError("symbol", f"{name} is not defined once in a .text section of the object")
+            sec = texts[hits[0].shndx]
+            if hits[0].value != 0 or sec.index in used:
+                raise ProofError("placement", f"{name} is not alone at the start of its own .text section")
+            used[sec.index] = name
+            if sec.size > span:
+                raise ProofError("range", f"{name} is {sec.size} bytes, longer than its range of {span}")
+            if linked_defs.get(name) != [start]:
+                raise ProofError("placement", f"{name} is not linked (once) at its retail address {hx(start)}")
+            lsec = next((s for s in ln.sections if s.flags & P.SHF_ALLOC and s.type == P.SHT_PROGBITS
+                         and s.addr <= start and start + sec.size <= s.addr + s.size), None)
+            if lsec is None:
+                raise ProofError("placement", f"no linked section holds {name} at {hx(start)}")
+            code = ln.contents(lsec)[start - lsec.addr:start - lsec.addr + sec.size]
+            bad = P.masked_difference(o.contents(sec), code, o.relocations(sec))
+            if bad is not None:
+                raise ProofError("relocation", f"the linked code differs from the object outside relocation fields "
+                                               f"at {hx(start + bad)}")
+            for s in syms:   # every named symbol of the section sits where the placement puts it
+                if s.shndx == sec.index and s.name and s.info & 0xF not in (P.STT_SECTION, P.STT_FILE) \
+                        and s.name in linked_defs and start + s.value not in linked_defs[s.name]:
+                    raise ProofError("placement", f"{s.name} is linked at {hx(linked_defs[s.name][0])}, its function's "
+                                                  f"placement puts it at {hx(start + s.value)}")
+            ours = code + bytes(span - sec.size)
+            retail = P.image_range(h["module"], start, end, self.target, executable=True)
+            if ours != retail:
+                n = sum(1 for i in range(0, span, 4) if ours[i:i + 4] != retail[i:i + 4])
+                what = "" if name == h["symbol"] else f" (helper {name})"
+                raise ProofError("mismatch", f"independent comparison{what}: {n} of {span // 4} words differ from retail")
+            compared[".text" if name == h["symbol"] else f".text:{name}"] = {"addr": hx(start), "size": span,
+                                                                             "sha256": P.sha256(ours)}
+            refs += [(start + r.offset, r.sym) for r in o.relocations(sec)]
+            ranges.append((start, end))
+        rest = [s for i, s in texts.items() if s.size and i not in used]
+        if rest:
+            raise ProofError("placement", f"the object has {len(rest)} function section(s) that are neither the target "
+                                          "nor a listed helper")
+        self.compare_data(h, o, ln, compared)
+        return compared, self.check_symbols(o, syms_ld, symmap, refs, ranges)
+
+    def compare_data(self, h: dict, o: P.Elf, ln: P.Elf, compared: dict) -> None:
+        """Each placed .rodata/.data/.sdata: linked at its header address, the object's bytes with only relocation fields
+        filled in, equal to retail; recorded in `compared`."""
         for key in PLACED:
             inputs = [s for s in o.named("." + key, P.SHT_PROGBITS) if s.size]
             if not inputs or key not in h:
@@ -336,10 +419,10 @@ class Run:
             if lb != P.image_range(h["module"], addr, addr + len(lb), self.target, executable=False):
                 raise ProofError("section-mismatch", f".{key} ({len(lb)} bytes at {hx(addr)}) differs from retail")
             compared["." + key] = {"addr": hx(addr), "size": len(lb), "sha256": P.sha256(lb)}
-        refs = [(addr + r.offset, r.sym) for sec, addr in place for r in o.relocations(sec)]
-        return compared, self.check_symbols(o, syms_ld, symmap, refs, start, start + max(fsize, span))
 
-    def check_symbols(self, o: P.Elf, syms_ld: str, symmap: dict, refs: list, lo: int, hi: int) -> list:
+    def check_symbols(self, o: P.Elf, syms_ld: str, symmap: dict, refs: list, ranges: list[tuple[int, int]]) -> list:
+        """`ranges`: the compared code ([lo, hi) linked addresses); a placeholder is allowed only for a name no
+        relocation inside them uses."""
         syms = o.symbols()
         undefined = sorted({s.name for s in syms if s.shndx == 0 and s.name})
         defs: dict[str, tuple[int, bool]] = {}
@@ -353,7 +436,8 @@ class Run:
             defs[name] = (int(value, 16), tail.strip() == PLACEHOLDER)
         if sorted(defs) != undefined:
             raise ProofError("symbols", "the link script defines other names than the object's undefined ones")
-        referenced = {syms[sym].name for addr, sym in refs if lo <= addr < hi and sym < len(syms) and syms[sym].shndx == 0}
+        referenced = {syms[sym].name for addr, sym in refs if any(lo <= addr < hi for lo, hi in ranges)
+                      and sym < len(syms) and syms[sym].shndx == 0}
         out = []
         for name in undefined:
             value, placeholder = defs[name]
@@ -897,7 +981,10 @@ def cmd_retarget(args) -> int:
                     raise ProofError("range", "not aligned to the new inventory")
                 for name, rec in p["compared"].items():
                     a = unhx(rec["addr"])
-                    got = P.image_range(module, a, a + rec["size"], new_manifest, executable=(name == ".text"))
+                    code = name.split(":")[0] == ".text"     # ".text:<helper>": a same-file helper (helpers=)
+                    if code and name != ".text" and (a not in starts or a + rec["size"] not in ends):
+                        raise ProofError("range", f"helper {name[6:]} is not aligned to the new inventory")
+                    got = P.image_range(module, a, a + rec["size"], new_manifest, executable=code)
                     if P.sha256(got) != rec["sha256"]:
                         raise ProofError("mismatch", f"{name} bytes differ in the new target")
             except ProofError as err:

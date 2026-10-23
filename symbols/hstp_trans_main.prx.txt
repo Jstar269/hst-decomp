@@ -260,3 +260,6 @@ mat4_copy_004d270 = 0x0004d5e8;   # hstclone s10200333g2r1s
 mat4_rot_y_004d2cc = 0x0004d644;   # hstclone s10200333g2r1s
 __dl__FPv = 0x00000a00;   # hstclone ds1011s
 pow = 0x0000c094;   # hstclone fm2od3
+DAT_003b06d4 = 0x003b06d4;   # hstclone km3
+DAT_003b3308 = 0x003b3308;   # hstclone km3
+DAT_003e1e0c = 0x003e1e0c;   # hstclone km3

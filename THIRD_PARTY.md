@@ -128,9 +128,10 @@ Components identified:
 | Sony SDK libc glue | strings "libc:%s: should be called from main thread" and similar (Sony's reentrancy wrappers around newlib), `EBOOT.BIN` file offset 0x2b90cc (address 0x002b9078) and `hstp_trans_main.prx` file offset 0x2c8e58 (address 0x002c8df8) | no (closed, Sony) |
 | Sony system libraries (closed source) | import library names in both modules: sceAtrac3plus, sceAudio, sceCtrl, sceDisplay, sceGe_user, sceHeap, sceImpose, sceLibFont, sceMpeg, sceNet, sceNetAdhoc, sceNetAdhocMatching, sceNetAdhocctl, sceOpenPSID, scePower, scePsmfPlayer, scePspNpDrm_user, sceRtc, sceSasCore, sceSuspendForUser, sceUmdUser, sceUtility, sceWlanDrv (and sceFont_Library in the Sharing module) | the PRX modules `libfont.prx`, `scePsmfP_library.prx`, `scePsmf_library.prx` (class `sony-prx`) | none published: kept out of the public tree |
 | Sony SDK code compiled into the game modules (psp-gcc) | the `gcc-unattributed` sources: GCC-built code that is not newlib, treated as Sony SDK until it is attributed | none published: kept out of the public tree |
-| Metrowerks C++ runtime (mwccpsp) | expected from the compiler (pointer-to-member-function and array construction helpers); none identified yet | none (`mw-runtime` has no sources) |
+| Metrowerks C++ runtime and library templates (mwccpsp) | runtime helpers compiled into the game: three functions in each module are likely runtime code (array destruction, static-initialiser and callback iteration at 0x000006e8, 0x00000f98 and 0x00000788), and container template code (deque, tree and vector operations) is instantiated throughout the game's own sources | the six helper sources `src/{eboot,sharing_main}/{destroy_new_array_000006e8,call_init_funcs_00000f98,iterate_callback_desc_00000788}*.c`, currently classed `game` (the classifier matches runtime functions by name only); template code inside game sources is not separated |
 
-No open-source component other than newlib was found.
+No open-source component other than newlib was found. Newlib's 4-clause BSD files carry the University of
+California advertising clause, which the University rescinded in 1999; their notices are kept as found.
 
 ## Needed, not included
 
@@ -147,5 +148,5 @@ None of these is redistributed by this repository. Obtain each from its own sour
 | Python 3.12 or newer | All tools; standard library only | <https://www.python.org/> |
 | `reuse` (optional) | `reuse lint`, an independent check of the licence map; `tools/hstreuse.py check` is the built-in check | <https://reuse.software/> (Apache-2.0 and others) |
 
-The retail game modules are also not included: you supply your own decrypted copy of your own legally obtained game (see
-the README).
+The retail game modules are also not included: the tools read decrypted executables from your own copy of the game,
+and this repository contains no decryption code (see the README).

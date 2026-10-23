@@ -11,6 +11,9 @@ Please don't open a public issue for these. You can expect an acknowledgement wi
 
 Never attach game data, decrypted modules, keys or compiler binaries to a report.
 
+Rights holders with a concern about any file in this repository can use the same private channel; see the
+[README](README.md#legal).
+
 ## Supported versions
 
 Only the current `main` branch is supported.

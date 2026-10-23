@@ -77,10 +77,8 @@ extern "C" void FUN_0012aa6c(Obj *self, const float *newPos, int arg)
     float diff = c - t;
     float step = DAT_002da3b4;
     if (fabsf(diff) > step) {
-        if (diff < 0.0f) {
-            step = -step;
-        }
-        c = t + step;
+        float st = diff < 0.0f ? -step : step;
+        c = t + st;
     }
     if (c > 3.1415927f) {
         c -= 6.2831855f;
@@ -92,11 +90,7 @@ extern "C" void FUN_0012aa6c(Obj *self, const float *newPos, int arg)
     FUN_0004d270(&m, &m, self->pos);
     FUN_00093434(self, &m);
 }
-// Near miss (12 words, sn5; control flow, compares, constants and stores all match): two float-register choices differ.
-// (1) retail keeps diff = c - t in $f2 and the loaded step bound (DAT_002da3b4, negated in place) in $f1; ours has diff in $f1 and the bound in $f2.
-// (2) the wrap `c - 2*PI` is computed in place (`sub.s $f4,$f4,$f0`) in retail, ours writes it to $f0 (the constant's register) before the store.
-// Matching idioms found: declare c (yaw) before t (target) to get t=$f3/c=$f4; the compare chain `t >= 0 && c < 0 && t - c > PI { c += 2PI } else if (t < 0) { if (c >= 0 && c - t > PI) t += 2PI; }`
-// followed by one shared `diff = c - t` reproduces retail's jump layout (the nested `if (A||B||C) {...} else {...}` form with the duplicated subtraction does not);
-// the wrap must store in both arms (`if (c > PI) { c -= 2PI; self->yaw = c; } else { self->yaw = c; }`) or the later `self->yaw` argument is forwarded from c instead of reloaded.
-// Ruled out for (1)/(2): declaring the bound or diff first, a local `k`, `ad = fabsf(diff)` before/after the bound, store-through-variable forms of the wrap.
-// near miss from lane sn5 (unreviewed)
+// NEAR MISS (lane sw1): 2 words differ (was 12). The step selection as `float st = diff < 0.0f ? -step : step; c = t + st;` fixed 10 of 12 words (diff in $f2, bound in $f1,
+// plain bc1f + nop, neg.s in place); `if (diff < 0) step = -step;` and `c = diff < 0 ? t - step : t + step;` do not.
+// Left: the 2PI wrap `c -= 6.2831855f; self->yaw = c;` -- retail computes it in place (`sub.s $f4,$f4,$f0; swc1 $f4`), ours writes $f0. Ruled out: `self->yaw = c - 2PI`,
+// `c = c - 2PI`, `!(c <= PI)`, a named temp `w`, a single shared store (forwards c into the later self->yaw argument), 24 top-of-function declaration orders of c/t/diff/step.

@@ -12,9 +12,9 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
   <!-- hstprogress:begin guide-source-kinds -->
-- Of the 11,126 sources (measured 2026-10-22), 6,722 are address-substituted **clones** of another matched source
-  (retail contains the same code many times), 2,136 are mechanical translations of Ghidra pseudocode, 744 are such
-  translations corrected by hand, 1,325 are hand-written, 136 are instances of container templates, and 63 are newlib
+- Of the 11,206 sources (measured 2026-10-22), 6,743 are address-substituted **clones** of another matched source
+  (retail contains the same code many times), 2,135 are mechanical translations of Ghidra pseudocode, 744 are such
+  translations corrected by hand, 1,385 are hand-written, 136 are instances of container templates, and 63 are newlib
   library functions translated from newlib sources (19 more are clones of them, counted among the clones).
 - 82 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
   compiled with Metrowerks `mwccpsp`.
@@ -76,8 +76,8 @@ Optional: newlib source trees (library reconstruction, `hstnewlib.py`), and Ghid
 
    The tool checks each file against these digests (a gzip-compressed image is inflated first), copies it into
    `<campaign_root>/inputs/`, and writes `ledger/campaign.json` (load segment and reviewed function boundaries,
-   from `data/`) and `inputs/revision-selection.json`. It decrypts nothing: decrypting your copy is your own
-   responsibility. A module you leave out is skipped, and `hstmatch.py` then cannot check that module's sources.
+   from `data/`) and `inputs/revision-selection.json`. It decrypts nothing, and this repository contains no
+   decryption code and does not explain how to decrypt. A module you leave out is skipped, and `hstmatch.py` then cannot check that module's sources.
 
 3. Describe your machine to the tools:
 
@@ -122,7 +122,7 @@ status is 0 only when everything is EXACT. Statuses: `EXACT`, `MISMATCH` (with t
 `COMPILE_FAILED`, `LINK_FAILED`, `MISSING_SYMBOLS`, `UNPLACED_SECTION`, `SECTION_MISMATCH`, `NO_SYMBOL`,
 `MISPLACED`, `EXACT_EXTRA_FLAGS` (an experiment with `--flags` or a header `extra=`, which never counts as a
 match) and `EXACT_FAILS_GATE` (the bytes match but the source fails the fake-match gate of `hstgate.py`: `asm` that emits
-instructions, `.word`/`.byte`/`.incbin`, code-emitting pragmas, or `extra=` in `src/`; it never counts either). `--json out.json` writes the results. Build products go to `build/<module>/<dir>__<stem>/`; a full rebuild
+instructions, `.word`/`.byte`/`.incbin`, code-emitting pragmas, or `extra=` in `src/`; it never counts either), and `UNPLACED_FUNCTION` (a `helpers=` source defines a function its header does not place). `--json out.json` writes the results (with `words_differ` per source). A source whose target depends on a `static` helper defined earlier in the same file lists it in the header, `helpers=NAME@0xSTART-0xEND[,...]`: mwccpsp emits every function in its own `.text` section, so each function is linked and compared at its own retail address, and the file is EXACT only when all of them match (docs/AGENT-BRIEF.md, "Same-file static helpers"); the source claims only the target's range. Build products go to `build/<module>/<dir>__<stem>/`; a full rebuild
 shares `build/` with any concurrent run, so run one at a time.
 
 ## Whole-module build
@@ -180,7 +180,7 @@ link, the sources left out and why.
 | `tools/` | The matcher and the other tools, below. |
 | `toolchain/drivers/` | `mwcc_wibo_link.py`, the build driver the private campaign pins (compile with wibo, link at the retail address, extract `.text`), and its tests. |
 | `ghidra/` | The headless pseudocode export (`HstCommitDecompile.java`, `run_commit_decompile.ps1`) and the reviewed function boundaries of the two large modules. |
-| `docs/` | `AGENT-BRIEF.md` (instructions for automated matching agents), `MWCC-NOTES.md` (append-only log of verified compiler behaviour) and `MWCC-DIGEST.md` (the same, by topic), and `OBJDIFF.md` (the objdiff project, see `hstobjdiff.py`). |
+| `docs/` | `MWCC-NOTES.md` (append-only log of verified compiler behaviour) and `MWCC-DIGEST.md` (the same, by topic), and `OBJDIFF.md` (the objdiff project, see `hstobjdiff.py`). |
 | `third_party/` | `newlib/`: newlib's own licence lists (`newlib-<release>-COPYING.NEWLIB`, verbatim) and the table of every newlib-derived source with its release, upstream file, terms and tarball SHA-256. |
 | `LICENSE`, `LICENSES/`, `REUSE.toml` | The licence map: `LICENSE` is the GPL-3.0 text, `LICENSES/` holds every licence text, `REUSE.toml` assigns a licence and copyright to each path (see [Licensing](#licensing)). |
 | `ORIGINS.json` | Origin class of every source (`python tools/hstorigin.py`), a snapshot: `hstpublish.py` classifies afresh. |

@@ -995,6 +995,8 @@ def proof_problems(proof: dict, root: Path, symmaps: dict[str, dict], inventorie
         _m, s, e = proof_range(proof)
         if s not in starts or e not in ends:
             out.append("range is not aligned to the function inventory")
+        if any(hs not in starts or he not in ends for _n, hs, he in h.get("helpers") or []):
+            out.append("a helper (helpers=) is not aligned to the function inventory")
     return out
 
 

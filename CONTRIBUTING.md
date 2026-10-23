@@ -1,8 +1,6 @@
 # Contributing
 
-This guide describes how functions are matched, installed and documented in this repository. It is written for a
-person; the version for automated matching agents is [docs/AGENT-BRIEF.md](docs/AGENT-BRIEF.md), and the two are
-meant to agree.
+This guide describes how functions are matched, installed and documented in this repository.
 
 The repository is not yet open to outside contributions. Contributions are licensed as [Licensing](docs/GUIDE.md#licensing) in the project guide says:
 GPL-3.0-or-later for `src/`, `wip/` and `symbols/`, MIT for the tools, documentation and headers. This guide is for the
@@ -165,7 +163,8 @@ The main points, as a start:
   output: `ra` saved at the top of the frame, `t` temporaries, `movn`/`movz`, `j` between blocks. Use
   `cc=gcc171-O2` or `cc=gcc171-Os` and plain C, without MWCC pragmas; the declaration order of locals has no effect.
   The SDK C library and math library are newlib: report such a function rather than reconstructing it by hand
-  (`hstlib.py` and `hstnewlib.py` match it from the library source).
+  (`hstlib.py` and `hstnewlib.py` match it from the library source). Reconstructions of Sony SDK code are not
+  accepted into the public repository.
 - **Known limit.** Retail uses the Allegrex `ins rd,$zero,pos,size` instruction for field-clearing masks in part of
   the math library, and neither published Sony `psp-gcc` kit emits it. Record such functions in the notes and move
   on.

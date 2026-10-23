@@ -6,7 +6,20 @@ directives, code-emitting pragmas, `extra=` in src/) is reported as EXACT_FAILS_
 Each source file starts with a header comment:
     /* HSTMATCH module=EBOOT.BIN start=0x001a4bc8 end=0x001a4c1c symbol=FUN_001a4bc8 lang=c99 */
 Optional keys: rodata=0xADDR (place .rodata), extra="..." (experimental extra compiler flags;
-a source that needs extra flags is reported as such, never as a profile match).
+a source that needs extra flags is reported as such, never as a profile match),
+helpers=NAME@0xSTART-0xEND[,NAME@0xSTART-0xEND...] (same-file helpers at their OWN retail addresses, below).
+
+Same-file helpers (`helpers=`). Retail compiled some functions in one translation unit with a `static` helper that sits
+at a different, non-adjacent retail address; MWCC then schedules the caller with knowledge of the helper's body, so the
+caller matches only when the helper is defined in the same source. mwccpsp emits every function in its own `.text`
+section (all of them called `.text`), so such a source is linked with EACH function at its own retail address: the
+matcher renames the function sections of a copy of the object (placed.o; section names only: no byte, relocation or
+symbol changes, the same as `objcopy --rename-section` addressed by index) to .hst_fnN and gives each its address with
+`--section-start`; the linker writes every relocation field, including the target's calls into the helper. Every
+function the object defines must be the header symbol or a listed helper (UNPLACED_FUNCTION otherwise), each must be
+alone in its section, and the file is EXACT only when EVERY function equals the retail bytes at its own address; a
+helper that differs makes the whole file a MISMATCH. The header's start/end/symbol stay the target's: that range is
+the one the source claims (the ledger counts a helper's bytes through its own one-function source).
 
 Build: mwccpsp (decomp.me build, run with wibo in WSL) -> object; PSPDEV psp-ld links the object
 with .text at `start` and defines only the object's undefined symbols from symbols/<module>.txt;
@@ -108,7 +121,40 @@ def parse_header(path: Path) -> dict:
     fields["start"] = int(fields["start"], 16)
     fields["end"] = int(fields["end"], 16)
     fields.setdefault("lang", "c++" if path.suffix == ".cpp" else "c99")
+    if "helpers" in fields:
+        fields["helpers"] = parse_helpers(fields["helpers"], fields, path)
     return fields
+
+
+HELPER = re.compile(r"([A-Za-z_]\w*)@(0x[0-9A-Fa-f]{1,8})-(0x[0-9A-Fa-f]{1,8})")
+
+
+def parse_helpers(value: str, h: dict, path: Path | str = "") -> list[tuple[str, int, int]]:
+    """`helpers=NAME@0xSTART-0xEND,...` -> [(name, start, end)]: same-file functions placed at their own retail
+    addresses. Ranges are word-aligned, non-empty, and overlap neither the target's range nor each other."""
+    out: list[tuple[str, int, int]] = []
+    for item in value.split(","):
+        m = HELPER.fullmatch(item.strip())
+        if not m:
+            raise ValueError(f"{path}: bad helpers= entry {item!r} (want NAME@0xSTART-0xEND)")
+        name, s, e = m.group(1), int(m.group(2), 16), int(m.group(3), 16)
+        if not s < e or s % 4 or e % 4:
+            raise ValueError(f"{path}: helper {name} has a bad range [0x{s:08x}, 0x{e:08x})")
+        out.append((name, s, e))
+    spans = [(h["symbol"], h["start"], h["end"])] + out
+    names = [n for n, _s, _e in spans]
+    if len(set(names)) != len(names):
+        raise ValueError(f"{path}: helpers= repeats a function name")
+    ordered = sorted(spans, key=lambda t: t[1])
+    for (n1, _s1, e1), (n2, s2, _e2) in zip(ordered, ordered[1:]):
+        if s2 < e1:
+            raise ValueError(f"{path}: helper ranges overlap ({n1} and {n2})")
+    return out
+
+
+def placed_functions(h: dict) -> list[tuple[str, int, int]]:
+    """(symbol, start, end) of every function a source places: the target first, then its helpers."""
+    return [(h["symbol"], h["start"], h["end"])] + list(h.get("helpers") or [])
 
 
 EXTRA_SYMBOLS: list[Path] = []  # --symbols-extra: candidate entries tried for one run only
@@ -160,6 +206,69 @@ def elf_symbols(obj: bytes):
         yield name, value, size, info, shndx
 
 
+STT_FUNC = 2
+
+
+def function_sections(obj: bytes, funcs: list[tuple[str, int, int]]) -> tuple[dict[int, tuple[str, int, int]], str]:
+    """For a `helpers=` source: {.text section index: (symbol, start, end)} for every placed function, or ({}, why)
+    when the object cannot be placed function by function: a function missing, defined twice, not alone at the start
+    of its own section, or a non-empty .text section (a function) that the header does not place."""
+    sections = elf_sections(obj)
+    text = {i for i, (n, s) in enumerate(sections) if n == ".text" and s[1] == 1}
+    nonempty = {i for i in text if sections[i][1][5]}
+    symbols = list(elf_symbols(obj))
+    out: dict[int, tuple[str, int, int]] = {}
+    for f in funcs:
+        hits = [(v, sh) for n, v, sz, info, sh in symbols if n == f[0] and sh in text]
+        if len(hits) != 1:
+            return {}, f"{f[0]} is {'not defined' if not hits else 'defined more than once'} in a .text section"
+        value, sh = hits[0]
+        others = sorted({n for n, v, sz, info, x in symbols if x == sh and n and n != f[0] and info & 15 == STT_FUNC})
+        if value != 0 or others or sh in out:
+            return {}, (f"{f[0]} shares its .text section with {', '.join(others) or 'other code'}: helpers= needs one "
+                        "section per function (mwccpsp)")
+        out[sh] = f
+    rest = sorted(nonempty - set(out))
+    if rest:
+        names = sorted({n for n, v, sz, info, sh in symbols if sh in rest and n and info & 15 == STT_FUNC})
+        return {}, (f"{', '.join(names) or f'{len(rest)} .text section(s)'} defined but not placed: list every function "
+                    "of the file in helpers= (NAME@0xSTART-0xEND)")
+    return out, ""
+
+
+def rename_sections(obj: bytes, names: dict[int, str]) -> bytes:
+    """A copy of the relocatable object with the sections at the given indices renamed. Only the section-name string
+    table (appended anew at the end of the file) and those sections' sh_name fields change: section contents,
+    relocations and symbols are untouched (objcopy --rename-section cannot address one of several `.text` sections)."""
+    shoff, = struct.unpack_from("<I", obj, 0x20)
+    shentsize, shnum, shstrndx = struct.unpack_from("<HHH", obj, 0x2E)
+    hdr = lambda i: shoff + i * shentsize  # noqa: E731
+    st_off, st_size = struct.unpack_from("<II", obj, hdr(shstrndx) + 16)
+    table = bytearray(obj[st_off:st_off + st_size])
+    out = bytearray(obj)
+    for i, name in sorted(names.items()):
+        if not 0 < i < shnum or i == shstrndx:
+            raise ValueError(f"cannot rename section {i}")
+        struct.pack_into("<I", out, hdr(i), len(table))
+        table += name.encode("ascii") + b"\0"
+    out += b"\0" * (-len(out) % 4)
+    struct.pack_into("<II", out, hdr(shstrndx) + 16, len(out), len(table))
+    out += table
+    return bytes(out)
+
+
+def linked_section(elf: bytes, name: str):
+    """(address, contents) of the linked section `name`, or None."""
+    for n, s in elf_sections(elf):
+        if n == name:
+            return s[3], (elf[s[4]:s[4] + s[5]] if s[1] != 8 else b"")
+    return None
+
+
+def word_diffs(body: bytes, target: bytes) -> list[int]:
+    return [i for i in range(max(len(body), len(target)) // 4) if body[i * 4:i * 4 + 4] != target[i * 4:i * 4 + 4]]
+
+
 def module_bytes(cache: dict, module: str):
     if module not in cache:
         if "_ledger" not in cache:
@@ -184,16 +293,21 @@ def target_references(obj: bytes, h: dict):
     names = [n for n, _ in sections]
     if ".text" not in names:
         return None, None
-    ti = names.index(".text")
     symbols = list(elf_symbols(obj))
-    sym = next(((v, s) for n, v, s, i, sh in symbols if n == h["symbol"] and sh == ti), None)
-    if sym is None:
-        return None, None
-    lo, hi = sym[0], sym[0] + max(sym[1], h["end"] - h["start"])
+    if h.get("helpers"):
+        # every function of a helpers= source is placed and compared: every .text relocation counts
+        span_of = {i: (0, 1 << 32) for i, (n, s) in enumerate(sections) if n == ".text" and s[1] == 1}
+    else:
+        ti = names.index(".text")
+        sym = next(((v, s) for n, v, s, i, sh in symbols if n == h["symbol"] and sh == ti), None)
+        if sym is None:
+            return None, None
+        span_of = {ti: (sym[0], sym[0] + max(sym[1], h["end"] - h["start"]))}
     ref_names, ref_sections = set(), set()
     for n, s in sections:
-        if s[1] != 9 or s[7] != ti:  # SHT_REL applying to .text
+        if s[1] != 9 or s[7] not in span_of:  # SHT_REL applying to a compared .text
             continue
+        lo, hi = span_of[s[7]]
         for k in range(s[5] // 8):
             off, info = struct.unpack_from("<II", obj, s[4] + k * 8)
             if not lo <= off < hi:
@@ -203,7 +317,7 @@ def target_references(obj: bytes, h: dict):
                 ref_names.add(name)
             elif 0 < shndx < len(names):
                 ref_sections.add(names[shndx])
-    if any(s[1] == 4 and s[7] == ti for _, s in sections):  # SHT_RELA: not produced by these compilers
+    if any(s[1] == 4 and s[7] in span_of for _, s in sections):  # SHT_RELA: not produced by these compilers
         return None, None
     return ref_names, ref_sections
 
@@ -221,6 +335,48 @@ def placed_section_differs(h: dict, out: Path, data: bytes, seg: dict, expected:
         if data[off:off + len(ours)] != ours:
             return f"{sec} ({len(ours)} bytes at 0x{addr:08x}) differs from retail"
     return ""
+
+
+def compare_placed(h: dict, out: Path, data: bytes, seg: dict, placement: list, expected: list[str]) -> tuple[str, str, int | None]:
+    """(status, detail, differing words) of a helpers= source: every function, read from its own linked section, must
+    sit at its retail address and equal the retail bytes there. A section shorter than its range is followed by the
+    linker's zero fill (as between any two input sections), so the rest of the range must be zero in retail too. Writes
+    text.bin/target.bin for the target and helper-<name>.bin/.target.bin for each helper (tools/hstdiff.py)."""
+    elf_path = out / "linked.elf"
+    if not elf_path.exists():
+        return "LINK_FAILED", (out / "link.log").read_text(errors="replace")[-600:], None
+    elf = elf_path.read_bytes()
+    where: dict[str, list[int]] = {}
+    for n, v, s, i, sh in elf_symbols(elf):
+        if sh != 0 and n:
+            where.setdefault(n, []).append(v)
+    total, parts = 0, []
+    for sec, sym, start, end in placement:
+        got = linked_section(elf, sec)
+        if got is None or got[0] != start or where.get(sym) != [start]:
+            at = f"0x{where[sym][0]:x}" if where.get(sym) else "nowhere"
+            return "MISPLACED", f"{sym} linked at {at}, not at its retail address 0x{start:08x}", None
+        span = end - start
+        body = got[1] + bytes(max(0, span - len(got[1])))
+        off = seg["file_offset"] + start - seg["start"]
+        target = data[off:off + span]
+        stem = "text" if sym == h["symbol"] else f"helper-{sym}"
+        (out / f"{stem}.bin").write_bytes(body)
+        ((out / "target.bin") if sym == h["symbol"] else (out / f"{stem}.target.bin")).write_bytes(target)
+        diffs = word_diffs(body, target)
+        total += len(diffs)
+        if sym == h["symbol"]:
+            parts.insert(0, f"{len(body)//4}/{span//4} words; {len(diffs)} differ"
+                         + (f"; first at +0x{diffs[0]*4:x}" if diffs else ""))
+        elif diffs:
+            parts.append(f"helper {sym}@0x{start:08x}: {len(body)//4}/{span//4} words; {len(diffs)} differ; "
+                         f"first at +0x{diffs[0]*4:x}")
+    if total:
+        return "MISMATCH", "; ".join(parts), total
+    section_diff = placed_section_differs(h, out, data, seg, expected)
+    if section_diff:
+        return "SECTION_MISMATCH", section_diff, 0
+    return "EXACT", "", 0
 
 
 def run_wsl(lines: list[str], name: str, native: str | None = None) -> None:
@@ -300,6 +456,7 @@ def main() -> int:
     results = {}
     expected_sections: dict = {}
     text_off: dict = {}
+    fn_placement: dict = {}   # helpers= sources: [(linked section, symbol, start, end)], in address order
     for p, h, out in jobs:
         obj_path = out / "obj.o"
         if not obj_path.exists():
@@ -322,12 +479,29 @@ def main() -> int:
             results[p] = ("MISSING_SYMBOLS", " ".join(missing))
             continue
         sections = {n: s for n, s in elf_sections(obj)}
-        # the target need not be the object's first function (a library file compiled whole): .text is
-        # placed so that the target lands at its retail address, and the rest of the object around it
-        names = [n for n, _ in elf_sections(obj)]
-        text_idx = names.index(".text") if ".text" in names else -1
-        text_off[p] = next((v for n, v, s, i, sh in elf_symbols(obj) if n == h["symbol"] and sh == text_idx), 0)
-        placed = [f"-Ttext=0x{h['start'] - text_off[p]:08x}"]
+        link_obj = obj_path
+        if h.get("helpers"):
+            # same-file helpers: every function at its own retail address (see the module docstring)
+            if cc != "mwcc219":
+                results[p] = ("UNPLACED_FUNCTION", f"helpers= needs one .text section per function (mwccpsp); cc={cc}")
+                continue
+            fsecs, why = function_sections(obj, placed_functions(h))
+            if why:
+                results[p] = ("UNPLACED_FUNCTION", why)
+                continue
+            order = sorted(fsecs, key=lambda i: fsecs[i][1])
+            fn_names = {i: f".hst_fn{k}" for k, i in enumerate(order)}
+            fn_placement[p] = [(fn_names[i], *fsecs[i]) for i in order]
+            link_obj = out / "placed.o"
+            link_obj.write_bytes(rename_sections(obj, fn_names))
+            placed = [f"--section-start {fn_names[i]}=0x{fsecs[i][1]:08x}" for i in order]
+        else:
+            # the target need not be the object's first function (a library file compiled whole): .text is
+            # placed so that the target lands at its retail address, and the rest of the object around it
+            names = [n for n, _ in elf_sections(obj)]
+            text_idx = names.index(".text") if ".text" in names else -1
+            text_off[p] = next((v for n, v, s, i, sh in elf_symbols(obj) if n == h["symbol"] and sh == text_idx), 0)
+            placed = [f"-Ttext=0x{h['start'] - text_off[p]:08x}"]
         for sec in (".rodata", ".data", ".sdata", ".sbss", ".bss"):
             if sec in sections and sections[sec][5]:
                 key = sec.strip(".")
@@ -346,10 +520,12 @@ def main() -> int:
         pspdev = pspdev_bin()
         extract = "".join(f" && {pspdev}/psp-objcopy -O binary -j {sec} {to_wsl(out / 'linked.elf')} "
                           f"{to_wsl(out / (sec.strip('.') + '.bin'))}" for sec in expected_sections[p])
+        # helpers= sources: each function's bytes are read from its own linked section (step 3)
+        text_cmd = "" if p in fn_placement else \
+            f" && {pspdev}/psp-objcopy -O binary -j .text {to_wsl(out / 'linked.elf')} {to_wsl(out / 'text.bin')}"
         link.append(f"{pspdev}/psp-ld -EL -e 0x{h['start']:08x} {' '.join(placed)} -o {to_wsl(out / 'linked.elf')} "
-                    f"{to_wsl(obj_path)} {to_wsl(out / 'syms.ld')} > {to_wsl(out / 'link.log')} 2>&1 && "
-                    f"{pspdev}/psp-objcopy -O binary -j .text {to_wsl(out / 'linked.elf')} {to_wsl(out / 'text.bin')}"
-                    + extract)
+                    f"{to_wsl(link_obj)} {to_wsl(out / 'syms.ld')} > {to_wsl(out / 'link.log')} 2>&1"
+                    + text_cmd + extract)
     if link:
         run_wsl(link, "link")
     # 3. compare
@@ -357,8 +533,18 @@ def main() -> int:
     summary = []
     for p, h, out in jobs:
         rel = p.relative_to(ROOT).as_posix() if p.is_relative_to(ROOT) else str(p)
+        words = None   # differing words (all compared functions), when the source linked and was compared
         if p in results:
             status, detail = results[p]
+        elif p in fn_placement:
+            data, seg = module_bytes(cache, h["module"])
+            status, detail, words = compare_placed(h, out, data, seg, fn_placement[p], expected_sections.get(p, []))
+            if status == "EXACT":
+                if h.get("extra") or args.flags is not None:
+                    status = "EXACT_EXTRA_FLAGS"
+                gate = hstgate.refusals(hstgate.check_file(p))
+                if status == "EXACT" and gate:
+                    status, detail = "EXACT_FAILS_GATE", hstgate.summary(gate)
         else:
             data, seg = module_bytes(cache, h["module"])
             off = seg["file_offset"] + h["start"] - seg["start"]
@@ -374,12 +560,19 @@ def main() -> int:
                     status, detail = "NO_SYMBOL", h["symbol"]
                 elif sym[0][0] != h["start"]:
                     status, detail = "MISPLACED", f"{h['symbol']} linked at 0x{sym[0][0]:x}, not at its retail address"
+                    others = sorted({n for n, v, s, i, sh in elf_symbols((out / "obj.o").read_bytes())
+                                     if sh != 0 and i & 15 == STT_FUNC and n and n != h["symbol"]})
+                    if others:
+                        detail += (f" (the file also defines {', '.join(others[:4])}: same-file helpers go at their own "
+                                   "addresses with helpers=NAME@0xSTART-0xEND)")
                 else:
                     span = h["end"] - h["start"]
                     linked = linked[text_off.get(p, 0):]
                     # a multi-function run (same-file static helpers) compares the whole header span
                     body = linked[:span] if sym[0][1] < span else linked[:sym[0][1]]
                     section_diff = placed_section_differs(h, out, data, seg, expected_sections.get(p, []))
+                    if body == target:
+                        words = 0
                     if body == target and section_diff:
                         status, detail = "SECTION_MISMATCH", section_diff
                     elif body == target:
@@ -390,12 +583,13 @@ def main() -> int:
                             status, detail = "EXACT_FAILS_GATE", hstgate.summary(gate)
                     else:
                         n = len(target) // 4
-                        diffs = [i for i in range(max(len(body), len(target)) // 4)
-                                 if body[i * 4:i * 4 + 4] != target[i * 4:i * 4 + 4]]
+                        diffs = word_diffs(body, target)
+                        words = len(diffs) if diffs else abs(len(body) - len(target)) // 4 or 1
                         status = "MISMATCH"
                         detail = f"{len(body)//4}/{n} words; {len(diffs)} differ; first at +0x{diffs[0]*4:x}" if diffs else "size differs"
                         (out / "target.bin").write_bytes(target)
-        summary.append({"source": rel, "module": h["module"], "start": f"0x{h['start']:08x}", "status": status, "detail": detail})
+        summary.append({"source": rel, "module": h["module"], "start": f"0x{h['start']:08x}", "status": status, "detail": detail,
+                        "words_differ": words})
         if not args.quiet or status != "EXACT":
             print(f"{status:18s} {h['module']} 0x{h['start']:08x} {rel} {detail}")
     exact = sum(1 for s in summary if s["status"] == "EXACT")

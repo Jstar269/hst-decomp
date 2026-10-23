@@ -46,7 +46,7 @@ ROOT = hstorigin.ROOT
 EXCLUDED_CLASSES = ("sony-prx", "gcc-unattributed")
 # Maintainer-only files that stay in the maintainers' tree: working research notes, and the scripts that run
 # external agent lanes (they depend on the maintainers' own tool setup). A trailing "/" excludes a whole directory.
-PRIVATE_PATHS = ("docs/research/", "docs/LANE-TASK.md", "tools/hstauto.sh", "tools/hstsupervise.sh",
+PRIVATE_PATHS = ("docs/research/", "docs/LANE-TASK.md", "docs/AGENT-BRIEF.md", "tools/hstauto.sh", "tools/hstsupervise.sh",
                  "tools/hstlane.py", "tools/hstrestart.sh", "tools/hstpushprep.sh",
                  "tools/hstexec.py", "tools/test_hstexec.py",
                  # the accepted ledger names every proven source, the Sony SDK ones included (tools/hstproof.py)

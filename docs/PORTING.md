@@ -71,7 +71,7 @@ where those differences matter.
 
 ## Measurement
 
-The full run used `python tools/hstport.py --parallel 4 --host-clang "C:\Program Files\LLVM\bin\clang.exe" --android-ndk "C:\Users\Jstar\AppData\Local\Android\Sdk\ndk\30.0.16248370"` on 2026-10-21. It analyzed and measured all 11,893 sources for all five targets and took 1,219.979 seconds (20 minutes 19.979 seconds), including 263.697 seconds (4 minutes 23.697 seconds) for the AST numeric-address scan. The detector reported 8,651 findings across 2,451 public sources and 10,092 findings across 3,178 private sources. Public totals omit source origins listed in `tools/hstpublish.py` `EXCLUDED_CLASSES`; in this scope that excludes 1,310 `gcc-unattributed` sources and 58,620 function bytes. Private totals include them.
+The full run used `python tools/hstport.py --parallel 4 --host-clang "C:\Program Files\LLVM\bin\clang.exe" --android-ndk "<ndk>\30.0.16248370"` on 2026-10-21. It analyzed and measured all 11,893 sources for all five targets and took 1,219.979 seconds (20 minutes 19.979 seconds), including 263.697 seconds (4 minutes 23.697 seconds) for the AST numeric-address scan. The detector reported 8,651 findings across 2,451 published sources.
 
 | View | Sources | Compile all 5 | Code bytes | Compiling bytes | Byte progress |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -93,7 +93,7 @@ The run used LLVM for the Windows targets and Android NDK r30 for Android:
 | Targets | Compiler path | Version |
 | --- | --- | --- |
 | Windows x64 and x86 | `C:\Program Files\LLVM\bin\clang.exe` | `clang version 23.1.4 (https://github.com/llvm/llvm-project 7a941dfb2877a0b8cf30323fefa85ad019e0b0f5)` |
-| Android arm64, armv7, and x64 | `C:\Users\Jstar\AppData\Local\Android\Sdk\ndk\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang.exe` | `Android (16134705, based on r574158c) clang version 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 9f872551d3c681d06fd303b36f16ed5c274735eb)` |
+| Android arm64, armv7, and x64 | `<ndk>\30.0.16248370\toolchains\llvm\prebuilt\windows-x86_64\bin\clang.exe` | `Android (16134705, based on r574158c) clang version 21.0.0 (https://android.googlesource.com/toolchain/llvm-project 9f872551d3c681d06fd303b36f16ed5c274735eb)` |
 
 The first-failure census counts each failing source once, at its first failing target. The complete sanitized reports in
 ignored `try/port-report.json` and `try/port-private-report.json` retain each included source's numeric-address

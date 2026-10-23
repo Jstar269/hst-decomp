@@ -41,6 +41,8 @@ SEEDED = (MAT4, JTBL, GCC, RUN, *INNER, DTOR, TWIN)
 NEW = "src/eboot/FUN_00000008.c"                          # genuine, not seeded: promoted by the controls
 NEW_BIG = "src/eboot/obj_report_001550c0.cpp"             # genuine, 132 bytes, not seeded
 ASM_ADDR = 0x10                                           # an EBOOT function the asm mutation reproduces with .word
+HELPED = "src/eboot/power_callback_00291434.cpp"          # helpers=: a static stub at 0x28fb44 placed apart from the target
+HELPER_OWN = "src/eboot/FUN_0028fb44.cpp"                 # the same stub as its own one-function source
 
 
 def _rmtree(path: Path) -> None:
@@ -317,6 +319,90 @@ class Wiring(GateCase):
         self.assertFalse((self.dir / INNER[0]).exists())
         self.assertIn(NEW, {p["source"] for p in self.sb.proofs()})
         self.assertIn('"promoted": 1', r.stdout)
+
+
+    def lane_wip(self, lane: Path, name: str, main_text: str, lane_text: str) -> None:
+        self.sb.write(f"wip/{name}", main_text)
+        (lane / "wip" / name).write_text(lane_text, encoding="utf-8")
+
+    def test_harvest_replaces_a_wip_file_only_with_fewer_differing_words(self) -> None:
+        lane = self.dir / "ext" / "lane2"
+        for d in ("src/eboot", "symbols", "wip", "docs"):
+            (lane / d).mkdir(parents=True)
+        (lane / "docs" / "MWCC-NOTES.md").write_text("# notes\n", encoding="utf-8")
+        new, big = (REAL / NEW).read_text(encoding="utf-8"), (REAL / NEW_BIG).read_text(encoding="utf-8")
+        worse = new.replace("  return;", "  *(volatile int *)0x40 = 1;\n  *(volatile int *)0x44 = 2;")
+        better = new.replace("  return;", "  *(volatile int *)0x40 = 1;")
+        self.lane_wip(lane, "near_00000008.c", worse, better)                     # the lane improved it: copied
+        self.lane_wip(lane, "near_001550c0.cpp", big, big.replace("return 0;", "return 1;"))   # the lane made it worse
+        self.sb.config(ext_root=str(self.dir / "ext"))
+        r = self.sb.run("hstlane.py", "harvest", "lane2")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn('"wip_improved": 1', r.stdout)
+        got = self.sb.text("wip/near_00000008.c")
+        self.assertIn("0x40 = 1;", got)
+        self.assertNotIn("0x44", got)
+        self.assertRegex(got, r"// improved by lane lane2 \(unreviewed\): \d+ -> \d+ differing words")
+        self.assertEqual(self.sb.text("wip/near_001550c0.cpp"), big)
+
+
+class HelperPlacement(GateCase):
+    """Same-file helpers (helpers=): every function at its own retail address; a helper that differs refuses the file."""
+
+    def copy(self, *rels: str) -> None:
+        for rel in rels:
+            shutil.copyfile(REAL / rel, self.dir / rel)
+
+    def test_helper_source_is_promoted_and_each_byte_owned_once(self) -> None:
+        self.copy(HELPED, HELPER_OWN)
+        m = self.sb.run("hstmatch.py", HELPED)
+        self.assertIn("EXACT 1/1", m.stdout, m.stdout + m.stderr)
+        r = self.sb.promote(HELPED, HELPER_OWN)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        proofs = {p["source"]: p for p in self.sb.proofs()}
+        p = proofs[HELPED]
+        self.assertEqual((p["start"], p["end"]), ("0x00291434", "0x002914c0"))     # claims the target only
+        self.assertEqual((p["compared"][".text:FUN_0028fb44"]["addr"], p["compared"][".text:FUN_0028fb44"]["size"]),
+                         ("0x0028fb44", 44))                                         # ... but compared the helper
+        self.assertEqual((proofs[HELPER_OWN]["start"], proofs[HELPER_OWN]["end"]), ("0x0028fb44", "0x0028fb70"))
+        self.assertEqual(self.sb.check().returncode, 0)
+        v = self.sb.gate("verify")                                                   # re-run: the same proof
+        self.assertEqual(v.returncode, 0, v.stdout + v.stderr)
+
+    def test_helper_mismatch_is_refused(self) -> None:
+        self.copy(HELPED)
+        self.sb.edit(HELPED, "static void FUN_0028fb44(...)", "static void FUN_0028fb44(const char *s, ...)")
+        m = self.sb.run("hstmatch.py", HELPED)
+        self.assertRegex(m.stdout, r"MISMATCH .* 0 differ; helper FUN_0028fb44@0x0028fb44: .* differ")
+        self.assertCandidateRefused(self.sb.promote(HELPED), HELPED, "helper FUN_0028fb44")
+        self.assertEqual(self.sb.state(), self.before)
+
+    def test_unlisted_helper_is_refused(self) -> None:
+        self.copy(HELPED)
+        self.sb.edit(HELPED, " helpers=FUN_0028fb44@0x0028fb44-0x0028fb70", "")
+        m = self.sb.run("hstmatch.py", HELPED)
+        self.assertIn("MISPLACED", m.stdout)
+        self.assertIn("also defines FUN_0028fb44", m.stdout)
+        self.assertCandidateRefused(self.sb.promote(HELPED), HELPED, "MISPLACED")
+
+    def test_helper_off_the_inventory_is_refused(self) -> None:
+        self.copy(HELPED)
+        self.sb.edit(HELPED, "-0x0028fb70", "-0x0028fb6c")
+        self.assertCandidateRefused(self.sb.promote(HELPED), HELPED, "helper FUN_0028fb44 .* not a function of the "
+                                                                     "locked inventory")
+
+    def test_lying_matcher_cannot_pass_a_mismatching_helper(self) -> None:
+        self.sb.edit("tools/hstmatch.py", '        summary.append({"source": rel,',
+                     '        status, detail = "EXACT", ""\n        summary.append({"source": rel,')
+        r = self.sb.gate("migrate-toolchain", "--reason", "test: a matcher that always says EXACT")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.before = self.sb.state()
+        self.copy(HELPED)
+        self.sb.edit(HELPED, "static void FUN_0028fb44(...)", "static void FUN_0028fb44(const char *s, ...)")
+        r = self.sb.promote(HELPED)
+        self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+        self.assertRegex(r.stdout, rf"not promoted: {HELPED}: .*independent comparison \(helper FUN_0028fb44\)")
+        self.assertEqual(self.sb.state(), self.before)
 
 
 class Migrations(GateCase):

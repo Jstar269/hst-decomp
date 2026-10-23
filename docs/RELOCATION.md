@@ -22,7 +22,7 @@ The two game modules keep one table per relocated section (`.rel.text`, `.rel.li
 
 The layout was checked on every entry of both game modules (`hstreloc.decode_a` refuses a table that breaks it): bits
 24-31 are always zero, both segment fields are 0 (the modules have one `PT_LOAD`, linked at address 0), and only the
-four types above occur. Nakagawa Recomp's project-authored loader (`C:\nk\main\src\rt\prx_loader.c`, `apply_format_a`)
+four types above occur. Nakagawa Recomp's project-authored loader (`src/rt/prx_loader.c`, `apply_format_a`)
 applies the same layout; it was read for the format only.
 
 How the loader moves a word by the load base S of the address segment:

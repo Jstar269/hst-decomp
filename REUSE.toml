@@ -301,3 +301,11 @@ SPDX-FileCopyrightText = [
 ]
 SPDX-License-Identifier = "LicenseRef-Newlib-UCB-BSD-4-Clause AND LicenseRef-Newlib-UCB-Advertising-Notice AND LicenseRef-Newlib-Gay-AT-T AND LicenseRef-Newlib-OAR AND LicenseRef-Newlib-Birgmeier"
 # END generated newlib annotations
+
+# The presentation screenshot shows the game's own title screen. It belongs to the game's owners, is shown only to
+# identify the game, and is under none of this project's licences.
+[[annotations]]
+path = "docs/media/hst-title-screen.png"
+precedence = "override"
+SPDX-FileCopyrightText = "2010 Sony Computer Entertainment Inc."
+SPDX-License-Identifier = "LicenseRef-Identification-Only"

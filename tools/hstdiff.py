@@ -31,15 +31,25 @@ def main() -> int:
         off = seg["file_offset"] + h["start"] - seg["start"]
         target = out / "target.bin"
         target.write_bytes(data[off:off + h["end"] - h["start"]])
-        ours = disasm(out / "text.bin", h["start"]) if (out / "text.bin").exists() else []
-        theirs = disasm(target, h["start"])
-        print(f"== {src.name}  (ours | retail)")
-        for i in range(max(len(ours), len(theirs))):
-            a = ours[i] if i < len(ours) else ""
-            b = theirs[i] if i < len(theirs) else ""
-            mark = "  " if a.split(" ")[0:1] == b.split(" ")[0:1] else "**"
-            print(f"{mark} {h['start'] + 4 * i:08x}  {a:<44.44} | {b}")
+        show(src.name, out / "text.bin", target, h["start"])
+        for name, start, end in h.get("helpers") or []:   # same-file helpers (helpers=), each at its own address
+            ours = out / f"helper-{name}.bin"
+            theirs = out / f"helper-{name}.target.bin"
+            o = seg["file_offset"] + start - seg["start"]
+            theirs.write_bytes(data[o:o + end - start])
+            show(f"{src.name} helper {name}", ours, theirs, start)
     return 0
+
+
+def show(title: str, ours_bin: Path, target: Path, start: int) -> None:
+    ours = disasm(ours_bin, start) if ours_bin.exists() else []
+    theirs = disasm(target, start)
+    print(f"== {title}  (ours | retail)")
+    for i in range(max(len(ours), len(theirs))):
+        a = ours[i] if i < len(ours) else ""
+        b = theirs[i] if i < len(theirs) else ""
+        mark = "  " if a.split(" ")[0:1] == b.split(" ")[0:1] else "**"
+        print(f"{mark} {start + 4 * i:08x}  {a:<44.44} | {b}")
 
 
 if __name__ == "__main__":

@@ -224,6 +224,12 @@ def prepare_object(path: Path, h: dict, obj_bytes: bytes, uid: str) -> tuple[byt
         raise Excluded(f"symbol {h['symbol']} is not defined in a .text section")
     base = h["start"] - (offs[target[5]] + target[1])
     abs0 = {i: base + offs[i] for i in text}
+    for name, hstart, _hend in h.get("helpers") or []:
+        # a same-file helper (helpers=) sits at its own retail address, not next to the target: its section is dropped
+        # here like any code outside the span, and the references to it resolve to that address (the tile there)
+        hit = next((s for s, n in zip(syms, names) if n == name and s[5] in offs), None)
+        if hit is not None:
+            abs0[hit[5]] = hstart - hit[1]
     span = {i: (max(abs0[i], h["start"]), min(abs0[i] + elf.secs[i].size, h["end"])) for i in text}
     kept = [i for i in text if span[i][0] < span[i][1]]
     if target[5] not in kept:

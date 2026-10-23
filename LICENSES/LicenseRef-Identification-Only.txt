@@ -1,0 +1,4 @@
+This file shows material that belongs to its owners (here, the title screen of Hot Shots Tennis: Get a Grip,
+including its logo, artwork and on-screen text). It is included only to identify the game this project studies.
+No licence is granted for it by this project, and none of this repository's licences (GPL-3.0-or-later, MIT or
+the newlib terms) apply to it.

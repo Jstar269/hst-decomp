@@ -1,0 +1,56 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x000f5a4c end=0x000f5ba4 symbol=FUN_000f5a4c lang=c99 */
+/* Clone of src/eboot/fade_step_000f0384.c (hstclone.py tag sw1): addresses substituted; exact match verified; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+typedef struct Sub { char pad0[0x64]; float a; char pad1[0x78 - 0x68]; float b; } Sub;
+typedef struct Obj {
+  char pad0[0x54]; unsigned char off;
+  char pad1[0x58 - 0x55]; Sub *s0; Sub *s1; Sub *s2;
+  char pad2[0x8c - 0x64]; int cnt;
+  char pad3[0x94 - 0x90]; float scale;
+} Obj;
+
+extern int DAT_003e1f60;
+extern void FUN_001007a8(int);
+extern void FUN_00108a2c(Obj *);
+extern void FUN_00108dac(Obj *);
+
+void FUN_000f5a4c(Obj *self)
+{
+  float x;
+  float a;
+  float old;
+
+  if (self->off == 0) {
+    a = 0.0f;
+    old = self->scale;
+    self->cnt = self->cnt + 1;
+    x = (float)self->cnt;
+    if (x < 15.0f) {
+      x = x / 15.0f;
+      a = (1.0f - x) * 18.0f;
+    }
+    else if (x < 75.0f) {
+      x = 1.0f;
+    }
+    else if (x < 90.0f) {
+      x = 1.0f - (x - 75.0f) / 15.0f;
+    }
+    else {
+      x = 0.0f;
+    }
+    self->scale = x;
+    self->s0->a = a;
+    self->s0->b = x;
+    self->s1->a = a;
+    self->s1->b = x;
+    self->s2->a = a;
+    self->s2->b = x;
+    if (old > 0.0f || self->scale > 0.0f) {
+      FUN_00108dac(self);
+    }
+    if ((float)self->cnt == 90.0f) {
+      FUN_001007a8(DAT_003e1f60);
+    }
+    FUN_00108a2c(self);
+  }
+}
