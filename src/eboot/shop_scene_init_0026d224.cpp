@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0026d224 end=0x0026d5fc symbol=FUN_0026d224 lang=c++ */
+/* Shop scene init: reads chrsel_param_scroll.csv by row position, loads face_dummy.i3r; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Vec4 { float x, y, z, w; };
 struct Reader { int a, b, c, d; };

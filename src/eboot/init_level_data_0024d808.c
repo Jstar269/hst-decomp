@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0024d808 end=0x0024d8dc symbol=FUN_0024d808 lang=c99 */
+/* AityakuTable ctor: data/common/aityaku/aityaku.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

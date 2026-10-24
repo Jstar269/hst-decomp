@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00065364 end=0x000653ac symbol=FUN_00065364 lang=c99 */
+/* CSV table reader: column index by header name; see docs/DATA-TABLES.md */
 /* Clone of src/sharing_main/FUN_00066400.c (hstclone.py tag u1ae): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: typed the helper arguments, used pointer arithmetic for the object subobject, and reversed the comparison arms; exact match verified; names and types await human review. */
 typedef unsigned char undefined;

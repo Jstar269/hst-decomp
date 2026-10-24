@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00293bd4 end=0x00293c6c symbol=FUN_00293bd4 lang=c++ */
+/* ShopItem_PreloadCsv: data/menu/shop/Item.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct VirtualObject {
   virtual void setMode(int);

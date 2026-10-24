@@ -40,10 +40,16 @@ int FUN_0014d7fc(struct FlagCmd *c, struct FlagCtx *x)
                 FUN_0014c610((char *)&DAT_002dc24c);
         }
         type = c->type;
-        if (type != 5 && type != 3 && type != 1)
-            FUN_0014c610((char *)&DAT_002dc2d8, DAT_002c1978[type], c->value.i);
-        else
+        switch (type) {
+        case 1:
+        case 3:
+        case 5:
             FUN_0014c610((char *)&DAT_002dc2c4, DAT_002c1978[type], c->value.f);
+            break;
+        default:
+            FUN_0014c610((char *)&DAT_002dc2d8, DAT_002c1978[type], c->value.i);
+            break;
+        }
     }
     type = c->type;
     base = x->base;
@@ -89,4 +95,18 @@ int FUN_0014d7fc(struct FlagCmd *c, struct FlagCtx *x)
 // extra type reload inside the else (drops to 126).
 // Second delta: the indent loop counter is s0 here and v1 in retail (retail's s0 is
 // already live with the hoisted type load); loop shape and trip test are identical.
-// near miss from lane fm8 (unreviewed)
+// near miss: 128/128 words, only 3 differ - the indent-loop counter. Retail's loop counter lives
+// in v1 and ours in s0 (`move v1,zero` vs `move s0,zero`, plus the increment and the slt); the
+// loop shape, the per-pass reload of x->depth, the trip test and every other word match.
+// Fixed since the first attempt (was 127/128 with the two arms transposed): the float/int
+// dispatch must be a SWITCH with the cases written in ASCENDING order -
+// `switch (type) { case 1: case 3: case 5: float; break; default: int; break; }` - which is what
+// produces retail's `beql 5 / beq 3 / beq 1` chain to the float body followed by `b` to the int
+// body. Writing the cases 5/3/1 gives ascending compares (li v0,1 first), and the `if (a||b||c)`
+// form puts the int arm in the fall-through position.
+// A counter in a caller-saved register across the `jal` suggests the retail print helper is a
+// STATIC function in the same TU (MWCC's interprocedural clobber analysis keeps v1 live);
+// reproducing that would need helpers= and the print helper's own body, so parked.
+// A second attempt at `for (i = 0; i <= x->depth; i++)` is wrong: it reverses the compare to
+// `slt at,v0,s0` and turns the guard into `bltz` (126/128).
+// improved by lane fm8 (unreviewed): 97 -> 3 differing words

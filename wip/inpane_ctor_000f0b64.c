@@ -16,6 +16,7 @@ typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
+typedef struct { short pad[2]; short x, y, x2, y2; } Rect;
 extern void FUN_00102e38(void);
 extern void FUN_00104118(int, char *, int);
 extern void FUN_00103540(int, float);
@@ -27,25 +28,21 @@ extern void FUN_000f0d84(int);
 
 extern int DAT_00307894;
 extern float DAT_002d6c9c;
-extern float DAT_002d757c;
-extern float DAT_002d7580;
+extern const float DAT_002d757c;
+extern const float DAT_002d7580;
 extern char DAT_002d7584[];
-extern char *PTR_s_minipoint_002d7474[];
+extern char *DAT_002d7474[];
 extern int DAT_002d74f8[];
 
-void FUN_000f0b64(int param_1)
+int FUN_000f0b64(int param_1)
 {
   int i;
-  int off;
+  int j;
+  int k;
   char **name;
+  int off;
   int obj;
   int *tbl;
-  short s1;
-  short s2;
-  short s3;
-  short s4;
-  float f5;
-  float f6;
 
   FUN_00102e38();
   *(undefined4 *)param_1 = (undefined4)&DAT_00307894;
@@ -53,7 +50,7 @@ void FUN_000f0b64(int param_1)
   FUN_00103540(param_1, DAT_002d6c9c);
   FUN_001037c8(param_1, 0xffffff05);
   i = 0;
-  name = PTR_s_minipoint_002d7474;
+  name = DAT_002d7474;
   off = 0;
   do {
     obj = FUN_001039d8(param_1, *name, 0);
@@ -62,41 +59,37 @@ void FUN_000f0b64(int param_1)
     name = name + 1;
     off = off + 4;
   } while (i < 3);
-  i = 0;
+  j = 0;
   tbl = DAT_002d74f8;
   off = 0;
   do {
     obj = FUN_001026b8(*(undefined4 *)(param_1 + tbl[0] * 4 + 0x58), tbl[1]);
     *(undefined4 *)(param_1 + off + 0x64) = obj;
-    i = i + 1;
+    j = j + 1;
     off = off + 4;
     tbl[2] = *(undefined4 *)(obj + 0x24);
     tbl = tbl + 3;
-  } while (i < 0xb);
-  f5 = DAT_002d757c;
-  f6 = DAT_002d7580;
-  off = 0;
-  i = 0;
-  do {
-    obj = *(undefined4 *)(param_1 + off + 0x64);
-    i = i + 1;
-    s1 = *(short *)(obj + 4);
-    s2 = *(short *)(obj + 8);
-    s3 = *(short *)(obj + 10);
-    s4 = *(short *)(obj + 6);
-    *(short *)(obj + 4) = (short)(int)((float)s1 * f5);
-    *(short *)(*(undefined4 *)(param_1 + off + 0x64) + 4) =
-        (short)(int)((float)*(short *)(*(undefined4 *)(param_1 + off + 0x64) + 4) + f6);
-    *(short *)(*(undefined4 *)(param_1 + off + 0x64) + 8) =
-        (short)(int)((float)((int)s2 - (int)s1) * f5 +
-                     (float)*(short *)(*(undefined4 *)(param_1 + off + 0x64) + 4));
-    *(short *)(*(undefined4 *)(param_1 + off + 0x64) + 6) =
-        (short)(int)((float)*(short *)(*(undefined4 *)(param_1 + off + 0x64) + 6) * f5);
-    *(short *)(*(undefined4 *)(param_1 + off + 0x64) + 10) =
-        (short)(int)((float)((int)s3 - (int)s4) * f5 +
-                     (float)*(short *)(*(undefined4 *)(param_1 + off + 0x64) + 6));
-    off = off + 4;
-  } while (i < 0xb);
+  } while (j < 0xb);
+  for (k = 0; k < 0xb; k++) {
+    short x = ((Rect *)((int *)param_1)[k + 0x19])->x;
+    short x2 = ((Rect *)((int *)param_1)[k + 0x19])->x2;
+    short y2 = ((Rect *)((int *)param_1)[k + 0x19])->y2;
+    short y = ((Rect *)((int *)param_1)[k + 0x19])->y;
+    int w = x2 - x;
+    int h = y2 - y;
+    float t, u, v;
+    ((Rect *)((int *)param_1)[k + 0x19])->x = (short)(int)((float)x * DAT_002d757c);
+    t = (float)((Rect *)((int *)param_1)[k + 0x19])->x;
+    ((Rect *)((int *)param_1)[k + 0x19])->x = (short)(int)(t + DAT_002d7580);
+    u = (float)w;
+    t = (float)((Rect *)((int *)param_1)[k + 0x19])->x;
+    ((Rect *)((int *)param_1)[k + 0x19])->x2 = (short)(int)(t + u * DAT_002d757c);
+    t = (float)((Rect *)((int *)param_1)[k + 0x19])->y;
+    ((Rect *)((int *)param_1)[k + 0x19])->y = (short)(int)(t * DAT_002d757c);
+    v = (float)h;
+    t = (float)((Rect *)((int *)param_1)[k + 0x19])->y;
+    ((Rect *)((int *)param_1)[k + 0x19])->y2 = (short)(int)(t + v * DAT_002d757c);
+  }
   FUN_000f1090(param_1);
   FUN_000f0d84(param_1);
   *(undefined4 *)(param_1 + 0x90) = 0x3f800000;
@@ -104,15 +97,18 @@ void FUN_000f0b64(int param_1)
   *(undefined4 *)(param_1 + 0x98) = 0;
   *(undefined4 *)(param_1 + 0x9c) = 0;
   *(undefined1 *)(param_1 + 0xa0) = 0;
-  return;
+  return param_1;
 }
 
-/* NEAR MISS: 136/136 words, 86 differ - every difference is the s0/s1 colour of the loop-1 pointer
-   (name = s1, off = s0 in retail; name = s0, off = s1 here) plus the matching swap in loop 2
-   (tbl = s1, i = s2 in retail) and the float-constant base register (retail `lui a0` interleaved with
-   `move v0,s3`). Ruled out: declaration order of i/off/name/obj (four orders compiled, colour
-   unchanged), spelling loop 1 as `param_1 + i*4` (mwcc then strength-reduces to a walking POINTER
-   `move s0,s3; sw v0,88(s0)`, 135/136 words), and float-vs-pointer argument order in FUN_00103540
-   (needs `(int, float)`: with no prototype mwcc promotes to double and calls __extendsfdf2).
-   The offset variable must stay in the source: it is a BYTE offset (0,4,8) fed to `addu v1,s3,s0`. */
-// near miss from lane fm4 (unreviewed)
+/* NEAR MISS (sn7): 136/136 words, 8 differ, all temp-register colouring in loop 3 (first at +0xfc).
+   Found: (1) declaration order of the loop-1/loop-2 locals i, j, name, off, tbl (i first = s2, name/tbl = s1, off = s0)
+   fixes both s-register colourings; loop 2 needs its own counter j. (2) the function returns this (move v0,s3): int return.
+   (3) loop 3 must index `((int *)param_1)[k + 0x19]` (retail walks v0 = this with 100(v0), counter v1); a Rect ** base
+   offset or a walking int* gives an extra addiu. (4) the scale globals must be `extern const float` used directly (hoisted
+   by the compiler; locals give lui v0 instead of lui a0); mul/add operand order (expr*G, expr+G) needs a named float temp
+   (`t = (float)load; ... t + G`, `u = (float)w; ... u * G`), a bare `(float)load * G` swaps to G*expr.
+   Remaining: retail loads x,x2,y2,y into a3,t0,a2,a1 with the object pointer in t1 and w = t0-a3 reusing t0, h into a3;
+   ours puts the pointer in t2, x in t1, x2 in a3 and w in a new t0. Ruled out: all 24 orders of the four short locals
+   (with and without int w/h locals, both w/h orders), int vs short locals, w/h declared before/after the float temps.
+   (Without the w/h locals the loads are ordered t0,a2,a3,a1 and 13 words differ.) */
+// improved by lane sn7 (unreviewed): no comparable result -> 8 differing words

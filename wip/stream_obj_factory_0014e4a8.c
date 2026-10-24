@@ -20,50 +20,55 @@ void *FUN_0014e4a8(int param_1, int param_2, int param_3)
         int i;
         float f;
     } fv;
+    void *r;
     void *p;
     void *q;
-    unsigned h;
+    unsigned short h;
 
+    r = 0;
     switch (param_2) {
     case 1:
         v.i = FUN_0014f028(param_3);
         p = (void *)FUN_00000bcc(0xc);
-        if (p == 0)
-            return 0;
-        *(int **)p = (int *)DAT_00308460;
-        ((int *)p)[1] = param_2;
-        *(int **)p = (int *)DAT_003083f0;
-        *(float *)((char *)p + 8) = v.f;
+        if (p != 0) {
+            *(int **)p = (int *)DAT_00308460;
+            ((int *)p)[1] = param_2;
+            *(int **)p = (int *)DAT_003083f0;
+            *(float *)((char *)p + 8) = v.f;
+            return p;
+        }
         return p;
     case 2:
         fv.f = FUN_0014f014(param_3);
         p = (void *)FUN_00000bcc(0xc);
-        if (p == 0)
-            return 0;
-        *(int **)p = (int *)DAT_00308460;
-        ((int *)p)[1] = param_2;
-        *(int **)p = (int *)DAT_003083f0;
-        *(float *)((char *)p + 8) = fv.f;
-        return p;
+        if (p != 0) {
+            *(int **)p = (int *)DAT_00308460;
+            ((int *)p)[1] = param_2;
+            *(int **)p = (int *)DAT_003083f0;
+            *(float *)((char *)p + 8) = fv.f;
+        }
+        r = p;
+        break;
     case 3:
         p = (void *)FUN_00000bcc(0xc);
-        if (p == 0)
-            return 0;
-        *(int **)p = (int *)DAT_00308460;
-        ((int *)p)[1] = param_2;
-        *(int **)p = (int *)DAT_00308444;
-        FUN_0014f050(param_3);
-        q = (void *)FUN_00000bcc(0x10);
-        if (q != 0) {
-            *(int **)q = (int *)DAT_0030840c;
-            *((char *)q + 4) = 0;
-            *(int **)q = (int *)DAT_00308428;
-            h = FUN_0014f050(param_3);
-            ((int *)q)[2] = (h & 0xffff) >> 12;
-            ((int *)q)[3] = h & 0xfff;
+        if (p != 0) {
+            *(int **)p = (int *)DAT_00308460;
+            ((int *)p)[1] = param_2;
+            *(int **)p = (int *)DAT_00308444;
+            FUN_0014f050(param_3);
+            q = (void *)FUN_00000bcc(0x10);
+            if (q != 0) {
+                *(int **)q = (int *)DAT_0030840c;
+                *((char *)q + 4) = 0;
+                *(int **)q = (int *)DAT_00308428;
+                h = FUN_0014f050(param_3);
+                ((int *)q)[2] = (h >> 12) & 0xf;
+                ((int *)q)[3] = h & 0xfff;
+            }
+            ((void **)p)[2] = q;
         }
-        ((void **)p)[2] = q;
-        return p;
+        r = p;
+        break;
     case 4:
     case 5:
     case 6:
@@ -77,34 +82,24 @@ void *FUN_0014e4a8(int param_1, int param_2, int param_3)
     case 14:
     case 15:
         p = (void *)FUN_00000bcc(8);
-        if (p == 0)
-            return 0;
-        *(int **)p = (int *)DAT_00308460;
-        ((int *)p)[1] = param_2;
-        *(int **)p = (int *)DAT_003082b8;
-        return p;
-    default:
-        return 0;
+        if (p != 0) {
+            *(int **)p = (int *)DAT_00308460;
+            ((int *)p)[1] = param_2;
+            *(int **)p = (int *)DAT_003082b8;
+        }
+        r = p;
     }
+    return r;
 }
-// near miss: 109/106 words. Every arm's instruction sequence matches retail once the s-register
-// shift is accounted for (case 1's union pun through sp+28, case 2's float through sp+24, case 3's
-// nested alloc with the ext/andi split of the halfword, the 4..15 arm shared with case 0), and the
-// jump table at 0x2c1a50 needs rodata= in the header or hstmatch reports UNPLACED_SECTION.
-// Remaining deltas, all one causing the other:
-//  * retail materialises the default's `move v0,zero` INSIDE the `beqz at` delay slot, which takes
-//    v0 for the whole head, so the table base goes to a0 (`lui a0,0x2c; addiu a0`) and the index
-//    to v1 (`sll v1,s0,2; addu v1,v1,a0; lw v1; jr v1`). Ours leaves v0 free, so the base is v1
-//    and the index v0, and the delay slot gets `move s2,a2` while `move v0,zero` is emitted at the
-//    default's target instead (+2 words).
-//  * the case-1 null test: retail `beqzl v0,EPILOGUE+4` with `lw ra` in the delay; ours `bnezl
-//    v0,body` plus a separate `b epilogue; move v0,zero` pair.
-// Ruled out: `return 0` vs `return p` vs `if (!p)`; body nested under `if (p != 0) {...}` with a
-// trailing `return p` (that form fixes the case-3 early return but keeps the same head delta);
-// default written first; `default: break;` (105 words but the 4..15 arm then returns 0).
-// Facts pinned: the four vtable pairs are BASE-then-DERIVED stores (0x308460 then 0x3083f0 for
-// cases 1/2, 0x308460 then 0x308444 for case 3's outer, 0x30840c then 0x308428 for its inner,
-// 0x308460 then 0x3082b8 for 4..15); case 1's value is an INT read (sw v0) bit-cast to the float
-// field, case 2's is a real float read (swc1 $f0) -- so case 1 needs a union, not a float local;
-// `(h & 0xffff) >> 12` rings `andi` + `ext` and `h & 0xfff` a second `andi` off the SAME temp.
-// near miss from lane fm8 (unreviewed)
+// sn7 lane near miss, 106/106 words (was 109/106), est. 5-6 words left; first difference at +0x80 (end of case 1).
+// Progress over the fm8 version: default is `r = 0` before the switch with `break` + `return r` (gives retail's
+// `move v0,zero` in the beqz delay slot and the shared epilogue), case 2/4..15 return through r, case 3's pointer
+// goes through r too; the switch index base is then a0/v1 as retail. Case 1 needs `if (p != 0) {...; return p;} return p;`
+// (that is the only spelling that yields retail's `beqzl v0,epilogue+4` with `lw ra` in the slot and p in v0).
+// `unsigned short h` + `(h >> 12) & 0xf` gives retail's `andi; ext v0,v1,12,4; andi v0,v1,0xfff` pair.
+// Remaining deltas: (1) case 1's final `b epilogue` has the swc1 in its delay slot (retail: swc1 before the b, nop after);
+// every spelling that ends case 1 with `break` loses the beqzl top (or moves p to s1). (2) case 3: retail tests the alloc with
+// `beqz v0,epi; nop` and copies p to s1 only mid-body (`move s1,v0` between the 3rd vtable address and its store), ours copies
+// at once and returns via `beqzl s1; move v0,s1`. Tried: r assigned inside the if, return p in the arm, a static inline Init3(self,..).
+// Case 2's float needs the union (address-taken slot sp+24, not f20).
+// improved by lane sn7 (unreviewed): 82 -> 39 differing words

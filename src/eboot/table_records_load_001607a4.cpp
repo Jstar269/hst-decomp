@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001607a4 end=0x00160998 symbol=FUN_001607a4 lang=c++ */
+/* LoadGradeParam: data/common/parameter/grade.csv; see docs/DATA-TABLES.md */
 /* Clone of src/sharing_main/table_records_load_0016cd30.cpp (hstclone.py tag s10170158a2r1e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Reads a table through a local reader object (derived class of the FUN_000649c0 base, two sub-objects built with

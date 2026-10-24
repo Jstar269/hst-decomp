@@ -61,6 +61,7 @@ struct Obj {
   int f11c;
   int f120;
   int f124;
+  int pad5;
   int f12c;
 };
 
@@ -78,18 +79,17 @@ extern "C" void FUN_0010f394(Obj *self, In *in, int count)
   short u3;
   unsigned int n;
   short s;
-  short half;
   short y;
   int i;
   short q;
 
-  s5 = in->f10;
-  s6 = in->f14;
   u13 = in->f00;
   i12 = in->f08;
   u11 = in->f0c;
+  s5 = in->f10;
   u10 = in->f1c;
   s1 = in->f12;
+  s6 = in->f14;
   s2 = in->f16;
   u3 = in->f18;
 
@@ -103,17 +103,14 @@ extern "C" void FUN_0010f394(Obj *self, In *in, int count)
   self->f100 = n;
   s = (short)(self->f10c - n * count);
   if (s <= 0) {
-    if (count >= 2) {
+    if (count > 1) {
       self->f100 = n + s / (count - 1);
-      self->f108 = 0;
-    } else {
-      self->f108 = 0;
     }
+    self->f108 = 0;
   } else {
     q = s / (short)count;
     self->f108 = q;
-    half = (short)(q / 2);
-    y = (short)(y + half);
+    y += (short)(q / 2);
   }
   self->f104 = self->f110;
   i = 0;
@@ -143,12 +140,12 @@ extern "C" void FUN_0010f394(Obj *self, In *in, int count)
   self->f124 = self->ffc + 12;
   FUN_0010f5d4(self, 0x7fffffff);
 }
-// NEAR MISS: 141/144 words. The overall shape, the vtable call (5th virtual at +0x18), the
-// 36-byte record fill loop, the bgtzl arm layout and the tail all match; the whole tail is
-// shifted 3 words because the `y += q / 2` accumulation emits one `seh` fewer than retail
-// (`band`: retail has `seh v0,v0` on the half and then `addu v0,s7,v0; seh s7,v0`, while
-// ours folds the two short truncations into one) and the else arm's trailing `b`+`nop`
-// (retail) vs `b`+`sw` delay.
-// Ruled out: half as short/int/initialised; q as short/int; y as int; explicit casts on both
-// halves of the sum; declaration order of q/half/y.
-// near miss from lane fm7 (unreviewed)
+// NEAR MISS (lane sn7, 2026-10-24): 144/144 words, 11 differ: the loop only. Head, vcall, the bgtzl arms, `y += (short)(q / 2)` and the tail all match.
+// Fixes found: Obj needs pad5 so f12c lands at 0x12c; `count > 1` (not `>= 2`) gives `slti at`; hoisting the sub-expression `f108 = 0` out of the inner if/else
+// (`if (count > 1) f100 = ...; f108 = 0;`) gives the retail `b; nop`; `y += (short)(q / 2)` keeps the two `seh` (y is not folded to 0); the ORDER of the nine
+// `in->` loads (u13,i12,u11,s5,u10,s1,s6,s2,u3 = f00,f08,f0c,f10,f1c,f12,f14,f16,f18) decides the a2/a3/v0/v1 temporaries of the head (found by random search).
+// Still differs: the record-fill loop colours (retail: constant &DAT_002d9210 in v1, lh temp a1, lw/sum temp a0, seh y copy a2; ours a2/a0/v1/a1). In ours the
+// temps are coloured before the hoisted invariants; retail colours the constant first. Ruled out: loop statement permutations (hill climb), const in a local before
+// the loop / at function top / inside `if (count > 0)`, separate loop counter, Rec * pointer walk, ++i in the condition, commutated sums, int-typed record fields.
+// near miss from lane fm7 (unreviewed), improved by lane sn7
+// improved by lane sn7 (unreviewed): 113 -> 11 differing words

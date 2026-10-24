@@ -1,4 +1,4 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000b34d8 end=0x000b3558 symbol=FUN_000b34d8 lang=c99 */
+/* HSTMATCH module=EBOOT.BIN start=0x000b34d8 end=0x000b3558 symbol=FUN_000b34d8__Fi lang=c99 */
 extern int FUN_000b3558(int);
 extern int DAT_002d4360;
 
@@ -21,3 +21,4 @@ int FUN_000b34d8(int param_1)
 // (ours: bc1f + separate epilogue). Ruled out: ternary, explicit else, value-returning `r`, inline getter,
 // `f=0.0f; if(q) f=q->f;`, `if(q==0)f=0;else f=q->f;`, `if(q)f=..;else f=0.0f;`, 11 more shapes.
 // near miss from lane ds4 (unreviewed)
+// improved by lane fm10 (unreviewed): no comparable result -> 20 differing words

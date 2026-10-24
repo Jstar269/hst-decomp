@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001428d4 end=0x00142f90 symbol=FUN_001428d4 lang=c++ */
+/* Stage_LoadLightingAndFog: courtlight/playerlight/balllight/fogsetting.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Ground (ClassGround.cpp, per the Sharing twin's assert strings) light setup: set default ambient and two
    directional lights on the light manager, read them back into three light sets, override them from the

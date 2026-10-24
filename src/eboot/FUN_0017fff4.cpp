@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017fff4 end=0x001802b4 symbol=FUN_0017fff4 lang=c++ */
+/* ChrSelect_LoadLayoutAndUnitList: data/menu/chrselect/chrsel_unitlist.txt; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly and the Ghidra pseudocode (character-select screen init, sibling of 0x1802b4); the two globals tested first are the arguments of FUN_0008d994 / FUN_001cd804 (Ghidra dropped them), the layout is a struct so accesses are displacements off s0; exact match verified; names and types await human review. */
 struct Rect {
     char pad0[4];

@@ -1,7 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001318dc end=0x00131a88 symbol=FUN_001318dc lang=c99 */
-/* NEAR MISS 93/107 words, 37 differing: the 5-case chain is a `switch` written ascending (MWCC emits the compares
-   in reverse, 9..5, and lays the bodies out in source order), the float lookup table and the (int) trunc.w.s
-   conversion match; what is left is the table base's `addu` operand order and the tail's handle test. */
+/* NEAR MISS 103/107 words, 17 differing (measured; first diff +0x88): the 5-case chain is a `switch` written
+   ascending (MWCC emits the compares in reverse, 9..5), the float lookup table and the (int) trunc.w.s conversion
+   match. The tail handle test is a sparse `switch` (one case per constant) so retail's per-constant
+   `li v1,N; beq a0,v1,0x131a68` chain is reproduced, and the `i == 0` select is written `if (i != 0) ... else`
+   to get retail's `beqzl` rather than `bnezl`. Residue: four commutative `addu` operand orders and the tail's
+   ascending-versus-descending compare order, both compiler choice (a descending `if` chain measured 105/107,
+   differ 35 and was rejected). */
 extern float DAT_002db1bc;
 extern float DAT_002db1c0;
 extern float DAT_002db1c4;
@@ -43,15 +47,24 @@ int FUN_001318dc(int param_1, int param_2)
 
   if (obj != 0 && *(int *)(obj + 0x5bc) != 0) {
     i = *(int *)(*(int *)(obj + 0x5bc) + 0x58);
-    if (i == 0)
-      i = -1;
-    else
+    if (i != 0)
       i = *(int *)(i + 0xf0);
-    if (i == 0xe1)
+    else
+      i = -1;
+    switch (i) {
+    case 0xe1:
       r = 1;
-    else if (i == 0xe0 || i == 0x3d || i == 0x3c || i == 0x3b || i == 0x3a)
+      break;
+    case 0xe0:
+    case 0x3d:
+    case 0x3c:
+    case 0x3b:
+    case 0x3a:
       r = 1;
+      break;
+    }
   }
   return r;
 }
 // near miss from lane fm7 (unreviewed)
+// improved by lane fm10 (unreviewed): 37 -> 17 differing words

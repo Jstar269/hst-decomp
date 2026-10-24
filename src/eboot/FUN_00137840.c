@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00137840 end=0x0013788c symbol=FUN_00137840 lang=c99 */
+/* CourtMgr_LoadAreaClip: data/court/<name>/setting/cNN_areaclip.csv; see docs/DATA-TABLES.md */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

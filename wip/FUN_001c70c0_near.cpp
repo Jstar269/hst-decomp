@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c70c0 end=0x001c7158 symbol=FUN_001c70c0 lang=c++ */
+/* STATUS CORRECTION 2026-10-24: measured 34/38 words, 35 differ (note claimed 16/38). */
 // NEAR MISS (~16/38 words): logic confirmed, frame not reproduced. Retail searches
 // Owner->beg (0x88) .. beg + count (0x8c) for the element whose f30 (0x30) equals the
 // key, returning *it or 0 (`it != end` is the xor/sltiu/xori tail).
@@ -26,14 +27,27 @@ static inline Elem *Search(It cur, It end, Key key)
   return cur.p != end.p ? *cur.p : 0;
 }
 
-extern "C" Elem *FUN_001c70c0(Owner *m, int kid)
-{
-  Key key;
-  key.v = kid;
-  It end;
-  end.p = m->beg + m->count;
-  It cur;
-  cur.p = m->beg;
-  return Search(cur, end, key);
+extern "C" Elem *FUN_001c70c0(Owner *m, int kid) {
+  float fkey = *(float *)&kid;
+  int kv = *(int *)&fkey;
+  int *base = *(int **)((char *)m + 0x88);
+  int *end = base + *(int *)((char *)m + 0x8c);
+  float fend = *(float *)&end;
+  float fcur = *(float *)&base;
+  int *ep = (int *)*(int *)&fend;
+  int *cur = (int *)*(int *)&fcur;
+  int *found = 0;
+  int flag;
+  while (cur != ep) {
+    if (*(int *)(*cur + 0x30) == kv) {
+      break;
+    }
+    cur++;
+  }
+  flag = ((unsigned)((unsigned)cur ^ (unsigned)ep) < 1) ^ 1;
+  if (flag != 0) {
+    found = (int *)*cur;
+  }
+  return (Elem *)found;
 }
-// near miss from lane ds4 (unreviewed)
+// improved by lane fm10 (unreviewed): 38 -> 35 differing words

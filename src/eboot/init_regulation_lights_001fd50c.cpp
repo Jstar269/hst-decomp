@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fd50c end=0x001fd7e8 symbol=FUN_001fd50c lang=c++ data=0x002ef050 */
+/* Regulation_InitOnce: data/menu/regulation/reg_param.csv, reg_tall_param.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; matching idioms: V4 (aligned 16) has a user ctor `V4(x,y,z,w)` so every Vec4 is built from register-loaded arguments (the batched lwc1 block, then the stores), a named `V4() {}` default ctor; the dead normalise is an inline wrapper `V4 Norm3(V4 *)` (out-of-line sret call + `r.w = 0`) used as an expression statement so its temporaries sit below the named Vec4 locals; the parameter block pointer `p` is hoisted after the loop counter (`int i = 0; Params *p = &self->params; for (; ...)`), the light array is indexed through `self->lights[i]` each time (no element pointer); the file names and the "," separator are anonymous .data placed with data=0x002ef050; names and types await human review. */
 struct V4 {
     float x, y, z, w;

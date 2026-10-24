@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00195b08 end=0x00195b90 symbol=FUN_00195b08 lang=c99 */
+/* LoadPartsSetTable: data/common/parts/Parts_P_Set.txt; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern int DAT_0034174c;
 extern int DAT_003070bc;

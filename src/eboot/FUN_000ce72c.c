@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ce72c end=0x000ce74c symbol=FUN_000ce72c lang=c99 */
+/* AppendCourtParticleLists: data/court/particle/{texlist,motlist}.csv; see docs/DATA-TABLES.md */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

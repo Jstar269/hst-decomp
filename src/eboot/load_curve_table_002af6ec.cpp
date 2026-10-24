@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002af6ec end=0x002af8f4 symbol=FUN_002af6ec lang=c++ */
+/* LoadPartsLevelParamTable: data/common/parts/Parts_P_Param.txt; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly (reader class pattern of src/eboot/init_items_from_config_001ed27c.cpp and virtual deleting dtor); exact match verified; names and types await human review. */
 extern "C" {
 extern const char DAT_00302de4[];

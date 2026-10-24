@@ -19,6 +19,8 @@ typedef unsigned int undefined4;
 extern int DAT_003386b0;
 extern int DAT_00338b44;
 
+typedef struct { float x, y, z, w; } Vec4;
+
 extern void FUN_0008fcd8(int, float *, float *);
 extern void FUN_000114c0(void *, int, int);
 extern void FUN_00054330(void *, float *);
@@ -34,23 +36,17 @@ void FUN_000aba38(int param_1, int param_2, int param_3)
   int s1;
   char c;
 
-  va[0] = ((float *)param_2)[0];
-  va[1] = ((float *)param_2)[1];
-  va[2] = ((float *)param_2)[2];
-  va[3] = ((float *)param_2)[3];
-  vb[0] = ((float *)param_3)[0];
-  vb[1] = ((float *)param_3)[1];
-  vb[2] = ((float *)param_3)[2];
-  vb[3] = ((float *)param_3)[3];
+  *(Vec4 *)va = *(Vec4 *)param_2;
+  *(Vec4 *)vb = *(Vec4 *)param_3;
   FUN_0008fcd8(*(int *)(DAT_003386b0 + 0x88), va, vb);
   if (*(int *)(DAT_003386b0 + 0x3c) == 7) return;
   *(int *)(w + 44) = 1;
   FUN_000114c0(w, 0, 0x40);
   w[48] = (w[48] & 0xfe) | 1;
-  FUN_00054330(w, va);
-  FUN_00054330(w + 16, vb);
   s0 = *(short *)(param_1 + 0x144);
   s1 = *(short *)(param_1 + 0x148);
+  FUN_00054330(w, va);
+  FUN_00054330(w + 16, vb);
   c = w[48];
   c = (c & 0xf9) | ((s0 & 3) << 1);
   c = (c & 0xc7) | ((s1 & 7) << 3);
@@ -83,3 +79,4 @@ void FUN_000aba38(int param_1, int param_2, int param_3)
    collapses them (see this file) and loses 35 words. FUN_001178f0 (= fm3's history_push_entry) gets
    (handle from DAT_003386b0+0x9c, work, *(char*)(DAT_00338b44+0x5c) == 0, 1). */
 // near miss from lane fm4 (unreviewed)
+// improved by lane fm10 (unreviewed): 137 -> 99 differing words

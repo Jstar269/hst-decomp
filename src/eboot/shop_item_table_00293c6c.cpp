@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00293c6c end=0x00293fcc symbol=FUN_00293c6c lang=c++ */
+/* ShopItemTable_Build: data/menu/shop/Item.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly and the Ghidra pseudocode (loads data/menu/shop/Item.csv rows into seven record vectors by name prefix); matching idioms: trailing unused empty By-value tag parameter False (retail frame is 16 bytes larger), push_back inline taking an unused char-member Tag that it forwards as Tag() to the out-of-line grow (a plain struct Tag { signed char c; } gives move v0,zero + seb; a constructor folds it), capacity() returning const unsigned & (the cap address hoisted into s0), the two record temporaries declared at function top, the name test chain as if (cmp != 0) idx = K else-if, the allocated Csv as csv = alloc(16); if (csv != 0) csv = ctor(csv), and delete without an extra explicit null test; exact match verified; names and types await human review. */
 inline void *operator new(unsigned, void *p) { return p; }
 

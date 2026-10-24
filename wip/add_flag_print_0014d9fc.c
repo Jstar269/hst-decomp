@@ -43,10 +43,16 @@ int FUN_0014d9fc(struct FlagCmd *c, struct FlagCtx *x)
                 FUN_0014c610((char *)&DAT_002dc24c);
         }
         type = c->type;
-        if (type != 5 && type != 3 && type != 1)
-            FUN_0014c610((char *)&DAT_002dc300, DAT_002c19c0[type], c->value.i);
-        else
+        switch (type) {
+        case 1:
+        case 3:
+        case 5:
             FUN_0014c610((char *)&DAT_002dc2ec, DAT_002c19c0[type], c->value.f);
+            break;
+        default:
+            FUN_0014c610((char *)&DAT_002dc300, DAT_002c19c0[type], c->value.i);
+            break;
+        }
     }
     type = c->type;
     switch (type) {
@@ -86,4 +92,14 @@ int FUN_0014d9fc(struct FlagCmd *c, struct FlagCtx *x)
 // debug-print block-order delta: retail lays [tests][b INT][FLOAT][b JOIN][INT],
 // this lays [tests][INT][b JOIN][FLOAT]. The twin's four spellings are ruled out in
 // wip/flag_set_print_0014d7fc.c; the += cases already match word for word.
-// near miss from lane fm8 (unreviewed)
+// near miss: 146/144 words, 50 differing (was 145/144 with 107 differing and the dispatch arms
+// transposed). Fixed: same ascending-case switch as its twin 0x0014d7fc -
+// `switch (type) { case 1: case 3: case 5: float; break; default: int; break; }` -> retail's
+// `beql 5 / beq 3 / beq 1` chain to the float body plus `b` to the int body.
+// Remaining 2 extra words: retail has ONE join after the lower switch (`beqz at,0x14dc20` then
+// every case `b 0x14dc20`), ours goes `beqzl at,epilogue` with `lw ra,12(sp)` in the delay slot and
+// a second join (`b 0x14dc28`), i.e. MWCC merged the dispatch's skip path with the function's
+// `return 0`. Tried: case order (fixed), no-default vs default. Next step would be making the
+// whole dispatch the tail of the function with a single `return 0` outside the surrounding
+// `if (DAT_003402f0 != 0)` block.
+// improved by lane fm8 (unreviewed): 107 -> 50 differing words

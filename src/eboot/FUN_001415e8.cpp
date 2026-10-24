@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001415e8 end=0x00141718 symbol=FUN_001415e8 lang=c++ */
+/* Stage_LoadAreaClip: areaclip.csv rows; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; matching idiom: the open result is a callee returning unsigned char tested with an explicit != 0 (gives retail's andi 0xff and keeps the CSV-values block first); exact match verified; names and types await human review. */
 struct CsvFile { int pad[4]; };
 

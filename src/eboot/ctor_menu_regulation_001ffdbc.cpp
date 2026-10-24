@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ffdbc end=0x001fff40 symbol=FUN_001ffdbc lang=c++ */
+/* Regulation_LoadLayoutAndUnitList: regulation_unitlist.txt; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern "C" char DAT_002ef130;
 extern "C" char DAT_002ef160;

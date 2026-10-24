@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001e1c40 end=0x001e1d70 symbol=FUN_001e1c40 lang=c99 */
+/* ResultStatus_LoadUnitList: result_status_unitlist.txt; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern void FUN_002172f4(void *dst, char *name, int n);
 extern void FUN_00104118(void *obj, char *name, int flag);

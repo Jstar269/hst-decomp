@@ -1,4 +1,4 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0022d67c end=0x0022d848 symbol=FUN_0022d67c lang=c99 */
+/* HSTMATCH module=EBOOT.BIN start=0x0022d67c end=0x0022d848 symbol=FUN_0022d67c__FPc lang=c99 */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -6,7 +6,6 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
 #define true 1
@@ -99,3 +98,4 @@ initialization_done:
 // Remaining differences are branch-likely direction and register reuse in the state comparison/update block.
 // Ruled out direct comparisons, early-goto forms, shared return stores, and C/C++ modes; the near miss keeps symbolic addresses for all absolute data references.
 // near miss from lane km4 (unreviewed)
+// improved by lane fm10 (unreviewed): no comparable result -> 19 differing words

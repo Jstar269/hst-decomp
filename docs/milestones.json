@@ -1,6 +1,6 @@
 {
  "schema": "hst-decomp.milestone-record.v1",
- "generated": "2026-10-23",
+ "generated": "2026-10-24",
  "milestones": [
   {
    "id": "inventory",
@@ -13,16 +13,16 @@
   {
    "id": "game-code",
    "title": "Game code matched",
-   "progress": 29.332346970615973,
-   "detail": "1,673,252 of 5,704,460 code bytes (58,620 B of Sony code kept out of this repository are not counted)",
+   "progress": 30.276239994670835,
+   "detail": "1,727,096 of 5,704,460 code bytes (58,620 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "all-code",
    "title": "All code matched",
-   "progress": 29.332346970615973,
-   "detail": "1,673,252 of 5,704,460 code bytes (185,228 B of Sony code kept out of this repository are not counted)",
+   "progress": 30.276239994670835,
+   "detail": "1,727,096 of 5,704,460 code bytes (185,228 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },

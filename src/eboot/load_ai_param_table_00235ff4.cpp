@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00235ff4 end=0x00236354 symbol=FUN_00235ff4 lang=c++ */
+/* LoadAiParamDoubles: data/common/parameter/AI_Param_Doubles.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly (recipe of src/eboot/table_records_load_001607a4.cpp); exact match verified; names and types await human review. */
 /* Loads the table file at 0x2f5214 (data/common/parameter/AI/Param_D...) through a local reader object (derived class of the FUN_000649c0 base,
    two sub-objects built with FUN_0008c230 and torn down with FUN_00066338, destructor storing the vptr), first clearing the vector through the

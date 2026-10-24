@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002800ac end=0x00280114 symbol=FUN_002800ac lang=c99 */
+/* AdhocTable ctor: data/menu/challenge/Challenge_AdhocTable.txt; see docs/DATA-TABLES.md */
 /* Ghidra pseudocode (hstgen.py tag a1/v0c) corrected by hand: reused and stored the allocation result on both null and initialized paths; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

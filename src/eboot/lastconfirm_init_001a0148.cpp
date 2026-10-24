@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001a0148 end=0x001a0bb0 symbol=FUN_001a0148 lang=c++ rodata=0x002c2e30 data=0x002e1bd8 */
+/* LastConfirm_Init: lastconfirm_param.csv, lastconfirm_param_color.csv, Rule_Iromono.txt; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* "LastConfirm" menu setup (loads the lastconfirm layouts and parameter tables, fills the option vectors). The
    two pragmas reproduce retail's loops (index*4 recomputed per iteration, constant-count loops kept rolled); the

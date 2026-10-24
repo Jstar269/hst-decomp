@@ -40,10 +40,10 @@ will let more of it run as real, readable code over time.
 
 | | Progress | What it means |
 |---|---|---|
-| **Code matched** | **29.0%** | 11,320 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
+| **Code matched** | **30.0%** | 11,425 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
 | **Built from source** | **21.7%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
-The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-23.
+The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-24.
 
 <!-- hstprogress:end -->
 
@@ -101,14 +101,14 @@ How a function is matched is described in [CONTRIBUTING.md](CONTRIBUTING.md), an
 
 <!-- hstprogress:begin readme-progress -->
 
-**11,317 exact sources** (11,320 functions) and 645 near misses, measured 2026-10-23 with `python tools/hstcov.py`
+**11,423 exact sources** (11,425 functions) and 794 near misses, measured 2026-10-24 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,772 / 9,804 | 874,544 / 2,849,076 | 30.696 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,548 / 9,830 | 798,708 / 2,914,004 | 27.409 % |
-| **Both** | 11,320 / 19,634 | 1,673,252 / 5,763,080 | 29.034 % |
+| `EBOOT.BIN` | 5,851 / 9,804 | 912,520 / 2,849,076 | 32.029 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,574 / 9,830 | 814,576 / 2,914,004 | 27.954 % |
+| **Both** | 11,425 / 19,634 | 1,727,096 / 5,763,080 | 29.968 % |
 
 <!-- hstprogress:end -->
 

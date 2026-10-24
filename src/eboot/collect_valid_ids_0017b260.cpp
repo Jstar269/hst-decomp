@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017b260 end=0x0017b3bc symbol=FUN_0017b260 lang=c++ */
+/* LoadMenuColorCsv: generic name,R,G,B menu color files; see docs/DATA-TABLES.md */
 /* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: the byte-offset counter is declared before the loop index (s3/s2 order), stores go through `out[off >> 2]` (srl+sll folds to retail`s `and -4`), and range tests are `a >= 0 && a < 0x100`; exact match verified; names and types await human review. */
 extern "C" {
 extern char DAT_002e0694;

@@ -155,8 +155,8 @@ extern "C" void FUN_00194f44(Rec *p, int key)
         c2a = 4;
         break;
     }
+    bool found = false;
     if ((short)idx == 0) {
-        bool found = false;
         Base *base = FUN_0022c1c4();
         for (int i = 0; i < FUN_0027edb4(DAT_0034a7ec); i++) {
             int id = FUN_0027edbc(DAT_0034a7ec, i);
@@ -277,14 +277,18 @@ extern "C" void FUN_00194f44(Rec *p, int key)
     int g = DAT_0031101c;
     FUN_001c1d0c(g, g + 1, g + 2, g + 3, g + 4);
 }
-// NEAR MISS (4 words): only the branch-likely choice differs at the default-index search.
-// Retail: outer `if ((short)idx == 0)` branch is `bnez v0,join; nop` and the inner `if (!found) idx = 1;`
-// branch is `bnezl s7,join+4; lh v1,36(s4)`; ours converts the OUTER branch to the likely form instead
-// (one likely copy per target block). Ruled out (all still 4 words): `!(short)idx`, `(short)idx != 0 {} else`,
-// int/char found, found declared outside the if, found = true/idx = i order, while/continue loop forms,
-// `if (found) {} else`, `found == false` (worse), goto/label/do-while(0)/switch wrappers, empty else,
-// the search as an inline (bool Find(int&), int Search(), void Search(int&), whole-if Pick/Pick2),
-// && form `(short)idx == 0 && !Find(idx)`, x24 test as if/else, inline normalisation helpers.
-// The `*(Entry *volatile *)&pNpc` last arguments reproduce retail's reload of the local after the nested
-// calls (a plain pNpc1/pNpc2 is CSE'd into s0; tried local copy, reference, Ref wrapper, array, struct
-// by value (lwc1 copy), split statements (moves mode*3 after the call), inline name helper, real asserts).
+// NEAR MISS (2 words, lane sn7 round 2): `bool found = false;` declared BEFORE the outer `if ((short)idx == 0)` makes the outer
+// branch the plain `bnez v0,join; nop` exactly like retail and the inner `bnezl s7,join+4; lh v1,36(s4)` also matches, but the
+// scheduler then hoists `move s7,zero` into the outer branch's delay slot; retail has `nop` there and `move s7,zero` in the
+// `jal FUN_0022c1c4` delay slot (2 words differ: 0x195000 and 0x195008). With found declared outside but assigned inside the if
+// (after or before the base call) the outer branch turns likely again (4 words). Also ruled out: declaring found at function top /
+// before idx / before c2a (uninit or init: 9-672 words), `idx = found ? idx : 1`, `short idx`, `if (lvl == -1)`, unsigned char found,
+// empty else after the x24 test, `(short)idx > 0 || < 0 {} else`.
+// The `*(Entry *volatile *)&pNpc` last arguments reproduce retail's reload of the local after the nested calls (a plain pNpc1/pNpc2
+// is CSE'd into s0; tried local copy, reference, Ref wrapper, array, struct by value, split statements, inline name helper, real asserts).
+// lane sn7 update (round 3, ~15 compiles): `bool found = false;` declared INSIDE the `if ((short)idx == 0) {` block (before or after the base call, as
+// bool/int/char/unsigned, `if (found == 0)`, braces, `if (found) ; else`, i hoisted out of the for, `!(short)idx`) gives retail's body and the
+// `move s7,zero` in the `jal FUN_0022c1c4` delay slot, but swaps WHICH branch takes the shared `lh v1,36(s4)` as a likely delay slot: ours outer
+// `bnezl v0,join+4; lh` + inner `bnez s7,join; nop` (4 words); retail outer `bnez v0,join; nop` + inner `bnezl s7,join+4; lh`. The version above (found
+// before the if) keeps 2 words, so it stays the best. Declaring found after the base call inside the block moves 600+ words (register shift).
+// improved by lane sn7 (unreviewed): 4 -> 2 differing words

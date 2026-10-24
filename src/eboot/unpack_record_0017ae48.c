@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017ae48 end=0x0017b030 symbol=FUN_0017ae48 lang=c99 */
+/* LoadMenuParamCsv: generic name/type/min/max/value menu parameter files; see docs/DATA-TABLES.md */
 /* Clone of src/sharing_main/unpack_record_0018753c.c (hstclone.py tag u1r5e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; matching idiom: nested range check with aligned offset; exact match verified; names and types await human review. */
 

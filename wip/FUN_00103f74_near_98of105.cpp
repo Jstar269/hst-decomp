@@ -70,7 +70,11 @@ extern "C" void FUN_00103f74(Self *self)
                 IIt last;
                 first = IIt(self->list_.begin_);
                 last = IIt(self->list_.begin_ + self->list_.size_);
-                IIt found = find(first, last, key);
+                float fl = *(float *)&last.p_;
+                IIt l2 = IIt((int *)*(int *)&fl);
+                float fk = *(float *)&key;
+                int k2 = *(int *)&fk;
+                IIt found = find(first, l2, k2);
                 if (found.p_ != last.p_) {
                     item[0x13] = (int)((char *)found.p_ - (char *)first.p_) / 4;
                 } else {
@@ -89,3 +93,4 @@ extern "C" void FUN_00103f74(Self *self)
     }
 }
 // near miss from lane ds1018ar1-0 (unreviewed)
+// improved by lane fm10 (unreviewed): 100 -> 98 differing words

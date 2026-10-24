@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ed27c end=0x001ed460 symbol=FUN_001ed27c lang=c++ */
+/* PrizeCamera_LoadCommonCamera: data/prize/commoncamera.csv; see docs/DATA-TABLES.md */
 /* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: C++ with an inline-constructed `new Res` (matching shape for `beqz v0; move s0,v0`), typed query results as floats, the two-entry item array indexed by the loop counter, first-call argument restored; exact match verified; names and types await human review. */
 extern "C" {
 extern char DAT_002ee434[];

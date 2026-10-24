@@ -1,4 +1,4 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00132180 end=0x00132390 symbol=FUN_00132180 lang=c99 */
+/* HSTMATCH module=EBOOT.BIN start=0x00132180 end=0x00132390 symbol=FUN_00132180__FPUi lang=c99 */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -6,7 +6,6 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
 #define true 1
@@ -22,13 +21,13 @@ extern undefined DAT_003386b8;
 extern undefined4 DAT_003402a0;
 extern undefined4 DAT_003417c4;
 extern undefined1 DAT_003417cc;
-extern void FUN_000133f4();
+extern void FUN_000133f4(unsigned int);
 extern uint FUN_0001342c();
 extern undefined4 * FUN_0001f06c();
-extern void FUN_000c4040();
-extern void FUN_0012ca4c();
-extern bool FUN_0013293c();
-extern undefined4 * FUN_0013fb58();
+extern void FUN_000c4040(unsigned int *, int);
+extern void FUN_0012ca4c(unsigned int *, int);
+extern bool FUN_0013293c(unsigned int *, unsigned int);
+extern undefined4 * FUN_0013fb58(unsigned int *);
 extern int FUN_002b78f8();
 
 undefined4 * FUN_00132180(undefined4 *param_1)
@@ -139,3 +138,4 @@ undefined4 * FUN_00132180(undefined4 *param_1)
 // Remaining differences are branch layout around the two small-buffer init checks and the global initialization choice.
 // Ruled out volatile length reads, goto forms, condition polarity changes, C/C++ modes, and strength-reduction toggles.
 // near miss from lane km4 (unreviewed)
+// improved by lane fm10 (unreviewed): no comparable result -> 24 differing words

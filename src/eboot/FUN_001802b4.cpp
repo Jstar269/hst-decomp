@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001802b4 end=0x0018059c symbol=FUN_001802b4 lang=c++ */
+/* DressUp_LoadLayoutAndUnitList: data/menu/dressup/dressup_unitlist.txt; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly and the Ghidra pseudocode; matching idioms: each member is allocated as p = alloc(n); if (p != 0) p = ctor(p); field = p (merged likely-branch store), the screen is a struct so every access is a displacement off one register, and the panel is read into a local for the two stores but through the member again for the virtual call; exact match verified; names and types await human review. */
 extern char DAT_002e08a4[];
 extern char DAT_002e08c0[];

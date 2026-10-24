@@ -1,4 +1,4 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001306e0 end=0x0013076c symbol=FUN_001306e0 lang=c99 */
+/* HSTMATCH module=EBOOT.BIN start=0x001306e0 end=0x0013076c symbol=FUN_001306e0__Fi lang=c99 */
 extern int DAT_0034a678;
 extern float DAT_002db18c;
 extern int FUN_0022c860(void);
@@ -15,3 +15,4 @@ unsigned char FUN_001306e0(int param_1)
   return *(unsigned char *)(*(int *)(param_1 + 0x84) + 0x40);
 }
 // near miss from lane ds4 (unreviewed)
+// improved by lane fm10 (unreviewed): no comparable result -> 24 differing words

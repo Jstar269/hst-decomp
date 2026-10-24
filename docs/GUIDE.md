@@ -12,10 +12,11 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
   <!-- hstprogress:begin guide-source-kinds -->
-- Of the 11,317 sources (measured 2026-10-23), 6,743 are address-substituted **clones** of another matched source
-  (retail contains the same code many times), 2,135 are mechanical translations of Ghidra pseudocode, 761 are such
-  translations corrected by hand, 1,479 are hand-written, 136 are instances of container templates, and 63 are newlib
-  library functions translated from newlib sources (19 more are clones of them, counted among the clones).
+- Of the 11,423 sources (measured 2026-10-24), 6,765 are address-substituted **clones** of another matched source
+  (retail contains the same code many times), 2,129 are mechanical translations of Ghidra pseudocode, 772 are such
+  translations corrected by hand, 1,524 are hand-written, 136 are instances of container templates, and 63 are newlib
+  library functions translated from newlib sources (19 more are clones of them, counted among the clones), and 34 have
+  no known note kind.
 - 82 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
   compiled with Metrowerks `mwccpsp`.
   <!-- hstprogress:end -->

@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0006531c end=0x00065364 symbol=FUN_0006531c lang=c99 */
+/* CSV table reader: FindRowByKey; see docs/DATA-TABLES.md */
 /* Clone of src/sharing_main/FUN_000663b8.c (hstclone.py tag u1ae): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: typed the helper arguments, used pointer arithmetic for the object subobject, and reversed the comparison arms; exact match verified; names and types await human review. */
 typedef unsigned char undefined;

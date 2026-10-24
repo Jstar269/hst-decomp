@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000fcbe4 end=0x000fcc4c symbol=FUN_000fcbe4 lang=c99 */
+/* GameData::CreateFileTable(count): allocates the BDL index buffer (DAT_0033a664) and slot offset table (DAT_0033a66c); see docs/BDL-INDEX-FORMAT.md */
 /* Ghidra pseudocode (hstgen.py tag q3) corrected by hand: the propagated default constant undone and the strength-reduced sizes written as multiplies; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

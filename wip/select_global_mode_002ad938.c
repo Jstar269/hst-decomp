@@ -1,40 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002ad938 end=0x002ad998 symbol=FUN_002ad938 lang=c99 */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
-
-extern undefined4 DAT_0034a678;
+extern int DAT_0034a678;
 extern int FUN_0016bb88();
-extern void FUN_002ad758();
-
+extern void FUN_002ad758(int,int,int);
 void FUN_002ad938(void)
 {
-  undefined4 uVar1;
-  undefined4 uVar2;
-  
-  uVar2 = 0;
-  if (DAT_0034a678 == 0x20) {
-    uVar2 = 2;
-  }
-  else if (DAT_0034a678 == 2) {
-    uVar2 = 2;
-  }
-  uVar1 = FUN_0016bb88();
-  FUN_002ad758(uVar2,uVar1,0);
-  return;
+  int m = 0;
+  switch (DAT_0034a678) { case 2: m = 2; break; case 0x20: m = 2; break; }
+  FUN_002ad758(m, FUN_0016bb88(), 0);
 }
-// Near miss: 6 words differ in the mode-test branch layout and result setup; changing the result value did not remove those differences, so the generated candidate remains the best supported source.
-// near miss from lane u5cr1-1 (unreviewed)
+// NEAR 1 word: switch(DAT_0034a678){case 2:m=2;break;case 0x20:m=2;break;} gives the exact beq/beql/b layout; only the last block
+// differs: ours 'move s0,v0' (reuses the li v0,2 of the beql compare), retail 'li s0,2'.
+// Ruled out (about 30 compiles): if/else-if and || chains (bne layout, 6-16 words), case order/fallthrough forms (2-7 words), result types
+// (char/short/unsigned/long long/register), const int two, (int)2u, 3-1, temp for FUN_0016bb88, goto form, ternary on a flag.
+// improved by lane sn7 (unreviewed): 6 -> 1 differing words

@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00253630 end=0x002536f0 symbol=FUN_00253630 lang=c99 */
+/* IromonoRuleList ctor: data/common/rule/Rule_Iromono.txt; see docs/DATA-TABLES.md */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag t0), refined by hstperm.py random mutation from try/gen-s256b/v0/FUN_00253630.c; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

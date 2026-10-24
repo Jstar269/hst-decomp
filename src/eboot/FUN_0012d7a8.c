@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0012d7a8 end=0x0012d808 symbol=FUN_0012d7a8 lang=c99 */
+/* LobbyStage_GetSeCsvPath: data/lobby/<name>/setting/lNN_rNN_se.csv; see docs/DATA-TABLES.md */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128b); exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

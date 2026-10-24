@@ -1,4 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00173e84 end=0x00174040 symbol=FUN_00173e84 lang=c99 */
+
+typedef struct { float x, y, z, w; } V4;
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -23,16 +25,13 @@ extern void FUN_0017d59c();
 extern void FUN_00184040();
 
 void FUN_00173e84(int param_1,int param_2,undefined4 param_3,undefined4 param_4,undefined4 param_5)
-{
+{  V4 slot0;
+
   int iVar1;
   code *pcVar2;
   int iVar3;
   undefined4 local_4;
   undefined4 local_8;
-  undefined4 local_c;
-  undefined4 local_10;
-  undefined4 local_14;
-  undefined4 local_18;
   
   iVar1 = *(int *)(*(int *)(param_1 + 0x1d4) + 4);
   if (iVar1 < 4) {
@@ -86,15 +85,15 @@ void FUN_00173e84(int param_1,int param_2,undefined4 param_3,undefined4 param_4,
   pcVar2 = *(code **)(param_1 + 0x548);
 LAB_00173f8c:
   local_4 = (*pcVar2)(param_3);
-  local_18 = 0x7fffffff;
-  local_14 = 0x7fffffff;
-  local_10 = 0x7fffffff;
-  local_c = 0x7fffffff;
+  slot0.x = 0x7fffffff;
+  slot0.y = 0x7fffffff;
+  slot0.z = 0x7fffffff;
+  slot0.w = 0x7fffffff;
   local_8 = 0x7fffffff;
   iVar3 = 0;
   iVar1 = 0;
   do {
-    FUN_0017d59c(*(int *)(param_1 + 0x178),&local_18,0,1,
+    FUN_0017d59c(*(int *)(param_1 + 0x178),&slot0,0,1,
                  *(undefined4 *)
                   (&DAT_002c1f38 + iVar1 + *(int *)(*(int *)(param_1 + 0x178) + 4) * 0x10),1);
     iVar3 = iVar3 + 1;
@@ -104,3 +103,5 @@ LAB_00173f8c:
   return;
 }
 // near miss from lane km4 (unreviewed)
+/* STATUS CORRECTION 2026-10-24 (slot refactor): measured 109/111 words, 85 differ; first at +0x0 -- four contiguous address-taken locals declared as one V4 object. */
+// improved by lane fm10 (unreviewed): 87 -> 85 differing words

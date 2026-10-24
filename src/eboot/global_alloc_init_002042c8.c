@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002042c8 end=0x0020437c symbol=FUN_002042c8 lang=c99 */
+/* LoadChrSelParamChara: data/menu/chrselect/chrsel_param_chara.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern void *DAT_0034a148;
 extern void *DAT_0034a14c;

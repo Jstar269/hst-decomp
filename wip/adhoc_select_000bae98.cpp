@@ -1,4 +1,4 @@
-/* NEAR 78/78 words, 6 differ (first +0x10). Everything matches, including the
+/* (older lane note) NEAR 78/78 words, 6 differ (first +0x10). Everything matches, including the
    doubled state block: `m->state = 7; switch (m->state) { case 4: case 8: <call>;
    break; case 10: break; }` reproduces retail's beq 10 / beq 8 / beq 4 chain
    (switching on a LOCAL instead lets MWCC constant-fold the switch away; switching
@@ -30,17 +30,16 @@ extern "C" unsigned char FUN_000bda40(int, int, unsigned short, int, int);
 extern "C" int FUN_000bae98(struct Match *m, const char *name)
 {
     char buf[6];
-    char *d = &buf[0];
-    int i = 3;
     int r;
     char c0;
     char c1;
-
+    char *d = &buf[0];
+    int i = 3;
     do {
-        c1 = name[1];
         c0 = name[0];
-        d[0] = c0;
+        c1 = name[1];
         d[1] = c1;
+        d[0] = c0;
         name += 2;
         d += 2;
     } while (--i > 0);
@@ -76,3 +75,10 @@ extern "C" int FUN_000bae98(struct Match *m, const char *name)
     return 1;
 }
 // near miss from lane fm6 (unreviewed)
+// sn7 session: NEAR 4 words (was 6). Declaring `char c0; char c1; char *d; int i;` then loading c0=name[0]; c1=name[1]
+// and storing d[1]=c1 before d[0]=c0 gives retail's lb name[0](v1)/lb name[1](v0) order; the only remaining diffs are
+// the dest pointer colour (ours a2, retail t0: addiu t0,sp,24 / sb / addiu t0,t0,2) and sb order (ours sb 1,sb 0; retail
+// sb v1,0 then sb v0,1). Storing d[0] first brings back the lb swap (6 words). Ruled out (~120 compiles): all 24 decl
+// permutations x load/store orders, extra unused params (a2/a3/a4), inline Copy6 helper, 2-byte struct assign, inner j loop,
+// pointer-walk, for/while/down-count/unsigned/end-pointer forms, separate s/d pointers.
+// improved by lane sn7 (unreviewed): 6 -> 4 differing words

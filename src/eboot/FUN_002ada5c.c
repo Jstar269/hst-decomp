@@ -1,4 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002ada5c end=0x002ada80 symbol=FUN_002ada5c lang=c99 */
+/* Prize score table: data/prize/score.csv; see docs/DATA-TABLES.md */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag a2); exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;

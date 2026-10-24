@@ -1,4 +1,4 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00299e08 end=0x00299e94 symbol=FUN_00299e08 lang=c99 */
+/* HSTMATCH module=EBOOT.BIN start=0x00299e08 end=0x00299e94 symbol=FUN_00299e08__FPviPv lang=c99 */
 extern void FUN_00299af0(void *ctx, void *data, int len);
 extern void FUN_00299c74(void *ctx, void *out);
 
@@ -31,3 +31,4 @@ int FUN_00299e08(void *param_1, int param_2, void *param_3)
 // 96-byte address-taken context at sp+16 (saved regs at 8/12) while retail has it at sp+0 with the saved
 // regs at 96/100. Ruled out: byte array, typed struct, int[24], byte-indexed stores, aligned(16).
 // near miss from lane ds4 (unreviewed)
+// improved by lane fm10 (unreviewed): no comparable result -> 34 differing words

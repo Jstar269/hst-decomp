@@ -1,4 +1,4 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00283874 end=0x00283c14 symbol=FUN_00283874 lang=c99 */
+/* HSTMATCH module=EBOOT.BIN start=0x00283874 end=0x00283c14 symbol=FUN_00283874__Fi lang=c99 */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -6,7 +6,6 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
 #define true 1
@@ -18,13 +17,13 @@ typedef unsigned int undefined4;
 
 extern undefined * DAT_00338ac4;
 extern undefined1 DAT_003417c8;
-extern void FUN_000bb190();
-extern int FUN_000bbba4();
-extern undefined4 FUN_000bd568();
-extern undefined4 FUN_000bd6a4();
-extern void FUN_00282664();
-extern int FUN_002831c0();
-extern void FUN_00283358();
+extern void FUN_000bb190(unsigned char *);
+extern int FUN_000bbba4(unsigned char *, unsigned char *);
+extern undefined4 FUN_000bd568(unsigned char *);
+extern undefined4 FUN_000bd6a4(unsigned char *, int);
+extern void FUN_00282664(int);
+extern int FUN_002831c0(int, int);
+extern void FUN_00283358(int);
 
 void FUN_00283874(int param_1)
 {
@@ -203,3 +202,4 @@ void FUN_00283874(int param_1)
   return;
 }
 // near miss from lane km4 (unreviewed)
+// improved by lane fm10 (unreviewed): no comparable result -> 108 differing words
