@@ -86,3 +86,4 @@ extern "C" void FUN_0010e1d0(struct Obj0010e1d0 *o)
 // load order `lh t0,10(t1); lh a3,6(t1); mfc1 a0,$f0; lh a2,6(t1)` is retail's.
 // Also: retail reads `o->ctx` from memory twice (`lw a0,16(s0)` x2), ours CSEs it into one reg.
 // near miss from lane fm8 (unreviewed)
+// improved by lane bg2 (unreviewed): 91 -> 62 differing words

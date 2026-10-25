@@ -71,10 +71,11 @@ void FUN_0010b980(void *, int, int);
 void FUN_000ffb3c(void *, int);
 void FUN_000ffc70(void *, int);
 void FUN_0018379c(Self *, int, int, int);
-void FUN_00184884(Self *self, int param_2, int param_3);
+void FUN_00184884(Self *self, unsigned int p2, int param_3);
 }
 
-void FUN_00184884(Self *self, int param_2, int param_3) {
+void FUN_00184884(Self *self, unsigned int p2, int param_3) {
+    int param_2 = (int)p2;
     const int s3 = helper(param_2);
 
     if (param_3 != 0) {
@@ -139,11 +140,11 @@ void FUN_00184884(Self *self, int param_2, int param_3) {
     }
 }
 
-// DIFFERENCE: 13 of 158 words differ.
-// 1. Prologue move order at +0x28: retail emits 'move s7, a2; move s6, a1' whereas ours emits 'move s6, a1; move s7, a2'.
-// 2. Register coloring swap: retail allocates helper result to s3 and &self->f828 / s2_off to s2, whereas MWCC allocates helper result to s2 and &self->f828 / s2_off to s3.
-// RULED OUT:
-// - Declaration order variations of s0..s3 (uninitialized or initialized) either hoisted loads or kept s2/s3.
-// - Parameter type changes (short, uint, bool) inserted promotion instructions or altered frame.
-// - Inlining helper as switch, ternary, or method did not swap s2 and s3.
-// near miss from lane ag3 (unreviewed)
+// lane nx2 (2026-10-24): 13 -> 11 words. The prologue order `move s7,a2; move s6,a1` comes from taking param_2 through a
+// type-converted local (`unsigned int p2` parameter, `int param_2 = (int)p2;`, NOTES 2026-10-21 0x63b20 recipe); `int p2`
+// with an `unsigned` local does not defer it. Remaining 11: pure s2/s3 swap (retail helper result s3, &self->f828 and the
+// loop offset s2; ours the opposite). Ruled out (all 11): non-const result, `int s3; void **s2;` declared up front in either
+// order, s1/s0/s2 pointers declared at the top, loop locals declared before the helper call, `s3 == s4` compare order.
+// Worse: result var / ternary inside the inline helper (137-139), dropping the f828/f760/s774 locals (121-126), indexed
+// loop pointer without s2_off (79).
+// improved by lane nx2 (unreviewed): 13 -> 11 differing words

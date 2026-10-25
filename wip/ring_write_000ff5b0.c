@@ -1,11 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ff5b0 end=0x000ff678 symbol=FUN_000ff5b0 lang=c99 */
-/* Near-miss for ring buffer write (complement of src/eboot/ring_read_000ff678.c).
-   All buffer copying, division, chunk slicing, wrap-around logic, and return value handling
-   match retail 100% (+0x58 to +0xc4). The only difference is prologue instruction scheduling:
-   retail schedules `move s0, a2` immediately before `subu v0, v1, v0` after loading r->wr, r->rd,
-   and r->cap, and emits `beqzl at, 0xff608` with duplicated `divu zero, v1, a0` in delay slot.
-*/
-
+/* Near-miss for ring buffer write (best 9 differing words after lnm1's in-place count update).
+   The wrap/copy loops and return are exact. Retail tests the original a2 argument, then copies it to s0
+   after loading wr/rd/cap and before the avail subtraction; the best candidate mutates n for the clamp,
+   which copies it to s0 at entry and tests s0. */
 extern void FUN_002b77d8(char *dst, char *src, unsigned n);
 extern void FUN_00011090(char *dst, char *src, unsigned n);
 
@@ -19,22 +16,21 @@ typedef struct Ring {
 
 unsigned FUN_000ff5b0(Ring *r, char *src, unsigned n)
 {
-    unsigned cnt;
     unsigned avail;
     if ((int)n <= 0)
         return n;
     avail = r->cap - (r->wr - r->rd);
-    cnt = avail < n ? avail : n;
+    if (avail < n) n = avail;
     {
         unsigned off = r->wr % r->cap;
         unsigned chunk = r->cap - off;
-        if (cnt < chunk)
-            chunk = cnt;
+        if (n < chunk)
+            chunk = n;
         FUN_002b77d8(r->data + off, src, chunk);
-        if (chunk != cnt)
-            FUN_00011090(r->data, src + chunk, cnt - chunk);
+        if (chunk != n)
+            FUN_00011090(r->data, src + chunk, n - chunk);
     }
-    r->wr = r->wr + cnt;
-    return cnt;
+    r->wr = r->wr + n;
+    return n;
 }
-// near miss from lane u2r1-3 (unreviewed)
+// improved by lane lnm1 (unreviewed): 35 -> 9 differing words

@@ -68,10 +68,17 @@ retail's `lui`/`lo` pair loads. The matcher then also requires the placed bytes 
 ### Same-file static helpers
 
 If retail's code depends on a `static` helper compiled earlier in the same file (for example MWCC keeping `a0` live
-across a call it knows preserves `a0`), match the whole contiguous run of retail functions in one source: `start=` is
-the first function's start, `end=` the last function's end, `symbol=` the first function, and the functions are
-defined in address order. The matcher compares the whole span. Name the file `<name>_<first addr8>_run.cpp` and say
-"run" in the note line.
+across a call it knows preserves `a0`, or a store in the `jal` delay slot), define the helper `static` in front of the
+target, in retail address order, and list every function of the file other than the target in the header with its
+own retail range: `helpers=FUN_0028fb44@0x0028fb44-0x0028fb70` (comma-separated for several). `start=`, `end=` and
+`symbol=` stay the target's. The matcher links each function at its own address and compares every one; a helper that
+differs is named in the mismatch, and a defined but unlisted function gives `MISPLACED`/`UNPLACED_FUNCTION`. The
+source claims only the target's bytes: a helper is counted through its own one-function source, so install one if it
+has none. Say in the note line that the helpers are placed by `helpers=`.
+
+Only when the helper is directly adjacent and the run is short does the older form still apply: one source for the
+contiguous run (`start=` the first function, `end=` the last, `symbol=` the first), named
+`<name>_<first addr8>_run.cpp`, with "run" in the note line. Prefer `helpers=`.
 
 ## Source file format
 
@@ -90,8 +97,8 @@ grep -l "start=0x<addr>" src/*/* wip/*
 ```
 
 `module`, `start`, `end` and `symbol` are required (`symbol` must be the name your source defines for the function).
-`lang` is `c99` or `c++`. Optional: `cc=<profile>` (absent means MWCC build 219; GCC sources say `cc=gcc171-O2` or
-`cc=gcc171-Os`), the section placement keys above, and the experimental `extra=`.
+`lang` is `c99` or `c++`. Optional: `cc=<profile>` (absent means MWCC build 219; GCC sources say `cc=gcc171-O2`,
+`cc=gcc171-Os` or, for unoptimized SDK code, `cc=gcc171-O0`), the section placement keys above, and the experimental `extra=`.
 
 **Line 2: the note.** Exactly one provenance note, and it must be true. "Hand-written" means a person wrote it; a
 source that started from a generated candidate names the generator tag.
@@ -162,6 +169,8 @@ The main points, as a start:
 - **SDK code is GCC.** Sony's SDK objects (most of `EBOOT.BIN` below `0x88000`, and the Sony PRXs) are `psp-gcc`
   output: `ra` saved at the top of the frame, `t` temporaries, `movn`/`movz`, `j` between blocks. Use
   `cc=gcc171-O2` or `cc=gcc171-Os` and plain C, without MWCC pragmas; the declaration order of locals has no effect.
+  Unoptimized SDK objects (`move s8,sp` frame pointer, every local homed in the frame) take `cc=gcc171-O0`; there the
+  declaration order of locals does decide their frame slots.
   The SDK C library and math library are newlib: report such a function rather than reconstructing it by hand
   (`hstlib.py` and `hstnewlib.py` match it from the library source). Reconstructions of Sony SDK code are not
   accepted into the public repository.

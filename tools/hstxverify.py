@@ -647,6 +647,11 @@ def gcc_profiles(home: str) -> dict[str, dict[str, str]]:
                     "flags": f"-{optimization} -G0 -fno-merge-constants"
                     + (" -mext" if extension else ""),
                 }
+        profiles[f"gcc{version}-O0"] = {  # unoptimized Sony SDK objects; no -mext variant
+            "driver": driver,
+            "prefix": prefix,
+            "flags": "-O0 -G0 -fno-merge-constants",
+        }
     return profiles
 
 

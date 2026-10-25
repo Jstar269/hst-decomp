@@ -12,9 +12,9 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
   <!-- hstprogress:begin guide-source-kinds -->
-- Of the 11,423 sources (measured 2026-10-24), 6,765 are address-substituted **clones** of another matched source
+- Of the 11,565 sources (measured 2026-10-25), 6,814 are address-substituted **clones** of another matched source
   (retail contains the same code many times), 2,129 are mechanical translations of Ghidra pseudocode, 772 are such
-  translations corrected by hand, 1,524 are hand-written, 136 are instances of container templates, and 63 are newlib
+  translations corrected by hand, 1,617 are hand-written, 136 are instances of container templates, and 63 are newlib
   library functions translated from newlib sources (19 more are clones of them, counted among the clones), and 34 have
   no known note kind.
 - 82 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
@@ -208,8 +208,9 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
   defines for the function. All four are required.
 - `lang=c99|c++` (default from the file extension).
 - `cc=<profile>` selects the compiler: absent means `mwcc219` (mwccpsp build 219, `-c -O4,p -sdatathreshold 0`);
-  `gcc131-` or `gcc171-` plus `O1`, `O2`, `O3` or `Os` select a Sony `psp-gcc` kit (`gcc171x-*` adds `-mext`).
-  The tree currently uses `mwcc219`, `gcc171-O2` and `gcc171-Os`.
+  `gcc131-` or `gcc171-` plus `O1`, `O2`, `O3` or `Os` select a Sony `psp-gcc` kit (`gcc171x-*` adds `-mext`);
+  `gcc131-O0` and `gcc171-O0` select the unoptimized builds (Sony SDK objects with a `move s8,sp` frame pointer).
+  The tree currently uses `mwcc219`, `gcc171-O2`, `gcc171-Os` and `gcc171-O0`.
 - `rodata=0xADDR`, `data=`, `sdata=`, `bss=`, `sbss=`: where the object's sections go when the function refers to
   them; the matcher then also requires the placed `.rodata`/`.data`/`.sdata` bytes to equal retail.
 - `extra="..."`: experimental extra compiler flags; such a source is never counted as a match (none are installed).

@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021dc84 end=0x0021dd0c symbol=FUN_0021dc84 lang=c99 */
-/* Hand-written reconstruction from the disassembly; NOT exact (13 of 34 words differ, register naming only). */
+/* Hand-written reconstruction from the disassembly; NOT exact (11 of 34 words differ, register naming only). */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -32,7 +32,7 @@ int FUN_0021dc84(Obj_0021dc84 *o)
   int r = 0;
   if (!(o->f200 < o->f1fc)) {
     P_0021dc84 *p = o->f16c;
-    int res = 1;
+    unsigned char res = 1;
     int ok = 1;
     int nz = p != 0;
     if ((nz ^ 1) == 0) {
@@ -57,3 +57,9 @@ int FUN_0021dc84(Obj_0021dc84 *o)
 // b merged into nz; bool ok / bool res / bool nz; a static inline NotPositive(float) helper for the f78 step (changes the branch shapes); `(p==0)||(f64<0)||(f78<=0)` expression forms (completely different layout).
 // The retail structure is `res=1; ok=1; if (((p!=0)^1)==0) { if (p!=0) { b=f64<0; if(!b){ if(f78>0) ok=0; b=ok; } if(!b) res=0; } } if(res) r=1;` with r=0 preset and `if (!(o->f200 < o->f1fc))` first.
 
+// Update (lane sn4): declaring `res` as `unsigned char` (not int) un-merges the two constant-1 initialisers exactly like retail
+// (li a2,1 after the lw, li a3,1 in the bnez slot, no `move a2,a3`): 13 -> 11 words. The remaining 11 words are only the p/nz
+// colouring: retail p=a1 (lw a1,364(a0)) and nz/b=a0, ours p=a0 and nz=a1. Also ruled out (about 40 more compiles): all 24
+// declaration orders of p/res/ok/nz with res uchar, ok/nz/b as int or uchar in all 8 combinations (uchar nz/b adds code),
+// wrapping the middle in a static inline Chk(P*) / Chk(Obj*), inline IsNull/Ok helpers (different branch shapes).
+// improved by lane sn4 (unreviewed): 12 -> 11 differing words

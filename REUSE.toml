@@ -24,6 +24,7 @@ path = [
   "include/**",
   "port/include/**",
   "docs/**",
+  "AGENTS.md",
   "README.md",
   ".recomp.json",
   "progress.json",

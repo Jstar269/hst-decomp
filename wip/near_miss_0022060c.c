@@ -1,12 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0022060c end=0x00220704 symbol=FUN_0022060c lang=c99 */
 extern char DAT_003096c4[];
 extern char DAT_002f0bc4[];
-extern char DAT_002eff88[];
-extern char DAT_002f0b8c[];
+extern float DAT_002eff88;
 extern int DAT_002f0ba4[];
 extern void FUN_00102e38(void);
 extern void FUN_00104118(void *, char *, int);
-extern void FUN_00103540(char *, void *);
+extern void FUN_00103540(void *, float);
 extern int FUN_001039d8(void *, char *, int);
 extern int FUN_001026b8(int, int);
 extern void FUN_00220b4c(int *);
@@ -18,14 +17,14 @@ int *FUN_0022060c(int *self)
     FUN_00102e38();
     self[0] = (int)DAT_003096c4;
     FUN_00104118(self, DAT_002f0bc4, 0);
-    FUN_00103540(DAT_002eff88, self);
-    self[0x1b] = FUN_001039d8(self, DAT_002f0b8c, 0);
+    FUN_00103540(self, DAT_002eff88);
+    self[0x1b] = FUN_001039d8(self, *(char **)((int)DAT_002f0ba4 - 0x18), 0);
     for (i = 0; i < 2; i++) {
-        int *entry = DAT_002f0ba4 + i * 3;
-        int child = FUN_001026b8(self[entry[0] + 0x1b], entry[1]);
+        int *e = DAT_002f0ba4 + i * 3;
+        int child = FUN_001026b8(self[e[0] + 0x1b], e[1]);
 
-        self[i + 0x1c] = child;
-        entry[2] = *(int *)(child + 0x24);
+        *(int *)((unsigned int)self + i * 4 + 0x70) = child;
+        e[2] = *(int *)(child + 0x24);
     }
     self[0x17] = 0;
     self[0x18] = 0;
@@ -34,5 +33,5 @@ int *FUN_0022060c(int *self)
     FUN_00220b4c(self);
     return self;
 }
-// Near miss: 60/62 words; the item-store base fold now matches; retail still materializes DAT_002f0b8c with lui+addiu then lw (a one-member struct, a 2-D array and an explicit &slot[0] all compile to lui+lw).
-// near miss from lane ds8 (unreviewed)
+// Near miss: 62/62 words, 2 differ: retail loads the 0x2f0b8c name pointer as lui+addiu(%lo of that symbol) then lw a1,0(v0), while every declarative form (global, struct member, reference, integer address) folds into a single lui+lw; the loop and all other words match.
+// improved by lane ds9 (unreviewed): 45 -> 2 differing words

@@ -1,10 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0015e470 end=0x0015e558 symbol=FUN_0015e470 lang=c++ */
-/* Near-miss for container push_item returning iterator by value (58 words).
-   If item is non-null: sets item->parent = self, checks item, sets item->flag = 0 if check returns true,
-   then pushes to self->data vector (inlining size < cap check or calling FUN_00160298 vector grow),
-   and returns --self->end(). Otherwise returns self->end().
-   Differs only in stack slot allocation (20(sp) vs 28(sp)) and return store scheduling.
-*/
+/* Near miss: 10 of 58 words differ. The 48-byte frame and vector insertion are close; see trailing notes. */
 
 struct Container;
 
@@ -39,24 +34,38 @@ struct Container {
     }
 };
 
-extern "C" Iter FUN_0015e470(Container *self, Item *item)
+extern "C" void FUN_0015e470(Iter *result, Container *self, Item *item)
 {
+    Item *local_1c[7];
+    local_1c[0] = item;
     if (item != 0) {
-        item->parent = self;
-        if (item->check()) {
-            item->flag = 0;
+        local_1c[0]->parent = self;
+        if (local_1c[0]->check()) {
+            local_1c[0]->flag = 0;
         }
-        unsigned sz = self->size;
-        if (sz < self->cap) {
+        if (self->size < self->cap) {
             self->size++;
-            self->data[self->size - 1] = item;
+            unsigned index = self->size - 1;
+            self->data[index] = local_1c[0];
         } else {
-            FUN_00160298(&self->data, &item, EmptyTag());
+            FUN_00160298(&self->data, local_1c, EmptyTag());
         }
-        Iter it = self->end();
-        it.ptr--;
-        return it;
+        Iter *end = (Iter *)&local_1c[4];
+        Iter *ret = (Iter *)&local_1c[2];
+        end->ptr = self->data + self->size;
+        *ret = *end;
+        ret->ptr--;
+        result->ptr = ret->ptr;
+        local_1c[6] = (Item *)ret->ptr;
+        return;
     }
-    return self->end();
+    result->ptr = self->data + self->size;
 }
-// near miss from lane u2r1-3 (unreviewed)
+// The remaining differences are the item spill at sp+36 instead of sp+20, the capacity-branch target,
+// and iterator return temporary slots (ours sp+24/32, retail sp+36/28/44). Keeping a three-pointer local
+// array preserves the 48-byte frame and by-value return schedule. An explicit hidden-result ABI plus a
+// seven-pointer local array moves the item spill to sp+20 but loses the return-temporary sequence.
+// Tried: old-size vs increment-then-index forms, explicit index and saved pointer locals, vector push_back
+// helper, Iterator constructor/copy/pre-decrement/operator-minus forms, explicit-result locals and an
+// explicit sret signature with the local array. Best count is 10/58.
+// improved by lane lnm1 (unreviewed): 35 -> 5 differing words

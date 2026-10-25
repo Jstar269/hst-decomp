@@ -62,8 +62,11 @@ HEADER = re.compile(r"/\*\s*HSTMATCH\s+(.*?)\*/", re.S)
 # -fno-merge-constants: GCC's mergeable literal sections (.rodata.cst4/8, .rodata.str1.4) become plain
 # .rodata, which `rodata=` places; it changes section layout only, never the code (all GCC matches were
 # re-verified with it).
-GCC_PROFILE_NAMES = frozenset(f"gcc{v}{x}-{o}" for v in ("131", "171") for o in ("O1", "O2", "O3", "Os")
-                              for x in ("", "x"))  # gcc171x-*: Allegrex ext/ins enabled
+# gcc131-O0 / gcc171-O0: unoptimized Sony SDK objects (`move s8,sp` frame pointer, every local homed in the frame,
+# `j` between blocks); no -mext variant, because no known -O0 object uses ext/ins.
+GCC_PROFILE_NAMES = (frozenset(f"gcc{v}{x}-{o}" for v in ("131", "171") for o in ("O1", "O2", "O3", "Os")
+                               for x in ("", "x"))  # gcc171x-*: Allegrex ext/ins enabled
+                     | frozenset(f"gcc{v}-O0" for v in ("131", "171")))
 _gcc_profiles: dict | None = None
 
 
@@ -92,6 +95,8 @@ def gcc_profiles() -> dict:
         b = {"131": None, "171": f"{home}/psp-gcc-1.7.1/lib/gcc-lib/psp/3.3.3+allegrex-2.2.2-psp-1.7.1/"}
         _gcc_profiles = {f"gcc{v}{x}-{o}": {"driver": driver, "B": b[v], "flags": f"-{o} -G0 -fno-merge-constants{xf}"}
                          for v in b for o in ("O1", "O2", "O3", "Os") for x, xf in (("", ""), ("x", " -mext"))}
+        _gcc_profiles.update({f"gcc{v}-O0": {"driver": driver, "B": b[v], "flags": "-O0 -G0 -fno-merge-constants"}
+                              for v in b})
         assert set(_gcc_profiles) == GCC_PROFILE_NAMES
     return _gcc_profiles
 
@@ -482,6 +487,7 @@ def main() -> int:
         link_obj = obj_path
         if h.get("helpers"):
             # same-file helpers: every function at its own retail address (see the module docstring)
+            cc = h.get("cc", "mwcc219")   # this source's profile (not the last one the compile loop saw)
             if cc != "mwcc219":
                 results[p] = ("UNPLACED_FUNCTION", f"helpers= needs one .text section per function (mwccpsp); cc={cc}")
                 continue

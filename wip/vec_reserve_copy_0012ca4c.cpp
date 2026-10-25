@@ -1,7 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0012ca4c end=0x0012cb38 symbol=FUN_0012ca4c lang=c++ */
-// NEAR MISS (58/59 words, 54 differ): passing an empty allocator class BY VALUE as the 4th argument of the
-// out-of-line reserve call reproduces retail's 48-byte frame and the 16-byte slot below the named local, but MWCC
-// adds one `move a3,a2` for the empty arg. Ruled out: Alloc() vs a named local (invisible reference), 3-arg call (32-byte frame).
+// NEAR (57/59 words, 34 differ): the inline reserve helper with an unused empty Tag2
+// preserves the 48-byte frame without the extra fourth argument move. The residual is
+// the symmetric loop source/destination register pair: retail uses a3/a2; this form a2/a0.
+// Prior notes record no gain from five declaration permutations or inline_depth(8); revisit
+// in the near-miss pass without repeating those variants.
 #pragma opt_strength_reduction off
 
 struct Vec4 { float x, y, z, w; };
@@ -13,10 +15,14 @@ struct Vec {
 };
 
 struct Tag { char c; };
-struct Alloc {};
+struct Tag2 {};
 
-extern "C" void FUN_0012cb38(Vec *v, unsigned int n, Tag tag, Alloc a);
+extern "C" void FUN_0012cb38(Vec *v, unsigned int n, Tag tag);
 extern "C" void FUN_00000a00(void *p);
+static inline void Reserve(Vec *v, unsigned int n, Tag2 tag)
+{
+    FUN_0012cb38(v, n, Tag());
+}
 
 extern "C" void FUN_0012ca4c(Vec *self, unsigned int n)
 {
@@ -30,7 +36,7 @@ extern "C" void FUN_0012ca4c(Vec *self, unsigned int n)
     tmp.data = 0;
     tmp.size = 0;
     tmp.cap = 0;
-    FUN_0012cb38(&tmp, n, Tag(), Alloc());
+    Reserve(&tmp, n, Tag2());
     src = self->data;
     end = src + self->size;
     dst = tmp.data + tmp.size;
@@ -52,3 +58,4 @@ extern "C" void FUN_0012ca4c(Vec *self, unsigned int n)
         FUN_00000a00(tmp.data);
 }
 // near miss from lane ds1 (unreviewed)
+// improved by lane lnm1 (unreviewed): 54 -> 34 differing words

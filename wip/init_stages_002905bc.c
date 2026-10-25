@@ -50,7 +50,7 @@ int FUN_002905bc(Obj *o, int p2, int p3, int p4)
 {
   int r;
   if (o->f28 == 0) {
-    FUN_0028fb44(DAT_002ff534);
+    FUN_0028fb44(DAT_002ff534, p2);
     return 0;
   }
   FUN_000149a8(o->fec);
@@ -126,14 +126,7 @@ int FUN_002905bc(Obj *o, int p2, int p3, int p4)
   return 0;
 }
 
-// Near miss: 8 of 196 words differ (hstmatch/hstdiff), two groups:
-//  - entry block: ours emits `move s1,a1; move s3,a2; move s0,a3` before the bnez and `move s2,a0` in its slot; retail has
-//    `move s3,a2; move s0,a3; move s2,a0` and `move s1,a1` in the slot (same register assignment, only the order differs);
-//  - success arm: retail schedules `lui a0; li v0,1; move a1,s1; addiu a0,a0,lo; jal; sb v0,41(s2)` (the sb in the jal slot), ours
-//    `li v0,1; lui a0; move a1,s1; sb v0,41(s2); jal; addiu a0,a0,lo`.
-// What matched: for(;;){if(!(cond))break;..} top-tested wait loops; the ONE nested form that keeps the Q2 failure arm as `b 0x2908ac; nop`
-// (early `return 0` only for the first test; the later G test and everything after it nested as if/else); the success path in the ELSE of the
-// Q4 status test (fail arm first, jumping over it to the handle-close blocks); two handle sub-objects (+0x50, +0x6c, handle at +0x14) closed with
-// FUN_002b79a8(handle) (the dropped argument); the c1/c2 failure arms nested as if(c==0){Log}else{...}.
-// Tried without effect on the two groups: result variable, goto, do{}while(0)+break, switch(r) forms, C vs C++ (incl. member function), inline setter or
-// comma expression for the flag, local copies of p2 or the object, parameter type changes, extra use of p2 after the cleanup call.
+// second pass (sn6): 4 words left (was 8). The prologue copy-order group is FIXED: Ghidra's `FUN_0028fb44(DAT_002ff534)` in the early-failure arm passes the INCOMING a1 (p2) unchanged, i.e. it is
+//  `FUN_0028fb44(DAT_002ff534, p2)`; using a1 directly before its copy moves `move s1,a1` to the end (the bnez delay slot). Remaining: success arm `lui a0; li v0,1; move a1,s1; addiu a0; jal; sb v0,41(s2)` (sb in the jal slot)
+//  vs ours `li v0,1; lui a0; move a1,s1; sb; jal; addiu a0`. Tried again on top of the fix: comma expressions in either argument, `int t = p2; o->f29 = 1; return F(fmt, t)`, a `char *fmt` local.
+// improved by lane sn6 (unreviewed): 8 -> 4 differing words

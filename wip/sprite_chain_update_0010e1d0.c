@@ -71,3 +71,4 @@ void FUN_0010e1d0(struct Obj0010e1d0 *o)
     FUN_000ffb3c(*(int *)(o->ctx + 0xc), (float)(o->f_d8 - o->f_dc) <= o->f_e0);
 }
 // near miss from lane fm8 (unreviewed)
+// improved by lane bg2 (unreviewed): 91 -> 62 differing words

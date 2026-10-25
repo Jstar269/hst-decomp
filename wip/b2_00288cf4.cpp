@@ -20,17 +20,34 @@ public:
     virtual int state();
 };
 
-static inline bool Active(Obj *o)
-{
-    return o->state() == 2 || o->state() == 3;
-}
-
 extern "C" void FUN_00288cf4(Obj *self)
 {
     char local[36];
+    int state;
+    bool active;
 
-    if (Active(self)) {
-        void *base = Active(self) ? (char *)self - 0xe0 : 0;
+    state = self->state();
+    active = state == 2;
+    if (!active) {
+        state = self->state();
+        active = state == 3;
+    }
+    if (active) {
+        state = self->state();
+        active = state == 2;
+        if (!active) {
+            state = self->state();
+            active = state == 3;
+        }
+        void *base;
+        if (active) {
+            if (self != 0)
+                base = (char *)self - 0xe0;
+            else
+                base = 0;
+        } else {
+            base = 0;
+        }
 
         FUN_0012a254(base, 0, -1, 0);
     }
@@ -40,4 +57,9 @@ extern "C" void FUN_00288cf4(Obj *self)
         FUN_0014c820(local, -1);
     }
 }
-// near miss from lane ds9 (unreviewed)
+// NEAR (59/62 words, 28 differ); best form keeps the four state calls explicit
+// and selects the base pointer through separate active/self checks. Remaining
+// differences are in likely-branch layout around the base selection and the
+// post-call field path. The helper-based Active form was 39 words off; int/bool
+// result types and several equivalent base-selection forms did not improve it.
+// improved by lane lnm1 (unreviewed): 39 -> 28 differing words

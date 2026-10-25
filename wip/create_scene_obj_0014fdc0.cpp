@@ -11,45 +11,40 @@ extern void FUN_0014fd94(char *, int, int);
 extern void FUN_001cb860(int, int, int, int);
 extern int FUN_00000bcc(int);
 }
-
 struct VC_1 {
     virtual void reset(int);
-    virtual int run(int, float);
+    virtual int run(float, int);
 };
 
-extern "C" int *FUN_0014fdc0(int param_1, int param_2, float param_3)
+extern "C" int *FUN_0014fdc0(void *param_1, int param_2, float param_3)
 {
     VC_1 *piVar1;
     int iVar2;
 
     if (DAT_003402f0 != 0) {
         FUN_0014d044(param_2, param_3);
-        FUN_0014fd94(DAT_002dc380, *(int *)(param_1 + 8), *(int *)(param_1 + 0xc));
+        FUN_0014fd94(DAT_002dc380, *(int *)((char *)param_1 + 8), *(int *)((char *)param_1 + 0xc));
     }
     if (DAT_003403f4 != 0) {
         return 0;
     }
-    FUN_001cb860(DAT_0034a114, *(int *)(param_1 + 8), *(int *)(param_1 + 0xc), 0xffffffff);
-    piVar1 = (VC_1 *)FUN_00000bcc(4);
-    if (piVar1 != 0) {
+    FUN_001cb860(DAT_0034a114, *(int *)((char *)param_1 + 8), *(int *)((char *)param_1 + 0xc), 0xffffffff);
+    if ((piVar1 = (VC_1 *)FUN_00000bcc(4)) != 0) {
         *(int *)piVar1 = (int)&DAT_003083cc;
         *(int *)piVar1 = (int)&DAT_00308fcc;
     }
-    iVar2 = piVar1->run(param_2, param_3);
+    iVar2 = piVar1->run(param_3, param_2);
     if (iVar2 != 0) {
-        if (piVar1 == 0) {
-            return 0;
-        }
-        piVar1->reset(1);
+        if (piVar1 != 0 && piVar1 != 0) piVar1->reset(1);
         return 0;
     }
     return (int *)piVar1;
 }
-// NEAR MISS (lane fm3): 63/63 words, 22 differ -- byte-identical shape to 0014ffc0's near miss and
-// the same three deltas: (a) retail emits `mov.s $f20,$f12` before `move s0,a1`; (b) retail tests
-// the alloc result (`beqz v0`, `move s1,v0` in the delay) where we copy to s1 first; (c) the
-// `if (piVar1 != 0) piVar1->reset(1);` arm is inline in retail (`beqz s1,<return 0>`), out of line
-// with `bnezl s1` for us. Same C++ requirement as 0014ffc0 (virtual class, no virtual dtor, method
-// #0 = +8 takes the flag, method #1 = +0xc takes (int,float) -> int). `if (piVar1)` instead of
-// `if (piVar1 != 0)` changes nothing.
-// near miss from lane fm3 (unreviewed)
+// NEAR (63 words, 2 differ): hstmatch shows the entire body and return/reset tail equal to retail;
+// only the prologue pair at 0x0014fde0/0x0014fde8 is reversed. Retail saves the float first, then
+// puts move s0,a1 in the beqz delay slot; this source saves s0 first and puts mov.s in that slot.
+// Tried the alternate virtual-method parameter order, return type VC_1*, register and local copies,
+// pointer/number parameter types, helper parameter order, and declaration-order changes; none moved
+// the prologue pair. The duplicate nonnull condition is required for the retail null-check/reset tail.
+// Final revisit: an inline C++ member wrapper around the body regressed to 14 differences; preserve this 2-word free-function form.
+// improved by lane lnm1 (unreviewed): 22 -> 2 differing words

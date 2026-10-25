@@ -4,8 +4,9 @@ extern char DAT_0030ebf4;
 extern char DAT_002ef624;
 extern char DAT_002ef640;
 extern char DAT_002ef644;
-extern int DAT_002c9398;
-extern int DAT_002ef520;
+extern int DAT_002c9398[];
+extern int DAT_002ef520[];
+static inline int Kind(int i) { if (i >= 0 && i < 6) return DAT_002c9398[i]; return 0; }
 
 extern void FUN_00092c38(int, int);
 extern int FUN_00092720(int, int, int, int, int);
@@ -19,27 +20,22 @@ void FUN_00204c88(int param_1, unsigned char *param_2, unsigned char *param_3, u
                   int *param_5, unsigned char param_6, unsigned char param_7, unsigned char param_8,
                   int param_9, int param_10, unsigned char param_11)
 {
-    unsigned char local_11 = param_11;
+    unsigned char local_11;
     *param_2 = 0;
     *param_3 = 0;
 
-    int *p5 = param_5;
-    int *piVar6 = &DAT_002c9398;
-    int *ppuVar10 = &DAT_002ef520;
+    int iVar9;
     int iVar8;
     int iVar7;
-    int iVar9;
 
     *param_4 = 0;
 
-    for (iVar9 = 0; iVar9 < 6; iVar9++, piVar6++, ppuVar10++, p5++) {
-        if (iVar9 >= 0 && iVar9 < 6) {
-            iVar7 = *piVar6;
-        } else {
-            iVar7 = 0;
-        }
+    iVar9 = 0;
+    local_11 = param_11;
+    for (; iVar9 < 6; iVar9++) {
+        iVar7 = Kind(iVar9);
 
-        iVar8 = *p5;
+        iVar8 = param_5[iVar9];
         if (iVar8 == 0x7fffffff) {
             continue;
         }
@@ -52,7 +48,7 @@ void FUN_00204c88(int param_1, unsigned char *param_2, unsigned char *param_3, u
                 FUN_00092c38(param_1, iVar7);
             }
             if (FUN_00092720(param_1, iVar7, iVar8, param_9, 0) == 0) {
-                FUN_0001ca58(&DAT_0030ebf4, &DAT_002ef624, *ppuVar10, *ppuVar10, iVar8, &DAT_002ef640);
+                FUN_0001ca58(&DAT_0030ebf4, &DAT_002ef624, DAT_002ef520[iVar9], DAT_002ef520[iVar9], iVar8, &DAT_002ef640);
                 unsigned char uVar2 = FUN_00092790(param_1, iVar7, iVar8, param_9, local_11);
                 if (iVar7 == 2) {
                     *param_3 = uVar2;
@@ -80,8 +76,14 @@ void FUN_00204c88(int param_1, unsigned char *param_2, unsigned char *param_3, u
     FUN_000931ec(param_1, 1, local_4, param_8);
 }
 
-// Differing words: 15 / 164.
-// Exact instruction count and CFG match retail.
-// Difference: 3 loop registers rotated (piVar6 in s6 vs s0, iVar9 in s0 vs s3, param_5 in s3 vs s6).
-// Ruled out: array indexing (&DAT_002c9398[i]), inverted if branches, separate local declaration orders.
-// near miss from lane ag2 (unreviewed)
+// near miss from lane ag2 (unreviewed); lane nx1: 15 -> 3 words.
+// FIXED (nx1): the rotated loop registers came from the explicit pointer walks. Index everything instead:
+// `static inline int Kind(int i) { if (i >= 0 && i < 6) return DAT_002c9398[i]; return 0; }`, `param_5[iVar9]`,
+// `DAT_002ef520[iVar9]` (19 words), then declaring `int iVar9;` BEFORE iVar8/iVar7 (4 words), then splitting the
+// param_11 copy so it is assigned after `iVar9 = 0;` (3 words).
+// LEFT (3 words): retail stores the param_11 copy (`sb v0,56(sp)`) AFTER the hoisted table-address inits
+// (`addiu s0,s0,-27752; addiu s7,s7,-2784`), ours right after `move s3,zero`.
+// Ruled out (nx1): local at top / after *param_4=0 / just before the loop (4); for-init comma `iVar9 = 0, local_11 = ..` (3);
+// no local (152); int local (87); assignment inside the loop body or inside the call block (152); `for (int iVar9...)` (19);
+// other declaration orders of the old pointer walks (34-39).
+// improved by lane nx1 (unreviewed): 15 -> 3 differing words

@@ -14,7 +14,7 @@ extern int FUN_00000bcc(int);
 
 struct VC_4 {
     virtual void reset(int);
-    virtual int run(int, float);
+    virtual int run(float, int);
 };
 
 extern "C" int *FUN_0015371c(int param_1, int param_2, float param_3)
@@ -30,21 +30,20 @@ extern "C" int *FUN_0015371c(int param_1, int param_2, float param_3)
         return 0;
     }
     FUN_001cc190(DAT_0034a114, *(int *)(param_2 + 0xc), *(int *)(param_1 + 0xc), *(int *)(param_1 + 8));
-    piVar1 = (VC_4 *)FUN_00000bcc(4);
-    if (piVar1 != 0) {
+    if ((piVar1 = (VC_4 *)FUN_00000bcc(4)) != 0) {
         *(int *)piVar1 = (int)&DAT_003083cc;
         *(int *)piVar1 = (int)&DAT_00308a20;
     }
-    iVar2 = piVar1->run(param_2, param_3);
+    iVar2 = piVar1->run(param_3, param_2);
     if (iVar2 != 0) {
-        if (piVar1 == 0) {
-            return 0;
-        }
-        piVar1->reset(1);
+        if (piVar1 != 0 && piVar1 != 0) piVar1->reset(1);
         return 0;
     }
     return (int *)piVar1;
 }
-// NEAR MISS (lane fm3): 63/63 words, 22 differ -- fifth sibling of the 0x0014fdc0 family, same
-// three deltas. C++ virtual class; +8 = reset(int), +0xc = run(int,float); vtable DAT_00308a20.
-// near miss from lane fm3 (unreviewed)
+// NEAR (63 words, 2 differ): allocation, virtual call, and reset/return tail match. The only
+// differences are the mixed-parameter prologue order: retail saves f20 before the zero-test and
+// moves a1 to s0 in its delay slot; this source saves s0 first and puts mov.s in that slot.
+// `run(float,int)` matches the virtual-call setup, and the allocation-result assignment plus
+// duplicate nonnull check preserve the retail allocation and reset branches.
+// improved by lane lnm1 (unreviewed): 22 -> 2 differing words

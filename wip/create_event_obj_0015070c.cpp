@@ -14,7 +14,7 @@ extern int FUN_00000bcc(int);
 
 struct VC_3 {
     virtual void reset(int);
-    virtual int run(int, float);
+    virtual int run(float, int);
 };
 
 extern "C" int *FUN_0015070c(int param_1, int param_2, float param_3)
@@ -30,22 +30,20 @@ extern "C" int *FUN_0015070c(int param_1, int param_2, float param_3)
         return 0;
     }
     FUN_001cbedc(DAT_0034a114, *(int *)(param_2 + 0xc), *(int *)(param_1 + 0xc), *(int *)(param_1 + 8));
-    piVar1 = (VC_3 *)FUN_00000bcc(4);
-    if (piVar1 != 0) {
+    if ((piVar1 = (VC_3 *)FUN_00000bcc(4)) != 0) {
         *(int *)piVar1 = (int)&DAT_003083cc;
         *(int *)piVar1 = (int)&DAT_00308ee0;
     }
-    iVar2 = piVar1->run(param_2, param_3);
+    iVar2 = piVar1->run(param_3, param_2);
     if (iVar2 != 0) {
-        if (piVar1 == 0) {
-            return 0;
-        }
-        piVar1->reset(1);
+        if (piVar1 != 0 && piVar1 != 0) piVar1->reset(1);
         return 0;
     }
     return (int *)piVar1;
 }
-// NEAR MISS (lane fm3): 63/63 words, 22 differ -- fourth sibling of the 0x0014fdc0 family, same
-// three deltas (see wip/create_scene_obj_0014fdc0.cpp). C++ virtual class needed; +8 = reset(int),
-// +0xc = run(int,float); vtable DAT_00308ee0.
-// near miss from lane fm3 (unreviewed)
+// NEAR (63 words, 2 differ): the allocation, virtual call, and return/reset tail match. Remaining
+// differences are the mixed-parameter prologue order at 0x0015072c/0x00150734: retail saves f20
+// before the zero-test and moves a1 to s0 in its delay slot; this source saves s0 first and puts
+// mov.s in that slot. `run(float,int)` and `(param_3,param_2)` give the retail virtual-call setup.
+// The allocation-result assignment and duplicate nonnull test preserve retail's branches.
+// improved by lane lnm1 (unreviewed): 22 -> 2 differing words

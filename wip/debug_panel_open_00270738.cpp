@@ -78,3 +78,4 @@ extern "C" void FUN_00270738(int param_1)
 // pointer (91), and every literal/symbol mix other than three-symbols-plus-literal-lead.
 // improved by lane fm5 (unreviewed): 75 -> 22 differing words
 // improved by lane ag2 (unreviewed): no comparable result -> 22 differing words
+// improved by lane sn8 (unreviewed): no comparable result -> 22 differing words

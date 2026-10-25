@@ -369,6 +369,13 @@ class HelperPlacement(GateCase):
         v = self.sb.gate("verify")                                                   # re-run: the same proof
         self.assertEqual(v.returncode, 0, v.stdout + v.stderr)
 
+    def test_helper_source_matches_next_to_a_gcc_source(self) -> None:
+        """The helpers= check reads each source's own profile: a psp-gcc source compiled in the same call (here the
+        last one, so the compile loop ends on it) must not make the mwccpsp helpers= source UNPLACED_FUNCTION."""
+        self.copy(HELPED)
+        m = self.sb.run("hstmatch.py", HELPED, GCC)
+        self.assertIn("EXACT 2/2", m.stdout, m.stdout + m.stderr)
+
     def test_helper_mismatch_is_refused(self) -> None:
         self.copy(HELPED)
         self.sb.edit(HELPED, "static void FUN_0028fb44(...)", "static void FUN_0028fb44(const char *s, ...)")

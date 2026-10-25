@@ -209,9 +209,14 @@ def our_body(out: Path, h: dict) -> bytes | None:
 
 def run_match(files: list[Path], parallel: int, out_json: Path) -> list[dict]:
     out_json.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [sys.executable, str(Path(M.__file__)), "--quiet", "--parallel", str(parallel), "--json", str(out_json)]
-    subprocess.run(cmd + [str(f) for f in files], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    return json.loads(out_json.read_text(encoding="utf-8"))
+    results = []
+    # chunks of 80 files: one call over every wip file exceeds the Windows command-line limit (WinError 206)
+    for i in range(0, len(files), 80):
+        cmd = [sys.executable, str(Path(M.__file__)), "--quiet", "--parallel", str(parallel), "--json", str(out_json)]
+        subprocess.run(cmd + [str(f) for f in files[i:i + 80]], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        results += json.loads(out_json.read_text(encoding="utf-8"))
+    out_json.write_text(json.dumps(results), encoding="utf-8")
+    return results
 
 
 def measure(path: Path, status: str, detail: str, origin: dict[str, str], src_index: dict, blocked: set,

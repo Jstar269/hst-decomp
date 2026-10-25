@@ -422,6 +422,11 @@ def collect(modules: tuple[str, ...] = MODULES, *, queue_dir: Path = QUEUE_DIR, 
             elif lane_rec.status == "NEAR":
                 row.update(status="near", wip=lane_rec.wip, words_left=lane_rec.words_left, evidence="lane-progress",
                            reason=lane_rec.detail, words_left_source="lane line" if lane_rec.words_left is not None else "")
+            elif re.search(r"\bnot attempted\b", lane_rec.detail, re.I):
+                # a budget skip (fm11, 2026-10-24: "not attempted: lane session budget was spent ..."): the lane never
+                # tried the function, so it is unreached, not a dead end
+                row.update(status="untouched", reason=lane_rec.detail,
+                           evidence="reserved" if reserved else "lane-unreached")
             else:
                 row.update(status="skip", reason=lane_rec.detail, evidence="lane-progress")
         else:

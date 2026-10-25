@@ -1,0 +1,126 @@
+/* HSTMATCH module=EBOOT.BIN start=0x000ec6c8 end=0x000ecae4 symbol=FUN_000ec6c8 lang=c++ */
+struct Vec4 {
+    float x, y, z, w;
+    Vec4 &operator=(const Vec4 &o) { float a = o.x; float b = o.y; float c = o.z; float d = o.w; w = d; z = c; y = b; x = a; return *this; }
+} __attribute__((aligned(16)));
+struct Mat {
+    Vec4 r[4];
+};
+struct Vert {
+    unsigned char r, g, b, a;
+    float x, y, z;
+    float u, v, q;
+};
+struct Batch {
+    char pad[0x54];
+    int idx;
+    char pad58[0xc];
+    Vert *buf[2];
+};
+struct Entry {
+    Mat m;
+    Batch *batch;
+    unsigned kind;
+    float scale;
+    int arg;
+    int zero;
+    float one;
+    char pad58[8];
+};
+struct Owner {
+    char pad[0x3c];
+    float alpha;
+    void *tbl[6];
+    Entry *base;
+    int count;
+    int pad60;
+    Entry *cur;
+};
+extern "C" {
+extern Vec4 DAT_002c07b0[4];
+extern Vec4 DAT_002c07f0[4];
+Vec4 *FUN_00022498(Vec4 *, const Vec4 *, float);
+void FUN_000513a0(void *, int);
+int FUN_000ca4a4(void);
+void FUN_0005a650(Batch *);
+void FUN_0005a670(Batch *, int);
+double FUN_00020f5c(float);
+double FUN_00021748(double, double);
+float FUN_000223a0(double);
+void FUN_000ed08c(Owner *);
+extern float DAT_002d6c84;
+}
+
+struct Less {
+    bool operator()(const float &a, const float &b) const { return a < b; }
+};
+static inline const float &Max(const float &a, const float &b, Less cmp = Less())
+{
+    return cmp(a, b) ? b : a;
+}
+static inline bool Ne(const Entry *a, const Entry *b)
+{
+    return !(a == b);
+}
+
+extern "C" void FUN_000ec6c8(Owner *self)
+{
+    for (Entry *e = self->base; Ne(e, self->base + self->count); e++) {
+        if (e->kind == 6)
+            continue;
+        switch (e->zero) {
+        case 0:
+            if (e->arg > 0) {
+                if (--e->arg == 0)
+                    e->zero = 1;
+            }
+            break;
+        case 1:
+
+            float a;
+            float c;
+            if (FUN_000ca4a4() == 1 && e->kind < 4) {
+                c = 128.0f;
+                a = FUN_000223a0(FUN_00021748(1.125, FUN_00020f5c(e->one * 32.0f)));
+            } else if (e->kind == 5) {
+                a = e->one * 32.0f * 2.0f;
+                c = 128.0f;
+            } else if (e->kind == 4) {
+                c = 128.0f;
+                a = e->one * self->alpha;
+            } else {
+                c = 128.0f;
+                a = FUN_000223a0(FUN_00021748(1.125, FUN_00020f5c(e->one * 32.0f)));
+            }
+            Batch *b = e->batch;
+            e->one -= 0.1f;
+            e->one = Max(e->one, DAT_002d6c84);
+            if (e->one <= 0.0f) {
+                e->kind = 6;
+            } else {
+                FUN_0005a650(b);
+                float aa = a * 1.9921875f;
+                for (int i = 0; i < 4; i++) {
+                    b->buf[b->idx][i].u = DAT_002c07b0[i].x;
+                    b->buf[b->idx][i].v = DAT_002c07b0[i].y;
+                    b->buf[b->idx][i].q = DAT_002c07b0[i].z;
+                    b->buf[b->idx][i].x = DAT_002c07f0[i].x;
+                    b->buf[b->idx][i].y = DAT_002c07f0[i].y;
+                    b->buf[b->idx][i].z = DAT_002c07f0[i].z;
+                    b->buf[b->idx][i].r = c;
+                    b->buf[b->idx][i].g = c;
+                    b->buf[b->idx][i].b = c;
+                    b->buf[b->idx][i].a = aa;
+                }
+                FUN_0005a670(b, 4);
+            }
+            break;
+        }
+    }
+    FUN_000ed08c(self);
+}
+// NEAR 30 words: only an s1/s2 swap. Retail keeps self in s1 and the entry walker e in s2; ours has them the other way round.
+// Already tried: local copies of self (declared before or after e), e declared outside the loop, ++e, an Owner member function,
+// a vector-like begin()/end() member, and the body as an inline Step(e, self) or Step(self, e). None of these changed the swap.
+// The 16-byte frame (48) comes from Max() taking an empty Less functor by value. The same trick should fix the 64-byte frame of 0x000ecbf0.
+// near miss from lane ol3 (unreviewed)
