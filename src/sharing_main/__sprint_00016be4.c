@@ -1941,7 +1941,7 @@ int symlink (const char *__name1, const char *__name2);
  *  P1003.1c/D10, p. 52 adds the following.
  */
 /* _SC_THREAD_PRIO_PROTECT was _SC_THREAD_PRIO_CEILING in early drafts */
-/* FIXME: This is temporary until winsup gets sorted out.  */
+/* Internal stdio function declarations (retained from upstream newlib vfprintf.c). */
 extern int __svfscanf_r (struct _reent *,FILE *, const char *,va_list);
 extern int __svfiscanf_r (struct _reent *,FILE *, const char *,va_list);
 extern FILE *__sfp (struct _reent *);
