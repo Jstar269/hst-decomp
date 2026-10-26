@@ -24,7 +24,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 TARGET = "x86_64-pc-windows-msvc"
@@ -302,26 +302,7 @@ def _ast_command(source: Path, lang: str, root: Path, overlay: Path, compiler: P
     ]
 
 
-def findings(path: str | Path, lang: str, *, root: str | Path | None = None,
-             overlay: str | Path | None = None, compiler: str | Path | None = None) -> list[dict]:
-    """Return numeric-address findings for ``path`` without retaining source text.
-
-    ``lang`` is ``c99`` or ``c++``. Optional keyword arguments select the checkout,
-    host header overlay, and Clang executable; the two-argument form uses this checkout's
-    configuration and is stable for external census consumers.
-    """
-    source = Path(path).resolve()
-    checkout = _find_root(source, Path(root) if root is not None else None)
-    host_overlay = _expand_path(overlay or (checkout / "port" / "include"))
-    if not host_overlay.is_dir():
-        raise FileNotFoundError(f"Clang host header overlay not found: {host_overlay}")
-    clang = _expand_path(compiler) if compiler is not None else _configured_clang(checkout)
-    if not clang.is_file():
-        raise FileNotFoundError(f"Clang executable not found: {clang}")
-    source_bytes = source.read_bytes()
-    header = _read_header(source)
-    module = header.get("module", "")
-    ranges = _load_ranges(checkout, module, source) if module else []
+def _run_clang_ast(source: Path, lang: str, checkout: Path, host_overlay: Path, clang: Path) -> dict:
     command = _ast_command(source, lang, checkout, host_overlay, clang)
     try:
         proc = subprocess.run(command, cwd=checkout, capture_output=True, text=True, encoding="utf-8",
@@ -329,11 +310,13 @@ def findings(path: str | Path, lang: str, *, root: str | Path | None = None,
     except OSError as exc:
         raise HstAddrError("could not launch Clang AST analysis") from exc
     try:
-        ast = json.loads(proc.stdout)
+        return json.loads(proc.stdout)
     except json.JSONDecodeError as exc:
         # Never expose Clang's diagnostic text here: it can contain source excerpts.
         raise HstAddrError(f"Clang did not produce an AST for {source.name}") from exc
 
+
+def _collect_ast_nodes(ast: dict) -> list[dict]:
     nodes: list[dict] = []
 
     def collect(node: dict) -> None:
@@ -343,6 +326,10 @@ def findings(path: str | Path, lang: str, *, root: str | Path | None = None,
                 collect(child)
 
     collect(ast)
+    return nodes
+
+
+def _extract_decl_values(nodes: list[dict]) -> tuple[dict[str, int], dict[str, int]]:
     enum_values: dict[str, int] = {}
     constexpr_values: dict[str, int] = {}
     for node in nodes:
@@ -361,6 +348,90 @@ def findings(path: str | Path, lang: str, *, root: str | Path | None = None,
                 enum_values[node_id] = value
             else:
                 constexpr_values[node_id] = value
+    return enum_values, constexpr_values
+
+
+def _check_cast_node(node: dict, enum_values: dict[str, int], constexpr_values: dict[str, int],
+                     ranges: list[tuple[int, int]], add: Callable[[str, dict], None]) -> None:
+    cast_kind = node.get("castKind")
+    node_kind = node.get("kind")
+    children = [child for child in node.get("inner", ()) if isinstance(child, dict)]
+    if cast_kind == "IntegralToPointer" and node_kind in CAST_KINDS and children:
+        operand = children[-1]
+        value = _integer_value(operand, enum_values, constexpr_values)
+        if value is not None:
+            if value != 0:
+                add("integral-to-pointer", node)
+        elif ranges:
+            # An address constant buried in a non-constant expression is still a fixed
+            # module address. Keep this separate from the general ICE cast finding.
+            for child in [operand, *[n for n in _walk(operand) if n is not operand]]:
+                child_value = _integer_value(child, enum_values, constexpr_values)
+                if child_value is not None and child_value != 0 and _in_ranges(child_value, ranges):
+                    add("module-address-conversion", child)
+
+
+def _check_compare_node(node: dict, enum_values: dict[str, int], constexpr_values: dict[str, int],
+                        ranges: list[tuple[int, int]], add: Callable[[str, dict], None]) -> None:
+    node_kind = node.get("kind")
+    children = [child for child in node.get("inner", ()) if isinstance(child, dict)]
+    if node_kind == "BinaryOperator" and node.get("opcode") in POINTER_COMPARE_OPS and len(children) >= 2:
+        left, right = children[0], children[1]
+        if _is_pointer(left) and not _is_pointer(right):
+            integer_side = right
+        elif _is_pointer(right) and not _is_pointer(left):
+            integer_side = left
+        else:
+            integer_side = None
+        if integer_side is not None:
+            if any(child.get("castKind") == "IntegralToPointer" for child in _walk(integer_side)):
+                return
+            for constant_node, value in _constant_nodes(integer_side, enum_values, constexpr_values):
+                if value != 0 and _in_ranges(value, ranges):
+                    add("module-address-pointer-compare", constant_node)
+            return
+
+        # A source can first convert a pointer to uintptr_t and then compare it with a
+        # numeric module address. In that case the binary operands are both integers;
+        # preserve the pointer provenance carried by the cast in the AST.
+        left_related, right_related = _pointer_related(left), _pointer_related(right)
+        if left_related == right_related:
+            return
+        if any(child.get("castKind") == "IntegralToPointer" for child in _walk(left)) or any(
+            child.get("castKind") == "IntegralToPointer" for child in _walk(right)
+        ):
+            return
+        integer_side = right if left_related else left
+        for constant_node, value in _constant_nodes(integer_side, enum_values, constexpr_values):
+            if value != 0 and _in_ranges(value, ranges):
+                add("module-address-pointer-compare", constant_node)
+
+
+
+def findings(path: str | Path, lang: str, *, root: str | Path | None = None,
+             overlay: str | Path | None = None, compiler: str | Path | None = None) -> list[dict]:
+    """Return numeric-address findings for path without retaining source text.
+
+    lang is c99 or c++. Optional keyword arguments select the checkout,
+    host header overlay, and Clang executable; the two-argument form uses this checkout's
+    configuration and is stable for external census consumers.
+    """
+    source = Path(path).resolve()
+    checkout = _find_root(source, Path(root) if root is not None else None)
+    host_overlay = _expand_path(overlay or (checkout / "port" / "include"))
+    if not host_overlay.is_dir():
+        raise FileNotFoundError(f"Clang host header overlay not found: {host_overlay}")
+    clang = _expand_path(compiler) if compiler is not None else _configured_clang(checkout)
+    if not clang.is_file():
+        raise FileNotFoundError(f"Clang executable not found: {clang}")
+    source_bytes = source.read_bytes()
+    header = _read_header(source)
+    module = header.get("module", "")
+    ranges = _load_ranges(checkout, module, source) if module else []
+    ast = _run_clang_ast(source, lang, checkout, host_overlay, clang)
+
+    nodes = _collect_ast_nodes(ast)
+    enum_values, constexpr_values = _extract_decl_values(nodes)
 
     found: set[tuple[str, int, int]] = set()
 
@@ -370,52 +441,8 @@ def findings(path: str | Path, lang: str, *, root: str | Path | None = None,
             found.add((kind, point[0], point[1]))
 
     for node in nodes:
-        cast_kind = node.get("castKind")
-        node_kind = node.get("kind")
-        children = [child for child in node.get("inner", ()) if isinstance(child, dict)]
-        if cast_kind == "IntegralToPointer" and node_kind in CAST_KINDS and children:
-            operand = children[-1]
-            value = _integer_value(operand, enum_values, constexpr_values)
-            if value is not None:
-                if value != 0:
-                    add("integral-to-pointer", node)
-            elif ranges:
-                # An address constant buried in a non-constant expression is still a fixed
-                # module address. Keep this separate from the general ICE cast finding.
-                for child in [operand, *[n for n in _walk(operand) if n is not operand]]:
-                    child_value = _integer_value(child, enum_values, constexpr_values)
-                    if child_value is not None and child_value != 0 and _in_ranges(child_value, ranges):
-                        add("module-address-conversion", child)
-        if node_kind == "BinaryOperator" and node.get("opcode") in POINTER_COMPARE_OPS and len(children) >= 2:
-            left, right = children[0], children[1]
-            if _is_pointer(left) and not _is_pointer(right):
-                integer_side = right
-            elif _is_pointer(right) and not _is_pointer(left):
-                integer_side = left
-            else:
-                integer_side = None
-            if integer_side is not None:
-                if any(child.get("castKind") == "IntegralToPointer" for child in _walk(integer_side)):
-                    continue
-                for constant_node, value in _constant_nodes(integer_side, enum_values, constexpr_values):
-                    if value != 0 and _in_ranges(value, ranges):
-                        add("module-address-pointer-compare", constant_node)
-                continue
-
-            # A source can first convert a pointer to uintptr_t and then compare it with a
-            # numeric module address. In that case the binary operands are both integers;
-            # preserve the pointer provenance carried by the cast in the AST.
-            left_related, right_related = _pointer_related(left), _pointer_related(right)
-            if left_related == right_related:
-                continue
-            if any(child.get("castKind") == "IntegralToPointer" for child in _walk(left)) or any(
-                child.get("castKind") == "IntegralToPointer" for child in _walk(right)
-            ):
-                continue
-            integer_side = right if left_related else left
-            for constant_node, value in _constant_nodes(integer_side, enum_values, constexpr_values):
-                if value != 0 and _in_ranges(value, ranges):
-                    add("module-address-pointer-compare", constant_node)
+        _check_cast_node(node, enum_values, constexpr_values, ranges, add)
+        _check_compare_node(node, enum_values, constexpr_values, ranges, add)
 
     return [
         {"kind": kind, "line": line, "column": column}
