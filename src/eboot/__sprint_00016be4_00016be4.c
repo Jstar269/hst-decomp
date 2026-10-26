@@ -660,7 +660,6 @@ typedef unsigned int size_t;
 
 
 typedef int ptrdiff_t;
-/* FIXME: not namespace clean */
 struct stat;
 struct tms;
 struct timeval;
