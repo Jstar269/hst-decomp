@@ -968,11 +968,11 @@ extern int _gettimeofday_r (struct _reent *, struct timeval *tp, struct timezone
    files aren't affected).  */
 
 
-/* FIXME FIXME FIXME:
-   Neither of __ieee_{float,double}_shape_tape seem to be used anywhere
-   except in libm/test.  If that is the case, please delete these from here.
-   If that is not the case, please insert documentation here describing why
-   they're needed.  */
+/* Note on __ieee_{float,double}_shape_type:
+   These union type definitions originate from upstream newlib's <ieeefp.h> header
+   (included during preprocessing of mprec.c / strtod sources). They are retained
+   here to preserve the complete preprocessed standard library header declarations
+   and maintain exact structural compatibility across newlib source files.  */
 typedef union
 {
   double value;
