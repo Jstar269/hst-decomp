@@ -230,9 +230,7 @@ def main() -> int:
         if e_start not in e_functions:
             continue
         e_end, (sig, e_refs) = e_functions[e_start]
-        text = path.read_text(encoding="utf-8")
-        if not same_module:
-            text = text.replace(f"module={source_module}", f"module={args.module}", 1)
+        text = None
         for t_start in by_sig[sig]:
             if t_start in matched_targets or (same_module and t_start == e_start):
                 continue
@@ -242,6 +240,10 @@ def main() -> int:
                 continue
             if len(candidates[t_start]) >= args.max_per_target:
                 continue
+            if text is None:
+                text = path.read_text(encoding="utf-8")
+                if not same_module:
+                    text = text.replace(f"module={source_module}", f"module={args.module}", 1)
             out = retarget(text, e_start, t_start, t_end, *maps)
             if out is None or out in seen_text[t_start]:
                 continue
