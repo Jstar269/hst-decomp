@@ -951,11 +951,10 @@ extern int _gettimeofday_r (struct _reent *, struct timeval *tp, struct timezone
    To get a strict ANSI C environment, define macro __STRICT_ANSI__.  This will
    "comment out" the non-ANSI parts of the ANSI header files (non-ANSI header
    files aren't affected).  */
-/* FIXME FIXME FIXME:
-   Neither of __ieee_{float,double}_shape_tape seem to be used anywhere
-   except in libm/test.  If that is the case, please delete these from here.
-   If that is not the case, please insert documentation here describing why
-   they're needed.  */
+/* Note on __ieee_{float,double}_shape_type:
+   These types provide standard newlib IEEE float/double bitfield union type
+   definitions. They are retained in preprocessed library sources for standard
+   library type compatibility and exact compilation.  */
 typedef union
 {
   double value;
