@@ -20,6 +20,7 @@ import re
 import subprocess
 import sys
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -27,6 +28,11 @@ import hstmatch as M
 
 SRC_DIRS = {"EBOOT.BIN": "eboot", "hstp_trans_main.prx": "sharing_main", "libfont.prx": "libfont",
             "scePsmfP_library.prx": "psmfp", "scePsmf_library.prx": "psmf", "hstp_trans_sceFont_Library.prx": "sharing_font"}
+def _parse_source_header(p: Path) -> tuple[str, int, Path]:
+    h = M.parse_header(p)
+    return h["module"], h["start"], p
+
+
 IDENT_HEX = re.compile(r"\b([A-Za-z]\w*?)_([0-9a-f]{8})(?![0-9A-Za-z])")
 ADDRESS_KINDS = {"FUN", "DAT", "LAB", "PTR", "jtbl"}
 NOTE = re.compile(r"^/\*\s*(Mechanical translation|Clone of).*?\*/\n", re.M)
@@ -207,10 +213,10 @@ def main() -> int:
     functions = load_functions(ledger, args.module)
     e_functions = functions if same_module else load_functions(ledger, source_module)
     sources = defaultdict(dict)
-    for p in sorted((M.ROOT / "src").rglob("*")):
-        if p.suffix in (".c", ".cpp"):
-            h = M.parse_header(p)
-            sources[h["module"]][h["start"]] = p
+    src_paths = [p for p in sorted((M.ROOT / "src").rglob("*")) if p.suffix in (".c", ".cpp")]
+    with ProcessPoolExecutor(max_workers=args.parallel) as ex:
+        for module, start, p in ex.map(_parse_source_header, src_paths, chunksize=256):
+            sources[module][start] = p
     exemplars: dict[int, Path] = sources[source_module]
     matched_targets = set(sources[args.module])
     by_sig = defaultdict(list)
@@ -278,8 +284,7 @@ def main() -> int:
             status[str((M.ROOT / row["source"]).resolve())] = row["status"]
     dest_dir = M.ROOT / "src" / SRC_DIRS[args.module]
     dest_dir.mkdir(parents=True, exist_ok=True)
-    covered = {M.parse_header(q)["start"] for q in (M.ROOT / "src").rglob("*")
-               if q.suffix in (".c", ".cpp") and M.parse_header(q)["module"] == args.module}
+    covered = set(sources[args.module])
     accepted = 0
     accepted_bytes = 0
     committed: dict[str, int] = {}
