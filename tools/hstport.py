@@ -39,7 +39,6 @@ its census counts each failed source once by its first failing target and diagno
 from __future__ import annotations
 
 import argparse
-import concurrent.futures
 import datetime as dt
 import json
 import os
@@ -49,6 +48,7 @@ import sys
 import tempfile
 import time
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable
@@ -496,13 +496,13 @@ def _scan_numeric_addresses(sources: list[Source], root: Path, overlay: Path, co
     started = time.monotonic()
     results: dict[str, list[dict]] = {}
     completed = 0
-    with concurrent.futures.ThreadPoolExecutor(max_workers=parallel) as executor:
+    with ThreadPoolExecutor(max_workers=parallel) as executor:
         futures = {
             executor.submit(hstaddr.findings, source.path, source.lang, root=root, overlay=overlay,
                             compiler=compiler): source
             for source in sources
         }
-        for future in concurrent.futures.as_completed(futures):
+        for future in as_completed(futures):
             source = futures[future]
             results[source.relative] = future.result()
             completed += 1
@@ -563,7 +563,7 @@ def run_check(root: Path = ROOT, targets: Iterable[str] = TARGETS, parallel: int
             for source in sources:
                 target_flags_actual[source.relative] = target_flags(target, source.lang, root, overlay)
             completed = 0
-            with concurrent.futures.ThreadPoolExecutor(max_workers=parallel) as executor:
+            with ThreadPoolExecutor(max_workers=parallel) as executor:
                 futures = {}
                 for source_index, source in enumerate(sources):
                     found = numeric_findings[source.relative]
@@ -584,7 +584,7 @@ def run_check(root: Path = ROOT, targets: Iterable[str] = TARGETS, parallel: int
                                              target_flags_actual[source.relative], root, object_path,
                                              policy[source.relative])
                     futures[future] = source
-                for future in concurrent.futures.as_completed(futures):
+                for future in as_completed(futures):
                     source = futures[future]
                     outcomes[source.relative][target] = future.result()
                     completed += 1
