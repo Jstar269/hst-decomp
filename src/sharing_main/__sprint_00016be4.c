@@ -239,8 +239,6 @@ Supporting OS subroutines required: <<close>>, <<fstat>>, <<isatty>>,
    for read()/write() is "ssize_t" but legacy newlib code has been using
    "int" for some time.  If not specified, "int" is defaulted.  */
 /* First try to figure out whether we really are in an ANSI C environment.  */
-/* FIXME: This probably needs some work.  Perhaps sys/config.h can be
-   prevailed upon to give us a clue.  */
 /* Support gcc's __attribute__ facility.  */
 
 
