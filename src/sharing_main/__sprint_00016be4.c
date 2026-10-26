@@ -416,7 +416,7 @@ struct __sbuf {
  * so we use _fpos_t instead.
  */
 
-typedef long _fpos_t; /* XXX must match off_t in <sys/types.h> */
+typedef _off_t _fpos_t; /* XXX must match off_t in <sys/types.h> */
                                 /* (and must be `long' for now) */
 
 
