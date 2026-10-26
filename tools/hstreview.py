@@ -63,19 +63,25 @@ _FILE_CACHE: dict[str, tuple] = {}
 
 def load_sources() -> list[dict]:
     """Every source with its current sha256; files are re-read only when their size or mtime changed."""
+    import os
     items = []
-    for p in sorted((M.ROOT / "src").rglob("*")):
-        if p.suffix not in (".c", ".cpp"):
-            continue
-        st = p.stat()
-        key = str(p)
-        cached = _FILE_CACHE.get(key)
-        if cached and cached[0] == (st.st_size, st.st_mtime_ns):
-            items.append(cached[1])
-            continue
-        item = _describe(p)
-        _FILE_CACHE[key] = ((st.st_size, st.st_mtime_ns), item)
-        items.append(item)
+    src_dir = M.ROOT / "src"
+    for root, dirs, _ in os.walk(src_dir):
+        dirs.sort()
+        with os.scandir(root) as it:
+            entries = sorted((e for e in it if e.name.endswith(".c") or e.name.endswith(".cpp")), key=lambda e: e.name)
+            for entry in entries:
+                key = entry.path
+                st = entry.stat()
+                mtime_size = (st.st_size, st.st_mtime_ns)
+                cached = _FILE_CACHE.get(key)
+                if cached and cached[0] == mtime_size:
+                    items.append(cached[1])
+                    continue
+                p = Path(key)
+                item = _describe(p)
+                _FILE_CACHE[key] = (mtime_size, item)
+                items.append(item)
     return items
 
 
