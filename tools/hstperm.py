@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import functools
 import glob
 import json
 import shutil
@@ -450,13 +451,18 @@ def align_score(row: dict, theirs: list[int]) -> int:
     return max(1, max(len(ours), len(theirs)) - sum(b.size for b in sm.get_matching_blocks()))
 
 
+@functools.lru_cache(maxsize=None)
+def _parse_json(content: str):
+    return json.loads(content)
+
+
 def run_scored(cmd: list[str], files: list[Path], part_dir: Path, ends: dict, owner: dict) -> dict:
     """Compile and score files; returns {resolved path: alignment score}."""
     results = {}
     for c in range(0, len(files), 400):
         part = part_dir / f"summary-{c // 400}.json"
         subprocess.run(cmd + [str(part)] + [str(p) for p in files[c:c + 400]], stdout=subprocess.DEVNULL)
-        for row in json.loads(part.read_text(encoding="utf-8")):
+        for row in _parse_json(part.read_text(encoding="utf-8")):
             path = str((M.ROOT / row["source"]).resolve())
             key = owner[path]
             results[path] = align_score(row, retail_words(key, ends[key]))
@@ -489,7 +495,7 @@ def main() -> int:
     # names (generation runs share build directories) and scored by alignment.
     pool: dict[tuple[str, int], dict[str, int]] = {}
     for summary in glob.glob(str(M.ROOT / "try" / "gen-*" / "summary-*.json")):
-        for row in json.loads(Path(summary).read_text(encoding="utf-8")):
+        for row in _parse_json(Path(summary).read_text(encoding="utf-8")):
             key = (row["module"], int(row["start"], 16))
             if key in covered or row["status"] != "MISMATCH" or not args.start_min <= key[1] <= args.start_max:
                 continue
