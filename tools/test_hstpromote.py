@@ -108,7 +108,8 @@ class Sandbox:
         (self.root / "hst-config.json").write_text(json.dumps(cfg, indent=1), encoding="utf-8")
 
     def proofs(self) -> list[dict]:
-        return [json.loads(x) for x in (self.root / "data" / "accepted-ledger.jsonl").read_text().splitlines()[1:]]
+        lines = (self.root / "data" / "accepted-ledger.jsonl").read_text(encoding="utf-8").splitlines()[1:]
+        return [json.loads(x) for x in lines]
 
     def py(self, code: str) -> subprocess.CompletedProcess:
         """Run Python with the sandbox's tools first on the path (for checks below the CLI)."""
