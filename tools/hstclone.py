@@ -20,6 +20,7 @@ import re
 import subprocess
 import sys
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -33,6 +34,15 @@ NOTE = re.compile(r"^/\*\s*(Mechanical translation|Clone of).*?\*/\n", re.M)
 MAX_DATA_SHIFT = 0x10000
 # I-type opcodes that write rt: ALU immediates and integer loads (lui is handled separately)
 GPR_WRITE_RT = set(range(0x08, 0x0F)) | set(range(0x20, 0x27))
+
+
+@dataclass(frozen=True)
+class CloneContext:
+    e_start: int
+    t_start: int
+    calls: dict[int, int]
+    data: dict[int, int]
+    his: dict[int, int] | None = None
 
 
 def words(data: bytes) -> list[int]:
@@ -82,66 +92,64 @@ def mapping(e_refs, t_refs) -> tuple[dict[int, int], dict[int, int], dict[int, i
     return calls, data, his
 
 
-def map_value(kind: str, value: int, e_start: int, t_start: int, calls: dict[int, int], data: dict[int, int]) -> int | None:
+def map_value(kind: str, value: int, ctx: CloneContext) -> int | None:
     """The clone's value for an address carried in an identifier; None leaves the identifier unchanged."""
-    if value == e_start:
-        return t_start
-    if value in calls:
-        return calls[value]
-    if value in data:
-        return data[value]
+    if value == ctx.e_start:
+        return ctx.t_start
+    if value in ctx.calls:
+        return ctx.calls[value]
+    if value in ctx.data:
+        return ctx.data[value]
     if kind in ADDRESS_KINDS:
-        shifts = {tv - ev for ev, tv in data.items() if 0 <= ev - value < MAX_DATA_SHIFT}
+        shifts = {tv - ev for ev, tv in ctx.data.items() if 0 <= ev - value < MAX_DATA_SHIFT}
         if len(shifts) == 1:
             return (value + shifts.pop()) & 0xFFFFFFFF
         raise KeyError(value)  # an address-named external the retail code does not reveal
     return None
 
 
-def retarget_names(text: str, e_start: int, t_start: int, calls: dict[int, int], data: dict[int, int]) -> str:
+def retarget_names(text: str, ctx: CloneContext) -> str:
     """Rewrite every identifier ending in _<8 hex> whose address maps (function, class and vtable names)."""
     def repl(m: re.Match) -> str:
-        new = map_value(m.group(1), int(m.group(2), 16), e_start, t_start, calls, data)
+        new = map_value(m.group(1), int(m.group(2), 16), ctx)
         return m.group(0) if new is None else f"{m.group(1)}_{new:08x}"
     return IDENT_HEX.sub(repl, text)
 
 
-def symbol_entries(base: dict[str, int], e_start: int, t_start: int, calls: dict[int, int],
-                   data: dict[int, int], his: dict[int, int] | None = None, keep_names: bool = False) -> dict[str, int]:
+def symbol_entries(base: dict[str, int], ctx: CloneContext, keep_names: bool = False) -> dict[str, int]:
     """Symbol-map entries a clone needs: each committed entry whose name and address both map
     (e.g. __vt__10C_<exemplar> = its vtable -> __vt__10C_<clone> = the clone's vtable)."""
     out = {}
     for name, address in base.items():
-        if address == e_start:
-            new_address = t_start
+        if address == ctx.e_start:
+            new_address = ctx.t_start
         else:
-            new_address = calls.get(address, data.get(address))
+            new_address = ctx.calls.get(address, ctx.data.get(address))
         if new_address is None:
             continue
-        new_name = re.sub(r"[0-9a-f]{8}", lambda m: f"{map_value('', int(m.group(0), 16), e_start, t_start, calls, data) or int(m.group(0), 16):08x}", name)
+        new_name = re.sub(r"[0-9a-f]{8}", lambda m: f"{map_value('', int(m.group(0), 16), ctx) or int(m.group(0), 16):08x}", name)
         if new_name != name or keep_names:  # across modules even runtime names (__dl__FPv) move
             out[new_name] = new_address
     return out
 
 
-def retarget(text: str, e_start: int, t_start: int, t_end: int, calls: dict[int, int], data: dict[int, int],
-             his: dict[int, int] | None = None) -> str | None:
+def retarget(text: str, t_end: int, ctx: CloneContext) -> str | None:
     try:
-        body = retarget_names(text, e_start, t_start, calls, data)
+        body = retarget_names(text, ctx)
     except KeyError:
         return None
-    body = body.replace(f"{e_start:08x}", f"{t_start:08x}")  # mangled names such as __dt__10C_<addr>Fv
+    body = body.replace(f"{ctx.e_start:08x}", f"{ctx.t_start:08x}")  # mangled names such as __dt__10C_<addr>Fv
     # Literal constants the code builds with lui/ori (or lui/addiu) differ between template instances
     # (e.g. max_size for each element size): rewrite a literal whose value is such a mapped constant.
     head0, rest0 = body.split("\n", 1)
 
     def literal(m: re.Match) -> str:
         value = int(m.group(0), 16)
-        if value >= 0x10000 and value in data and data[value] != value:
-            return f"0x{data[value]:x}"
+        if value >= 0x10000 and value in ctx.data and ctx.data[value] != value:
+            return f"0x{ctx.data[value]:x}"
         upper = value & 0xFFFF0000
-        if his and value >= 0x10000 and upper in his and his[upper] != upper:
-            return f"0x{his[upper] | (value & 0xFFFF):x}"  # high half built by a lui whose low half is elsewhere
+        if ctx.his and value >= 0x10000 and upper in ctx.his and ctx.his[upper] != upper:
+            return f"0x{ctx.his[upper] | (value & 0xFFFF):x}"  # high half built by a lui whose low half is elsewhere
         return m.group(0)
     body = head0 + "\n" + re.sub(r"\b0x[0-9a-fA-F]+\b", literal, rest0)
     # Template instances over element size: an exemplar element `int w[K]` whose max_size constant
@@ -152,12 +160,12 @@ def retarget(text: str, e_start: int, t_start: int, t_end: int, calls: dict[int,
         max_t = None
         # the code may hold max_size itself or max_size + 1 (`n < max + 1`), as a lui/ori pair or a lone lui
         for key, adjust in ((max_e, 0), (max_e + 1, 1)):
-            if key in data:
-                max_t = data[key] - adjust
-            elif his and key & 0xFFFF == 0 and key in his:
-                max_t = his[key] - adjust
-            elif his and (key & 0xFFFF0000) in his:
-                max_t = (his[key & 0xFFFF0000] | (key & 0xFFFF)) - adjust
+            if key in ctx.data:
+                max_t = ctx.data[key] - adjust
+            elif ctx.his and key & 0xFFFF == 0 and key in ctx.his:
+                max_t = ctx.his[key] - adjust
+            elif ctx.his and (key & 0xFFFF0000) in ctx.his:
+                max_t = (ctx.his[key & 0xFFFF0000] | (key & 0xFFFF)) - adjust
             if max_t:
                 break
         if not max_t or max_t == max_e:
@@ -168,13 +176,13 @@ def retarget(text: str, e_start: int, t_start: int, t_end: int, calls: dict[int,
         return f"int w[{size_t // 4}]"
     body = re.sub(r"int w\[(\d+)\]", element, body)
     head, rest = body.split("\n", 1)
-    head = re.sub(r"start=0x[0-9a-fA-F]+", f"start=0x{t_start:08x}", head)
+    head = re.sub(r"start=0x[0-9a-fA-F]+", f"start=0x{ctx.t_start:08x}", head)
     head = re.sub(r"end=0x[0-9a-fA-F]+", f"end=0x{t_end:08x}", head)
     # a jump table's base is built with lui/addiu, so the placed .rodata moves with the data mapping
     rodata = re.search(r"rodata=0x([0-9a-fA-F]+)", head)
     if rodata:
         try:
-            head = head.replace(rodata.group(0), f"rodata=0x{map_value('DAT', int(rodata.group(1), 16), e_start, t_start, calls, data):08x}")
+            head = head.replace(rodata.group(0), f"rodata=0x{map_value('DAT', int(rodata.group(1), 16), ctx):08x}")
         except KeyError:
             pass  # no data reference reveals the clone's table: keep the exemplar's placement
     return head + "\n" + rest
@@ -242,7 +250,9 @@ def main() -> int:
                 continue
             if len(candidates[t_start]) >= args.max_per_target:
                 continue
-            out = retarget(text, e_start, t_start, t_end, *maps)
+            calls, data, his = maps
+            ctx = CloneContext(e_start, t_start, calls, data, his)
+            out = retarget(text, t_end, ctx)
             if out is None or out in seen_text[t_start]:
                 continue
             seen_text[t_start].add(out)
@@ -253,7 +263,7 @@ def main() -> int:
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(out, encoding="utf-8", newline="\n")
             candidates[t_start].append((path, dest))
-            entries = symbol_entries(base_symbols, e_start, t_start, *maps, keep_names=not same_module)
+            entries = symbol_entries(base_symbols, ctx, keep_names=not same_module)
             owned[dest] = entries
             for symbol, address in entries.items():
                 if target_symbols.get(symbol, address) != address or extra.setdefault(symbol, address) != address:
