@@ -450,12 +450,22 @@ SH = struct.Struct("<IIIIIIIIII")
 EH = struct.Struct("<16sHHIIIIIHHHHHH")
 
 
-def write_module(profile: ContainerProfile, sections: Sequence[OutSection], entry: int, comment: bytes,
-                 memsz_end: int, modinfo_name: str = ".rodata.sceModuleInfo", ident: bytes | None = None,
-                 e_flags: int = 0x10A23001) -> tuple[bytes, dict[str, tuple[int, int]]]:
+@dataclass(frozen=True)
+class ModuleOptions:
+    """Options for writing a target PRX image containing module headers, comment, entry point, and memory size."""
+    entry: int
+    comment: bytes
+    memsz_end: int
+    modinfo_name: str = ".rodata.sceModuleInfo"
+    ident: bytes | None = None
+    e_flags: int = 0x10A23001
+
+
+def write_module(profile: ContainerProfile, sections: Sequence[OutSection],
+                 options: ModuleOptions) -> tuple[bytes, dict[str, tuple[int, int]]]:
     """The whole module file from its sections (address order; their file offsets follow from the addresses, as in a
     PSP executable with one PT_LOAD at 0). Returns the file and {part: (offset, size)} of every part, for reporting."""
-    ident = ident or (b"\x7fELF\x01\x01\x01" + bytes(9))
+    ident = options.ident or (b"\x7fELF\x01\x01\x01" + bytes(9))
     order: list[tuple[str, int]] = [("", 0), (".shstrtab", 0)]       # (name, kind): 0 = special, 1 = loaded, 2 = rel
     for s in sections:
         order.append((s.name, 1))
@@ -480,7 +490,7 @@ def write_module(profile: ContainerProfile, sections: Sequence[OutSection], entr
         if part == "comment":
             pos += -pos % profile.comment_align
             offsets[".comment"] = pos
-            pos += len(comment)
+            pos += len(options.comment)
         elif part == "shstrtab":
             offsets[".shstrtab"] = pos
             pos += len(names)
@@ -502,7 +512,7 @@ def write_module(profile: ContainerProfile, sections: Sequence[OutSection], entr
         elif n == ".shstrtab":
             shdrs += SH.pack(name_off[n], 3, 0, 0, offsets[n], len(names), 0, 0, 1, 1)
         elif n == ".comment":
-            shdrs += SH.pack(name_off[n], 1, 0, 0, offsets[n], len(comment), 0, 0, 1, 1)
+            shdrs += SH.pack(name_off[n], 1, 0, 0, offsets[n], len(options.comment), 0, 0, 1, 1)
         elif kind == 1:
             s = by_name[n]
             shdrs += SH.pack(name_off[n], 8 if s.data is None else 1, s.flags, s.addr, content_off + s.addr, s.hdr_size,
@@ -518,16 +528,16 @@ def write_module(profile: ContainerProfile, sections: Sequence[OutSection], entr
             out[content_off + s.addr:content_off + s.addr + len(s.data)] = s.data
     out[offsets["shdrs"]:offsets["shdrs"] + len(shdrs)] = shdrs
     out[offsets[".shstrtab"]:offsets[".shstrtab"] + len(names)] = names
-    out[offsets[".comment"]:offsets[".comment"] + len(comment)] = comment
+    out[offsets[".comment"]:offsets[".comment"] + len(options.comment)] = options.comment
     for n, blob in rel_blobs:
         out[offsets[n]:offsets[n] + len(blob)] = blob
-    modinfo = by_name[modinfo_name]
-    ph = struct.pack("<IIIIIIII", 1, content_off, 0, content_off + modinfo.addr, content_end, memsz_end, 7, 16)
-    out[:EH.size] = EH.pack(ident, 0xFFA0, 8, 1, entry, EH.size, offsets["shdrs"], e_flags, EH.size, 32, 1, SH.size,
+    modinfo = by_name[options.modinfo_name]
+    ph = struct.pack("<IIIIIIII", 1, content_off, 0, content_off + modinfo.addr, content_end, options.memsz_end, 7, 16)
+    out[:EH.size] = EH.pack(ident, 0xFFA0, 8, 1, options.entry, EH.size, offsets["shdrs"], options.e_flags, EH.size, 32, 1, SH.size,
                             shnum, 1)
     out[EH.size:EH.size + 32] = ph
     parts.update({"elf_header": (0, EH.size), "program_header": (EH.size, 32), "section_headers": (offsets["shdrs"], len(shdrs)),
-                  ".shstrtab": (offsets[".shstrtab"], len(names)), ".comment": (offsets[".comment"], len(comment))})
+                  ".shstrtab": (offsets[".shstrtab"], len(names)), ".comment": (offsets[".comment"], len(options.comment))})
     for n, blob in rel_blobs:
         parts[n] = (offsets[n], len(blob))
     return bytes(out), parts

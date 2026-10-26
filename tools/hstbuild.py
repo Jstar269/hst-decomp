@@ -1279,7 +1279,8 @@ def assemble_image(ctx: BuildContext, linked: Elf, tables: dict[str, list[R.Entr
     entry = R.module_start(lib_ent, word_at)
     end = max([hi for _lo, hi in retail.bss] + [s.addr + s.size for s in ctx.sections])
     memsz = end + shift.delta(end - 1)
-    image, parts = R.write_module(R.PROFILES[profile], outs, entry if entry is not None else 0xFFFFFFFF, comment, memsz)
+    opts = R.ModuleOptions(entry=entry if entry is not None else 0xFFFFFFFF, comment=comment, memsz_end=memsz)
+    image, parts = R.write_module(R.PROFILES[profile], outs, opts)
     return image, parts, len(comment)
 
 

@@ -473,7 +473,8 @@ class ContainerTests(unittest.TestCase):
         entry = R.module_start(secs[1].data, word_at)
         self.assertEqual(entry, 0x8)
         for name, link, bias, content in (("eboot", 3, 2, 0x54), ("sharing", 0, 0, 0x60)):
-            image, _parts = R.write_module(R.PROFILES[name], secs, entry, b"TOOL\0", 0x100)
+            opts = R.ModuleOptions(entry=entry, comment=b"TOOL\0", memsz_end=0x100)
+            image, _parts = R.write_module(R.PROFILES[name], secs, opts)
             elf = B.parse_elf(image)
             self.assertEqual([s.name for s in elf.secs],
                              ["", ".shstrtab", ".text", ".rel.text", ".lib.ent", ".rel.lib.ent", ".rodata.sceModuleInfo",
