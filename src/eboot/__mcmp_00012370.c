@@ -880,7 +880,7 @@ typedef int __pid_t;
 
 __extension__ typedef long long int __loff_t;
 typedef int ptrdiff_t;
-/* FIXME: not namespace clean */
+/* Note: types in non-reserved namespace needed for BSD/RTEMS reent signatures */
 struct stat;
 struct tms;
 struct timeval;
