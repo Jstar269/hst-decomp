@@ -31,6 +31,7 @@ Usage: hstmatch.py [paths...]   (default: every source under src/)
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import os
 import re
@@ -114,8 +115,11 @@ def to_wsl(path: Path) -> str:
     return f"/mnt/{p[0].lower()}{p[2:]}"
 
 
-def parse_header(path: Path) -> dict:
-    m = HEADER.search(path.read_text(encoding="utf-8", errors="replace")[:2000])
+@functools.lru_cache(maxsize=16384)
+def _parse_header_cached(path: Path) -> dict:
+    with open(path, "r", encoding="utf-8", errors="replace") as f:
+        text = f.read(2000)
+    m = HEADER.search(text)
     if not m:
         raise ValueError(f"{path}: missing HSTMATCH header")
     fields = dict(re.findall(r'(\w+)=("[^"]*"|\S+)', m.group(1)))
@@ -129,6 +133,13 @@ def parse_header(path: Path) -> dict:
     if "helpers" in fields:
         fields["helpers"] = parse_helpers(fields["helpers"], fields, path)
     return fields
+
+
+def parse_header(path: Path) -> dict:
+    d = dict(_parse_header_cached(path))
+    if "helpers" in d:
+        d["helpers"] = list(d["helpers"])
+    return d
 
 
 HELPER = re.compile(r"([A-Za-z_]\w*)@(0x[0-9A-Fa-f]{1,8})-(0x[0-9A-Fa-f]{1,8})")
@@ -419,7 +430,7 @@ def main() -> int:
     build_root = Path(os.environ["HSTMATCH_BUILD_ROOT"]) if os.environ.get("HSTMATCH_BUILD_ROOT") else ROOT / "build"
     for p in paths:
         h = parse_header(p)
-        out = build_root / h["module"] / f"{p.resolve().parent.name}__{p.stem}"
+        out = build_root / h["module"] / f"{(p.parent.name or p.resolve().parent.name)}__{p.stem}"
         out.mkdir(parents=True, exist_ok=True)
         for f in out.glob("*"):
             f.unlink()
