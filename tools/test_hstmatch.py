@@ -7,11 +7,13 @@ link, compare, promotion, refusal of a mismatching helper) is in tools/test_hstp
 """
 from __future__ import annotations
 
+import os
 import struct
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hstmatch as M  # noqa: E402
@@ -111,6 +113,22 @@ class SectionPlacement(unittest.TestCase):
         self.assertEqual(M.word_diffs(b"\0" * 8, b"\0" * 8), [])
         self.assertEqual(M.word_diffs(b"\0" * 8, b"\0\0\0\0\1\0\0\0"), [1])
         self.assertEqual(M.word_diffs(b"\0" * 4, b"\0" * 8), [1])          # a shorter body differs in the rest
+
+
+
+
+class WSLRunner(unittest.TestCase):
+    def test_run_wsl_cleanup_on_subprocess_failure(self) -> None:
+        build_dir = M.ROOT / "build"
+        build_dir.mkdir(parents=True, exist_ok=True)
+        script_path = build_dir / f"test_runner.{os.getpid()}.sh"
+
+        with patch("subprocess.run", side_effect=RuntimeError("wsl execution failed")) as mock_run:
+            with self.assertRaises(RuntimeError):
+                M.run_wsl(["echo test"], "test_runner")
+
+            mock_run.assert_called_once()
+            self.assertFalse(script_path.exists(), "Script file should be unlinked/cleaned up even if subprocess.run raises an error")
 
 
 if __name__ == "__main__":
