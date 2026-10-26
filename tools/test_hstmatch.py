@@ -7,11 +7,14 @@ link, compare, promotion, refusal of a mismatching helper) is in tools/test_hstp
 """
 from __future__ import annotations
 
+import json
+import os
 import struct
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hstmatch as M  # noqa: E402
@@ -111,6 +114,63 @@ class SectionPlacement(unittest.TestCase):
         self.assertEqual(M.word_diffs(b"\0" * 8, b"\0" * 8), [])
         self.assertEqual(M.word_diffs(b"\0" * 8, b"\0\0\0\0\1\0\0\0"), [1])
         self.assertEqual(M.word_diffs(b"\0" * 4, b"\0" * 8), [1])          # a shorter body differs in the rest
+
+
+class CompilePhaseFailure(unittest.TestCase):
+    def test_compile_phase_failure_reports_compile_failed(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            src = tmp / "src" / "test.c"
+            src.parent.mkdir(parents=True)
+            src.write_text("/* HSTMATCH module=EBOOT.BIN start=0x00100000 end=0x00100010 symbol=FUN_00100000 lang=c99 */\nvoid FUN_00100000(void) { syntax_error }\n", encoding="utf-8")
+
+            build_root = tmp / "build"
+            json_out = tmp / "results.json"
+
+            def fake_run_wsl(lines, name, native=None):
+                if name == "compile":
+                    out_dir = build_root / "EBOOT.BIN" / "src__test"
+                    out_dir.mkdir(parents=True, exist_ok=True)
+                    (out_dir / "compile.log").write_text("error: 'syntax_error' undeclared\n", encoding="utf-8")
+
+            with patch.dict(os.environ, {"HSTMATCH_BUILD_ROOT": str(build_root), "HST_MWCC_NATIVE": "/fake/native"}), \
+                 patch.object(M, "run_wsl", side_effect=fake_run_wsl), \
+                 patch.object(sys, "argv", ["hstmatch.py", "--quiet", str(src), "--json", str(json_out)]):
+                ret = M.main()
+
+            self.assertEqual(ret, 1)
+            self.assertTrue(json_out.exists())
+            data = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertEqual(len(data), 1)
+            self.assertEqual(data[0]["status"], "COMPILE_FAILED")
+            self.assertIn("syntax_error", data[0]["detail"])
+
+    def test_jobfile_cleanup_on_compile_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            tmp = Path(d)
+            src = tmp / "test.c"
+            src.write_text("/* HSTMATCH module=EBOOT.BIN start=0x00100000 end=0x00100010 symbol=FUN_00100000 lang=c99 */\nint x;\n", encoding="utf-8")
+
+            build_root = tmp / "build"
+            (M.ROOT / "build").mkdir(parents=True, exist_ok=True)
+            jobfile_existed = False
+            jobfile_path = M.ROOT / "build" / f"compile.{os.getpid()}.jobs"
+
+            def fake_run_wsl(lines, name, native=None):
+                nonlocal jobfile_existed
+                if name == "compile":
+                    jobfile_existed = jobfile_path.exists()
+                    raise RuntimeError("WSL compile process failed")
+
+            with patch.dict(os.environ, {"HSTMATCH_BUILD_ROOT": str(build_root), "HST_MWCC_NATIVE": "/fake/native"}), \
+                 patch.object(M, "run_wsl", side_effect=fake_run_wsl), \
+                 patch.object(sys, "argv", ["hstmatch.py", "--quiet", str(src)]):
+                with self.assertRaises(RuntimeError):
+                    M.main()
+
+            self.assertTrue(jobfile_existed)
+            self.assertFalse(jobfile_path.exists())
+
 
 
 if __name__ == "__main__":
