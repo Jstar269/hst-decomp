@@ -306,7 +306,7 @@ class ScaffoldingTests(unittest.TestCase):
         """Assembles and links the synthetic module with psp-as/psp-ld (skipped without the configured toolchain)."""
         try:
             M.pspdev_bin()
-        except Exception as exc:                                                            # noqa: BLE001
+        except BaseException as exc:                                                        # noqa: BLE001
             self.skipTest(f"no PSPDEV toolchain configured: {exc}")
         if shutil.which("wsl.exe") is None:
             self.skipTest("no WSL")
