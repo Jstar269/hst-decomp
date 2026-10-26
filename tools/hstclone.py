@@ -278,8 +278,7 @@ def main() -> int:
             status[str((M.ROOT / row["source"]).resolve())] = row["status"]
     dest_dir = M.ROOT / "src" / SRC_DIRS[args.module]
     dest_dir.mkdir(parents=True, exist_ok=True)
-    covered = {M.parse_header(q)["start"] for q in (M.ROOT / "src").rglob("*")
-               if q.suffix in (".c", ".cpp") and M.parse_header(q)["module"] == args.module}
+    covered = set(sources[args.module])
     accepted = 0
     accepted_bytes = 0
     committed: dict[str, int] = {}
