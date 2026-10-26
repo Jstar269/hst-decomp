@@ -29,6 +29,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shlex
 import struct
 import subprocess
 import sys
@@ -58,12 +59,21 @@ def preprocess_file(ver: str, gcc: str, rel_dir: str, base: str, out: Path) -> b
     cannot stat files on /mnt/c). -C keeps newlib's own comments, i.e. its licence notices."""
     newlib, gcc_home = hstconfig.wsl_path("newlib_home"), M.gcc_home()
     src = f"{newlib}/{ver}/newlib-{ver}/newlib"
-    b = (f"-B {gcc_home}/psp-gcc-1.7.1/lib/gcc-lib/psp/3.3.3+allegrex-2.2.2-psp-1.7.1/" if gcc == "171" else "")
+    b_dir = f"{gcc_home}/psp-gcc-1.7.1/lib/gcc-lib/psp/3.3.3+allegrex-2.2.2-psp-1.7.1/"
+    b = f"-B {shlex.quote(b_dir)} " if gcc == "171" else ""
     inc = M.to_wsl(M.ROOT / "include")
-    cmd = (f"t=$(mktemp -d /tmp/hstpp.XXXXXX) && mkdir $t/inc && cp {inc}/*.h $t/inc/ && "
-           f"{gcc_home}/psp-gcc-1.3.1/bin/psp-gcc {b} -E -C -P -G0 -nostdinc "
-           f"-I{newlib}/inc-{ver} -I{src}/libc/include -I{src}/{rel_dir} -I{src}/libm/common -I$t/inc "
-           f"{src}/{rel_dir}/{base}.c -o $t/pp.c 2>$t/err && cp $t/pp.c {M.to_wsl(out)}; r=$?; rm -rf $t; exit $r")
+    q_inc = shlex.quote(inc)
+    q_compiler = shlex.quote(f"{gcc_home}/psp-gcc-1.3.1/bin/psp-gcc")
+    q_inc_ver = shlex.quote(f"{newlib}/inc-{ver}")
+    q_libc_inc = shlex.quote(f"{src}/libc/include")
+    q_rel_inc = shlex.quote(f"{src}/{rel_dir}")
+    q_libm_inc = shlex.quote(f"{src}/libm/common")
+    q_src_file = shlex.quote(f"{src}/{rel_dir}/{base}.c")
+    q_out = shlex.quote(M.to_wsl(out))
+    cmd = (f"t=$(mktemp -d /tmp/hstpp.XXXXXX) && mkdir $t/inc && cp {q_inc}/*.h $t/inc/ && "
+           f"{q_compiler} {b}-E -C -P -G0 -nostdinc "
+           f"-I{q_inc_ver} -I{q_libc_inc} -I{q_rel_inc} -I{q_libm_inc} -I$t/inc "
+           f"{q_src_file} -o $t/pp.c 2>$t/err && cp $t/pp.c {q_out}; r=$?; rm -rf $t; exit $r")
     return wsl(cmd).returncode == 0 and out.exists()
 
 
