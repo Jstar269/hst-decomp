@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -162,9 +163,7 @@ def wsl_path(key: str) -> str:
 
 
 def _wsl_exists(path: str) -> bool:
-    if '"' in path:
-        return False
-    r = subprocess.run(["wsl.exe", "-e", "sh", "-c", f'test -e "{path}"'], capture_output=True)
+    r = subprocess.run(["wsl.exe", "-e", "sh", "-c", f'test -e {shlex.quote(path)}'], capture_output=True)
     return r.returncode == 0
 
 
