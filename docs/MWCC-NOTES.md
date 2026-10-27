@@ -2564,3 +2564,52 @@ or (i = 0; i < 9; i++) with positive A-Z || 0-9 continue checks shares the chara
 - 2026-10-26 (0x001306e0 EXACT, lane wf20261026b-e01-02): a u8-returning function whose float-compare 1/0 path and lbu-flag path all end in ONE shared `andi v0,v0,0xff` in the exit block, with `bnezl v0,A; lui; b B+4; lw` after the gating call, is a single conditional-expression return `return (G == 0x2a && F() != 0) ? (p->a->f > 30.0f * D) : p->b->flag;` (the int-typed ?: result is converted once at the exit; the false && operand becomes the `b B+4` jump block). Every if/else or early-return spelling either duplicates the flag block (MWCC does not cross-jump identical `return` blocks) or puts the andi only on the 1/0 path (9-26 words off); a C++ bool return drops the andi entirely.
 - (lane wf20261026c-e01-13, unreviewed by the main session)
 - 2026-10-27 (0x002ad938, GPT-6.1 Terra): #pragma opt_common_subs off preserves the literal reload in the switch case delay slot (li s0,2 rather than move s0,v0), resolving the one-word residue while leaving the other 23 words exact.
+- (lane dsn1, unreviewed by the main session)
+2026-10-27 (lane dsn1, 0x000ce954 near miss, measured): with `#pragma opt_common_subs off` a constant used twice materialises TWICE (`li v0,1` for the store, `li a1,1` for the call argument), while a named local computed from an expression (`int on = i + 1;`) is ONE virtual and stays in one register (`addiu a1,s2,1` shared by both uses); rewriting the bottom-tested `do { } while (++i < 1)` as `for (unsigned i = 0; i < 1; i++)` collapses the function from 84 to 70 words, i.e. MWCC does not rotate the `for` back into the do-while shape, so the do-while is the matching source form.
+2026-10-27 (lane dsn1, hot entries 0x00005adc and 0x00036498, measured): EBOOT code below 0x88000 in this batch is psp-gcc output, and the GCC profile we have is NOT the build that produced retail: 0x00005adc settles to 21/22 words under `cc=gcc171-O3` (MWCC: 24/22; gcc171-O1: 25/22; gcc131-O2 equals O2) with every residue in register/frame placement only - retail keeps ra at 0(sp) in a 16-byte frame and uses no callee-saved register, while our GCC stores ra at 4(sp)+s0 at 0(sp), builds the base into v0 instead of a0, keeps the tested field in s0 instead of a1, and turns `if (r >= 0) return 0; return r;` into `min a0,v0,s0` instead of retail's `bgez`/`j` pair; on 0x00036498 the same profile matches the whole SDK prologue (s-regs ascending at 0..20(sp), ra at 24) but is 9 words short in the body. Treat >1-word SDK residues as a compiler-shape limit, not a source-shape one.
+2026-10-27 (dsn1): a loop condition used as a VALUE materialises as `xor/sltiu/xori` + `beqzl`, while the same `p != end` in C control flow compiles to a direct compare + likely branch. `for (...)`, guard+do-while and 2-loop forms of 0x000ecfbc all gave byte-identical 40/52-word output, so retail's byte form must come from a bool-valued comparison (operator!=/bool local), not from the loop spelling.
+2026-10-27 (dsn1): for a clamp/lerp tail, a by-value inline `Clamp` CSEs the bound loads (82/91 words on 0x00164958); a `#define CLAMP(v,lo,hi)` macro, which evaluates each bound twice, reproduces retail's duplicate loads and the exact 91/91-word length. The remaining difference there is only the base/count load order.
+## 2026-10-27 — dsn1 pass 6 (C 2.19)
+**Verified: a symbol reached through a pointer-to-pointer changes the addressing mode.** In `0x001fba78`,
+`extern "C" void *DAT_002eedc0` used by value compiles to `lui v0,0x2f; lw a1,-4672(v0)` (56 words, 35 words
+differing). Declaring it `extern "C" void **DAT_002eedc0` and writing `*DAT_002eedc0` compiles to
+`lui v0,0x2f; lw v0,-4672(v0); lw a1,0(v0)` — 57 words, **3** words differing, every other instruction identical.
+So when retail has two dependent loads off one `lui` where our source has one, the global is one level of
+indirection deeper in the original source than our declaration says. Check this before touching register-colouring
+knobs: it is worth 32 of 35 differing words on that item.
+**Observed, not explained.** Retail materialises the address (`lui; addiu; lw 0(v0)`) where MWCC folds the base
+into the load (`lw -off(v0)`). Not reproducible from source here: struct-member 0, `void *G[1]` + `G[0]`,
+`char G[]` + cast, staged local pointer, and `volatile` pointer all left the fold in place.
+**Follow-up (same pass): the lever has a measurable reach.** Scanned all 252 retail ranges in `dsn1-00.json`
+for the three-instruction signature `lui r,HI; addiu r,r,LO; lw x,0(r)`: **3 hits** (`0x001fba78`, `0x0021aec0`,
+`0x00250cec`). Two are real double-indirections; `0x00250cec` is a false positive (our build already emits the
+`addiu` because the source takes `&DAT_002fcbc8`). So the pattern is rare — 2 of 252, not a batch-wide lever — but
+where it applies it is worth 32 (`0x001fba78`: 35 -> 3 differing) and 64 (`0x0021aec0`: 90 -> 26 differing at
+112/112 words) differing words. Apply it as a declaration change (`T **DAT` + `*DAT`), not as a staged local
+pointer: a local `pp = &DAT; *pp` probe folds back and was recorded as a dead end by lane sn1 on `0x0021aec0`.
+- 2026-10-27 (a0db2, functions below 0x88000; 313 EXACT in commits fe2b0448, 0fce099c, e299297e, 9c084b8f): the
+  0x88000 floor is only hstqueue's default `--min-start`; `--min-start 0` offers ~944 never-attempted functions there.
+  Profiles by region: libgu 0x4000-0x6000 is `gcc171-O3` (0x4b74 swap buffers, the `*l->cur++ = cmd` senders); the
+  0x70000-0x88000 system library and most of 0x8000-0x48000 are `gcc171-O2` (some `-O1`/`-O3`/`-Os`, `gcc171x` for
+  ext/ins, one `gcc131-O2`); 0x48000-0x70000 is mostly MWCC, with a few gcc171-O3 islands (0x61b94, 0x6171c).
+  GE command words are bitfield writes: `union { u32 w; struct { u32 arg:24; u32 op:8; } a; } k; k.w = 0xca000000;
+  k.a.arg = x;` gives retail's `lui; ins` (and `k.f.b8 = flag` gives `ins v,a,8,1`), while `op | (x & 0xffffff)` gives
+  and/or. Stores to one base come out with the LAST source store first, then the rest in order (source a, b, c, d ->
+  retail d, a, b, c); write the stores in that rotated order to match. A float bit pun into a GE word matched with a
+  union local (0x4ed4) but not where retail keeps it in a stack slot (0x36ad4, 0x4247c).
+- Signatures of a later Sony psp-gcc that gcc171/gcc171x cannot produce (stop early on these): `ins rt,zero,pos,size`
+  for a mask clear (150 unmatched functions / 84 KB below 0x88000 contain one); float constants by `lui; mtc1`
+  instead of a .rodata literal (0x58b78); tail calls as `j` with the argument set-up in the slot (0x1c0fc, 0x32c94,
+  0x2fef0); a 16-byte frame with `ra` at 12(sp) in the low SDK code (0x39b8, 0x38c4); register-only differences
+  that no profile moves (0x616e0, 0x80bc8). VFPU code (85 functions / 30 KB, and 14 of the 30 hot SDK functions)
+  needs instruction-emitting inline asm, which hstgate refuses (gate 2): owner question.
+- The SDK newlib is OLDER than the 1.13-1.15 trees hstlib indexes, so hstlib misses it; hand reconstruction from the
+  old source matches: `CHECK_INIT` without the `_REENT &&` null test (fflush 0xf040), the two-list `_fwalk` (walk
+  `ptr` unless it is `_GLOBAL_REENT`, then the global list; 0xfd34), `__sfp` without `fp->_data = d` (0xf208).
+  `_REENT` is `__getreent()` (0xfe3c). libm wrappers cos/sin/cosf/sinf/tanf are the fdlibm source verbatim
+  (gcc171x-O2); `__kernel_cosf` matched once its `static const` coefficients were macros (the retail object has only
+  the literal pool, in first-use order, no unreferenced static copies; rodata=0x002ba3cc). libgcc fp-bit
+  (`__negdf2`, `__make_dp`, `__floatsidf` with rodata=0x002bb6c8, `__fixdfsi`, `__truncdfsf2`, `__extendsfdf2`)
+  is GCC 3.3 fp-bit.c with `fp_number_type {class, sign, normal_exp, fraction}`; `__adddf3`/`__subdf3` stay 9 words
+  off (retail gives each `FLO_union_type` local a 16-byte slot, ours 8). EABI varargs wrappers around vsprintf
+  (0x1aca4) match with `<stdarg.h>` and `va_start` on the last named argument, including a named float (0x766cc).

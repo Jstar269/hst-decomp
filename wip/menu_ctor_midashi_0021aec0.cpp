@@ -44,9 +44,9 @@ struct Entry {
 extern int DAT_003097e4;
 extern char DAT_002f0000[];
 extern float DAT_002eff88;
-extern char *DAT_002effa0;
+extern char **DAT_002effa0;
 extern Entry DAT_002effcc[];
-extern int DAT_002efffc;
+extern int *DAT_002efffc;
 
 extern "C" {
 void FUN_00102e38(void *);
@@ -70,9 +70,9 @@ Pane *FUN_0021aec0(Pane *self)
     *(int **)self = &DAT_003097e4;
     FUN_00104118(self, DAT_002f0000, 1);
     FUN_00103540(self, DAT_002eff88);
-    VObj *mid = FUN_001039d8(self, DAT_002effa0, 0);
-    *(VObj **)&self->a64[0] = mid;
-    mid->m5(-3);
+    VObj *mid = FUN_001039d8(self, *DAT_002effa0, 0);
+    *(VObj **)((char *)self + 0x64) = mid;
+    (*(VObj **)((char *)self + 0x64))->m5(-3);
     int i = 0;
     Entry *tab = DAT_002effcc;
     int off = 0;
@@ -84,7 +84,7 @@ Pane *FUN_0021aec0(Pane *self)
         off += 4;
         tab++;
     } while (i < 4);
-    int *sub = (int *)self->a64[DAT_002efffc + 1];
+    int *sub = (int *)self->a64[*DAT_002efffc + 1];
     int *s0 = (int *)sub[8];
     self->a64[5] = (int)s0;
     s0[0x118 / 4] = 0x80808080;
@@ -108,3 +108,19 @@ Pane *FUN_0021aec0(Pane *self)
 // (`lui v0,0x2f; addiu v0,v0,-96; lw a1,0(v0)` for the string pointer DAT_002effa0 and `addiu v0,v0,-4; lw v1,0(v0)` for DAT_002efffc): the documented
 // dead end (MWCC-NOTES 2026-10-21), two words short. One probe (`char **pp = &DAT_002effa0; ... *pp`) folded as expected.
 // near miss from lane sn1 (unreviewed)
+// BEST 112/112 words, 23 differing, first at +0x54 (was 110/112 / 90 differing at the start of the pass).
+// Two findings, both required together:
+//  1. Both globals are double-indirect: `char **DAT_002effa0` + `*DAT_002effa0` and `int *DAT_002efffc`
+//     + `*DAT_002efffc + 1`. That alone: 90 -> 26 differing words.
+//  2. The store to +0x64 must be sequenced BEFORE the vtable call setup, and writing the call through the
+//     stored value (`(*(VObj **)((char *)self + 0x64))->m5(-3);`) reproduces retail's order exactly:
+//     `sw v0,100(s3); lw t9,0(v0); move a0,v0`. That: 26 -> 23 differing.
+// Remaining at +0x54: for `FUN_001039d8(self, *DAT_002effa0, 0)` retail loads a1 before moving a0
+// (`lw a1,0(v0); move a0,s3`), MWCC copies a0 first. Ruled out this pass: chained assignment
+// (`(slot = mid)->m5(-3)`, 26), `VObj *&slot` reference (23, same as best), redundant local `p` (26),
+// named `char *name` local for the deref (23), `DAT_002effa0[0]` (23). All 112 words in every form, so the
+// residue is argument-register scheduling, not shape.
+// Pass 9: three more argument-setup spellings - `(void *)self` cast, `*(char **)&DAT[0]`, and a named
+// `name = DAT_002effa0[0]` local - all land on 23 differing at 112 words. The a0-before-a1 order is
+// not source-controlled in this build; 12 spellings have been tried in total.
+// improved by lane dsn1 (unreviewed): 90 -> 23 differing words

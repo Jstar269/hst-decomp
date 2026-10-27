@@ -1,0 +1,4 @@
+/* HSTMATCH module=EBOOT.BIN start=0x0000c000 end=0x0000c07c symbol=FUN_0000c000 lang=c99 cc=gcc171x-O2 */
+/* Library source: newlib libm sf_tan.c function tanf (fdlibm-derived; Sun Microsystems, Inc. 1993, freely redistributable with this notice), adapted by hand from the newlib source, newlib version not recorded; exact match verified; names and types await human review. */
+typedef union { float value; unsigned word; } ieee_float_shape_type; extern int FUN_00008cb0(float x, float *y); extern float FUN_0000a430(float x, float y); extern float FUN_0000ad10(float x, float y, int iy); extern float FUN_0000ade4(float x, float y, int k);
+float FUN_0000c000(float x) { float y[2], z = 0.0f; int n, ix; ieee_float_shape_type u; u.value = x; ix = u.word; ix &= 0x7fffffff; if (ix <= 0x3f490fda) return FUN_0000ade4(x, z, 1); else if (!(ix <= 0x7f7fffff)) return x - x; else { n = FUN_00008cb0(x, y); return FUN_0000ade4(y[0], y[1], 1 - ((n & 1) << 1)); } }

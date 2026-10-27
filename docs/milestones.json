@@ -13,40 +13,40 @@
   {
    "id": "game-code",
    "title": "Game code matched",
-   "progress": 36.26854701155287,
-   "detail": "2,062,556 of 5,686,900 code bytes (76,180 B of Sony code kept out of this repository are not counted)",
+   "progress": 36.49912882580962,
+   "detail": "2,068,848 of 5,668,212 code bytes (94,868 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "all-code",
    "title": "All code matched",
-   "progress": 36.26854701155287,
-   "detail": "2,062,556 of 5,686,900 code bytes (202,788 B of Sony code kept out of this repository are not counted)",
+   "progress": 36.49912882580962,
+   "detail": "2,068,848 of 5,668,212 code bytes (221,476 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-rebuild",
    "title": "PSP rebuild",
-   "progress": 28.967815231876717,
-   "detail": "2,623,206 of 9,055,588 image bytes from source in the whole-module build",
+   "progress": 29.92466443138687,
+   "detail": "2,704,262 of 9,036,900 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-moddable",
    "title": "Moddable PSP rebuild",
-   "progress": 28.94369752687512,
-   "detail": "2,621,022 of 9,055,588 image bytes from source in the relocated build",
+   "progress": 29.90049685179652,
+   "detail": "2,702,078 of 9,036,900 image bytes from source in the relocated build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "full-rebuild",
    "title": "Every module rebuilt",
-   "progress": 28.967815231876717,
-   "detail": "2,623,206 of 9,055,588 image bytes from source in the whole-module build",
+   "progress": 29.92466443138687,
+   "detail": "2,704,262 of 9,036,900 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },

@@ -342,3 +342,4 @@ __ct__13ShotVariationFv = 0x00245db0;   # hstclone c072907
 __destroy_arr = 0x00000788;   # hstclone c072907
 __dt__13ShotVariationFv = 0x00245d30;   # hstclone c072907
 __nwa__FUi = 0x00000a90;   # hstclone c072907
+__subdf3 = 0x000216fc;   # hstclone a2c3s

@@ -332,3 +332,4 @@ __ct__13ShotVariationFv = 0x00235c84;   # ai_param_load_00234898.cpp (agent): 24
 __dt__13ShotVariationFv = 0x00235c04;   # ai_param_load_00234898.cpp (agent): its destructor [lane wf20261026-e01-08]
 __vt__10C_0014d630 = 0x00308348;   # src/eboot/call_command_ctor_0014d630.cpp (agent) [lane wf20261026c-e01-14]
 __dt__10S_002045e8Fv = 0x000d7e30;   # src/eboot/setup_record_state_002045e8.cpp (agent) [lane wf20261026c-e01-14]
+__subdf3 = 0x000216d4;   # libgcc fp-bit; decoded from the retail jal in cos 0x0000b060 / sin 0x0000b79c (x-x for non-finite x) (a0db2 2026-10-27)

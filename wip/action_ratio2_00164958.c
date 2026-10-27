@@ -21,18 +21,12 @@ extern float DAT_002e03a0;
 extern float DAT_002e03a4;
 extern float FUN_000d8334(int, int);
 
-static inline float Clamp(float v, float lo, float hi)
-{
-    return v < lo ? lo : (!(v > hi) ? v : hi);
-}
+#define CLAMP(v, lo, hi) ((v) < (lo) ? (lo) : (!((v) > (hi)) ? (v) : (hi)))
 
 float FUN_00164958(int param_1, int param_2)
 {
     float v = *(float *)(param_1 + 0x54);
-    float c;
     float t;
-    float lo;
-    float hi;
 
     if (param_2 != 0) {
         if (*(short *)(param_2 + 10) >= 0)
@@ -45,16 +39,21 @@ float FUN_00164958(int param_1, int param_2)
             v += *(float *)(off + (int)DAT_0034b5d4 + 0xfc);
         }
     }
-    lo = *(float *)(DAT_00341510->base + 0xc);
-    hi = *(float *)(DAT_00341510->base + (DAT_00341510->count - 1) * 0x14 + 0xc);
-    c = Clamp(v, lo, hi);
-    t = (Clamp(v, lo, hi) - *(float *)(DAT_00341510->base + 0xc)) /
-        (*(float *)(DAT_00341510->base + (DAT_00341510->count - 1) * 0x14 + 0xc) -
-         *(float *)(DAT_00341510->base + 0xc));
+    t = (CLAMP(v, *(float *)(DAT_00341510->base + 0xc),
+                  *(float *)(DAT_00341510->base + (DAT_00341510->count - 1) * 0x14 + 0xc))
+         - *(float *)(DAT_00341510->base + 0xc)) /
+        (*(float *)(DAT_00341510->base + (DAT_00341510->count - 1) * 0x14 + 0xc)
+         - *(float *)(DAT_00341510->base + 0xc));
     if (t < DAT_002e03a0)
         return DAT_002e03a0;
     if (t > DAT_002e03a4)
         return DAT_002e03a4;
     return t;
 }
-// near miss from lane fm6 (unreviewed)
+// NEAR MISS best: 91/91 words, 43 differ, first at +0x98 (2026-10-27, lane dsn1).
+// The CLAMP macro (evaluates each bound twice) reproduces retail's duplicate bound loads and the exact
+// instruction count; a by-value inline Clamp CSEs them (82/91). What remains is load order only: retail
+// loads count then base, computes (n-1)*0x14, then the first lwc1; ours loads base, then lo, then count.
+// Variants tried this pass: direct field expressions (82/91), int n + float *b locals (87/91), an explicit
+// off = (n-1)*0x14 local (83/91), const& Clamp (does not compile as C99). None improves on 43 differing.
+// improved by lane dsn1 (unreviewed): 47 -> 43 differing words

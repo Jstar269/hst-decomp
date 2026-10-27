@@ -40,8 +40,8 @@ will let more of it run as real, readable code over time.
 
 | | Progress | What it means |
 |---|---|---|
-| **Code matched** | **35.8%** | 12,146 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
-| **Built from source** | **28.3%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
+| **Code matched** | **35.9%** | 12,199 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
+| **Built from source** | **29.2%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
 The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-27.
 
@@ -101,14 +101,14 @@ How a function is matched is described in [CONTRIBUTING.md](CONTRIBUTING.md), an
 
 <!-- hstprogress:begin readme-progress -->
 
-**12,143 exact sources** (12,146 functions) and 996 near misses, measured 2026-10-27 with `python tools/hstcov.py`
+**12,196 exact sources** (12,199 functions) and 996 near misses, measured 2026-10-27 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 6,152 / 9,804 | 1,067,608 / 2,849,076 | 37.472 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,994 / 9,830 | 994,948 / 2,914,004 | 34.144 % |
-| **Both** | 12,146 / 19,634 | 2,062,556 / 5,763,080 | 35.789 % |
+| `EBOOT.BIN` | 6,184 / 9,804 | 1,071,376 / 2,849,076 | 37.604 % |
+| `hstp_trans_main.prx` (Sharing Version) | 6,015 / 9,830 | 997,472 / 2,914,004 | 34.230 % |
+| **Both** | 12,199 / 19,634 | 2,068,848 / 5,763,080 | 35.898 % |
 
 <!-- hstprogress:end -->
 
