@@ -346,6 +346,10 @@ class ELFParserTests(unittest.TestCase):
 
     def test_compile_recipes_use_the_documented_profiles(self):
         with tempfile.TemporaryDirectory() as temp:
+            try:
+                verifier.wsl_path(Path(temp))
+            except verifier.VerificationRefusal as exc:
+                self.skipTest(f"WSL path mapping not available: {exc}")
             root = Path(temp)
             source = root / "sample.cpp"
             obj, log, include = (
@@ -379,6 +383,10 @@ class ELFParserTests(unittest.TestCase):
 
     def test_target_symbol_selects_its_section_when_text_names_repeat(self):
         with tempfile.TemporaryDirectory() as temp:
+            try:
+                verifier.wsl_path(Path(temp))
+            except verifier.VerificationRefusal as exc:
+                self.skipTest(f"WSL path mapping not available: {exc}")
             root = Path(temp)
             obj = root / "object.o"
             obj.write_bytes(synthetic_object_with_duplicate_text())

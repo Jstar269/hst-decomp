@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0021d7c4 end=0x0021da3c symbol=__ct__10C_0021d7c4Fv lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0021d7c4 end=0x0021da3c symbol=__ct__10C_0021d7c4Fv lang=c++ data=0x002f0814 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002f0814-0x002f086c) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Obj {
     virtual void v0();
     virtual void Show(int on);
@@ -53,8 +53,6 @@ struct C_0021d7c4 : B_00102e38 {
     virtual void v2();
 };
 
-extern char DAT_002f0814[];
-extern char DAT_002f0840[];
 extern float DAT_002eff88;
 extern char *PTR_002f0644[];
 extern Lookup DAT_002f0694[];
@@ -77,9 +75,9 @@ C_0021d7c4::C_0021d7c4() : gauge(0), f170(0), f20c(-1)
     if (g != 0)
         g = FUN_0021d02c(g);
     gauge = g;
-    FUN_00104118(this, DAT_002f0814, 0);
+    FUN_00104118(this, "data/menu/lobby/lobbyinpane/gaugelay.lay", 0);
     FUN_00103540(DAT_002eff88 + 10.0f, this);
-    FUN_00104118(&pane, DAT_002f0840, 0);
+    FUN_00104118(&pane, "data/menu/lobby/lobbyinpane/gaugelay_HL.lay", 0);
     FUN_00103540(DAT_002eff88 + 10.0f, &pane);
     int base = (int)this;
     {

@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002002ac end=0x002004dc symbol=FUN_002002ac lang=c++ */
-/* Clone of src/eboot/reset_obj_001f1ea8.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002002ac end=0x002004dc symbol=FUN_002002ac lang=c++ data=0x0039680c */
+/* Clone of src/eboot/reset_obj_001f1ea8.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0039680c-0x0039682b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -18,7 +18,6 @@ extern char DAT_003eaad8;
 extern char DAT_003eb0b5;
 extern char DAT_003eb0b6;
 extern int DAT_003f39a8;
-extern const char DAT_0039680c;
 
 void FUN_001c2130(void *dat, float f);
 void FUN_00207be0(void *self);
@@ -71,7 +70,7 @@ extern "C" void FUN_002002ac(Obj *self) {
     }
 
     if (++self->f8174 == 20) {
-        FUN_001fbc18(&DAT_0039680c);
+        FUN_001fbc18("-------- REMATCH ------------\n");
 
         int mode = self->f51c + 1;
         self->f51c = mode;

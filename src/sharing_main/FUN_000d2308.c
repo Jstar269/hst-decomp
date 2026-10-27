@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000d2308 end=0x000d2328 symbol=FUN_000d2308 lang=c99 */
-/* Clone of src/eboot/FUN_000ce70c.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000d2308 end=0x000d2328 symbol=FUN_000d2308 lang=c99 data=0x0037cd8c */
+/* Clone of src/eboot/FUN_000ce70c.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0037cd8c-0x0037cddc) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -16,13 +16,11 @@ typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
-extern char DAT_0037cd8c[];
-extern char DAT_0037cdb4[];
 extern void FUN_000692a8();
 
 void FUN_000d2308(void)
 {
-  FUN_000692a8(DAT_0037cd8c,
-               DAT_0037cdb4,0x10,0,0);
+  FUN_000692a8("data/menu/game_eff/particle/texlist.csv",
+               "data/menu/game_eff/particle/motlist.csv",0x10,0,0);
   return;
 }

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00235ff4 end=0x00236354 symbol=FUN_00235ff4 lang=c++ */
-/* LoadAiParamDoubles: data/common/parameter/AI_Param_Doubles.csv; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x00235ff4 end=0x00236354 symbol=FUN_00235ff4 lang=c++ data=0x002f5214 */
+/* LoadAiParamDoubles: data/common/parameter/AI_Param_Doubles.csv; see docs/DATA-TABLES.md Data: its string literals (2 strings, 0x002f5214-0x002f5245) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly (recipe of src/eboot/table_records_load_001607a4.cpp); exact match verified; names and types await human review. */
 /* Loads the table file at 0x2f5214 (data/common/parameter/AI/Param_D...) through a local reader object (derived class of the FUN_000649c0 base,
    two sub-objects built with FUN_0008c230 and torn down with FUN_00066338, destructor storing the vptr), first clearing the vector through the
@@ -8,8 +8,6 @@
 extern "C" {
 extern char DAT_003070bc[];
 extern char DAT_002f4a64[];
-extern char DAT_002f5214[];
-extern char DAT_002f5240[];
 extern char DAT_002f4fdc[];
 extern char DAT_002f4ff0[];
 extern char DAT_002f5004[];
@@ -88,7 +86,7 @@ extern "C" void FUN_00235ff4(Vec *v)
 {
     FUN_0008b1a8(v, v->size, Tag());
     Res r;
-    if (FUN_000651b8(&r, DAT_002f5214, 0, 1, DAT_002f4a64)) {
+    if (FUN_000651b8(&r, "data/common/parameter/AI_Param_Doubles.csv", 0, 1, DAT_002f4a64)) {
         int n = FUN_000650e0(&r);
         if (v->cap < (unsigned)(n - 1)) {
             FUN_00237138(v, n - 1);
@@ -96,7 +94,7 @@ extern "C" void FUN_00235ff4(Vec *v)
         for (int i = 1; i < n; i++) {
             Entry e;
             FUN_000114c0(&e, 0, sizeof(Entry));
-            e.id = FUN_00065554(&r, i, DAT_002f5240);
+            e.id = FUN_00065554(&r, i, "Rank");
             e.judgmentA = FUN_000655f8(&r, i, DAT_002f4fdc);
             e.judgmentB = FUN_000655f8(&r, i, DAT_002f4ff0);
             e.judgmentC = FUN_000655f8(&r, i, DAT_002f5004);

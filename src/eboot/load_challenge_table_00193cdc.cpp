@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00193cdc end=0x00193e40 symbol=FUN_00193cdc lang=c++ */
-/* Clone of src/eboot/load_challenge_table_00193a28.cpp (hstclone.py tag c29): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00193cdc end=0x00193e40 symbol=FUN_00193cdc lang=c++ data=0x002e14f4 */
+/* Clone of src/eboot/load_challenge_table_00193a28.cpp (hstclone.py tag c29): addresses substituted; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 1 strings, 0x002e14f4-0x002e1524) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* One-time loader of the second challenge table (path pointer at 0x2e1520, "data/menu/challenge/Challenge Vs..."):
    same shape as 0x1938d8 with 156-byte records (constructor 0x8d650), plus clearing the byte flag at 0x2e1526
@@ -11,7 +11,7 @@ void *FUN_00000a90(unsigned size);
 void *FUN_000008d8(void *block, void *ctor, void *dtor, unsigned size, unsigned n);
 void FUN_0008d650(void);
 void FUN_000104e0(void *p);
-extern const char *DAT_002e1520;
+const char *DAT_002e1520 = "data/menu/challenge/Challenge_PcList.bin";
 extern unsigned char DAT_002e1526;
 }
 struct Record_00193cdc { char raw[0x9c]; };

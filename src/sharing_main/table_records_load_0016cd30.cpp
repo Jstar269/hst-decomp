@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0016cd30 end=0x0016cf24 symbol=FUN_0016cd30 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0016cd30 end=0x0016cf24 symbol=FUN_0016cd30 lang=c++ data=0x00385e50 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00385e50-0x00385e70) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Reads a table through a local reader object (derived class of the FUN_00065884 base, two sub-objects built with
    FUN_0008d97c and torn down with FUN_0006778c) and appends one 20-byte record of five floats per row to a
    vector (inline push_back; the empty Tag argument of the out-of-line grow call is passed by value).
@@ -11,7 +11,6 @@ inline void *operator new(unsigned, void *p) { return p; }
 
 extern "C" {
 extern char DAT_003b0388[];
-extern char DAT_00385e50[];
 extern char DAT_00385e70[];
 extern char DAT_00385e74[];
 extern char DAT_00385e7c[];
@@ -80,7 +79,7 @@ struct Res : Base16 {
 extern "C" void FUN_0016cd30(RecVec *v)
 {
   Res r;
-  if (FUN_00066260(&r, DAT_00385e50, 0, 1, DAT_00385e70)) {
+  if (FUN_00066260(&r, "data/common/parameter/grade.csv", 0, 1, DAT_00385e70)) {
     int n = FUN_00065fa4(&r);
     if (v->cap < (unsigned)(n - 1)) {
       FUN_00171adc(v, n - 1);

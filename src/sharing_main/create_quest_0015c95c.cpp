@@ -1,9 +1,7 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0015c95c end=0x0015ca90 symbol=FUN_0015c95c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0015c95c end=0x0015ca90 symbol=FUN_0015c95c lang=c++ data=0x003838f4 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x003838f4-0x0038390b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 extern "C" {
-extern const char DAT_003838f4[];
-extern const char DAT_003838fc[];
 extern const unsigned char DAT_003e9630;
 extern void *DAT_003f344c;
 
@@ -39,11 +37,11 @@ extern "C" C_0015c95c *FUN_0015c95c(Param1 *param_1, int *param_2, float param_3
 {
     int id = *param_2;
     void *res1 = FUN_00157e10(id, 9);
-    FUN_000143b0(param_1->f12, DAT_003838f4, param_1->f8, *(void **)res1);
+    FUN_000143b0(param_1->f12, "%s_%03d", param_1->f8, *(void **)res1);
 
     if (DAT_003e9630 != 0) {
         FUN_00158b2c(param_2);
-        FUN_0015bb68(DAT_003838fc, param_1->f12);
+        FUN_0015bb68("MatchQuest %s\n", param_1->f12);
     }
 
     int *res2 = (int *)FUN_00157e10(id, 11);

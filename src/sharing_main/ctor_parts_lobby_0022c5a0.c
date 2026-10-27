@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0022c5a0 end=0x0022c6d0 symbol=FUN_0022c5a0 lang=c99 */
-/* Clone of src/eboot/ctor_parts_lobby_0021d02c.c (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0022c5a0 end=0x0022c6d0 symbol=FUN_0022c5a0 lang=c99 data=0x003989c4 */
+/* Clone of src/eboot/ctor_parts_lobby_0021d02c.c (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003989c4-0x003989e1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Same shape as src/eboot/ctor_models_002215b8.c (used as the template): base ctor, vtable-ish pointer, layout load, 3 widget lookups and 9 model lookups with byte-offset induction variables. */
 extern void FUN_0010873c(void *self);
@@ -10,7 +10,6 @@ extern void *FUN_00108124(void *model, char *name);
 extern void FUN_0022c8b4(void *self, int flag);
 extern void FUN_0022c934(void *self);
 extern char DAT_003b2a30[];
-extern char DAT_003989c4[];
 extern float DAT_00398354;
 extern char *DAT_00398920[];
 struct Entry_0022c5a0 { int idx; char *name; int result; };
@@ -20,7 +19,7 @@ char *FUN_0022c5a0(char *self)
 {
     FUN_0010873c(self);
     *(void **)self = &DAT_003b2a30;
-    FUN_00109a44(self, DAT_003989c4, 0);
+    FUN_00109a44(self, "data/menu/parts/partslay.lay", 0);
     FUN_00108e6c(10.0f + DAT_00398354, self);
     int i = 0;
     char **src = DAT_00398920;

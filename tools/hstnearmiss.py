@@ -31,6 +31,23 @@ about where to look, not a diagnosis):
   branch_shape           only branch words differ (likely vs normal, polarity, offsets)
   missing_extra_insn     our function has more or fewer words than retail and the surplus is not constants
   unknown                a mixture the rules above do not separate (the JSON lists "facets")
+
+Each file also gets a lever ("lever", with the deciding evidence in "lever_why"): the kind of work it needs, which
+queue items carry and lanes are routed by (tools/hstqueue.py --lever). The class looks at the differing words; the
+lever looks at the function's structure first, because a missing call or branch also moves registers and the
+schedule. First rule that applies:
+
+  install / none / tooling   exact now; superseded or blocked; the file does not reach the comparison
+  body                   the calls differ (count, or jal targets not explained by the referent rule)
+  structure              the conditional-branch kinds, jumps or returns differ
+  referent               same length, and every differing word is a jal or a relocated word that differs only
+                         in its 16-bit field (relocations read from our object): a symbol is wrong, not the code
+  permute / types / frame / expression
+                         calls and control flow agree: chosen by the class (register_colouring and
+                         instruction_schedule -> permute, type_signedness -> types, frame_layout -> frame, the
+                         rest -> expression)
+
+LEVERS maps each lever to the docs/MWCC-DIGEST.md sections to read and a one-line action; the report has a table.
 """
 from __future__ import annotations
 
@@ -38,7 +55,6 @@ import argparse
 import datetime
 import difflib
 import json
-import re
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -184,6 +200,147 @@ def classify_words(ours: list[int], theirs: list[int]) -> tuple[str, list[str]]:
     return "missing_extra_insn", ["length"] + (["const"] if any(is_constant_word(w) for w in surplus) else [])
 
 
+# --------------------------------------------------------------------------------------------------------------
+# levers: the kind of work a near miss needs (pure functions)
+#
+# The word class above says which words are wrong; the lever says what to change to fix them. It is decided from
+# the function's structure, in this order: does the function make the same calls, does it have the same control
+# flow, do only relocated fields differ; only when all three agree does the word class choose. A missing call or
+# branch also shifts registers and the schedule, so a word class alone would send such a file to the permuter.
+
+LEVERS = {
+    # lever: (MWCC-DIGEST sections, what to do)
+    "install":    ("",         "exact now: give it a header and provenance note and install it"),
+    "none":       ("",         "superseded or blocked: nothing to do"),
+    "tooling":    ("17",       "the file does not reach the comparison: fix the header, symbols, helpers= or the "
+                               "section placement before touching the code"),
+    "body":       ("2, 17",    "the calls differ: a call is missing or extra, or retail inlined a helper that this "
+                               "file calls (or the reverse): reconstruct the body; look for a same-file helper "
+                               "(helpers=) or a macro"),
+    "structure":  ("5, 6",     "branch, return or branch-kind counts differ: rebuild the control flow (if/else order, "
+                               "loop form, early returns, switch) from the retail branches"),
+    "referent":   ("4, 17",    "the instructions agree and only relocated fields differ: the code is right and a "
+                               "symbol is not (wrong global, extern, symbol address or addend); fix declarations or "
+                               "symbols/, not the code"),
+    "permute":    ("7, 8",     "registers or order only: try declaration order, temporaries and CSE first, then "
+                               "hstnearperm.py"),
+    "types":      ("3",        "signedness or width only: fix the declared types"),
+    "frame":      ("9",        "only the stack frame differs: the locals (count, sizes, order, lifetimes)"),
+    "expression": ("4, 8, 10", "same calls and control flow, different instructions inside blocks: expression and "
+                               "statement shape (loads, CSE, constants, casts, struct copies)"),
+}
+CLASS_LEVER = {"exact_now": "install", "superseded": "none", "blocked": "none", "tool_state": "tooling",
+               "jump_table_rodata": "tooling", "register_colouring": "permute", "instruction_schedule": "permute",
+               "type_signedness": "types", "frame_layout": "frame", "branch_shape": "structure",
+               "constant_materialisation": "expression", "missing_extra_insn": "expression", "unknown": "expression"}
+JR_RA = 0x03E00008
+
+
+def is_call(w: int) -> bool:
+    """jal, or jalr (SPECIAL funct 9)."""
+    return w >> 26 == 3 or (w >> 26 == 0 and w & 63 == 9)
+
+
+def call_set(ws: list[int]) -> Counter:
+    """The calls a function makes: jal by target field, jalr counted as one indirect call."""
+    return Counter(("jal", w & 0x03FFFFFF) if w >> 26 == 3 else ("jalr",) for w in ws if is_call(w))
+
+
+def flow_shape(ws: list[int]) -> tuple[Counter, int, int]:
+    """(conditional branch kinds, jumps, returns): a branch kind is the opcode with its rt/format field (beq vs bne,
+    bltz vs bgez, bc1t vs bc1f), so an inverted condition counts; registers and offsets do not."""
+    kinds = Counter()
+    for w in ws:
+        if is_branch(w):
+            op = w >> 26
+            kinds[(op, (w >> 16) & 31) if op in (1, 0x11) else (op,)] += 1
+    return kinds, sum(1 for w in ws if w >> 26 == 2), sum(1 for w in ws if w == JR_RA)
+
+
+def unlikely(kind: tuple) -> tuple:
+    """A branch kind with its likely bit cleared: beql..bgtzl -> beq..bgtz, bltzl/bgezl(al) -> bltz/bgez(al), bc1xl -> bc1x."""
+    if kind[0] in (0x14, 0x15, 0x16, 0x17):
+        return (kind[0] - 0x10,)
+    if kind[0] == 1:
+        return (1, kind[1] & ~2)
+    if kind[0] == 0x11:
+        return (0x11, kind[1] & ~2)
+    return kind
+
+
+def likely_blind(kinds: Counter) -> Counter:
+    out: Counter = Counter()
+    for kind, n in kinds.items():
+        out[unlikely(kind)] += n
+    return out
+
+
+def route(cls: str, ours: list[int] | None, theirs: list[int] | None,
+          relocated: set[int] | None = None) -> tuple[str, str]:
+    """(lever, the evidence that decided it). `relocated` holds the indexes of our words that carry a relocation
+    (None when unknown: then the referent test only accepts call targets)."""
+    if cls in ("exact_now", "superseded", "blocked", "tool_state", "jump_table_rodata") or ours is None or theirs is None:
+        return CLASS_LEVER.get(cls, "expression"), f"class {cls}"
+    oc, tc = call_set(ours), call_set(theirs)
+    same_length = len(ours) == len(theirs)
+    pairs = [(i, a, b) for i, (a, b) in enumerate(zip(ours, theirs)) if a != b] if same_length else []
+
+    def field_only(i: int, a: int, b: int) -> bool:
+        if a >> 26 == 3 and b >> 26 == 3:                  # jal: only the target field can differ
+            return True
+        return relocated is not None and i in relocated and (a >> 16) == (b >> 16) and a >> 26 not in (0, 2, 3)
+
+    if oc != tc:
+        if same_length and pairs and all(field_only(i, a, b) for i, a, b in pairs):
+            return "referent", f"{len(pairs)} relocated word(s) differ in their fields only (calls to another symbol)"
+        n_o, n_t = sum(oc.values()), sum(tc.values())
+        return "body", (f"calls {n_o} vs retail {n_t}" if n_o != n_t else f"{n_o} calls, different call targets")
+    fo, ft = flow_shape(ours), flow_shape(theirs)
+    if fo != ft:
+        parts = []
+        if sum(fo[0].values()) != sum(ft[0].values()):
+            parts.append(f"branches {sum(fo[0].values())} vs retail {sum(ft[0].values())}")
+        elif fo[0] != ft[0]:
+            if likely_blind(fo[0]) == likely_blind(ft[0]):
+                parts.append("likely vs normal branch only (loop form or delay-slot fill)")
+            else:
+                parts.append("branch kinds differ (an inverted condition or a different comparison)")
+        if fo[1] != ft[1]:
+            parts.append(f"jumps {fo[1]} vs retail {ft[1]}")
+        if fo[2] != ft[2]:
+            parts.append(f"returns {fo[2]} vs retail {ft[2]}")
+        return "structure", ", ".join(parts)
+    if same_length and pairs and all(field_only(i, a, b) for i, a, b in pairs):
+        return "referent", f"{len(pairs)} relocated word(s) differ in their fields only"
+    lever = CLASS_LEVER.get(cls, "expression")
+    return lever, f"same calls and control flow; class {cls}"
+
+
+def relocated_words(obj: bytes, h: dict) -> set[int] | None:
+    """Indexes of the compared function's words that carry a relocation in our object (the words the linker
+    writes), counted from the header symbol as our_body() reads it; None when that cannot be determined."""
+    sections = M.elf_sections(obj)
+    names = [n for n, _ in sections]
+    if ".text" not in names or h.get("helpers"):
+        return None
+    ti = names.index(".text")
+    sym = next(((v, s) for n, v, s, i, sh in M.elf_symbols(obj) if n == h["symbol"] and sh == ti), None)
+    if sym is None:
+        return None
+    lo, hi = sym[0], sym[0] + max(sym[1], h["end"] - h["start"])
+    out: set[int] = set()
+    for _n, s in sections:
+        if s[1] == 4 and s[7] == ti:                       # SHT_RELA: not produced by these compilers
+            return None
+        if s[1] != 9 or s[7] != ti:                        # SHT_REL applying to this .text
+            continue
+        for k in range(s[5] // 8):
+            off = int.from_bytes(obj[s[4] + 8 * k:s[4] + 8 * k + 4], "little")
+            if lo <= off < hi:
+                out.add((off - lo) // 4)
+    return out
+
+
 def words_left_of(ours: list[int], theirs: list[int]) -> int:
     n = max(len(ours), len(theirs))
     return sum(1 for i in range(n) if (ours[i] if i < len(ours) else None) != (theirs[i] if i < len(theirs) else None))
@@ -228,7 +385,7 @@ def measure(path: Path, status: str, detail: str, origin: dict[str, str], src_in
            "cc": h.get("cc", "mwcc219"), "status": status, "detail": detail, "words": size // 4, "words_left": None,
            "class": "unknown", "facets": [], "origin": origin.get(rel, "?"), "superseded_by": None}
     src_row = src_index.get((h["module"], h["start"]))
-    ours = theirs = None
+    ours = theirs = relocated = None
     if status in ("MISMATCH",):
         out = ROOT / "build" / h["module"] / f"{path.resolve().parent.name}__{path.stem}"
         body = our_body(out, h)
@@ -240,12 +397,14 @@ def measure(path: Path, status: str, detail: str, origin: dict[str, str], src_in
             row["words_left"] = words_left_of(ours, theirs)
             row["class"], row["facets"] = classify_words(ours, theirs)
             row["ours_words"] = len(ours)
+            relocated = relocated_words((out / "obj.o").read_bytes(), h)
     elif status == "EXACT":
         row.update({"words_left": 0, "class": "exact_now"})
     elif status in ("UNPLACED_SECTION", "SECTION_MISMATCH"):
         row["class"] = "jump_table_rodata"
     else:
         row["class"] = "tool_state"
+    row["lever"], row["lever_why"] = route(row["class"], ours, theirs, relocated)
     if src_row is not None:
         row["superseded_by"] = src_row["path"]
         row["class_if_live"] = row["class"]
@@ -253,6 +412,8 @@ def measure(path: Path, status: str, detail: str, origin: dict[str, str], src_in
     elif (h["module"], h["start"]) in blocked:
         row["class_if_live"] = row["class"]
         row["class"] = "blocked"
+    if row["class"] in ("superseded", "blocked"):
+        row["lever_if_live"], row["lever"] = row["lever"], "none"
     # rank: code bytes per word left; an exact-now file is the cheapest of all, an unmeasured one the last
     left = row["words_left"]
     row["yield"] = round(size / max(left, 1), 2) if left is not None else 0.0
@@ -313,12 +474,26 @@ def class_table(rows: list[dict]) -> list[dict]:
     return out
 
 
+def lever_table(rows: list[dict]) -> list[dict]:
+    out = []
+    for lever, (sections, action) in LEVERS.items():
+        mine = [r for r in rows if r.get("lever") == lever]
+        if not mine:
+            continue
+        measured = [r for r in mine if r["words_left"] is not None]
+        out.append({"lever": lever, "files": len(mine), "code_bytes": sum(r["size"] for r in mine),
+                    "words_left": sum(r["words_left"] for r in measured), "digest_sections": sections,
+                    "action": action})
+    return out
+
+
 def write_reports(rows: list[dict], generated: str, examples: dict[str, list[str]]) -> None:
     rows = sorted(rows, key=lambda r: (-r["yield"], r["wip"]))
     table = class_table(rows)
+    levers = lever_table(rows)
     live = [t for t in table if t["class"] not in ("exact_now", "superseded", "blocked", "tool_state", "jump_table_rodata")]
     biggest = max(live, key=lambda t: t["code_bytes"]) if live else None
-    doc = {"schema": "hst-decomp.nearmiss.v1", "generated": generated, "files": rows, "classes": table,
+    doc = {"schema": "hst-decomp.nearmiss.v1", "generated": generated, "files": rows, "classes": table, "levers": levers,
            "biggest_class_by_code_bytes": biggest["class"] if biggest else None,
            "public_eligible": sum(1 for r in rows if r["origin"] not in EXCLUDED)}
     REPORT_JSON.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
@@ -335,6 +510,15 @@ def write_reports(rows: list[dict], generated: str, examples: dict[str, list[str
     if biggest:
         md += ["", f"Class that most code bytes depend on (live near misses only): `{biggest['class']}` with "
                    f"{biggest['code_bytes']} bytes in {biggest['files']} files.", ""]
+    md += ["## Levers", "",
+           "The lever is the kind of work a file needs, decided from its calls, then its control flow, then whether only "
+           "relocated fields differ, and only then from its class (`route()` in `tools/hstnearmiss.py`). Digest sections "
+           "are those of `docs/MWCC-DIGEST.md`.", "",
+           "| Lever | Files | Code bytes | Words left | Digest | What to do |", "|---|---:|---:|---:|---|---|"]
+    for t in levers:
+        md.append(f"| `{t['lever']}` | {t['files']} | {t['code_bytes']} | {t['words_left']} | "
+                  f"{t['digest_sections'] or '-'} | {t['action']} |")
+    md.append("")
     md += ["## One example per class", ""]
     for t in table:
         ex = examples.get(t["class"])
@@ -342,13 +526,14 @@ def write_reports(rows: list[dict], generated: str, examples: dict[str, list[str
             continue
         md += [f"### `{t['class']}`", "", "```", *ex, "```", ""]
     md += ["## All files, ranked by code bytes per word left", "",
-           "| Rank | File | Module | Start | Bytes | Words left | Bytes/word | Class | Facets | Origin | Note |",
-           "|---:|---|---|---|---:|---:|---:|---|---|---|---|"]
+           "| Rank | File | Module | Start | Bytes | Words left | Bytes/word | Class | Facets | Lever | Why | Origin | Note |",
+           "|---:|---|---|---|---:|---:|---:|---|---|---|---|---|---|"]
     for i, r in enumerate(rows, 1):
         note = r["superseded_by"] or (r["detail"][:60] if r["class"] in ("tool_state", "jump_table_rodata") else "")
         left = r["words_left"] if r["words_left"] is not None else "-"
         md.append(f"| {i} | `{r['wip']}` | {r['module'].split('.')[0]} | {r['start']} | {r['size']} | {left} | {r['yield']} | "
-                  f"`{r['class']}` | {','.join(r['facets'])} | {r['origin']} | {note} |")
+                  f"`{r['class']}` | {','.join(r['facets'])} | `{r.get('lever', '')}` | {r.get('lever_why', '')} | "
+                  f"{r['origin']} | {note} |")
     REPORT_MD.write_text("\n".join(md) + "\n", encoding="utf-8")
 
 
@@ -374,7 +559,21 @@ def self_test() -> int:
         if got != want:
             print(f"FAIL {want}: got {got}")
             bad += 1
-    print("self-test " + ("FAILED" if bad else f"ok ({len(cases)} cases)"))
+    jal = lambda target: (3 << 26) | (target >> 2)
+    beq = lambda rs, rt, off: (4 << 26) | (rs << 21) | (rt << 16) | (off & 0xFFFF)
+    routes = [
+        ("permute", "register_colouring", [addiu_sp, addu(2, 4, 5), lw(3, 4, 8)], [addiu_sp, addu(3, 4, 5), lw(2, 4, 8)], None),
+        ("body", "missing_extra_insn", [addiu_sp, jal(0x100), addu(2, 4, 5)], [addiu_sp, addu(2, 4, 5)], None),
+        ("structure", "missing_extra_insn", [addiu_sp, beq(4, 0, 2), addu(2, 4, 5)], [addiu_sp, addu(2, 4, 5)], None),
+        ("referent", "unknown", [addiu_sp, lui(2, 0x3b), lw(3, 2, 0x10)], [addiu_sp, lui(2, 0x3c), lw(3, 2, 0x20)], {1, 2}),
+        ("expression", "unknown", [addiu_sp, lui(2, 0x3b), lw(3, 2, 0x10)], [addiu_sp, lui(2, 0x3c), lw(3, 2, 0x20)], set()),
+    ]
+    for want, cls, ours, theirs, reloc in routes:
+        got, why = route(cls, ours, theirs, reloc)
+        if got != want:
+            print(f"FAIL route {want}: got {got} ({why})")
+            bad += 1
+    print("self-test " + ("FAILED" if bad else f"ok ({len(cases)} classes, {len(routes)} levers)"))
     return 1 if bad else 0
 
 
@@ -437,6 +636,9 @@ def main() -> int:
     print(f"{len(rows)} files measured")
     for t in class_table(rows):
         print(f"  {t['class']:26} {t['files']:4} files {t['code_bytes']:7} B  {t['words_left']:5} words left")
+    print("levers:")
+    for t in lever_table(rows):
+        print(f"  {t['lever']:26} {t['files']:4} files {t['code_bytes']:7} B  {t['words_left']:5} words left")
     return 0
 
 

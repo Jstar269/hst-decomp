@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0014dfbc end=0x0014e738 symbol=FUN_0014dfbc lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0014dfbc end=0x0014e738 symbol=FUN_0014dfbc lang=c++ data=0x00382e34 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00382e34-0x00382e46) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ground (ClassGround.cpp, per the Sharing twin's assert strings) light setup: set default ambient and two
    directional lights on the light manager, read them back into three light sets, override them from the
    row-indexed CSV files (each open asserted in the debug build), then load <base><dir>/pointlight.dat and
@@ -85,7 +85,6 @@ struct Ground {
 extern LightMgr *DAT_003da704;
 extern const char DAT_00382d94[];   /* "," */
 extern const char DAT_002d1cf0[];   /* "%s%s" */
-extern const char DAT_00382e34[];   /* "%s/pointlight.dat" */
 
 /* Debug build: assertions print through the (empty) variadic debug printf and hang. */
 extern const char DAT_00382db8[];   /* "assertion \"%s\" failed: file \"%s\", line %d
@@ -203,7 +202,7 @@ extern "C" void FUN_0014dfbc(Ground *self, int row, const char *main, const char
 
     size = 0;
     FUN_000143b0(buf, DAT_002d1cf0, self->base, self->dir);
-    FUN_000143b0(path, DAT_00382e34, buf);
+    FUN_000143b0(path, "%s/pointlight.dat", buf);
     int *data = (int *)FUN_0004cd8c(path, &size, 16, 1);
     if (data) {
         int n = data[0];

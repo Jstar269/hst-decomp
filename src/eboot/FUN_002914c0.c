@@ -1,8 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x002914c0 end=0x00291688 symbol=FUN_002914c0 lang=c99 */
-/* Hand-written reconstruction from the disassembly (Ghidra pseudocode shape); matching idiom: the inner object is allocated in the condition (if ((o = alloc(0x1f0)) != 0)) so the copy lands in the beqz slot and the holder store after the join is not merged into a likely branch; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x002914c0 end=0x00291688 symbol=FUN_002914c0 lang=c99 data=0x002ff9a8 */
+/* Hand-written reconstruction from the disassembly (Ghidra pseudocode shape); matching idiom: the inner object is allocated in the condition (if ((o = alloc(0x1f0)) != 0)) so the copy lands in the beqz slot and the holder store after the join is not merged into a likely branch; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002ff9a8-0x002ff9bb) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern char DAT_00309db4;
 extern char DAT_00309dc0;
-extern char DAT_002ff9a8[];
 extern void *DAT_0034a81c;
 extern struct Holder *DAT_0034a818;
 extern struct Inner *DAT_0034a808;
@@ -97,7 +96,7 @@ struct Player *FUN_002914c0(struct Player *self, int param_2)
     FUN_0028f5e4(DAT_0034a818->inner, param_2);
     local_4 = 0;
     local_8 = 0;
-    FUN_00051274(self, DAT_002ff9a8, FUN_0004e780(&local_4, &local_8, 3, 0, 0x200, 0x110), 1, 0x10);
+    FUN_00051274(self, "PsmfPlayerMaterial", FUN_0004e780(&local_4, &local_8, 3, 0, 0x200, 0x110), 1, 0x10);
     FUN_00022d7c(FUN_00051450(self), 0, 0x88000);
     FUN_00051398(9998.0f, self);
     self->f21 = 0;

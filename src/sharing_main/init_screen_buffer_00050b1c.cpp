@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00050b1c end=0x00050c4c symbol=FUN_00050b1c lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag sh2/v0c) corrected by hand: typed owner struct with the mode byte and object pointer past 0x1a000 (lui/addu access), new-then-construct as `mem = alloc(); if (mem) mem = ctor(mem);`, flipped ternary polarity; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00050b1c end=0x00050c4c symbol=FUN_00050b1c lang=c++ data=0x00376980 */
+/* Ghidra pseudocode (hstgen.py tag sh2/v0c) corrected by hand: typed owner struct with the mode byte and object pointer past 0x1a000 (lui/addu access), new-then-construct as `mem = alloc(); if (mem) mem = ctor(mem);`, flipped ternary polarity; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00376980-0x00376993) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Obj {
   char pad00[0x22];
   unsigned char b22;
@@ -12,7 +12,6 @@ struct Self {
 };
 
 extern "C" {
-extern char DAT_00376980[];
 void *FUN_00000bcc(unsigned);
 void *FUN_000114c0(void *, int, unsigned);
 void *FUN_0004eaf8(void **, void **, int, int, int, int);
@@ -34,7 +33,7 @@ extern "C" void FUN_00050b1c(Self *self, int arg, unsigned flag)
     void *surf = FUN_0004eaf8(&buf, &aux, flag != 0 ? 1 : 3, 0, 0x1e0, 0x110);
     int n = self->mode != 0 ? 2 : 4;
     FUN_000114c0(buf, 0, n * 0x1fe00);
-    FUN_00051b88(self->obj, DAT_00376980, surf, arg, 0x10);
+    FUN_00051b88(self->obj, "FrameBufferTexture", surf, arg, 0x10);
     self->obj->b22 = 0;
   }
 }

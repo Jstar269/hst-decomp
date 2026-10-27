@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000f051c end=0x000f0644 symbol=FUN_000f051c lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000f051c end=0x000f0644 symbol=FUN_000f051c lang=c99 data=0x002d7428 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d7428-0x002d7453) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern void FUN_00102e38(void *self);
 extern void FUN_00104118(void *self, char *name, int flag);
 extern void FUN_00103540(void *self, float value);
@@ -8,7 +8,6 @@ extern void *FUN_001039d8(void *self, void *src, int flag);
 extern void *FUN_001026b8(void *model, char *name);
 extern void FUN_000f0938(void *self);
 extern char DAT_003078b4[];
-extern char DAT_002d7428[];
 extern float DAT_002d6c9c;
 extern char *DAT_002d73dc[];
 struct Entry_000f051c { int idx; char *name; int result; };
@@ -18,7 +17,7 @@ char *FUN_000f051c(char *self)
 {
     FUN_00102e38(self);
     *(void **)self = &DAT_003078b4;
-    FUN_00104118(self, DAT_002d7428, 0);
+    FUN_00104118(self, "data/menu/inpane/inp_ingame/inpane_ace.lay", 0);
     FUN_00103540(self, DAT_002d6c9c);
     FUN_001037c8(self, -251);
     int i = 0;

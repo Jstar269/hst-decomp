@@ -1,9 +1,8 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0008c348 end=0x0008c400 symbol=FUN_0008c348 lang=c99 */
-/* Clone of src/eboot/update_state_0008ac88.c (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0008c348 end=0x0008c400 symbol=FUN_0008c348 lang=c99 data=0x003784c0 */
+/* Clone of src/eboot/update_state_0008ac88.c (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003784c0-0x003784cc) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: fixed inverted condition to logical OR; exact match verified; names and types await human review. */
 
 extern char *DAT_003e1e84;
-extern char DAT_003784c0;
 extern void FUN_0001f4a0(void *, int, int, int);
 extern void FUN_00089ab4(const void *, ...);
 extern void FUN_0008c400(void *);
@@ -28,7 +27,7 @@ void FUN_0008c348(struct S *self)
             self->state_64 = 6;
         }
     } else {
-        FUN_00089ab4(&DAT_003784c0, *(int *)(DAT_003e1e84 + 0x9c));
+        FUN_00089ab4("PlayEnd %d\n", *(int *)(DAT_003e1e84 + 0x9c));
         FUN_0001f4a0(self, 20, 0, 0);
         self->state_64 = 5;
     }

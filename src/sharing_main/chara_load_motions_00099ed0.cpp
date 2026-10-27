@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00099ed0 end=0x0009aa88 symbol=FUN_00099ed0 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00099ed0 end=0x0009aa88 symbol=FUN_00099ed0 lang=c++ data=0x0037a800 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (10 strings, 0x0037a800-0x0037a8b7) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 struct Motion { int data; int pad[3]; };
 
@@ -76,16 +76,8 @@ extern MotionEntry DAT_002ceb64[];
 extern int DAT_003f3aac;
 
 extern const char DAT_0037a6c0[];   /* "" */
-extern const char DAT_0037a844[];   /* "ad_" */
-extern const char DAT_0037a81c[];   /* "game/400_pc/face/%scommon_motion_%d.xb" */
-extern const char DAT_0037a848[];   /* "npc999" */
-extern const char DAT_0037a850[];   /* "999/" */
-extern const char DAT_0037a858[];   /* "099/" */
 extern const char *DAT_0037a7e8[];  /* { "s", "d" } */
 extern const char *DAT_0037a7f8[];  /* { "_m", "_f" } */
-extern const char DAT_0037a87c[];   /* "%s%s%s.i3m" */
-extern const char DAT_0037a888[];   /* "data/chara/adhoc/motion/" */
-extern const char DAT_0037a8a4[];   /* "data/chara/motion/" */
 extern const char DAT_0037a8c0[];   /* "game/400_pc/face/%sface%03d_anim.xb" */
 extern const char DAT_0037a7e0[];   /* "s" */
 extern const char DAT_0037a7e4[];   /* "d" */
@@ -130,8 +122,6 @@ void FUN_001c319c(int, int, char *, int);
 extern const char DAT_0037a6cc[];   /* "assertion \"%s\" failed: file \"%s\", line %d
 " */
 extern const char DAT_0037a704[];   /* "Player.cpp" */
-extern const char DAT_0037a800[];   /* "s_CommonMotionRefCount == 0" */
-extern const char DAT_0037a860[];   /* "g_AnimationList[i].sex == 0" */
 extern const char DAT_0037a8b8[];   /* "false" */
 extern "C" void FUN_00097e3c(...);
 #define HST_ASSERT(cond, text, line)     do { if (!(cond)) { FUN_00097e3c(DAT_0037a6cc, text, DAT_0037a704, line); for (;;) {} } } while (0)
@@ -188,7 +178,7 @@ extern "C" void FUN_00099ed0(Chara *self)
     if (DAT_003e1ab4[0] == 0) {
         int j;
         int base;
-        HST_ASSERT(DAT_003e1ab0 == 0, DAT_0037a800, 1984);
+        HST_ASSERT(DAT_003e1ab0 == 0, "s_CommonMotionRefCount == 0", 1984);
         for (unsigned k = 0; k < 2; k++) {
             DAT_003e1ab4[k] = (Motion **)FUN_00000a90(0x454);
             FUN_000114c0(DAT_003e1ab4[k], 0, 0x454);
@@ -196,17 +186,17 @@ extern "C" void FUN_00099ed0(Chara *self)
         for (j = 0, base = 0; j < 4; base += 0x115, j++) {
             int end;
             int idx;
-            FUN_0001c5f4(DAT_003b7ebc, DAT_0037a81c, IsAdhoc() ? DAT_0037a844 : DAT_0037a6c0, j);
+            FUN_0001c5f4(DAT_003b7ebc, "game/400_pc/face/%scommon_motion_%d.xb", IsAdhoc() ? "ad_" : DAT_0037a6c0, j);
             end = (base + 0x115) / 4;
             for (idx = base / 4; idx < end; idx++) {
                 MotionEntry *m = &DAT_002ceb64[idx];
                 if ((idx < 174 || idx >= 198 || busy) && m->common) {
                     int cnt;
                     int k;
-                    if (FUN_00014d64(m->name, DAT_0037a848) != 0)
-                        FUN_000143b0(name, DAT_0037a850);
+                    if (FUN_00014d64(m->name, "npc999") != 0)
+                        FUN_000143b0(name, "999/");
                     else
-                        FUN_000143b0(name, DAT_0037a858);
+                        FUN_000143b0(name, "099/");
                     cnt = 1;
                     if (m->side || m->gender)
                         cnt = 2;
@@ -214,13 +204,13 @@ extern "C" void FUN_00099ed0(Chara *self)
                         Motion *mem;
                         Motion *mt;
                         if (m->side) {
-                            HST_ASSERT(m->gender == 0, DAT_0037a860, 2065);
+                            HST_ASSERT(m->gender == 0, "g_AnimationList[i].sex == 0", 2065);
                             FUN_000143b0(motion, m->name, DAT_0037a7e8[k]);
                         } else if (m->gender)
                             FUN_000143b0(motion, m->name, DAT_0037a7f8[k]);
                         else
                             FUN_000143b0(motion, m->name);
-                        FUN_000143b0(path, DAT_0037a87c, IsAdhoc() ? DAT_0037a888 : DAT_0037a8a4, name, motion);
+                        FUN_000143b0(path, "%s%s%s.i3m", IsAdhoc() ? "data/chara/adhoc/motion/" : "data/chara/motion/", name, motion);
                         mem = (Motion *)operator new(0x10);
                         if (mem)
                             mem = FUN_0005697c(mem);
@@ -242,7 +232,7 @@ extern "C" void FUN_00099ed0(Chara *self)
     }
 
     DAT_003e1ab0++;
-    FUN_0001c5f4(DAT_003b7ebc, DAT_0037a8c0, IsAdhoc() ? DAT_0037a844 : DAT_0037a6c0, face);
+    FUN_0001c5f4(DAT_003b7ebc, DAT_0037a8c0, IsAdhoc() ? "ad_" : DAT_0037a6c0, face);
     if (FUN_000b6e80(self)->right == 1)
         right = DAT_0037a7e0;
     else
@@ -274,10 +264,10 @@ extern "C" void FUN_00099ed0(Chara *self)
             int load = e->loop <= 0;
             if (e->common) {
                 int t;
-                if (FUN_00014d64(e->name, DAT_0037a848) != 0)
-                    FUN_000143b0(name, DAT_0037a850);
+                if (FUN_00014d64(e->name, "npc999") != 0)
+                    FUN_000143b0(name, "999/");
                 else
-                    FUN_000143b0(name, DAT_0037a858);
+                    FUN_000143b0(name, "099/");
                 if (e->side)
                     FUN_000143b0(motion, e->name, e->side == 1 ? right : left);
                 else if (e->gender)
@@ -309,7 +299,7 @@ extern "C" void FUN_00099ed0(Chara *self)
                     else
                         FUN_000143b0(motion, e->name, face);
                 }
-                FUN_000143b0(path, DAT_0037a87c, IsAdhoc() ? DAT_0037a888 : DAT_0037a8a4, name, motion);
+                FUN_000143b0(path, "%s%s%s.i3m", IsAdhoc() ? "data/chara/adhoc/motion/" : "data/chara/motion/", name, motion);
                 if (pd && pd->kind == 0) {
                     Motion *mem = (Motion *)operator new(0x10);
                     if (mem)
@@ -330,7 +320,7 @@ extern "C" void FUN_00099ed0(Chara *self)
                 if (mot) {
                     if (self->noface == 0) {
                         char path2[128];
-                        FUN_000143b0(path2, DAT_0037a8f8, IsAdhoc() ? DAT_0037a888 : DAT_0037a8a4, name, motion);
+                        FUN_000143b0(path2, DAT_0037a8f8, IsAdhoc() ? "data/chara/adhoc/motion/" : "data/chara/motion/", name, motion);
                         self->anim.Load(path2, 0, 0, 0, 0, 0);
                     }
                     FUN_00058090(&self->anim, j - 248, mot, 0);

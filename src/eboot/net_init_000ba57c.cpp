@@ -1,15 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000ba57c end=0x000ba78c symbol=FUN_000ba57c lang=c++ */
+/* HSTMATCH module=EBOOT.BIN start=0x000ba57c end=0x000ba78c symbol=FUN_000ba57c lang=c++ data=0x002d4d64 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review.
    The eight-word config copy is written field by field: a struct assignment of the same 32 bytes makes MWCC
-   copy through $f0..$f3 with lwc1/swc1 instead of lw/sw (see docs/MWCC-NOTES.md). */
-extern "C" char s_sceNetInit___failed_0x_X__002d4d64[];
-extern "C" char s_sceNetInit___success_002d4d80[];
-extern "C" char s_sceNetAdhocInit___failed_0x_X__002d4d98[];
-extern "C" char s_sceNetAdhocInit___success_002d4db8[];
-extern "C" char s_sceNetAdhocctlInit___failed_0x_X_002d4dd4[];
-extern "C" char s_sceNetAdhocctlInit___success_002d4df8[];
-extern "C" char s_sceNetAdhocctlAddHandler___faile_002d4e18[];
-extern "C" char s_sceNetAdhocctlAddHandler___succe_002d4e44[];
+   copy through $f0..$f3 with lwc1/swc1 instead of lw/sw (see docs/MWCC-NOTES.md). Data: its string literals (8 strings, 0x002d4d64-0x002d4e68) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 extern "C" void FUN_000ba9e0(void *, void *);
 extern "C" int FUN_000ba3ac(char *, ...);
@@ -79,28 +71,28 @@ extern "C" int FUN_000ba57c(Net *self, Config *cfg)
 
   ret = FUN_002b7d98(self->config.f10, 0x29, 0x2000, 0x29, 0x2000);
   if (ret < 0) {
-    FUN_000ba3ac(s_sceNetInit___failed_0x_X__002d4d64, ret);
+    FUN_000ba3ac("sceNetInit() failed(0x%X)\n", ret);
     return 0;
   }
-  FUN_000ba3ac(s_sceNetInit___success_002d4d80);
+  FUN_000ba3ac("sceNetInit() success\n");
   ret = FUN_002b7e60();
   if (ret < 0) {
-    FUN_000ba3ac(s_sceNetAdhocInit___failed_0x_X__002d4d98, ret);
+    FUN_000ba3ac("sceNetAdhocInit() failed(0x%X)\n", ret);
     return 0;
   }
-  FUN_000ba3ac(s_sceNetAdhocInit___success_002d4db8);
+  FUN_000ba3ac("sceNetAdhocInit() success\n");
   ret = FUN_002b7d80(0x2000, 0x30, self->config.f18);
   if (ret < 0) {
-    FUN_000ba3ac(s_sceNetAdhocctlInit___failed_0x_X_002d4dd4, ret);
+    FUN_000ba3ac("sceNetAdhocctlInit() failed(0x%X)\n", ret);
     return 0;
   }
-  FUN_000ba3ac(s_sceNetAdhocctlInit___success_002d4df8);
+  FUN_000ba3ac("sceNetAdhocctlInit() success\n");
   ret = FUN_002b7d60((void *)FUN_000bc108, 0);
   if (ret < 0) {
-    FUN_000ba3ac(s_sceNetAdhocctlAddHandler___faile_002d4e18, ret);
+    FUN_000ba3ac("sceNetAdhocctlAddHandler() failed(0x%X)\n", ret);
     return 0;
   }
-  self->f24 = FUN_000ba3ac(s_sceNetAdhocctlAddHandler___succe_002d4e44);
+  self->f24 = FUN_000ba3ac("sceNetAdhocctlAddHandler() success\n");
   self->f190 = 0;
   self->f194 = 0;
   self->f274 = 0;

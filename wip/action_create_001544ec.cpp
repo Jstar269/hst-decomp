@@ -22,7 +22,7 @@ extern char DAT_002dc904[];
 extern char DAT_002dc8e0[];
 extern char DAT_003083cc[];
 extern char DAT_003088a4[];
-int FUN_0014d044(int);
+int FUN_0014d044(int,int);
 void FUN_0014fd94(char *, int, char *);
 Found *FUN_001c70c0(int *, int);
 void *FUN_00000bcc(int);
@@ -34,7 +34,7 @@ extern "C" int *FUN_001544ec(Owner *self, int param_2, int param_3, float f12)
   int r;
 
   if (DAT_003402f0 != 0) {
-    FUN_0014d044(param_2);
+    FUN_0014d044(param_2,param_2);
     FUN_0014fd94(DAT_002dc8e0, self->h,
                  self->mode != 0 ? DAT_002dc900 : DAT_002dc904);
   }
@@ -74,3 +74,4 @@ extern "C" int *FUN_001544ec(Owner *self, int param_2, int param_3, float f12)
 // (81 words). The dtor at 0x00154620 installs __vt__6Komono then __vt__4Base and frees through
 // 0x00000a00 when its flag is > 0, which is why the two vptr stores are manual here.
 // near miss from lane fm5 (unreviewed)
+// improved by lane dsm1 (unreviewed): 43 -> 41 differing words

@@ -1,14 +1,13 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000ded64 end=0x000dee0c symbol=FUN_000ded64 lang=c++ */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000ded64 end=0x000dee0c symbol=FUN_000ded64 lang=c++ data=0x0037d724 */
 /* Container reserve for a 6-byte element type (template instance, hsttmpl.py tag t2s): length check
    against max_size, allocate n elements through an allocator temporary, report failures on newlib stderr
-   and abort. Names provisional. */
+   and abort. Names provisional. Data: its string literals (1 strings, 0x0037d724-0x0037d738) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" {
 struct Reent_000ded64 { int pad[3]; void *err; };
 Reent_000ded64 *FUN_0000fe3c(void);
 int FUN_000dd96c(void *stream, const char *format, ...);
 void FUN_0000d530(void);
 void *FUN_00000bcc(unsigned size);
-extern char DAT_0037d724[];
 extern char DAT_002d0920[];
 }
 struct Elem_000ded64 { char b[6]; };
@@ -17,7 +16,7 @@ struct Vec_000ded64 { Elem_000ded64 *data; int size; unsigned capacity; };
 extern "C" void FUN_000ded64(Vec_000ded64 *v, unsigned n)
 {
     if (n > 0xffffffffu / sizeof(Elem_000ded64)) {
-        FUN_000dd96c(FUN_0000fe3c()->err, DAT_0037d724);
+        FUN_000dd96c(FUN_0000fe3c()->err, "vector length error");
         FUN_0000d530();
     }
     Elem_000ded64 *p = Alloc_000ded64().allocate(n);

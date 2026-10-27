@@ -14,7 +14,7 @@ Run it from the maintainers' checkout of `full`. The steps (each refuses, exit 1
     must not reach it), with the git-ignored inputs copied in: hst-config.json, try/build/*report.json,
     try/port-report.json and try/port-private-report.json. Without them T2/T3 and the portable-source milestone
     silently drop to 0, so a missing input refuses. Then `hstprogress.py --write` there, which also rewrites the
-    generated figure blocks of README.md, docs/COMPLETION.md and docs/GUIDE.md, and `hstprogress.py --check-readme`.
+    generated figure blocks (hstprogress.BLOCK_FILES), and `hstprogress.py --check-readme`.
  3. Never-lower guard: every figure of progress.json, docs/milestones.json and docs/objdiff-report.json is compared
     with the last published one (HEAD of the public worktree); a figure that goes down or becomes null refuses.
  4. `hstpublic.py sync` from the clean worktree into the public worktree (the dry run mirrors into a detached
@@ -73,6 +73,9 @@ def git(cwd: Path, *args: str, check: bool = True) -> str:
     if check and r.returncode:
         raise Refused(f"git {' '.join(args)} failed in {cwd}:\n{r.stderr.strip()}")
     return r.stdout
+
+
+MATCH_CHUNK = 300   # sources per hstmatch.py call in step 4
 
 
 def run(cmd: list[str], cwd: Path) -> tuple[int, str]:
@@ -276,16 +279,22 @@ def match(tree: Path, sources: list[str], parallel: int) -> None:
         print("no added or modified src/ source in the public tree")
         return
     print(f"hstmatch.py on {len(sources)} added or modified public source(s)")
-    rc, out = run([sys.executable, "tools/hstmatch.py", "--quiet", "--parallel", str(parallel), *sources], tree)
     status: dict[str, str] = {}
-    for line in out.splitlines():
-        parts = line.replace("\\", "/").split()
-        if len(parts) >= 4 and parts[3] in sources:
-            status[parts[3]] = parts[0]
-    m = re.search(r"^EXACT (\d+)/(\d+)", out, re.M)
+    failed: list[str] = []
+    # chunks keep each command line under Windows' 32,767-character limit (WinError 206 with thousands of paths)
+    for k in range(0, len(sources), MATCH_CHUNK):
+        part = sources[k:k + MATCH_CHUNK]
+        rc, out = run([sys.executable, "tools/hstmatch.py", "--quiet", "--parallel", str(parallel), *part], tree)
+        for line in out.splitlines():
+            parts = line.replace("\\", "/").split()
+            if len(parts) >= 4 and parts[3] in part:
+                status[parts[3]] = parts[0]
+        m = re.search(r"^EXACT (\d+)/(\d+)", out, re.M)
+        if rc or not m or int(m.group(1)) != len(part) or int(m.group(2)) != len(part):
+            failed.append(out[-500:])
     bad = [f"{p}: {status[p]}" for p in sources if status.get(p, "EXACT") != "EXACT"]
-    if rc or not m or int(m.group(1)) != len(sources) or int(m.group(2)) != len(sources) or bad:
-        raise Refused("not every added or modified public source is EXACT:\n  " + "\n  ".join(bad or [out[-500:]]))
+    if failed or bad:
+        raise Refused("not every added or modified public source is EXACT:\n  " + "\n  ".join(bad or failed))
     print(f"all {len(sources)} EXACT")
 
 

@@ -1,9 +1,7 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000c08c8 end=0x000c09d0 symbol=FUN_000c08c8 lang=c++ */
-/* Clone of src/eboot/set_slot_object_000bd378.cpp (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000c08c8 end=0x000c09d0 symbol=FUN_000c08c8 lang=c++ data=0x0037bd8c */
+/* Clone of src/eboot/set_slot_object_000bd378.cpp (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0037bd8c-0x0037bdc9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern "C" {
-extern char DAT_0037bd8c[];
-extern char DAT_0037bdac[];
 extern void FUN_000bd6f0(...);
 }
 struct VC_0 { virtual ~VC_0(); };
@@ -26,7 +24,7 @@ struct Obj {
 extern "C" int FUN_000c08c8(Obj *self, int param_2, int param_3)
 {
     if (self->cur < 0) {
-        FUN_000bd6f0(DAT_0037bd8c);
+        FUN_000bd6f0("CreateCHMasterObj() failed.\n");
         return 0;
     }
     VC_0 *p = self->slots[self->cur];
@@ -45,6 +43,6 @@ extern "C" int FUN_000c08c8(Obj *self, int param_2, int param_3)
     self->slots[self->cur] = (VC_0 *)r;
     ((int *)self->slots[self->cur])[3] = param_3;
     ((int *)self->slots[self->cur])[1] = param_2;
-    FUN_000bd6f0(DAT_0037bdac);
+    FUN_000bd6f0("CreateCHMasterObj() success\n");
     return 1;
 }

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00280188 end=0x002803d8 symbol=FUN_00280188 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00280188 end=0x002803d8 symbol=FUN_00280188 lang=c++ data=0x002fe8cc */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002fe8cc-0x002fe8d3) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 // matching idioms: empty `Tag` by-value third argument of FUN_000545bc (retail `move v0,zero; seb a2,v0`); `i++` placed before the re-read of the element count (while loop) so it lands in the jal delay slot; trailing unused empty `False` parameter for the 80-byte frame.
 
 struct False_280188 {};
@@ -12,7 +12,6 @@ struct Vec_280188 {
 };
 
 extern "C" {
-extern char DAT_002fe8cc[];
 extern void FUN_00286490(struct Vec_280188 *v, int n);
 extern int FUN_000650e0(int obj);
 extern int FUN_00065104(int obj, int idx, int sub);
@@ -46,7 +45,7 @@ extern "C" int FUN_00280188(int *obj, unsigned char *out, int want, int sub, Fal
     i = 0;
     n = FUN_000650e0(*obj);
     while (i < n) {
-        FUN_002803d8(DAT_002fe8cc, FUN_00065104(*obj, i, 0),
+        FUN_002803d8("%d:%s\n", FUN_00065104(*obj, i, 0),
                      FUN_0006517c(*obj, i, sub + 2));
         if (want == FUN_00065104(*obj, i, 0)) {
             v = FUN_0006517c(*obj, i, sub + 2);

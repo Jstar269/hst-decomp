@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0014fbd4 end=0x0014fd94 symbol=FUN_0014fbd4 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0014fbd4 end=0x0014fd94 symbol=FUN_0014fbd4 lang=c++ data=0x002dc374 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc374-0x002dc37f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Script command: resolve the target object by id in an inline helper with early returns (-1: global player converted to its Obj base at +0xe0, negative: context object read up front, < 100: manager table at +0x4c, < 1000: 0x1c6f70, else 0x1c70c0), fetch its position/rotation via 0x1caee4 (default: DAT_002bc440 and the rotation from 0x22418 with axis 0,0,1), optional trace print, then call vtable slots 0x1c (pos) and 0x24 (rot). Names provisional. */
 struct Vec4 {
     float x, y, z, w;
@@ -22,7 +22,6 @@ struct Ctx { int a; int b; int c; Obj *obj; };
 struct Cmd { void *vt; int a; int id; int pos; };
 extern "C" {
 extern unsigned char DAT_003402f0;
-extern char DAT_002dc374[];
 extern Mgr *DAT_0034a114;
 extern Player *DAT_0034a118;
 extern float DAT_002bc440[4];
@@ -68,7 +67,7 @@ extern "C" int FUN_0014fbd4(Cmd *self, Ctx *ctx)
     }
     if (DAT_003402f0 != 0) {
         FUN_0014d044(ctx);
-        FUN_0014fd94(DAT_002dc374, self->id);
+        FUN_0014fd94("SetPos:%d\n", self->id);
     }
     if (p != 0) {
         p->setPos(&d);

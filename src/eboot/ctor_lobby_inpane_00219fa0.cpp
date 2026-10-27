@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00219fa0 end=0x0021a370 symbol=FUN_00219fa0 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00219fa0 end=0x0021a370 symbol=FUN_00219fa0 lang=c++ data=0x002eff58 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002eff58-0x002eff88) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Lobby in-pane layout constructor (siblings: ctor_parts_lobby_0021d02c.c). Matching idioms: byte-offset induction variables per table loop (counter, table pointer, offset), the virtual call made on the stored element (w = (slot = lookup())->SetState(-3)), two local float[7] tables copied from consecutive globals with the pointer/counter initialisations placed around the copies (statement positions steer the $f0/$f1 allocation), selects written with != 0 so the likely branch lands as in retail. */
 struct Widget {
   virtual void v0();
@@ -26,7 +26,6 @@ struct Model {
 
 extern "C" {
 extern char DAT_003095e8[];
-extern char DAT_002eff58[];
 extern float DAT_002efb3c;
 extern char *DAT_002efb70[];
 extern Entry DAT_002efdac[];
@@ -59,7 +58,7 @@ char *FUN_00219fa0(char *self)
   FUN_00102e38(self);
   *(char **)self = DAT_003095e8;
   *(int *)(self + 0xe0) = 0;
-  FUN_00104118(self, DAT_002eff58, 1);
+  FUN_00104118(self, "data/menu/lobby/lobbyinpane/commandlayouter.lay", 1);
   FUN_00103540(DAT_002efb3c, self);
   {
     int i = 0;

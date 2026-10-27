@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000db150 end=0x000db2f8 symbol=FUN_000db150 lang=c++ */
-/* Clone of src/eboot/tree_insert_node_000d7460.cpp (hstclone.py tag c21sn2s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000db150 end=0x000db2f8 symbol=FUN_000db150 lang=c++ data=0x0037d328 */
+/* Clone of src/eboot/tree_insert_node_000d7460.cpp (hstclone.py tag c21sn2s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037d328-0x0037d342) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly (derived from src/eboot/tree_insert_node_0019695c.cpp with a 16-byte string+int value); exact match verified; matching idiom: the node holder carries an unused leading 4-byte member (retail's holder is 12 bytes: it moves the never-written fwd_tag slot read by `lb t1,32(sp)` below it); names and types await human review. */
 /* MSL-style tree insert-at for a node whose 16-byte value is a short-string-optimised string (3 words, flag bit 0 = heap mode: reserve via 0x3ed4, assign range via 0x3370 with a derived empty tag) plus an int; same shape as 0x19695c (length check, 28-byte node, holder, link, ++size, rebalance 0x6445c, leftmost). */
 extern "C" {
@@ -9,7 +9,6 @@ int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d530(void);
 void *FUN_00000bcc(unsigned size);
 void FUN_00000a00(void *p);
-extern char DAT_0037d328[];
 extern char DAT_002d0854[];
 }
 inline void *operator new(unsigned, void *p) throw() { return p; }
@@ -81,7 +80,7 @@ extern "C" Node_000db150 *FUN_000db150(Tree_000db150 *t, Node_000db150 *parent, 
                                        const Value_000db150 &v)
 {
     if (t->size_ == 0xffffffff) {
-        FUN_0000f3e8(FUN_0000fe3c()->err, DAT_0037d328);
+        FUN_0000f3e8(FUN_0000fe3c()->err, "tree::insert length error");
         FUN_0000d530();
     }
     Alloc_000db150 &a = t->alloc();

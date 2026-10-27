@@ -6,16 +6,14 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
-#define true 1
-#define false 0
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
+extern "C" {
 extern undefined * DAT_0033b574;
 extern void FUN_000149a8(void *, undefined4);
 extern uint * FUN_0014c354(void *, int);
@@ -23,7 +21,7 @@ extern uint * FUN_0014c384(void *, int);
 extern void FUN_0014c3ac(void *, int, int);
 extern undefined4 FUN_0014c3d8(void *, int);
 extern char * FUN_0022a930();
-extern void FUN_0022aae8();
+extern void FUN_0022aae8(int,int,int,int,int);
 extern int FUN_0022ab44(undefined4, undefined4, int);
 extern int FUN_0022acf0(undefined4, undefined4, undefined1);
 extern int FUN_0022ad48(undefined4, undefined4, undefined1);
@@ -121,3 +119,6 @@ void FUN_001caa90(char *param_1)
 // Near miss: 125 of 158 words differ, chiefly in accessor-call scheduling and the first range-test block.
 // Ruled out pointer/struct field access, bool/int flag widths, if/switch/goto forms, and duplicated flag stores.
 // near miss from lane km5 (unreviewed)
+
+}  /* extern "C" */
+// improved by lane dsm1 (unreviewed): no comparable result -> 125 differing words

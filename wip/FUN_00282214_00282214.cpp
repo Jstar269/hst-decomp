@@ -6,36 +6,34 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
-#define true 1
-#define false 0
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
+extern "C" {
 extern undefined DAT_002c0e18;
 extern undefined DAT_002c0e1c;
 extern undefined DAT_002c0e20;
 extern undefined4 DAT_00338ac4;
 extern undefined4 DAT_003415a8;
 extern undefined4 DAT_003415ac;
-extern void FUN_000143b0();
+extern void FUN_000143b0(void *, void *, unsigned char *);
 extern void FUN_000149a8(void *, void *);
 extern int FUN_00014a40(void *);
-extern undefined4 * FUN_0008d0cc();
-extern undefined1 * FUN_0008d0e4();
-extern void FUN_0008d114();
-extern void FUN_0008d2ec();
-extern int FUN_000bbba4();
-extern void FUN_000bd704();
-extern int FUN_000bd8e0();
-extern int FUN_000bd8f8();
-extern void FUN_00114168();
-extern undefined1 * FUN_0018c9f4();
-extern void FUN_002805fc();
+extern undefined4 * FUN_0008d0cc(int, unsigned int);
+extern undefined1 * FUN_0008d0e4(int, unsigned int);
+extern void FUN_0008d114(int);
+extern void FUN_0008d2ec(int);
+extern int FUN_000bbba4(unsigned int, unsigned int);
+extern void FUN_000bd704(unsigned int, int);
+extern int FUN_000bd8e0(unsigned int, int);
+extern int FUN_000bd8f8(unsigned int, int);
+extern void FUN_00114168(unsigned int, int, char *, int, int);
+extern undefined1 * FUN_0018c9f4(int);
+extern void FUN_002805fc(void *, unsigned int, unsigned int, unsigned char *);
 
 void FUN_00282214(char *param_1,int param_2)
 {
@@ -150,3 +148,6 @@ LAB_00282460:
 // Near miss: 143 of 193 words differ. The record clear loop matches; remaining differences start with s0/s1 coloring of param_2 and its scaled offset, then state-branch and call scheduling.
 // Ruled out byte reads, char-pointer and struct-pointer forms, a local index copy, local declaration reorders, bool/int state flags, pointer-typed globals, if/OR/ternary guard forms, and a C++ build.
 // near miss from lane km5 (unreviewed)
+
+}  /* extern "C" */
+// improved by lane dsm1 (unreviewed): no comparable result -> 160 differing words

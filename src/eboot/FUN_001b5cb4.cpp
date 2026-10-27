@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001b5cb4 end=0x001b5ff0 symbol=FUN_001b5cb4 lang=c++ */
-/* Hand-written reconstruction of FUN_001b5cb4; matching idioms: switch preload id with shared-body case group (1/12/0x22), Vec4 Scale/Sub inlines with callee param order, separate float temp for the final multiply; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001b5cb4 end=0x001b5ff0 symbol=FUN_001b5cb4 lang=c++ data=0x002e99b4 */
+/* Hand-written reconstruction of FUN_001b5cb4; matching idioms: switch preload id with shared-body case group (1/12/0x22), Vec4 Scale/Sub inlines with callee param order, separate float temp for the final multiply; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002e99b4-0x002e99bf) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Vec4 {
   float x, y, z, w;
 } __attribute__((aligned(16)));
@@ -26,7 +26,6 @@ extern "C" {
 extern G2 *DAT_003402a0;
 extern Ctx *DAT_003386b0;
 extern char DAT_0034179c[];
-extern char DAT_002e99b4[];
 extern float DAT_002e99a0;
 extern float DAT_002e99a4;
 extern float DAT_002e99a8;
@@ -139,7 +138,7 @@ extern "C" int FUN_001b5cb4(int unused, int kind, int p3, const Vec4 *p4, const 
       if (idx >= 0) {
         Sub3 *s = DAT_003386b0->arr[idx];
         if (s != 0 && s->f4e8 == 1)
-          FUN_001b28f0(DAT_0034179c, DAT_002e99b4);
+          FUN_001b28f0(DAT_0034179c, "court_beep");
       }
       break;
     }

@@ -1,24 +1,9 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000465dc end=0x00046820 symbol=FUN_000465dc lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000465dc end=0x00046820 symbol=FUN_000465dc lang=c++ data=0x002d02b8 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (15 strings, 0x002d02b8-0x002d0419) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" {
 extern int DAT_00311020;
 extern int DAT_00311024;
 extern int DAT_00310fcc;
-extern char DAT_002d02b8[];
-extern char DAT_002d02f0[];
-extern char DAT_002d02f8[];
-extern char DAT_002d0340[];
-extern char DAT_002d0348[];
-extern char DAT_002d0354[];
-extern char DAT_002d0364[];
-extern char DAT_002d0378[];
-extern char DAT_002d038c[];
-extern char DAT_002d03a0[];
-extern char DAT_002d03b0[];
-extern char DAT_002d03bc[];
-extern char DAT_002d03cc[];
-extern char DAT_002d03dc[];
-extern char DAT_002d03ec[];
 void FUN_000029f0(void);
 void FUN_000029e8(void);
 int FUN_002b7ce8(void);
@@ -39,44 +24,44 @@ extern "C" int FUN_000465dc(int a, int b)
     if (FUN_002b7ce8() == 0) {
         int r = FUN_002b7d00(2);
         if (r != 0) {
-            FUN_00046564(DAT_002d02b8, r);
+            FUN_00046564("fatal error : sceUmdWaitDriveStat(SCE_UMD_MEDIA_IN) %d\n", r);
             return -1;
         }
     }
-    int r = FUN_002b7d08(1, DAT_002d02f0);
+    int r = FUN_002b7d08(1, "disc0:");
     if (r < 0) {
-        FUN_00046564(DAT_002d02f8, r);
+        FUN_00046564("fatal error : sceUmdActivate(SCE_UMD_MODE_POWERON, UMD_ALIAS_NAME) %d\n", r);
         return -1;
     }
     FUN_002b7d00(32);
-    int id = FUN_002b7920(DAT_002d0340, FUN_000468c8, 38, 0x40000, 0x4000, 0);
+    int id = FUN_002b7920("main", FUN_000468c8, 38, 0x40000, 0x4000, 0);
     DAT_00310fcc = id;
     if (id == (int)0x80020190)
-        FUN_00046564(DAT_002d0348);
+        FUN_00046564("no memory\n");
     else if (id == (int)0x80020191)
-        FUN_00046564(DAT_002d0354);
+        FUN_00046564("illegal attr\n");
     else if (id == (int)0x80020194)
-        FUN_00046564(DAT_002d0364);
+        FUN_00046564("illegal stack size\n");
     else if (id == (int)0x80020064)
-        FUN_00046564(DAT_002d0378);
+        FUN_00046564("illegal context\n");
     else if (id == (int)0x80020193)
-        FUN_00046564(DAT_002d038c);
+        FUN_00046564("illegal priority\n");
     else if (id == (int)0x80020192)
-        FUN_00046564(DAT_002d03a0);
+        FUN_00046564("illegal entry\n");
     else if (id == (int)0x800201b9)
-        FUN_00046564(DAT_002d03b0);
+        FUN_00046564("spad inuse\n");
     else {
         int s = FUN_002b78d8(id, 0, 0);
         if (s == (int)0x80020198)
-            FUN_00046564(DAT_002d03bc);
+            FUN_00046564("unknown thid\n");
         else if (s == (int)0x80020197)
-            FUN_00046564(DAT_002d03cc);
+            FUN_00046564("illegal thid\n");
         else if (s == (int)0x80020064)
-            FUN_00046564(DAT_002d0378);
+            FUN_00046564("illegal context\n");
         else if (s == (int)0x800201a4)
-            FUN_00046564(DAT_002d03dc);
+            FUN_00046564("not dormant\n");
         else {
-            FUN_00046564(DAT_002d03ec);
+            FUN_00046564("initial thread going to sleep, night night!\n");
             FUN_002b79a0();
         }
     }

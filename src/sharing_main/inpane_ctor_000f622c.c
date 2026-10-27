@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000f622c end=0x000f644c symbol=FUN_000f622c lang=c99 */
-/* Clone of src/eboot/inpane_ctor_000f0b64.c (hstclone.py tag nxc): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000f622c end=0x000f644c symbol=FUN_000f622c lang=c99 data=0x0037e22c */
+/* Clone of src/eboot/inpane_ctor_000f0b64.c (hstclone.py tag nxc): addresses substituted; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 3 strings, 0x0037e22c-0x0037e258) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
@@ -32,7 +32,11 @@ extern float DAT_0037da74;
 extern const float DAT_0037e354;
 extern const float DAT_0037e358;
 extern char DAT_0037e35c[];
-extern char *DAT_0037e24c[];
+char *DAT_0037e24c[] = {
+    "minipoint",
+    "point",
+    "regulation",
+};
 extern int DAT_0037e2d0[];
 
 static inline int Width(Rect *r) { return r->x2 - r->x; }

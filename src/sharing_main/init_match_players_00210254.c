@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00210254 end=0x002104c4 symbol=FUN_00210254 lang=c99 */
-/* Clone of src/eboot/init_match_players_00201a84.c (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00210254 end=0x002104c4 symbol=FUN_00210254 lang=c99 data=0x00397224 */
+/* Clone of src/eboot/init_match_players_00201a84.c (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00397224-0x00397237) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Matching idioms: the radians conversion must be one direct multiply expression assigned to the member (a local factor puts the constant in the multiply destination FPR); the two player statements use distinct p1/p2 locals (retail reuses s1) and access the member directly for the two later stat reads. */
 struct Sub {
@@ -48,8 +48,6 @@ extern void FUN_000953a8(struct Player *, float);
 extern void FUN_000938e0(struct Player *, int);
 extern void FUN_0013671c(float, struct Player *, int, int);
 extern void FUN_0019fb6c(void *, void *, void *);
-extern char DAT_00397224[];
-extern char DAT_00397230[];
 extern char *DAT_003f3474;
 
 void FUN_00210254(struct This *self, unsigned char kind, struct Player *a, struct Player *b)
@@ -88,8 +86,8 @@ void FUN_00210254(struct This *self, unsigned char kind, struct Player *a, struc
         self->f34 = self->p1->sub ? self->p1->sub->f104 : 0.0f;
         self->f3c = p1->f32d;
         FUN_0013671c(-1.0f, p1, 0, 1);
-        FUN_000953a8(self->p1, FUN_001a22b4(FUN_00066bb0(base, DAT_00397224, 1),
-                                  FUN_00066bb0(base, DAT_00397230, 1), x));
+        FUN_000953a8(self->p1, FUN_001a22b4(FUN_00066bb0(base, "BaseTall", 1),
+                                  FUN_00066bb0(base, "Rating", 1), x));
         FUN_000938e0(p1, -1);
     }
     p2 = self->p2;
@@ -100,8 +98,8 @@ void FUN_00210254(struct This *self, unsigned char kind, struct Player *a, struc
         self->f38 = self->p2->sub ? self->p2->sub->f104 : 0.0f;
         self->f3d = p2->f32d;
         FUN_0013671c(-1.0f, p2, 0, 1);
-        FUN_000953a8(self->p2, FUN_001a22b4(FUN_00066bb0(base, DAT_00397224, 1),
-                                  FUN_00066bb0(base, DAT_00397230, 1), y));
+        FUN_000953a8(self->p2, FUN_001a22b4(FUN_00066bb0(base, "BaseTall", 1),
+                                  FUN_00066bb0(base, "Rating", 1), y));
         FUN_000938e0(p2, -1);
     }
 }

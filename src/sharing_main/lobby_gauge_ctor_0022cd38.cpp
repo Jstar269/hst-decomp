@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0022cd38 end=0x0022cfb0 symbol=__ct__10C_0022cd38Fv lang=c++ */
-/* Clone of src/eboot/lobby_gauge_ctor_0021d7c4.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0022cd38 end=0x0022cfb0 symbol=__ct__10C_0022cd38Fv lang=c++ data=0x00398be0 */
+/* Clone of src/eboot/lobby_gauge_ctor_0021d7c4.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00398be0-0x00398c38) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Obj {
     virtual void v0();
@@ -54,8 +54,6 @@ struct C_0022cd38 : B_0010873c {
     virtual void v2();
 };
 
-extern char DAT_00398be0[];
-extern char DAT_00398c0c[];
 extern float DAT_00398354;
 extern char *PTR_00398a10[];
 extern Lookup DAT_00398a60[];
@@ -78,9 +76,9 @@ C_0022cd38::C_0022cd38() : gauge(0), f170(0), f20c(-1)
     if (g != 0)
         g = FUN_0022c5a0(g);
     gauge = g;
-    FUN_00109a44(this, DAT_00398be0, 0);
+    FUN_00109a44(this, "data/menu/lobby/lobbyinpane/gaugelay.lay", 0);
     FUN_00108e6c(DAT_00398354 + 10.0f, this);
-    FUN_00109a44(&pane, DAT_00398c0c, 0);
+    FUN_00109a44(&pane, "data/menu/lobby/lobbyinpane/gaugelay_HL.lay", 0);
     FUN_00108e6c(DAT_00398354 + 10.0f, &pane);
     int base = (int)this;
     {

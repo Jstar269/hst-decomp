@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001909ec end=0x00190b1c symbol=FUN_001909ec lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001909ec end=0x00190b1c symbol=FUN_001909ec lang=c++ data=0x002e136c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002e136c-0x002e138a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* MSL-style deque of 4-byte elements (128 per 512-byte block, block pointers held in a cdeque with a
    trailing spare slot): push_back. When the back block is full: length check against max_size() (inline
    function with a guarded static local: guard 0x3415d8, value 0x2c2780), grow the block map by one
@@ -10,7 +10,6 @@ struct Reent_001909ec { int pad[3]; void *err; };
 Reent_001909ec *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d518(void);
-extern char DAT_002e136c[];      /* push_back length error message */
 extern char DAT_003415d8;        /* max_size() static-local guard */
 extern unsigned DAT_002c2780;    /* max_size() static local */
 }
@@ -49,7 +48,7 @@ extern "C" void FUN_001909ec(Deque_001909ec *self, const Elem_001909ec &x)
     unsigned i = self->start_ + self->size_;
     if (i == self->capacity()) {
         if (self->size_ == self->max_size()) {
-            FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002e136c);
+            FUN_0000f3e8(FUN_0000fe3c()->err, "deque::push_back length error");
             FUN_0000d518();
         }
         FUN_00191194(self, 1);

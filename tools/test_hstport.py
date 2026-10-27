@@ -181,5 +181,45 @@ class PortableSourceTests(unittest.TestCase):
             self.assertEqual(private["compiling_all_targets"], 2)
 
 
+def port_report(sources: int, compiling: int, findings: dict[str, int]) -> dict:
+    return {"all_five_targets": True, "generated_at": "2000-02-03T04:05:06+00:00", "elapsed_seconds": 75.5,
+            "numeric_address_scan_seconds": 12.25, "sources": sources, "compiling_all_targets": compiling,
+            "code_bytes": 1000, "compiling_bytes": 250, "targets": list(H.TARGETS),
+            "per_target": {t: {"ok": compiling, "fail": sources - compiling} for t in H.TARGETS},
+            "numeric_address_findings": findings}
+
+
+class PortingDocTests(unittest.TestCase):
+    def test_measurement_block_is_rendered_from_the_reports(self) -> None:
+        text = H.render_measurement(port_report(10, 4, {"a.c": 3, "b.c": 0, "c.c": 2}), port_report(12, 5, {}))
+        self.assertTrue(text.startswith("The last full run, on 2000-02-03, analyzed and measured all 12 sources for all "
+                                        "five targets and took 75.500 seconds (1 minute 15.500 seconds), including "
+                                        "12.250 seconds for the AST numeric-address scan. The detector reported 5 "
+                                        "findings across 2 published sources."))
+        self.assertIn("| Public | 10 | 4 | 1,000 | 250 | 25.000% |", text)
+        self.assertIn("| `x86_64-pc-windows-msvc` | 4 / 6 | 5 / 7 |", text)
+
+    def test_a_target_subset_cannot_write_the_measurement(self) -> None:
+        subset = dict(port_report(10, 4, {}), all_five_targets=False)
+        with self.assertRaises(ValueError):
+            H.render_measurement(subset, port_report(12, 5, {}))
+
+    def test_write_doc_replaces_only_the_block_and_needs_one(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "docs").mkdir()
+            doc = root / "docs" / "PORTING.md"
+            doc.write_text("Before.\n\n<!-- hstport:begin measurement -->\nold\n<!-- hstport:end -->\n\nAfter.\n",
+                           encoding="utf-8")
+            self.assertTrue(H.write_doc(root, port_report(10, 4, {}), port_report(12, 5, {})))
+            text = doc.read_text(encoding="utf-8")
+            self.assertTrue(text.startswith("Before.\n\n<!-- hstport:begin measurement -->\n\nThe last full run"))
+            self.assertTrue(text.endswith("|\n\n<!-- hstport:end -->\n\nAfter.\n"))
+            self.assertFalse(H.write_doc(root, port_report(10, 4, {}), port_report(12, 5, {})))   # idempotent
+            doc.write_text("no block\n", encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                H.write_doc(root, port_report(10, 4, {}), port_report(12, 5, {}))
+
+
 if __name__ == "__main__":
     unittest.main()

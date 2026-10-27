@@ -1,12 +1,11 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0016aae4 end=0x0016abec symbol=FUN_0016aae4 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0016aae4 end=0x0016abec symbol=FUN_0016aae4 lang=c++ data=0x00385d04 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00385d04-0x00385d09) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Constructor of an object (base ctor FUN_00061cb0, vptr DAT_003b2348) that owns a string buffer allocated in the ctor: the StrBuf body is the inline ctor of src/sharing_main/ctor_string_buf_0016a838.cpp with the constant string DAT_00385d04. Matching idioms: `p = alloc(32); if (p) p->init(..); self->buf = p;` (an inline `new StrBuf(..)` gives a plain beqz instead of the shared-store beqzl), the buffer pointer zeroed first, and the trailing pair cleared by `unsigned k = 0; do { a[k] = 0; } while (++k < 2);` (a for loop unrolls). Names provisional. */
 struct Alloc {};
 extern "C" {
 extern char DAT_003b0678;
 extern char DAT_003b2358;
 extern char DAT_003b2348;
-extern char DAT_00385d04[];
 extern int FUN_00000a90(int);
 extern char *FUN_000149a8(char *, const char *);
 extern int FUN_00014a40(const char *);
@@ -69,7 +68,7 @@ extern "C" Obj *FUN_0016aae4(Obj *self)
     self->fa7 = 1;
     self->fa8 = 0;
     StrBuf *p = (StrBuf *)FUN_00000bcc(32);
-    if (p) p->init(DAT_00385d04);
+    if (p) p->init("root");
     self->fa8 = p;
     unsigned k = 0;
     do { self->fac[k] = 0; } while (++k < 2);

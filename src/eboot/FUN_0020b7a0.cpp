@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0020b7a0 end=0x0020be58 symbol=FUN_0020b7a0 lang=c++ */
-/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0020b7a0 end=0x0020be58 symbol=FUN_0020b7a0 lang=c++ data=0x002ef8b8 */
+/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002ef8b8-0x002ef8d1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned int uint;
 
 struct Cfg {
@@ -51,8 +51,6 @@ extern float DAT_002ef8a8;
 extern float DAT_002ef8ac;
 extern float DAT_002ef8b0;
 extern float DAT_002ef8b4;
-extern char DAT_002ef8b8[];
-extern char DAT_002ef8c4[];
 extern Cfg *DAT_00338b44;
 
 extern float FUN_0000ce3c(float, float);
@@ -154,12 +152,12 @@ extern "C" int FUN_0020b7a0(Self *param_3, int param_4, int param_5, float param
       if (bVar3) {
         fVar10 = Min(fVar10 + (float)param_3->f850, DAT_002ef890);
         fVar11 = Min(fVar11 + 0.5f * (float)param_3->f850, DAT_002ef894);
-        FUN_0020b600(DAT_002ef8b8, param_3->f850);
+        FUN_0020b600("not lob %d\n", param_3->f850);
       }
       if (bVar2) {
         fVar10 = Min(fVar10 + 0.4f * (float)param_3->f84c, DAT_002ef898);
         fVar11 = Min(fVar11 + 0.2f * (float)param_3->f84c, DAT_002ef89c);
-        FUN_0020b600(DAT_002ef8c4, param_3->f84c);
+        FUN_0020b600("not drop %d\n", param_3->f84c);
       }
       float sign = 0.0f;
       if (param_4 == 1) {

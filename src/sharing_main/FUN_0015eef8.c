@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0015eef8 end=0x0015ef68 symbol=FUN_0015eef8 lang=c99 */
-/* Clone of src/eboot/FUN_00152d70.c (hstclone.py tag c30): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0015eef8 end=0x0015ef68 symbol=FUN_0015eef8 lang=c99 data=0x00383be8 */
+/* Clone of src/eboot/FUN_00152d70.c (hstclone.py tag c30): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00383be8-0x00383bfc) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -18,7 +18,6 @@ typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
 extern undefined DAT_003e9630;
-extern char DAT_00383be8[];
 extern int FUN_00157e10();
 extern void FUN_00158b2c();
 extern void FUN_0015bb68();
@@ -33,7 +32,7 @@ undefined4 FUN_0015eef8(int param_1,undefined4 *param_2)
   
   if (DAT_003e9630 != '\0') {
     FUN_00158b2c(param_2);
-    FUN_0015bb68(DAT_00383be8,*(undefined4 *)(param_1 + 8));
+    FUN_0015bb68("GetDifficulty [%d]\n",*(undefined4 *)(param_1 + 8));
   }
   uVar3 = *param_2;
   iVar1 = (int)(FUN_0023ce60());

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001542dc end=0x0015435c symbol=FUN_001542dc lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1v0) corrected by hand: DAT_003402f0 is unsigned char (lbu), the *param_2 load is hoisted into a local before the value test, and the value is selected with if (x != 0) val else 0 so the branch stays non-likely; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001542dc end=0x0015435c symbol=FUN_001542dc lang=c99 data=0x002dc8a0 */
+/* Ghidra pseudocode (hstgen.py tag a1v0) corrected by hand: DAT_003402f0 is unsigned char (lbu), the *param_2 load is hoisted into a local before the value test, and the value is selected with if (x != 0) val else 0 so the branch stays non-likely; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc8a0-0x002dc8b2) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -20,7 +20,6 @@ typedef unsigned int undefined4;
 typedef struct { int pad0; int pad4; int f8; int fc; } S154;
 extern unsigned char DAT_003402f0;
 extern undefined * DAT_0034a118;
-extern char DAT_002dc8a0[];
 extern int FUN_0014c384(int a,int b);
 extern void FUN_0014d044(void *p);
 extern void FUN_0014fd94(const char *fmt,int b);
@@ -32,7 +31,7 @@ undefined4 FUN_001542dc(S154 *s,int *p)
 
   if (DAT_003402f0 != '\0') {
     FUN_0014d044(p);
-    FUN_0014fd94(DAT_002dc8a0,s->f8);
+    FUN_0014fd94("GetPcNumber [%d]\n",s->f8);
   }
   int a = *p;
   if (*(int *)(DAT_0034a118 + 0x50) != 0) {

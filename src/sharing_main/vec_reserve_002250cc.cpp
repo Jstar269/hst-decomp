@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002250cc end=0x00225168 symbol=FUN_002250cc lang=c++ */
-/* Clone of src/eboot/vec_reserve_0010984c.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002250cc end=0x00225168 symbol=FUN_002250cc lang=c++ data=0x00397e44 */
+/* Clone of src/eboot/vec_reserve_0010984c.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00397e44-0x00397e58) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction (early session work from before provenance notes were recorded; it may have started from Ghidra pseudocode); exact match verified; names and types await human review. */
 /* Container reserve for a 8-byte element type: length check against max_size (0xffffffff / 8), allocate
    n elements through an allocator temporary (32-byte frame), report failures on newlib stderr and abort.
@@ -10,7 +10,6 @@ Reent_002250cc *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d530(void);
 void *FUN_00000bcc(unsigned size);
-extern char DAT_00397e44[];
 extern char DAT_002d9cb8[];
 }
 struct Elem_002250cc { int w[2]; };
@@ -19,7 +18,7 @@ struct Vec_002250cc { Elem_002250cc *data; int size; unsigned capacity; };
 extern "C" void FUN_002250cc(Vec_002250cc *v, unsigned n)
 {
     if (n > 0xffffffffu / sizeof(Elem_002250cc)) {
-        FUN_0000f3e8(FUN_0000fe3c()->err, DAT_00397e44);
+        FUN_0000f3e8(FUN_0000fe3c()->err, "vector length error");
         FUN_0000d530();
     }
     Elem_002250cc *p = Alloc_002250cc().allocate(n);

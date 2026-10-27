@@ -1,8 +1,6 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000bd378 end=0x000bd480 symbol=FUN_000bd378 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000bd378 end=0x000bd480 symbol=FUN_000bd378 lang=c++ data=0x002d5458 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d5458-0x002d5495) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" {
-extern char DAT_002d5458[];
-extern char DAT_002d5478[];
 extern void FUN_000ba3ac(...);
 }
 struct VC_0 { virtual ~VC_0(); };
@@ -25,7 +23,7 @@ struct Obj {
 extern "C" int FUN_000bd378(Obj *self, int param_2, int param_3)
 {
     if (self->cur < 0) {
-        FUN_000ba3ac(DAT_002d5458);
+        FUN_000ba3ac("CreateCHMasterObj() failed.\n");
         return 0;
     }
     VC_0 *p = self->slots[self->cur];
@@ -44,6 +42,6 @@ extern "C" int FUN_000bd378(Obj *self, int param_2, int param_3)
     self->slots[self->cur] = (VC_0 *)r;
     ((int *)self->slots[self->cur])[3] = param_3;
     ((int *)self->slots[self->cur])[1] = param_2;
-    FUN_000ba3ac(DAT_002d5478);
+    FUN_000ba3ac("CreateCHMasterObj() success\n");
     return 1;
 }

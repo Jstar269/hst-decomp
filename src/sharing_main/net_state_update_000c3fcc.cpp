@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000c3fcc end=0x000c41fc symbol=FUN_000c3fcc lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000c3fcc end=0x000c41fc symbol=FUN_000c3fcc lang=c++ data=0x0037c2dc */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0037c2dc-0x0037c320) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Per-frame network state handler: switch on the state import (0x2c7a10); in state 3 it checks the second import (0x2c7a30, result passed on to the debug print stub), mirrors the status word, and unless the current mode is 3 or 4 finishes the front record of the 0x50-byte record vector at +0x770 (copy its payload, or pick a status code, release its buffers, erase it) before the final unsigned-compare status check. Matching idioms: the discarded iterator goes through an inline erase(RecIter) that copies its by-value parameter (that is what gives retail's lwc1/swc1 slot copy of the 4-byte iterator), and the 64-bit field at +0x788 is what the second debug print passes in a2:a3. Names provisional. */
 struct Tag {};
 struct Rec {
@@ -43,8 +43,6 @@ struct Obj {
 };
 extern unsigned char DAT_003e1e0c;
 extern int DAT_003e1e10;
-extern char DAT_0037c2dc[];
-extern char DAT_0037c308[];
 extern "C" {
 int FUN_002c7a10(void);
 int FUN_002c7a30(void);
@@ -67,7 +65,7 @@ extern "C" void FUN_000c3fcc(Obj *self)
         DAT_003e1e0c = 0;
         int err = FUN_002c7a30();
         if (err != 0) {
-            FUN_000c41fc(DAT_0037c2dc, err);
+            FUN_000c41fc("sceUtilitySavedataShutdownStart Error : %x\n", err);
             break;
         }
         DAT_003e1e10 = self->fb0;
@@ -80,7 +78,7 @@ extern "C" void FUN_000c3fcc(Obj *self)
                         FUN_00011090(r->buf, r->data, r->size);
                     if (self->f3c == 5) {
                         self->f788 = *(long long *)(self->vec.first->data + self->vec.first->off);
-                        FUN_000c41fc(DAT_0037c308, self->f788);
+                        FUN_000c41fc("MsLib: rtc.tick = %lld\n", self->f788);
                     }
                 } else {
                     if (mode == 2)

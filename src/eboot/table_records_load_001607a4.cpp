@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001607a4 end=0x00160998 symbol=FUN_001607a4 lang=c++ */
-/* LoadGradeParam: data/common/parameter/grade.csv; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x001607a4 end=0x00160998 symbol=FUN_001607a4 lang=c++ data=0x002de894 */
+/* LoadGradeParam: data/common/parameter/grade.csv; see docs/DATA-TABLES.md Data: its string literals (1 strings, 0x002de894-0x002de8b4) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Clone of src/sharing_main/table_records_load_0016cd30.cpp (hstclone.py tag s10170158a2r1e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Reads a table through a local reader object (derived class of the FUN_000649c0 base, two sub-objects built with
@@ -13,7 +13,6 @@ inline void *operator new(unsigned, void *p) { return p; }
 
 extern "C" {
 extern char DAT_003070bc[];
-extern char DAT_002de894[];
 extern char DAT_002de8b4[];
 extern char DAT_002de8b8[];
 extern char DAT_002de8c0[];
@@ -82,7 +81,7 @@ struct Res : Base16 {
 extern "C" void FUN_001607a4(RecVec *v)
 {
   Res r;
-  if (FUN_000651b8(&r, DAT_002de894, 0, 1, DAT_002de8b4)) {
+  if (FUN_000651b8(&r, "data/common/parameter/grade.csv", 0, 1, DAT_002de8b4)) {
     int n = FUN_000650e0(&r);
     if (v->cap < (unsigned)(n - 1)) {
       FUN_001658ec(v, n - 1);

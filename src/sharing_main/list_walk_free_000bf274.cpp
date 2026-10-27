@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000bf274 end=0x000bf394 symbol=FUN_000bf274 lang=c++ */
-/* Clone of src/eboot/list_walk_free_000bbe00.cpp (hstclone.py tag c20s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000bf274 end=0x000bf394 symbol=FUN_000bf274 lang=c++ data=0x0037bc2c */
+/* Clone of src/eboot/list_walk_free_000bbe00.cpp (hstclone.py tag c20s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0037bc2c-0x0037bc72) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Node_000bf274 {
     Node_000bf274 *next;
@@ -10,8 +10,6 @@ struct Self_000bf274 {
     int f16c;
 };
 extern "C" {
-extern char DAT_0037bc2c[];
-extern char DAT_0037bc60[];
 extern Node_000bf274 *FUN_000104b0(int);
 extern void FUN_000104e0(void *);
 extern void FUN_000bd6f0(const char *, ...);
@@ -28,19 +26,19 @@ extern "C" int FUN_000bf274(Self_000bf274 *s)
     } else {
         int e = FUN_002c7b68(s->f16c, &local_4, 0);
         if (e < 0) {
-            FUN_000bd6f0(DAT_0037bc2c, e);
+            FUN_000bd6f0("sceNetAdhocMatchingGetMembers() failed. ret = %d\n", e);
             r = 0;
         } else {
             Node_000bf274 *it;
             Node_000bf274 *head = FUN_000104b0(local_4);
             it = head;
             if (head == 0) {
-                FUN_000bd6f0(DAT_0037bc60);
+                FUN_000bd6f0("malloc() failed.\n");
                 r = 0;
             } else {
                 e = FUN_002c7b68(s->f16c, &local_4, head);
                 if (e < 0) {
-                    FUN_000bd6f0(DAT_0037bc2c, e);
+                    FUN_000bd6f0("sceNetAdhocMatchingGetMembers() failed. ret = %d\n", e);
                     if (head) FUN_000104e0(head);
                     r = 0;
                 } else {

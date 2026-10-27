@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001519b4 end=0x00151acc symbol=FUN_001519b4 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001519b4 end=0x00151acc symbol=FUN_001519b4 lang=c++ data=0x002dc568 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc568-0x002dc57b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Script command "SetVisible %d %s": optional trace hook and debug print (0x14d044, variadic stub 0x14fd94,
    on/off strings), then resolve the target object by id (-1: the global player converted to its Obj base at
    +0xe0, a derived-to-base null-checked add; negative: the context object, read up front; < 100: manager
@@ -13,7 +13,6 @@ struct Ctx_001519b4 { int a; int b; int c; Obj_001519b4 *obj; };
 struct Cmd_001519b4 { void *vt; int a; int id; unsigned char visible; };
 extern "C" {
 extern unsigned char DAT_003402f0;
-extern char DAT_002dc568[];
 extern char DAT_002dc57c[];
 extern char DAT_002dc580[];
 extern Mgr_001519b4 *DAT_0034a114;
@@ -40,7 +39,7 @@ extern "C" int FUN_001519b4(Cmd_001519b4 *self, Ctx_001519b4 *ctx)
 {
     if (DAT_003402f0) {
         FUN_0014d044(ctx);
-        FUN_0014fd94(DAT_002dc568, self->id, self->visible ? DAT_002dc57c : DAT_002dc580);
+        FUN_0014fd94("SetVisible[%d:%s]\n", self->id, self->visible ? DAT_002dc57c : DAT_002dc580);
     }
     Obj_001519b4 *obj = Find_001519b4(self->id, ctx);
     if (obj)

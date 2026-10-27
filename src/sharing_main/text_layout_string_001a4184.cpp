@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x001a4184 end=0x001a49ec symbol=FUN_001a4184 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x001a4184 end=0x001a49ec symbol=FUN_001a4184 lang=c++ data=0x00388f74 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00388f74-0x00388f87) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Text-string layout/draw (t_string.cpp): walks a string of glyphs and control codes (FUN_0004495c returns the
    token length and code); 10 newline, 7 colour (0x5x) or style (0x4x), 8 two-byte callback string, 12 size or
    callback strings, 11 inline icons (queued in the icon list) / variable strings / name slots, 16 a 10x20 glyph
@@ -75,7 +75,6 @@ extern IconList *DAT_003eaaa8;
 extern const char *DAT_00388d48;
 extern const char DAT_00388d44[];   /* "" */
 extern const char DAT_00388f68[];   /* "\n" */
-extern const char DAT_00388f74[];   /* "Error: codeTmp %d" */
 
 extern "C" {
 void FUN_000114c0(void *p, int c, unsigned n);
@@ -225,7 +224,7 @@ extern "C" void FUN_001a4184(Text *self, const char *s, int measure, int draw, i
             } else if (c >= 0x80 && c < 0x84) {
                 FUN_001a3f24(self, &pa, &pb, &x, line, len, FUN_001a573c(self, c - 0x80), &st, draw, p5, out);
             } else if (c != 0) {
-                FUN_001a33a4(DAT_00388f74, c);
+                FUN_001a33a4("Error, codeTmp=%d\n", c);
             }
             break;
         }

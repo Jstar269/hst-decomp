@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00097520 end=0x00097de4 symbol=__ct__10C_00097520Fiii lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00097520 end=0x00097de4 symbol=__ct__10C_00097520Fiii lang=c++ data=0x0037a710 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037a710-0x0037a71f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Player constructor (Player.cpp, per its assert `s_pScene` at line 697): base ctor 0x1ec44, own vtable 0x3b0568, then
    members in declaration order - inline scalar initialisers, two identity matrices copied memberwise from
    the global identity (unscheduled lwc1/swc1 pairs), a sub-object at 0x1b0 whose members have out-of-line
@@ -116,7 +116,6 @@ extern void *DAT_003e1a54;     /* s_pScene */
 ", "s_pScene", "Player.cpp" */
 extern char DAT_0037a6cc[], DAT_0037a6f8[], DAT_0037a704[];
 extern "C" void FUN_00097e3c(...);   /* debug print stub */
-extern char DAT_0037a710[];   /* "__InpaneFace%d" */
 
 void *operator new(unsigned n);
 extern "C" {
@@ -292,7 +291,7 @@ C_00097520::C_00097520(int a, int i, int b)
     int w = 0, h = 0;
     int tex = FUN_0004eaf8(&w, &h, 1, 0, 64, 64);
     char name[64];
-    FUN_000143b0(name, DAT_0037a710, idx);
+    FUN_000143b0(name, "__InpaneFace%d", idx);
     FUN_00051b88(&m788, name, tex, 0, 16);
     FUN_00099658(this, m154, m150);
 }

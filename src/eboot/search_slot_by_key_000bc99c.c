@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000bc99c end=0x000bcc88 symbol=FUN_000bc99c lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: result variable r merged at a `done:` label (goto) so the -1 shares the loop counter's register; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000bc99c end=0x000bcc88 symbol=FUN_000bc99c lang=c99 data=0x002d53d8 */
+/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: result variable r merged at a `done:` label (goto) so the -1 shares the loop counter's register; names and types await human review. Data: its string literals (1 strings, 0x002d53d8-0x002d53e9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef struct { char c[6]; } Str6;
 typedef struct { Str6 name; unsigned char used; } Slot;
 typedef struct {
@@ -18,7 +18,6 @@ typedef struct {
 typedef struct { int f0, f1, f2, f3, f4; } Hdr;
 typedef struct { int f0, f1, f2; unsigned char f3; } Item;
 extern Str6 DAT_00338abc;
-extern char DAT_002d53d8[];
 extern int FUN_0001100c(void *, void *, int);
 extern void *FUN_00011090(void *, void *, int);
 extern void FUN_000ba3ac(char *);
@@ -37,7 +36,7 @@ void FUN_000bc99c(Obj *o, char *src)
   h.f0 = 0;
   FUN_00011090(&h, src, 20);
   src += 20;
-  if (h.f1 == h.f4 * 16 + 20) FUN_000ba3ac(DAT_002d53d8);
+  if (h.f1 == h.f4 * 16 + 20) FUN_000ba3ac("recv mbr pkt ok\n");
   o->count = h.f4;
   for (i = 0; i < h.f4; i++) {
     FUN_00011090(&it, src, 16);

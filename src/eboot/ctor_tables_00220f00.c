@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00220f00 end=0x00221014 symbol=FUN_00220f00 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00220f00 end=0x00221014 symbol=FUN_00220f00 lang=c99 data=0x002f0d14 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002f0d14-0x002f0d3d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern void FUN_00102e38(void *self);
 extern void FUN_00104118(void *self, char *name, int flag);
 extern void FUN_00103540(void *self, float value);
@@ -7,7 +7,6 @@ extern void *FUN_001039d8(void *self, void *src, int flag);
 extern void *FUN_001026b8(void *model, char *name);
 extern void FUN_00221260(void *self);
 extern char DAT_003096a4[];
-extern char DAT_002f0d14[];
 extern float DAT_002eff88;
 extern char *DAT_002f0c40[];
 struct Entry_00220f00 { int idx; char *name; int result; };
@@ -17,7 +16,7 @@ char *FUN_00220f00(char *self)
 {
     FUN_00102e38(self);
     *(void **)self = &DAT_003096a4;
-    FUN_00104118(self, DAT_002f0d14, 0);
+    FUN_00104118(self, "data/menu/lobby/lobbyinpane/golayout.lay", 0);
     FUN_00103540(self, DAT_002eff88);
     int i = 0;
     char **src = DAT_002f0c40;

@@ -1,0 +1,45 @@
+/* HSTMATCH module=hstp_trans_main.prx start=0x0015f984 end=0x0015fa80 symbol=FUN_0015f984 lang=c++ */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idiom: FUN_00158b2c takes a second int in a1 that it ignores; FUN_00158b2c(param_2, param_2) keeps a1 live at the first call, which moves param_2's home copy into the beqz delay slot. */
+/* Same source as src/eboot/create_select_obj_001501bc.cpp with this module's addresses; here the last two FUN_001da890 arguments are (+0xc, +8). */
+extern "C" {
+extern unsigned char DAT_003e9630;
+extern unsigned char DAT_003e9734;
+extern int DAT_003f344c;
+extern char DAT_00383c94[];
+extern int DAT_003b1698;
+extern int DAT_003b1cec;
+extern void FUN_00158b2c(int, int);
+extern void FUN_0015bb68(char *, int, int);
+extern void FUN_001da890(int, int, int, int);
+extern int FUN_00000bcc(int);
+}
+
+struct VC_2 {
+    virtual void reset(int);
+    virtual int run(float, int);
+};
+
+extern "C" int *FUN_0015f984(int param_1, int param_2, float param_3)
+{
+    VC_2 *piVar1;
+    int iVar2;
+
+    if (DAT_003e9630 != 0) {
+        FUN_00158b2c(param_2, param_2);
+        FUN_0015bb68(DAT_00383c94, *(int *)(param_1 + 8), *(int *)(param_1 + 0xc));
+    }
+    if (DAT_003e9734 != 0) {
+        return 0;
+    }
+    FUN_001da890(DAT_003f344c, *(int *)(param_2 + 0xc), *(int *)(param_1 + 0xc), *(int *)(param_1 + 8));
+    if ((piVar1 = (VC_2 *)FUN_00000bcc(4)) != 0) {
+        *(int *)piVar1 = (int)&DAT_003b1698;
+        *(int *)piVar1 = (int)&DAT_003b1cec;
+    }
+    iVar2 = piVar1->run(param_3, param_2);
+    if (iVar2 != 0) {
+        if (piVar1 != 0 && piVar1 != 0) piVar1->reset(1);
+        return 0;
+    }
+    return (int *)piVar1;
+}

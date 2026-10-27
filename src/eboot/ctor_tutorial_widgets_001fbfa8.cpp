@@ -1,8 +1,6 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001fbfa8 end=0x001fc170 symbol=FUN_001fbfa8 lang=c++ */
-/* Hand-written reconstruction from the disassembly (structure taken from the sibling constructors ctor_two_tables_000f13e8.cpp and ctor_two_tables_000ee6d4.c); exact match verified (matching idioms: the re-read of the stored array element uses an (unsigned long) address cast so it is not CSE'd with the (unsigned int) store, the callee FUN_00051398 declares its pointer parameter before the float, and the virtual call goes through the stored slot); names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001fbfa8 end=0x001fc170 symbol=FUN_001fbfa8 lang=c++ data=0x002eefd8 */
+/* Hand-written reconstruction from the disassembly (structure taken from the sibling constructors ctor_two_tables_000f13e8.cpp and ctor_two_tables_000ee6d4.c); exact match verified (matching idioms: the re-read of the stored array element uses an (unsigned long) address cast so it is not CSE'd with the (unsigned int) store, the callee FUN_00051398 declares its pointer parameter before the float, and the virtual call goes through the stored slot); names and types await human review. Data: its string literals (2 strings, 0x002eefd8-0x002ef019) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern char DAT_00309550[];
-extern char DAT_002eefd8[];
-extern char DAT_002eeff8[];
 extern float DAT_002eedb8;
 extern char *DAT_002eef20[];
 struct Entry {
@@ -51,7 +49,7 @@ extern "C" Self *FUN_001fbfa8(Self *self)
   char buf[256];
   FUN_00102e38(self);
   self->vt = DAT_00309550;
-  FUN_00104118(self, DAT_002eefd8, 0);
+  FUN_00104118(self, "data/menu/tutorial/tutorial.lay", 0);
   FUN_00103540(self, DAT_002eedb8);
   self->a80[0] = 0;
   self->a80[1] = 0;
@@ -59,7 +57,7 @@ extern "C" Self *FUN_001fbfa8(Self *self)
   int i = 0;
   int off = 0;
   do {
-    FUN_000143b0(buf, DAT_002eeff8, i + 1);
+    FUN_000143b0(buf, "data/menu/tutorial/tutorial_%03d", i + 1);
     void *m = FUN_00000bcc(0x48);
     if (m != 0)
       m = FUN_00050fc0(m);

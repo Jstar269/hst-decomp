@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0015be74 end=0x0015c078 symbol=FUN_0015be74 lang=c++ */
-/* Clone of src/sharing_main/load_two_slots_0016841c.cpp (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0015be74 end=0x0015c078 symbol=FUN_0015be74 lang=c++ data=0x002de34c */
+/* Clone of src/sharing_main/load_two_slots_0016841c.cpp (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002de34c-0x002de3a2) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Idioms: `if (obj == 0 || F(..) != 0)` guard, `p = alloc(0x48); if (p) p = ctor(p); self->obj = p;` (see MWCC-NOTES 'Likely-branch merged store'), `delete` of a virtual-destructor object behind an explicit null test. */
 struct Obj_000511c4 {
@@ -26,9 +26,6 @@ struct Self_0015be74 {
 };
 
 extern "C" {
-extern char DAT_002de34c[];
-extern char DAT_002de370[];
-extern char DAT_002de388[];
 extern char DAT_0030ebf4[];
 extern void *FUN_00000bcc(unsigned);
 extern void FUN_000143b0(char *, char *, int);
@@ -44,9 +41,9 @@ extern void FUN_0015a62c(Self_0015be74 *);
 
 extern "C" void FUN_0015be74(Self_0015be74 *self, int name, int flag)
 {
-  FUN_000143b0(self->buf370, DAT_002de34c, name);
+  FUN_000143b0(self->buf370, "menu/loadmes/lobby/loadmes_l%02d.xb", name);
   FUN_0001cad0(DAT_0030ebf4, 1, self->buf370);
-  FUN_000143b0(self->buf370, DAT_002de370, name);
+  FUN_000143b0(self->buf370, "data/menu/loadmes/L%02d", name);
   if (self->obj34 == 0 || FUN_00014934(self->sub70, self->buf370) != 0) {
     if (self->obj34 != 0) {
       delete self->obj34;
@@ -66,7 +63,7 @@ extern "C" void FUN_0015be74(Self_0015be74 *self, int name, int flag)
     self->f4c = 1.0f;
   }
   if (flag != 0) {
-    FUN_000143b0(self->buf370, DAT_002de388, name);
+    FUN_000143b0(self->buf370, "data/menu/loadmes/L_f%02d", name);
     if (self->obj38 == 0 || FUN_00014934(self->sub170, self->buf370) != 0) {
       if (self->obj38 != 0) {
         delete self->obj38;

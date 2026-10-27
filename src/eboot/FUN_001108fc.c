@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001108fc end=0x00110a78 symbol=FUN_001108fc lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag not recorded in lane candidate inputs/generated/FUN_001108fc.c) corrected by hand: used float member copies, volatile flag rereads, and a shared post-cleanup object load; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001108fc end=0x00110a78 symbol=FUN_001108fc lang=c99 data=0x002d9264 */
+/* Ghidra pseudocode (hstgen.py tag not recorded in lane candidate inputs/generated/FUN_001108fc.c) corrected by hand: used float member copies, volatile flag rereads, and a shared post-cleanup object load; exact match verified; names and types await human review. Data: its string literals (4 strings, 0x002d9264-0x002d92b0) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -19,10 +19,6 @@ typedef unsigned int undefined4;
 
 extern undefined DAT_002d9210;
 extern undefined DAT_00307dd4;
-extern char DAT_002d9264[];
-extern char DAT_002d9290[];
-extern char DAT_002d9298[];
-extern char DAT_002d92a4[];
 extern int FUN_001026b8();
 extern undefined4 * FUN_00102e38();
 extern void FUN_00103480();
@@ -42,12 +38,12 @@ undefined4 * FUN_001108fc(undefined4 *param_1)
   param_1[0x1a] = 0;
   param_1[0x1d] = 0;
   param_1[0x1e] = 0;
-  FUN_00104118((int)param_1,(uint *)DAT_002d9264,0);
-  iVar1 = FUN_001039d8((int)param_1,(byte *)DAT_002d9290,0);
-  iVar1 = FUN_001026b8(iVar1,(byte *)DAT_002d9298);
+  FUN_00104118((int)param_1,(uint *)"data/menu/menu_common/info_messe_layout.lay",0);
+  iVar1 = FUN_001039d8((int)param_1,(byte *)"messe",0);
+  iVar1 = FUN_001026b8(iVar1,(byte *)"messe_text0");
   param_1[0x16] = *(undefined4 *)(iVar1 + 0x20);
-  iVar1 = FUN_001039d8((int)param_1,(byte *)DAT_002d9290,0);
-  iVar1 = FUN_001026b8(iVar1,(byte *)DAT_002d92a4);
+  iVar1 = FUN_001039d8((int)param_1,(byte *)"messe",0);
+  iVar1 = FUN_001026b8(iVar1,(byte *)"messe_text1");
   iVar1 = *(int *)(iVar1 + 0x20);
   param_1[0x17] = iVar1;
   *(float *)(iVar1 + 0x60) = *(float *)(param_1[0x16] + 0x60);

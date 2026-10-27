@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00150b6c end=0x00150c1c symbol=FUN_00150b6c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag not recorded in lane candidate inputs/generated/FUN_00150b6c.c) corrected by hand: typed the global byte and helper arguments, and reused one materialized resource flag across logging; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00150b6c end=0x00150c1c symbol=FUN_00150b6c lang=c99 data=0x002dc424 */
+/* Ghidra pseudocode (hstgen.py tag not recorded in lane candidate inputs/generated/FUN_00150b6c.c) corrected by hand: typed the global byte and helper arguments, and reused one materialized resource flag across logging; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc424-0x002dc42d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -20,7 +20,6 @@ typedef unsigned int undefined4;
 extern undefined DAT_002dc440;
 extern unsigned char DAT_003402f0;
 extern void *DAT_0034a114;
-extern char DAT_002dc424[];
 extern char DAT_002dc430[];
 extern int *FUN_0014c384(undefined4, int);
 extern void FUN_0014d044(undefined4 *);
@@ -41,7 +40,7 @@ undefined4 FUN_00150b6c(undefined4 param_1,undefined4 *param_2)
     else {
       message = (char *)(&DAT_002dc440);
     }
-    FUN_0014fd94(DAT_002dc424,message);
+    FUN_0014fd94("Match%s\n",message);
   }
   FUN_001cc988(DAT_0034a114,has_resource);
   *(undefined1 *)(param_2[3] + 0x5a) = 1;

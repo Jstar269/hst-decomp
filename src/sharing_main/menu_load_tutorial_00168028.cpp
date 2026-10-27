@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00168028 end=0x00168204 symbol=FUN_00168028 lang=c++ */
-/* Clone of src/eboot/menu_load_tutorial_0015ba80.cpp (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00168028 end=0x00168204 symbol=FUN_00168028 lang=c++ data=0x00385858 */
+/* Clone of src/eboot/menu_load_tutorial_0015ba80.cpp (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x00385858-0x003858b1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
 struct Obj_00051ad8 {
@@ -26,9 +26,6 @@ struct Obj {
 };
 
 extern "C" {
-extern char DAT_00385858[];
-extern char DAT_00385870[];
-extern char DAT_00385890[];
 extern char DAT_003b7ebc[];
 
 extern void *FUN_00000bcc(unsigned);
@@ -43,9 +40,9 @@ extern void FUN_00051d38(float, Obj_00051ad8 *);
 }
 
 extern "C" void FUN_00168028(Obj *self, int param_2) {
-    FUN_000143b0(self->buf370, DAT_00385858);
+    FUN_000143b0(self->buf370, "menu/020_tutorial.xb");
     FUN_0001c684(DAT_003b7ebc, 1, self->buf370);
-    FUN_000143b0(self->buf370, DAT_00385870);
+    FUN_000143b0(self->buf370, "data/menu/tutorial/tutorial_bg");
 
     if (self->obj34 == 0 || FUN_00014934(self->sub70, self->buf370) != 0) {
         if (self->obj34 != 0) {
@@ -66,7 +63,7 @@ extern "C" void FUN_00168028(Obj *self, int param_2) {
         self->f4c = 1.0f;
     }
 
-    FUN_000143b0(self->buf370, DAT_00385890, param_2 + 1);
+    FUN_000143b0(self->buf370, "data/menu/tutorial/tutorial_%03d", param_2 + 1);
 
     if (self->obj38 == 0 || FUN_00014934(self->sub170, self->buf370) != 0) {
         if (self->obj38 != 0) {

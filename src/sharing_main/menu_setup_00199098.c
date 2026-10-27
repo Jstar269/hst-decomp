@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00199098 end=0x001991d4 symbol=FUN_00199098 lang=c99 */
-/* Clone of src/eboot/menu_setup_0018c8b8.c (hstclone.py tag c21sn1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00199098 end=0x001991d4 symbol=FUN_00199098 lang=c99 data=0x00388518 */
+/* Clone of src/eboot/menu_setup_0018c8b8.c (hstclone.py tag c21sn1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00388518-0x0038852f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 typedef struct Menu {
     char pad0[0x54];
@@ -10,7 +10,6 @@ typedef struct Menu {
     int **f64;
 } Menu;
 
-extern char DAT_00388518[];
 extern int DAT_0038832c;
 extern char DAT_002d28cc[];
 extern char DAT_002d2938[];
@@ -34,7 +33,7 @@ void FUN_00199098(Menu *self)
     c = self->f5c;
     d = self->f64;
     e = self->f60;
-    FUN_00106984(a, DAT_00388518, &DAT_0038832c, 4);
+    FUN_00106984(a, "data/menu/menu_common/", &DAT_0038832c, 4);
     FUN_001070cc(a, DAT_002d28cc, 9);
     FUN_00108290(a);
     FUN_001066f0(*b, a);
@@ -44,7 +43,7 @@ void FUN_00199098(Menu *self)
     FUN_001070cc(c, DAT_002d2974, 6);
     FUN_001066f0(**d, a);
     FUN_001070cc(**d, DAT_002d29bc, 10);
-    FUN_00106984(e, DAT_00388518, &DAT_0038832c, 4);
+    FUN_00106984(e, "data/menu/menu_common/", &DAT_0038832c, 4);
     FUN_001070cc(e, DAT_002d28cc, 9);
     FUN_001098a0(self);
 }

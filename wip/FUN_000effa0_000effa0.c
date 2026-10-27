@@ -1,9 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000effa0 end=0x000f037c symbol=FUN_000effa0 lang=c99 rodata=0x002d7320 */
 typedef unsigned int undefined4;
 typedef unsigned char undefined1;
-typedef unsigned char bool;
 typedef int code();
 typedef unsigned int uint;
+typedef unsigned char bool;
+#define true 1
+#define false 0
 
 extern undefined4 DAT_002d73c0;
 extern undefined4 DAT_002d73c4;
@@ -23,8 +25,7 @@ extern undefined4 FUN_001fecb4();
 extern void FUN_0010d4a8();
 extern void FUN_00022498();
 
-extern void FUN_0000f0350(int);
-extern void FUN_0001036f8(int,int);
+extern void FUN_001036f8(int,int);
 void FUN_000effa0(int param_1)
 {
   int *p0;
@@ -32,9 +33,9 @@ void FUN_000effa0(int param_1)
   int s2v, s3v, s3c;
   int *s0p;
   int a0v, v1v, a2v; float f1v, f0v; char sp88[4], sp92[4];
-  FUN_0000f0350(param_1);
+  FUN_000f0350(param_1);
   *(int *)(param_1 + 0x8c) = 0;
-  FUN_0001036f8(param_1, 0);
+  FUN_001036f8(param_1, 0);
   a0v = *(int *)(param_1 + 0xb8);
   v1v = *(int *)(param_1 + 0xbc);
   f1v = DAT_002d73c0;
@@ -51,12 +52,12 @@ void FUN_000effa0(int param_1)
   *(int *)(param_1 + 0x90) = a2v;
   vt = (int *)*(int *)(param_1 + 0x58);
   (*(void (**)(int *, int))(vt[3]))((int *)vt, (unsigned)a2v < 1);
-  FUN_0000dbc54(param_1, 1);
+  FUN_000dbc54(param_1, 1);
   s2v = 1;
   s0p = (int *)sp88;
   for (s3c = 0; s3c < 2; s3c++) {
     do {
-      if (FUN_0000dbc54(param_1, s2v) != 0) break;
+      if (FUN_000dbc54(param_1, s2v) != 0) break;
       s2v = s2v + 1;
       s3v = s3v + 1;
       *s0p = s2v;
@@ -187,3 +188,4 @@ void FUN_000effa0(int param_1)
   return;
 }
 // near miss from lane fm10 (unreviewed)
+// improved by lane dsm1 (unreviewed): no comparable result -> 246 differing words

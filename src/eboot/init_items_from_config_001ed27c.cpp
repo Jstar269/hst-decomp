@@ -1,18 +1,9 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001ed27c end=0x001ed460 symbol=FUN_001ed27c lang=c++ */
-/* PrizeCamera_LoadCommonCamera: data/prize/commoncamera.csv; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x001ed27c end=0x001ed460 symbol=FUN_001ed27c lang=c++ data=0x002ee454 */
+/* PrizeCamera_LoadCommonCamera: data/prize/commoncamera.csv; see docs/DATA-TABLES.md Data: its string literals (9 strings, 0x002ee454-0x002ee4a6) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: C++ with an inline-constructed `new Res` (matching shape for `beqz v0; move s0,v0`), typed query results as floats, the two-entry item array indexed by the loop counter, first-call argument restored; exact match verified; names and types await human review. */
 extern "C" {
 extern char DAT_002ee434[];
 extern char DAT_002ee450[];
-extern char DAT_002ee454[];
-extern char DAT_002ee460[];
-extern char DAT_002ee468[];
-extern char DAT_002ee470[];
-extern char DAT_002ee47c[];
-extern char DAT_002ee484[];
-extern char DAT_002ee48c[];
-extern char DAT_002ee494[];
-extern char DAT_002ee498[];
 extern char DAT_003070bc[];
 extern void FUN_000649c0(void *);
 extern void FUN_0008c230(void *);
@@ -51,14 +42,14 @@ extern "C" void FUN_001ed27c(Obj *self)
   for (unsigned int i = 0; i < 2; i++) {
     Item *it = &self->items[i];
     int n = i + 1;
-    it->a = FUN_000657e4(self->res, DAT_002ee454, n) * 0.017453292f * 0.033333335f;
-    it->b = FUN_000657e4(self->res, DAT_002ee460, n) * 0.017453292f;
-    it->c = FUN_000657e4(self->res, DAT_002ee468, n) * 0.017453292f;
-    it->d = FUN_000657e4(self->res, DAT_002ee470, n);
-    it->e = FUN_000657e4(self->res, DAT_002ee47c, n);
-    it->f = FUN_000657e4(self->res, DAT_002ee484, n);
-    it->g = FUN_000657e4(self->res, DAT_002ee48c, n);
-    it->h = FUN_000657e4(self->res, DAT_002ee494, n);
-    it->i = FUN_000657e4(self->res, DAT_002ee498, n) * 0.017453292f;
+    it->a = FUN_000657e4(self->res, "RotSpeed", n) * 0.017453292f * 0.033333335f;
+    it->b = FUN_000657e4(self->res, "Tilt", n) * 0.017453292f;
+    it->c = FUN_000657e4(self->res, "TiltWin", n) * 0.017453292f;
+    it->d = FUN_000657e4(self->res, "Distance", n);
+    it->e = FUN_000657e4(self->res, "FovX", n);
+    it->f = FUN_000657e4(self->res, "OffsetY", n);
+    it->g = FUN_000657e4(self->res, "Near", n);
+    it->h = FUN_000657e4(self->res, "Far", n);
+    it->i = FUN_000657e4(self->res, "DefaultAngleY", n) * 0.017453292f;
   }
 }

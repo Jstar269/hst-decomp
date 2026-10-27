@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0019f044 end=0x0019f24c symbol=FUN_0019f044 lang=c++ */
-/* Hand-written reconstruction from the disassembly (adapted from the exact EBOOT twin src/eboot/cdeque_reserve_0011dad8.cpp: max_size() is the out-of-line call 0x19f350, Iter has a user-declared copy constructor and begin() returns a named local); exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0019f044 end=0x0019f24c symbol=FUN_0019f044 lang=c++ data=0x00388a90 */
+/* Hand-written reconstruction from the disassembly (adapted from the exact EBOOT twin src/eboot/cdeque_reserve_0011dad8.cpp: max_size() is the out-of-line call 0x19f350, Iter has a user-declared copy constructor and begin() returns a named local); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00388a90-0x00388aad) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 #pragma inline_depth(8)
 /* MSL-style circular deque (cdeque) of 4-byte elements: reserve(n). When n exceeds capacity (cap - 1),
    check max_size() (out of line here, 0x19f350), build a temporary with an (n + 1)-slot buffer, copy-construct
@@ -14,7 +14,6 @@ Reent_0019f044 *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d530(void);
 void *FUN_00000bcc(unsigned size);
-extern char DAT_00388a90[]; /* "cdeque::reserve length error" */
 extern char DAT_002d2c88[]; /* "Memory allocation failure" */
 }
 inline void *operator new(unsigned, void *p) { return p; }
@@ -105,7 +104,7 @@ extern "C" void FUN_0019f044(Cdeque_0019f044 *self, unsigned n)
 {
     if (n > self->capacity()) {
         if (n > self->max_size())
-            Error_0019f044(DAT_00388a90);
+            Error_0019f044("cdeque::reserve length error");
         Cdeque_0019f044 tmp;
         Alloc_0019f044 a;
         Elem_0019f044 *p = a.allocate(n + 1);

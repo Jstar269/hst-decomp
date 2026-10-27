@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00124214 end=0x001244f0 symbol=FUN_00124214 lang=c++ */
-/* Clone of src/eboot/menu_banner_load_00119040.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00124214 end=0x001244f0 symbol=FUN_00124214 lang=c++ data=0x00380c0c */
+/* Clone of src/eboot/menu_banner_load_00119040.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x00380c0c-0x00380c3c) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Banner {
     virtual void v0();
@@ -38,9 +38,6 @@ void *FUN_00000bcc(unsigned);
 }
 
 extern char DAT_003b7ebc;
-extern const char DAT_00380c0c[];
-extern const char DAT_00380c14[];
-extern const char DAT_00380c28[];
 extern const char DAT_00380c3c[];
 extern const char *DAT_003805c8[];
 extern const char *DAT_003808a0[];
@@ -52,18 +49,18 @@ inline void *operator new[](unsigned int, void *p) { return p; }
 
 extern "C" void FUN_00124214(Screen *self)
 {
-    FUN_00000020(DAT_00380c0c);
+    FUN_00000020("Banner");
     char path[128];
     new (path) char[128]();
     char name[128];
     new (name) char[128]();
-    FUN_0001c684(&DAT_003b7ebc, 1, DAT_00380c14);
+    FUN_0001c684(&DAT_003b7ebc, 1, "menu/030_banner.xb");
     for (int i = 0; i < 27; i++) {
         Banner *b = (Banner *)FUN_00000bcc(0x1b0);
         if (b)
             b = FUN_000577ec(b);
         self->banners[i] = b;
-        FUN_000143b0(name, DAT_00380c28, DAT_003805c8[i]);
+        FUN_000143b0(name, "data/menu/banner/%s", DAT_003805c8[i]);
         FUN_000143b0(path, DAT_00380c3c, name, DAT_003808a0[i]);
         self->banners[i]->Load(path, name, 0, 0, 0, 0);
         FUN_000143b0(path, DAT_00380c3c, name, DAT_00380b0c[i]);

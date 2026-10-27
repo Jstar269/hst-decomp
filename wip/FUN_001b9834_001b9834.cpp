@@ -6,16 +6,14 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
-#define true 1
-#define false 0
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
+extern "C" {
 extern undefined * DAT_003313c4;
 extern undefined * DAT_00331b84;
 extern undefined * DAT_00331b88;
@@ -24,12 +22,12 @@ extern float FUN_0000c000(float param_1);
 extern void FUN_00049774(void *);
 extern void FUN_00049970(float *, void *);
 extern void FUN_00049d34(void *);
-extern float FUN_00049da4();
-extern float FUN_00049e68();
-extern float FUN_00049ec4();
-extern float FUN_00049fbc();
-extern float FUN_0004a080();
-extern void FUN_0005bc58();
+extern float FUN_00049da4(unsigned int *);
+extern float FUN_00049e68(unsigned int *);
+extern float FUN_00049ec4(unsigned int *);
+extern float FUN_00049fbc(int *);
+extern float FUN_0004a080(int *);
+extern void FUN_0005bc58(undefined *);
 
 void FUN_001b9834(char *param_1)
 {
@@ -148,3 +146,6 @@ LAB_001b9960:
 // Near miss: 97 of 182 words differ. The 16-float stack buffer and its copies match, but the loop and saved-register coloring still diverge.
 // Ruled out bool/int flag forms, char/int parameter forms, float comparison orientations, pointer reuse and declaration order, and a C++ build.
 // near miss from lane km5 (unreviewed)
+
+}  /* extern "C" */
+// improved by lane dsm1 (unreviewed): no comparable result -> 97 differing words

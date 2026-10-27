@@ -1,9 +1,8 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0015c510 end=0x0015c5fc symbol=FUN_0015c510 lang=c++ */
-/* Clone of src/eboot/device_create_init_001504d8.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0015c510 end=0x0015c5fc symbol=FUN_0015c510 lang=c++ data=0x003838c8 */
+/* Clone of src/eboot/device_create_init_001504d8.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003838c8-0x003838e0) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly (started from the Sharing-twin wip of lane u6cr2-0, wip/device_init_0015c510.cpp); exact match verified; names and types await human review. */
 extern "C" unsigned char DAT_003e9630;
 extern "C" int DAT_003f344c;
-extern "C" char DAT_003838c8[];
 extern "C" char DAT_003b1698;
 extern "C" char DAT_003b21e0;
 extern "C" void *FUN_00000bcc(int);
@@ -29,7 +28,7 @@ extern "C" Device *FUN_0015c510(Context *context, float progress, Resource *reso
   int result;
   if (DAT_003e9630 != 0) {
     FUN_00158b2c(resource);
-    FUN_0015bb68(DAT_003838c8, context->first, context->second);
+    FUN_0015bb68("TextQuest [%s, reg:%d]\n", context->first, context->second);
   }
   FUN_001d9fa0(DAT_003f344c, context->first);
   if ((device = (Device *)FUN_00000bcc(8)) != 0) {

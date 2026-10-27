@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x002adb98 end=0x002adc74 symbol=FUN_002adb98 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256b); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x002adb98 end=0x002adc74 symbol=FUN_002adb98 lang=c99 data=0x00302c98 */
+/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256b); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00302c98-0x00302ceb) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -17,8 +17,6 @@ typedef signed char undefined1;
 typedef short undefined2;
 typedef int undefined4;
 
-extern char DAT_00302c98[];
-extern char DAT_00302cc4[];
 extern uint * FUN_000114c0();
 extern void FUN_002adc74();
 extern void FUN_002adda0();
@@ -36,11 +34,11 @@ undefined4 * FUN_002adb98(undefined4 *param_1)
     FUN_002adda0(param_1 + 1);
   }
   else {
-    FUN_002adc74(DAT_00302c98,iVar1);
+    FUN_002adc74("ERROR: sceOpenPSIDGetOpenPSID(): 0x%08x\n",iVar1);
   }
   iVar1 = FUN_002b7d18(param_1 + 6);
   if (iVar1 != 0) {
-    FUN_002adc74(DAT_00302cc4,iVar1);
+    FUN_002adc74("ERROR: sceRtcGetCurrentTick(): 0x%08x\n",iVar1);
   }
   *(undefined1 *)(param_1 + 8) = 0xe3;
   *(undefined1 *)((int)param_1 + 0x21) = 0x81;

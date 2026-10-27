@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0023212c end=0x002324cc symbol=FUN_0023212c lang=c++ */
-/* Clone of src/eboot/prize_display_setup_00222bb8.cpp (hstclone.py tag c21sn4s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0023212c end=0x002324cc symbol=FUN_0023212c lang=c++ data=0x00399380 */
+/* Clone of src/eboot/prize_display_setup_00222bb8.cpp (hstclone.py tag c21sn4s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00399380-0x003993cc) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified (matching idioms: #pragma opt_strength_reduction off with the pointer walks written out by hand [the panes loop walks a Obj pointer by 4, the two 16-entry clears walk s += 0x30 and MWCC unrolls them 8x], the fb1 != 0 arm written first, the float defaults as ternaries 'p3 != 0 ? G : 0.0f', and sel declared before g); names and types await human review. */
 #pragma opt_strength_reduction off
 
@@ -59,8 +59,6 @@ extern "C" {
 extern int DAT_0039835c;
 extern float DAT_00398354;
 extern char DAT_0039855c[];
-extern char DAT_00399380[];
-extern char DAT_003993a8[];
 extern char DAT_003b7ebc[];
 extern float DAT_003f35a0;
 extern float DAT_003f35a4;
@@ -119,10 +117,10 @@ extern "C" void FUN_0023212c(Obj *self, int p2, int p3)
     Slot *q = (Slot *)((Node *)self->fa4)->items[self->fa8];
     q->f24 = q->f28 + self->fac;
   }
-  FUN_000143b0(buf, DAT_00399380, self->fa8 + 1);
+  FUN_000143b0(buf, "data/menu/menu_common/info_kunsyou%03d", self->fa8 + 1);
   if (self->fb1 == 0) {
     if (FUN_00014934(buf, DAT_0039855c) != 0) {
-      FUN_0001c684(DAT_003b7ebc, 1, DAT_003993a8);
+      FUN_0001c684(DAT_003b7ebc, 1, "game/700_prize/040_prize_display.xb");
       void *m = ::operator new(0x48);
       if (m != 0)
         m = FUN_000518d4(m);

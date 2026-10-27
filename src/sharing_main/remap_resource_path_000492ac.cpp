@@ -1,9 +1,7 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000492ac end=0x00049380 symbol=FUN_000492ac lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000492ac end=0x00049380 symbol=FUN_000492ac lang=c++ data=0x00375ee8 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00375ee8-0x00375ef5) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 extern "C" {
-    extern char DAT_00375ee8;
-    extern char DAT_00375ef0;
     extern char *FUN_000149a8(char *dest, const char *src);
     extern char *FUN_00014d64(const char *s1, const char *s2);
     extern char *FUN_00014cfc(const char *s, int c);
@@ -32,8 +30,8 @@ extern "C" void FUN_000492ac(Wrapper *param_1, int param_2, const char *param_3)
     if (param_3 != 0) {
         if (param_1->obj->f_8c == 0) {
             FUN_000149a8(path1, param_3);
-            char *sub = FUN_00014d64(path1, &DAT_00375ee8);
-            FUN_000149a8(sub, &DAT_00375ef0);
+            char *sub = FUN_00014d64(path1, ".i3m");
+            FUN_000149a8(sub, ".i3r");
             FUN_000149a8(path2, path1);
             char *slash = FUN_00014cfc(path2, 0x2f);
             slash[1] = 0;

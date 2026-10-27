@@ -1,11 +1,8 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002a2214 end=0x002a239c symbol=FUN_002a2214 lang=c99 */
-/* Clone of src/eboot/msg_poll_loop_00290b0c.c (hstclone.py tag s10170158a1r4s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002a2214 end=0x002a239c symbol=FUN_002a2214 lang=c99 data=0x003a862c */
+/* Clone of src/eboot/msg_poll_loop_00290b0c.c (hstclone.py tag s10170158a1r4s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x003a862c-0x003a86b4) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Receive loop: poll FUN_002c7640 into a 0x48-byte message, handle the 0x800201b4 status (FUN_002c7c60, retry after FUN_002c76f8(33000)) and message types 0 and 1; leaves when DAT_003f3b3c is set or the closing flag at +0x2a is set. */
 extern unsigned char DAT_003f3b3c;
-extern char DAT_003a862c[];
-extern char DAT_003a8660[];
-extern char DAT_003a868c[];
 extern void FUN_002a130c();
 extern void FUN_002a1d14(void *, void *, int, int);
 extern void FUN_002a2024(void *);
@@ -40,7 +37,7 @@ int FUN_002a2214(struct Obj *self)
         if (r == (int)0x800201b4) {
             r = FUN_002c7c60(self);
             if (r < 0) {
-                FUN_002a130c(DAT_003a862c, r);
+                FUN_002a130c("ERROR: scePsmfPlayerGetCurrentStatus()[1]: 0x%08x\n", r);
             } else if (r == 0x200) {
                 if (DAT_003f3b3c != 0)
                     break;
@@ -55,10 +52,10 @@ int FUN_002a2214(struct Obj *self)
             continue;
         }
         if (r != 0) {
-            FUN_002a130c(DAT_003a8660, r);
+            FUN_002a130c("ERROR: sceKernelReceiveMsgPipe(): 0x%08x\n", r);
         } else {
             if (msg.type == 1 && prev != 0) {
-                FUN_002a130c(DAT_003a868c);
+                FUN_002a130c("PsmfPlayerManagerThread: StopRequest()\n");
                 FUN_002a2024(self);
             }
             prev = msg.type;

@@ -1,10 +1,6 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0018c9a8 end=0x0018cc90 symbol=FUN_0018c9a8 lang=c++ */
-/* Clone of src/eboot/FUN_001802b4.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0018c9a8 end=0x0018cc90 symbol=FUN_0018c9a8 lang=c++ data=0x00387edc */
+/* Clone of src/eboot/FUN_001802b4.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (4 strings, 0x00387edc-0x00387f63) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly and the Ghidra pseudocode; matching idioms: each member is allocated as p = alloc(n); if (p != 0) p = ctor(p); field = p (merged likely-branch store), the screen is a struct so every access is a displacement off one register, and the panel is read into a local for the two stores but through the member again for the virtual call; exact match verified; names and types await human review. */
-extern char DAT_00387edc[];
-extern char DAT_00387ef8[];
-extern char DAT_00387f20[];
-extern char DAT_00387f40[];
 extern char DAT_003b7ebc[];
 extern char DAT_00387e30[];
 extern char DAT_00387e58[];
@@ -124,12 +120,12 @@ extern "C" void FUN_0018c9a8(Screen *self)
             if (p != 0) p = FUN_0010873c(p);
             self->names = p;
         }
-        FUN_0001c684(DAT_003b7ebc, 1, DAT_00387edc);
-        FUN_002262f8(&DAT_003ea860, DAT_00387ef8, 0x6b);
-        FUN_00109a44(self->layout, DAT_00387f20, 0);
+        FUN_0001c684(DAT_003b7ebc, 1, "menu/chrsel_050_kigae.xb");
+        FUN_002262f8(&DAT_003ea860, "data/menu/dressup/dressup_unitlist.txt", 0x6b);
+        FUN_00109a44(self->layout, "data/menu/dressup/dressup.lay", 0);
         FUN_00108e6c(0.0f, self->layout);
         FUN_001090f4(self->layout, 0x10);
-        FUN_00109a44(self->names, DAT_00387f40, 0);
+        FUN_00109a44(self->names, "data/menu/dressup/dressup_name.lay", 0);
         FUN_00108e6c(2900.0f, self->names);
         FUN_001090f4(self->names, -256);
         FUN_0001c73c(DAT_003b7ebc);

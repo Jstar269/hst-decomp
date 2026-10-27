@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000c4230 end=0x000c43b4 symbol=FUN_000c4230 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000c4230 end=0x000c43b4 symbol=FUN_000c4230 lang=c++ data=0x0037c320 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037c320-0x0037c32b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 // Builds an 80-byte entry in a local (64-byte name from strlen/memmove or a formatted counter, then a kind switch 0/1/2 for the data block) and push_back()s it into the vector at +0x770; the inline push_back uses placement new (its null check merges with the size reload in the likely-branch slot; an explicit `if (p)` in front of it does not).
 inline void *operator new(unsigned, void *p) { return p; }
 struct Tag {};
@@ -20,7 +20,6 @@ struct Obj {
   Vec v;
 };
 extern "C" {
-extern char DAT_0037c320[];
 void *FUN_00000a90(unsigned);
 void *FUN_00011090(void *, const void *, unsigned);
 void FUN_000143b0(char *, const char *, ...);
@@ -38,7 +37,7 @@ extern "C" int FUN_000c4230(Obj *o, int kind, void *src, int size, int f4c, cons
     FUN_00011090(e.name, name, n);
   } else {
     if (num < 0) num = o->v.size;
-    FUN_000143b0(e.name, DAT_0037c320, num);
+    FUN_000143b0(e.name, "DATA%d.BIN", num);
   }
   switch (kind) {
   case 0:

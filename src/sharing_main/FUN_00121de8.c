@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00121de8 end=0x00121eb4 symbol=FUN_00121de8 lang=c99 */
-/* Clone of src/eboot/FUN_00116ecc.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00121de8 end=0x00121eb4 symbol=FUN_00121de8 lang=c99 data=0x003801d0 */
+/* Clone of src/eboot/FUN_00116ecc.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x003801d0-0x0038022d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -18,9 +18,6 @@ typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
 extern undefined DAT_003b1274;
-extern char DAT_003801d0[];
-extern char DAT_003801f0[];
-extern char DAT_00380210[];
 extern uint * FUN_000114c0();
 extern undefined4 * FUN_0001ec44();
 extern void FUN_00121eb4();
@@ -47,9 +44,9 @@ undefined4 * FUN_00121de8(undefined4 *param_1)
     *(undefined1 *)((int)puVar1 + 0x61) = 0;
     puVar1 = puVar1 + 0x1c;
   } while (puVar1 < param_1 + 0x11c);
-  FUN_00121eb4(DAT_003801d0,0x3f0);
-  FUN_00121eb4(DAT_003801f0,0x90);
-  FUN_00121eb4(DAT_00380210,0x24);
+  FUN_00121eb4("Replay sizeof(m_Shot)   %7d\n",0x3f0);
+  FUN_00121eb4("Replay sizeof(m_Player) %7d\n",0x90);
+  FUN_00121eb4("Replay sizeof(m_Common) %7d\n",0x24);
   FUN_00121f3c(param_1);
   return param_1;
 }

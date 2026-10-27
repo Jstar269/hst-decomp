@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0004afe0 end=0x0004b0f8 symbol=FUN_0004afe0 lang=c99 */
-/* Clone of src/sharing_main/load_index_map_0004b1bc.c (hstclone.py tag u1r2e): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0004afe0 end=0x0004b0f8 symbol=FUN_0004afe0 lang=c99 data=0x002d08cc */
+/* Clone of src/sharing_main/load_index_map_0004b1bc.c (hstclone.py tag u1r2e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d08cc-0x002d08f4) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
 typedef struct {
@@ -12,7 +12,6 @@ typedef struct {
     void *f8;
 } Ctx_0004afe0;
 
-extern char DAT_002d08cc[];
 extern void *FUN_000104b0(int);
 extern void FUN_000104e0(void *);
 extern int FUN_0002b600(void *);
@@ -40,7 +39,7 @@ void FUN_0004afe0(Obj_0004afe0 *self, Ctx_0004afe0 *ctx)
         void *item = FUN_0002b608(self->f0, i);
         int idx = (ctx->f8 != 0) ? FUN_0002fe80(ctx->f8, item) : -1;
         if (idx < 0) {
-            FUN_0004ad6c(DAT_002d08cc, item);
+            FUN_0004ad6c("CollisionData::AssignNode not found %s\n", item);
             self->arr[i] = 0xffff;
         } else {
             self->arr[i] = idx;

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00092258 end=0x00092630 symbol=FUN_00092258 lang=c++ */
-/* Hand-written reconstruction from the disassembly (restructured from the hstgen.py tag a3 candidate); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00092258 end=0x00092630 symbol=FUN_00092258 lang=c++ data=0x002d2908 */
+/* Hand-written reconstruction from the disassembly (restructured from the hstgen.py tag a3 candidate); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d2908-0x002d292e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Matching idioms: the four state flags are `bool`s read from signed 4-bit field bits (`e->hi62 & 1`, `& 2`) and the second accumulates with `b2 |= e->hi62 & 1` (a `||` short-circuits); `if (b4 || (b1 && b3))` is one shared block; the loop counts go through an inline `Count(c)` ternary in a `while` condition (rotated test with entry jump); the per-index value is `v9 != 0 && !(flags & 2)` (the `^ 1` and bool-variable spellings add an extra sltu/andi); `(v9 != 0) ^ 1` is kept for the later call (sltu;xori). Names provisional. */
 struct List;
 struct Ctrl {
@@ -33,8 +33,6 @@ struct Self {
 };
 extern "C" {
 extern Reg *DAT_00338b08;
-extern char DAT_002d2908[];
-extern char DAT_002d291c[];
 Ent *FUN_000d8c24(Reg *, int, unsigned);
 unsigned FUN_0002fe08(List *);
 int FUN_0002fe80(List *, char *);
@@ -94,7 +92,7 @@ extern "C" void FUN_00092258(Self *s)
             if (e->lo64 != 1)
                 v9 = 0;
         }
-        int idx = Find(s->f50->ctrl->list, DAT_002d2908);
+        int idx = Find(s->f50->ctrl->list, "Bip01Head9for_hat");
         if (idx >= 0) {
             if (v9 != 0 && b2) {
                 b2 = false;
@@ -116,10 +114,10 @@ extern "C" void FUN_00092258(Self *s)
                 }
             }
         }
-        idx = Find(s->f54->ctrl->list, DAT_002d2908);
+        idx = Find(s->f54->ctrl->list, "Bip01Head9for_hat");
         if (idx >= 0)
             FUN_00054464(s->f54->ctrl, -1, idx, (v9 != 0) ^ 1, 0);
-        idx = Find(s->f54->ctrl->list, DAT_002d291c);
+        idx = Find(s->f54->ctrl->list, "Bip01Head9for_org");
         if (idx >= 0)
             FUN_00054464(s->f54->ctrl, -1, idx, v9, 0);
     }

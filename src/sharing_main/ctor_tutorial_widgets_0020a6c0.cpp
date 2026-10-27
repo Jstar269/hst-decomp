@@ -1,9 +1,7 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0020a6c0 end=0x0020a888 symbol=FUN_0020a6c0 lang=c++ */
-/* Clone of src/eboot/ctor_tutorial_widgets_001fbfa8.cpp (hstclone.py tag c21sn4s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0020a6c0 end=0x0020a888 symbol=FUN_0020a6c0 lang=c++ data=0x00397014 */
+/* Clone of src/eboot/ctor_tutorial_widgets_001fbfa8.cpp (hstclone.py tag c21sn4s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00397014-0x00397055) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly (structure taken from the sibling constructors ctor_two_tables_000f13e8.cpp and ctor_two_tables_000ee6d4.c); exact match verified (matching idioms: the re-read of the stored array element uses an (unsigned long) address cast so it is not CSE'd with the (unsigned int) store, the callee FUN_00051d38 declares its pointer parameter before the float, and the virtual call goes through the stored slot); names and types await human review. */
 extern char DAT_003b281c[];
-extern char DAT_00397014[];
-extern char DAT_00397034[];
 extern float DAT_00396df4;
 extern char *DAT_00396f5c[];
 struct Entry {
@@ -52,7 +50,7 @@ extern "C" Self *FUN_0020a6c0(Self *self)
   char buf[256];
   FUN_0010873c(self);
   self->vt = DAT_003b281c;
-  FUN_00109a44(self, DAT_00397014, 0);
+  FUN_00109a44(self, "data/menu/tutorial/tutorial.lay", 0);
   FUN_00108e6c(self, DAT_00396df4);
   self->a80[0] = 0;
   self->a80[1] = 0;
@@ -60,7 +58,7 @@ extern "C" Self *FUN_0020a6c0(Self *self)
   int i = 0;
   int off = 0;
   do {
-    FUN_000143b0(buf, DAT_00397034, i + 1);
+    FUN_000143b0(buf, "data/menu/tutorial/tutorial_%03d", i + 1);
     void *m = FUN_00000bcc(0x48);
     if (m != 0)
       m = FUN_000518d4(m);

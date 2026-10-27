@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0019d1fc end=0x0019d32c symbol=FUN_0019d1fc lang=c++ */
-/* Clone of src/eboot/deque_push_back_001909ec.cpp (hstclone.py tag c30): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0019d1fc end=0x0019d32c symbol=FUN_0019d1fc lang=c++ data=0x00388a48 */
+/* Clone of src/eboot/deque_push_back_001909ec.cpp (hstclone.py tag c30): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00388a48-0x00388a66) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* MSL-style deque of 4-byte elements (128 per 512-byte block, block pointers held in a cdeque with a
    trailing spare slot): push_back. When the back block is full: length check against max_size() (inline
@@ -11,7 +11,6 @@ struct Reent_0019d1fc { int pad[3]; void *err; };
 Reent_0019d1fc *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d530(void);
-extern char DAT_00388a48[];      /* push_back length error message */
 extern char DAT_003ea918;        /* max_size() static-local guard */
 extern unsigned DAT_002d2c80;    /* max_size() static local */
 }
@@ -50,7 +49,7 @@ extern "C" void FUN_0019d1fc(Deque_0019d1fc *self, const Elem_0019d1fc &x)
     unsigned i = self->start_ + self->size_;
     if (i == self->capacity()) {
         if (self->size_ == self->max_size()) {
-            FUN_0000f3e8(FUN_0000fe3c()->err, DAT_00388a48);
+            FUN_0000f3e8(FUN_0000fe3c()->err, "deque::push_back length error");
             FUN_0000d530();
         }
         FUN_0019d9a4(self, 1);

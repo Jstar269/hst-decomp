@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00157f68 end=0x00158124 symbol=FUN_00157f68 lang=c++ */
-/* Clone of src/eboot/read_stream_table_0014c454.cpp (hstclone.py tag s10172123g5r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00157f68 end=0x00158124 symbol=FUN_00157f68 lang=c++ data=0x003835ec */
+/* Clone of src/eboot/read_stream_table_0014c454.cpp (hstclone.py tag s10172123g5r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (4 strings, 0x003835ec-0x00383680) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction: C++ Table with inline constructor, unrolled loops off, and inline push_back with empty tag temporary for frame size; exact match verified; names and types await human review. */
 
 #pragma opt_unroll_loops off
@@ -36,10 +36,6 @@ struct Res {
 struct Tag {};
 
 extern "C" {
-extern char DAT_003835ec;
-extern char DAT_003835f4[];
-extern char DAT_0038361c[];
-extern char DAT_00383648[];
 
 int FUN_00014a58(unsigned ptr, const void *sig, int len);
 void FUN_00157280(const char *fmt, ...);
@@ -65,21 +61,21 @@ extern "C" Table *FUN_00157f68(void *param_1, unsigned param_2, int param_3)
     unsigned local_4 = param_2;
     unsigned end = param_2 + param_3;
 
-    if (FUN_00014a58(param_2, &DAT_003835ec, 4) != 0) {
-        FUN_00157280(DAT_003835f4, local_4);
+    if (FUN_00014a58(param_2, "ESD ", 4) != 0) {
+        FUN_00157280("error! Script data code is wrong -> %s\n", local_4);
         return 0;
     }
 
     local_4 += 4;
     int v1 = FUN_0015b03c(&local_4);
     if (v1 != 1) {
-        FUN_00157280(DAT_0038361c, v1);
+        FUN_00157280("error! Script data version is wrong -> %d\n", v1);
         return 0;
     }
 
     int v2 = FUN_0015b03c(&local_4);
     if (v2 != param_3) {
-        FUN_00157280(DAT_00383648, v2, param_3);
+        FUN_00157280("error! Script data size is wrong -> (data:%d, file:%d)\n", v2, param_3);
         return 0;
     }
 

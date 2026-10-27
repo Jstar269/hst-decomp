@@ -1,9 +1,8 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002a2acc end=0x002a2c94 symbol=FUN_002a2acc lang=c99 */
-/* Clone of src/eboot/FUN_002914c0.c (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002a2acc end=0x002a2c94 symbol=FUN_002a2acc lang=c99 data=0x003a88b4 */
+/* Clone of src/eboot/FUN_002914c0.c (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003a88b4-0x003a88c7) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly (Ghidra pseudocode shape); matching idiom: the inner object is allocated in the condition (if ((o = alloc(0x1f0)) != 0)) so the copy lands in the beqz slot and the holder store after the join is not merged into a likely branch; exact match verified; names and types await human review. */
 extern char DAT_003b309c;
 extern char DAT_003b30a8;
-extern char DAT_003a88b4[];
 extern void *DAT_003f3b4c;
 extern struct Holder *DAT_003f3b48;
 extern struct Inner *DAT_003f3b38;
@@ -98,7 +97,7 @@ struct Player *FUN_002a2acc(struct Player *self, int param_2)
     FUN_002a0dac(DAT_003f3b48->inner, param_2);
     local_4 = 0;
     local_8 = 0;
-    FUN_00051b88(self, DAT_003a88b4, FUN_0004eaf8(&local_4, &local_8, 3, 0, 0x200, 0x110), 1, 0x10);
+    FUN_00051b88(self, "PsmfPlayerMaterial", FUN_0004eaf8(&local_4, &local_8, 3, 0, 0x200, 0x110), 1, 0x10);
     FUN_00022da4(FUN_00051df0(self), 0, 0x88000);
     FUN_00051d38(9998.0f, self);
     self->f21 = 0;

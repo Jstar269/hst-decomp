@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000fb2d0 end=0x000fb44c symbol=FUN_000fb2d0 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000fb2d0 end=0x000fb44c symbol=FUN_000fb2d0 lang=c++ data=0x002d826c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d826c-0x002d8278) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Maps the mode of the object at +0x38 to a rank (0..14) and, when the owner at +0x48 is idle,
    reports the rank: the rank is raised by 15 when the length of the vector at the third argument
    times 3.6 reaches the threshold in DAT_002d8260, and the vector at +0x10 of the second argument
@@ -28,7 +28,6 @@ extern "C" {
 extern float DAT_002d8260;
 extern float DAT_002d8264;
 extern int DAT_002d8268;
-extern char DAT_002d826c[];
 void FUN_000fb44c(char *msg);
 void FUN_000fb478(Obj *owner, int r, float *p);
 float FUN_000224d8(float *a, float *b);
@@ -41,7 +40,7 @@ extern "C" void FUN_000fb2d0(Obj *self, Thing *a1, float *a2)
   int mode = a1->f38;
 
   if (self->f48 > 0) {
-    FUN_000fb44c(DAT_002d826c);
+    FUN_000fb44c("EmojiWait!\n");
   } else {
     switch (mode) {
     case 22: r = 0; break;

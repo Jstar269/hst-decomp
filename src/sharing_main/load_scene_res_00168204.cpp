@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00168204 end=0x0016841c symbol=FUN_00168204 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag gen-sh2/v0c) corrected by hand: C++ struct layout, virtual deleting destructors, and null-checked allocations; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00168204 end=0x0016841c symbol=FUN_00168204 lang=c++ data=0x003858b4 */
+/* Ghidra pseudocode (hstgen.py tag gen-sh2/v0c) corrected by hand: C++ struct layout, virtual deleting destructors, and null-checked allocations; exact match verified; names and types await human review. Data: its string literals (4 strings, 0x003858b4-0x00385908) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Obj_0010873c {
     virtual ~Obj_0010873c();
 };
@@ -32,10 +32,6 @@ struct Self_00168204 {
 extern "C" {
 extern char DAT_0038560c[];
 extern char DAT_00385630[];
-extern char DAT_003858b4[];
-extern char DAT_003858dc[];
-extern char DAT_003858fc[];
-extern char DAT_00385900[];
 extern char DAT_003b7ebc[];
 extern void *FUN_00000bcc(unsigned);
 extern void FUN_000143b0(char *, ...);
@@ -78,7 +74,7 @@ extern "C" void FUN_00168204(Self_00168204 *self, int name)
         self->f4c = 1.0f;
     }
     FUN_0001c73c(DAT_003b7ebc);
-    FUN_000143b0(self->buf370, DAT_003858b4);
+    FUN_000143b0(self->buf370, "menu/loadmes/court/loadmes_courtname.xb");
     FUN_0001c684(DAT_003b7ebc, 1, self->buf370);
     if (self->obj28 != 0) {
         if (self->obj28 != 0) {
@@ -92,11 +88,11 @@ extern "C" void FUN_00168204(Self_00168204 *self, int name)
     }
     Obj_0010873c *o28 = q;
     self->obj28 = o28;
-    FUN_00109a44(o28, DAT_003858dc, 0);
+    FUN_00109a44(o28, "data/menu/loadmes/ac00lay.lay", 0);
     FUN_00108f54(self->obj28, 0);
-    void *grp = FUN_00109304(self->obj28, DAT_003858fc, 0);
+    void *grp = FUN_00109304(self->obj28, "ac", 0);
     if (grp != 0) {
-        Item_00108124 *item = FUN_00108124(grp, DAT_00385900);
+        Item_00108124 *item = FUN_00108124(grp, "c_text0");
         if (item != 0) {
             FUN_00105470(item, 0);
             int v = name + item->f24 - 1;

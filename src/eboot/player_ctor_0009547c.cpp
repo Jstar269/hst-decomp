@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0009547c end=0x00095d0c symbol=__ct__10C_0009547cFiii lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0009547c end=0x00095d0c symbol=__ct__10C_0009547cFiii lang=c++ data=0x002d4368 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d4368-0x002d4377) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Player constructor (Player.cpp per the Sharing twin's assert): base ctor 0x1f06c, own vtable 0x30729c, then
    members in declaration order - inline scalar initialisers, two identity matrices copied memberwise from
    the global identity (unscheduled lwc1/swc1 pairs), a sub-object at 0x1b0 whose members have out-of-line
@@ -110,7 +110,6 @@ extern Mat4 DAT_002bc410;
 extern Deletable *DAT_0034b340[];
 extern Game *DAT_003386b0;
 extern int DAT_0033876c;
-extern char DAT_002d4368[];   /* "__InpaneFace%d" */
 
 void *operator new(unsigned n);
 extern "C" {
@@ -281,7 +280,7 @@ C_0009547c::C_0009547c(int a, int i, int b)
     int w = 0, h = 0;
     int tex = FUN_0004e780(&w, &h, 1, 0, 64, 64);
     char name[64];
-    FUN_000143b0(name, DAT_002d4368, idx);
+    FUN_000143b0(name, "__InpaneFace%d", idx);
     FUN_00051274(&m788, name, tex, 0, 16);
     FUN_00097520(this, m154, m150);
 }

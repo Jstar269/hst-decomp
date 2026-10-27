@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000f5be4 end=0x000f5d0c symbol=FUN_000f5be4 lang=c99 */
-/* Clone of src/eboot/ctor_two_tables_000f051c.c (hstclone.py tag c21sn2s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000f5be4 end=0x000f5d0c symbol=FUN_000f5be4 lang=c99 data=0x0037e200 */
+/* Clone of src/eboot/ctor_two_tables_000f051c.c (hstclone.py tag c21sn2s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037e200-0x0037e22b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern void FUN_0010873c(void *self);
 extern void FUN_00109a44(void *self, char *name, int flag);
@@ -9,7 +9,6 @@ extern void *FUN_00109304(void *self, void *src, int flag);
 extern void *FUN_00108124(void *model, char *name);
 extern void FUN_000f6000(void *self);
 extern char DAT_003b0b80[];
-extern char DAT_0037e200[];
 extern float DAT_0037da74;
 extern char *DAT_0037e1b4[];
 struct Entry_000f5be4 { int idx; char *name; int result; };
@@ -19,7 +18,7 @@ char *FUN_000f5be4(char *self)
 {
     FUN_0010873c(self);
     *(void **)self = &DAT_003b0b80;
-    FUN_00109a44(self, DAT_0037e200, 0);
+    FUN_00109a44(self, "data/menu/inpane/inp_ingame/inpane_ace.lay", 0);
     FUN_00108e6c(self, DAT_0037da74);
     FUN_001090f4(self, -251);
     int i = 0;

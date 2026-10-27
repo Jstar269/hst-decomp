@@ -1,9 +1,8 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001559c0 end=0x00155a9c symbol=FUN_001559c0 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: modeled the receiver as a virtual object, restored the float input and (float, int) method signature, and used the context pointer for +8 reads; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001559c0 end=0x00155a9c symbol=FUN_001559c0 lang=c++ data=0x002dcb4c */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: modeled the receiver as a virtual object, restored the float input and (float, int) method signature, and used the context pointer for +8 reads; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dcb4c-0x002dcb5d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" {
 extern unsigned char DAT_003402f0;
 extern int DAT_0034a114;
-extern char DAT_002dcb4c[];
 extern unsigned char DAT_003083cc;
 extern unsigned char DAT_003085bc;
 void *FUN_00000bcc(int);
@@ -22,7 +21,7 @@ extern "C" int *FUN_001559c0(int *param_1, float param_3, int param_2)
   int result;
   if (DAT_003402f0 != 0) {
     FUN_0014d044(param_2);
-    FUN_0014fd94(DAT_002dcb4c, param_1[2]);
+    FUN_0014fd94("AppealText [%d]\n", param_1[2]);
   }
   FUN_001cc354(DAT_0034a114, param_1[2]);
   if ((p = (Allocated *)FUN_00000bcc(4)) != 0) {

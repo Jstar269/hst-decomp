@@ -1,10 +1,8 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000493fc end=0x000494d0 symbol=FUN_000493fc lang=c++ */
-/* Clone of src/sharing_main/remap_resource_path_000492ac.cpp (hstclone.py tag u6fr2e): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000493fc end=0x000494d0 symbol=FUN_000493fc lang=c++ data=0x002d0758 */
+/* Clone of src/sharing_main/remap_resource_path_000492ac.cpp (hstclone.py tag u6fr2e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d0758-0x002d0765) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
 extern "C" {
-    extern char DAT_002d0758;
-    extern char DAT_002d0760;
     extern char *FUN_000149a8(char *dest, const char *src);
     extern char *FUN_00014d64(const char *s1, const char *s2);
     extern char *FUN_00014cfc(const char *s, int c);
@@ -33,8 +31,8 @@ extern "C" void FUN_000493fc(Wrapper *param_1, int param_2, const char *param_3)
     if (param_3 != 0) {
         if (param_1->obj->f_8c == 0) {
             FUN_000149a8(path1, param_3);
-            char *sub = FUN_00014d64(path1, &DAT_002d0758);
-            FUN_000149a8(sub, &DAT_002d0760);
+            char *sub = FUN_00014d64(path1, ".i3m");
+            FUN_000149a8(sub, ".i3r");
             FUN_000149a8(path2, path1);
             char *slash = FUN_00014cfc(path2, 0x2f);
             slash[1] = 0;

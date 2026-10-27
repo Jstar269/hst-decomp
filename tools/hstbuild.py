@@ -49,7 +49,6 @@ import dataclasses
 import hashlib
 import os
 import json
-import re
 import shlex
 import struct
 import subprocess

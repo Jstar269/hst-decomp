@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001f1ea8 end=0x001f20d8 symbol=FUN_001f1ea8 lang=c++ */
-/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001f1ea8 end=0x001f20d8 symbol=FUN_001f1ea8 lang=c++ data=0x002ee864 */
+/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002ee864-0x002ee883) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int uint;
@@ -17,7 +17,6 @@ extern char DAT_0034179c;
 extern char DAT_00341d7d;
 extern char DAT_00341d7e;
 extern int DAT_0034a678;
-extern const char DAT_002ee864;
 
 void FUN_001b3ea4(void *dat, float f);
 void FUN_001f9528(void *self);
@@ -70,7 +69,7 @@ extern "C" void FUN_001f1ea8(Obj *self) {
     }
 
     if (++self->f8174 == 20) {
-        FUN_001ef3f8(&DAT_002ee864);
+        FUN_001ef3f8("-------- REMATCH ------------\n");
 
         int mode = self->f51c + 1;
         self->f51c = mode;

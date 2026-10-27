@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000bbc1c end=0x000bbe00 symbol=FUN_000bbc1c lang=c++ */
-/* Clone of src/sharing_main/table_set_entry_000bf090.cpp (hstclone.py tag u6fr2e): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000bbc1c end=0x000bbe00 symbol=FUN_000bbc1c lang=c++ data=0x002d5310 */
+/* Clone of src/sharing_main/table_set_entry_000bf090.cpp (hstclone.py tag u6fr2e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d5310-0x002d531d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Table update by key: when the length equals the stored one (+0x174), find the entry whose 6-byte name
    (+4, memcmp 0x1100c) matches in the pointer vector at +0x50 and overwrite its buffer (+0xc) with the data,
@@ -52,7 +52,6 @@ char *FUN_000104b0(int);
 void FUN_000ba3ac(const char *);
 void FUN_000be864(Vec *, Entry **, Tag);
 extern char DAT_003073d8[];
-extern char DAT_002d5310[];
 }
 
 extern "C" void FUN_000bbc1c(Self *self, const char *name, int len, const void *data)
@@ -83,7 +82,7 @@ extern "C" void FUN_000bbc1c(Self *self, const char *name, int len, const void *
     e->f10 = 600;
     e->buf = FUN_000104b0(len);
     FUN_00011090(e->buf, data, len);
-    FUN_000ba3ac(DAT_002d5310);
+    FUN_000ba3ac("SetGameList\n");
     Vec *v = self->vec;
     if (v->size < v->cap) {
       ++v->size;

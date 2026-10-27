@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0026c7e4 end=0x0026c8dc symbol=FUN_0026c7e4 lang=c++ */
-/* Clone of src/eboot/cdeque_grow_00192a3c.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0026c7e4 end=0x0026c8dc symbol=FUN_0026c7e4 lang=c++ data=0x003a642c */
+/* Clone of src/eboot/cdeque_grow_00192a3c.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003a642c-0x003a6442) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* MSL-style circular deque (cdeque) growth helper: new capacity for n elements (same shape as
    cdeque_grow_0011f440). Here max_size() is min(alloc.max_size(), 0x7fffffff) - 1 in a guarded local static;
@@ -11,7 +11,6 @@ struct Reent_0026c7e4 { int pad[3]; void *err; };
 Reent_0026c7e4 *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d530(void);
-extern char DAT_003a642c[]; /* "cdeque max_size error" */
 extern char DAT_003f3af1;     /* max_size() static guard */
 extern unsigned DAT_002dad74; /* max_size() static value */
 }
@@ -45,7 +44,7 @@ extern "C" unsigned FUN_0026c7e4(const Cdeque_0026c7e4 *self, unsigned n)
 {
     unsigned m = self->max_size();
     if (n > m)
-        Error_0026c7e4(DAT_003a642c);
+        Error_0026c7e4("cdeque max_size error");
     unsigned c = self->cap_ ? self->cap_ - 1 : 1;
     while (n > c)
         c = c < m / 2 ? 2 * c : m;

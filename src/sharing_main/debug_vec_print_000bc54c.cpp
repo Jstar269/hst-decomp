@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000bc54c end=0x000bc6e0 symbol=FUN_000bc54c lang=c++ */
-/* Clone of src/eboot/debug_vec_print_000b9208.cpp (hstclone.py tag sw1): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000bc54c end=0x000bc6e0 symbol=FUN_000bc54c lang=c++ data=0x0037b2a4 */
+/* Clone of src/eboot/debug_vec_print_000b9208.cpp (hstclone.py tag sw1): addresses substituted; exact match verified; names and types await human review. Data: its string literals (5 strings, 0x0037b2a4-0x0037b307) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Vec4 {
     float x, y, z, w;
@@ -18,11 +18,6 @@ struct Obj {
 extern Globals *DAT_003da704;
 extern int DAT_003e95c4;
 extern char DAT_003b8f08[];
-extern char DAT_0037b2a4[];
-extern char DAT_0037b2b8[];
-extern char DAT_0037b2cc[];
-extern char DAT_0037b2e0[];
-extern char DAT_0037b2f4[];
 
 extern "C" {
 void FUN_000481dc(...);
@@ -52,11 +47,11 @@ void FUN_000bc54c(Obj *o)
             FUN_0002245c(&v, &p, &g);
             len = sqrtf(v.x * v.x + v.z * v.z);
             dy = p.y - g.y;
-            FUN_000481dc(DAT_003b8f08, DAT_0037b2a4, (double)d);
-            FUN_000481dc(DAT_003b8f08, DAT_0037b2b8, (double)len);
-            FUN_000481dc(DAT_003b8f08, DAT_0037b2cc, (double)dy);
-            FUN_000481dc(DAT_003b8f08, DAT_0037b2e0, (double)o->f0f0);
-            FUN_000481dc(DAT_003b8f08, DAT_0037b2f4, FUN_0013d370(DAT_003e95c4, o->f0f4));
+            FUN_000481dc(DAT_003b8f08, "Direction: %6.1f", (double)d);
+            FUN_000481dc(DAT_003b8f08, "Dist:      %6.1f", (double)len);
+            FUN_000481dc(DAT_003b8f08, "Height:    %6.1f", (double)dy);
+            FUN_000481dc(DAT_003b8f08, "FOV:       %6.1f", (double)o->f0f0);
+            FUN_000481dc(DAT_003b8f08, "CamBasePoint:   %s", FUN_0013d370(DAT_003e95c4, o->f0f4));
         }
     }
 }

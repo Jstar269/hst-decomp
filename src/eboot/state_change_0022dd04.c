@@ -1,10 +1,8 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0022dd04 end=0x0022e020 symbol=FUN_0022dd04 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: typed object and address symbols (lui/addiu), if/else-if on the new value rewritten as a range test plus a one-case-group switch (cases 0x22, 0x23, 0x25), table index as an int array, header typedefs dropped; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0022dd04 end=0x0022e020 symbol=FUN_0022dd04 lang=c99 data=0x002f353c */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: typed object and address symbols (lui/addiu), if/else-if on the new value rewritten as a range test plus a one-case-group switch (cases 0x22, 0x23, 0x25), table index as an int array, header typedefs dropped; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002f353c-0x002f3587) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern char DAT_0034179c[];
 extern char DAT_0030ab9c[];
 extern char DAT_0030ebf4[];
-extern char DAT_002f353c[];
-extern char DAT_002f3560[];
 extern int DAT_002f33e4[];
 extern void *FUN_00010184(int, int);
 extern void FUN_000104e0(void *);
@@ -45,7 +43,7 @@ void FUN_0022dd04(Obj *o)
   if (o->fa8 == -1) {
     p = FUN_00010184(0x40, 0xccccc);
     FUN_0001bfb4(DAT_0030ab9c, p, 0xccccc);
-    FUN_0001ca58(DAT_0030ebf4, DAT_002f353c);
+    FUN_0001ca58(DAT_0030ebf4, "menu/optionbgm/option_bgm_stream.xb");
     FUN_001b3378(DAT_0034179c, 0);
     FUN_001b3378(DAT_0034179c, 2);
     FUN_001b3378(DAT_0034179c, 6);
@@ -69,7 +67,7 @@ void FUN_0022dd04(Obj *o)
       n = o->fa4 - 0x27;
       p = FUN_00010184(0x40, 0x173333);
       FUN_0001bfb4(DAT_0030ab9c, p, 0x173333);
-      FUN_000143b0(buf, DAT_002f3560, n);
+      FUN_000143b0(buf, "menu/optionbgm/option_bgm_lobby%02d.xb", n);
       FUN_0001ca58(DAT_0030ebf4, buf);
       FUN_001b32e0(DAT_0034179c, n);
       FUN_0001cb88(DAT_0030ebf4);
@@ -84,7 +82,7 @@ void FUN_0022dd04(Obj *o)
       case 0x25:
         p = FUN_00010184(0x40, 0xccccc);
         FUN_0001bfb4(DAT_0030ab9c, p, 0xccccc);
-        FUN_0001ca58(DAT_0030ebf4, DAT_002f353c);
+        FUN_0001ca58(DAT_0030ebf4, "menu/optionbgm/option_bgm_stream.xb");
         FUN_001b3378(DAT_0034179c, o->fa4);
         FUN_0001cb88(DAT_0030ebf4);
         a = FUN_0001cbfc();

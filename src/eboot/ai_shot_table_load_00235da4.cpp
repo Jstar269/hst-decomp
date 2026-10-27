@@ -1,14 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00235da4 end=0x00235fe0 symbol=FUN_00235da4 lang=c++ */
-/* LoadAiShotTable: data/common/parameter/AI_Shot.csv; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x00235da4 end=0x00235fe0 symbol=FUN_00235da4 lang=c++ data=0x002f5198 */
+/* LoadAiShotTable: data/common/parameter/AI_Shot.csv; see docs/DATA-TABLES.md Data: its string literals (7 strings, 0x002f5198-0x002f5212) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag fm7 near miss, wip/ai_shot_table_load_00235da4.cpp) corrected by hand: string symbols renamed to DAT_ names; count incremented through an int & local (gives the hoisted addiu a3,a0,4); ctx address taken through a pointer reference (matching idiom: `Loader *lp0 = &ctx; Loader *&lp = lp0;` keeps lp live in s0 so the bufB address is s0+32); exact match verified; names and types await human review. */
 
-extern "C" char DAT_002f5198[];
-extern "C" char DAT_002f51bc[];
-extern "C" char DAT_002f51c8[];
-extern "C" char DAT_002f51dc[];
-extern "C" char DAT_002f51e8[];
-extern "C" char DAT_002f51f4[];
-extern "C" char DAT_002f5204[];
 extern "C" char DAT_002f4a64;
 extern "C" char DAT_003070bc;
 
@@ -67,15 +60,15 @@ extern "C" void FUN_00235da4(List *tables)
   FUN_0008c230(&ctx.bufA);
   FUN_0008c230(&lp->bufB);
 
-  if (FUN_000651b8(lp, DAT_002f5198, 0, 1, &DAT_002f4a64) != 0) {
+  if (FUN_000651b8(lp, "data/common/parameter/AI_Shot.csv", 0, 1, &DAT_002f4a64) != 0) {
     n = FUN_000650e0(lp);
     for (i = 1; i < n; i++) {
-      shot.p[0].lo =  FUN_00065554(&ctx, i, DAT_002f51bc);
-      shot.p[0].hi =  FUN_00065554(&ctx, i, DAT_002f51c8);
-      shot.p[2].lo =  FUN_00065554(&ctx, i, DAT_002f51dc);
-      shot.p[1].lo =  FUN_00065554(&ctx, i, DAT_002f51e8);
-      shot.p[1].hi =  FUN_00065554(&ctx, i, DAT_002f51f4);
-      shot.p[2].hi =  FUN_00065554(&ctx, i, DAT_002f5204);
+      shot.p[0].lo =  FUN_00065554(&ctx, i, "ShotAINo");
+      shot.p[0].hi =  FUN_00065554(&ctx, i, "ShotSituationLimit");
+      shot.p[2].lo =  FUN_00065554(&ctx, i, "ShotNetRank");
+      shot.p[1].lo =  FUN_00065554(&ctx, i, "ShotAllRank");
+      shot.p[1].hi =  FUN_00065554(&ctx, i, "ShotBaseRank");
+      shot.p[2].hi =  FUN_00065554(&ctx, i, "ShotFrequency");
       list = &tables[shot.p[0].lo / 100];
       int &c = list->count;
       if ((unsigned int)list->count < (unsigned int)list->cap) {

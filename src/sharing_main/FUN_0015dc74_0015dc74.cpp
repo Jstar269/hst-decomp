@@ -1,11 +1,10 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0015dc74 end=0x0015dd60 symbol=FUN_0015dc74 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0015dc74 end=0x0015dd60 symbol=FUN_0015dc74 lang=c++ data=0x00383a90 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00383a90-0x00383aa6) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned int uint;
 extern unsigned char DAT_003e9630;
 extern unsigned char DAT_003b1698;
 extern unsigned char DAT_003b1f90;
 extern unsigned char DAT_003f3610;
-extern char DAT_00383a90[];
 struct Target {
   virtual ~Target();
   virtual int initialize(float value, int flags);
@@ -27,7 +26,7 @@ extern "C" Target *FUN_0015dc74(Context *param_1, float param_3, int param_2)
 
   if (DAT_003e9630 != 0) {
     FUN_00158b2c(param_2);
-    FUN_0015bb68(DAT_00383a90, param_1->context);
+    FUN_0015bb68("GetEventItem [%d:on]\n", param_1->context);
   }
   FUN_0023b950(param_1->context, 1);
   FUN_002352b4(*(uint *)&DAT_003f3610, param_1->context, 1);

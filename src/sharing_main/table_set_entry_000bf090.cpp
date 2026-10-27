@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000bf090 end=0x000bf274 symbol=FUN_000bf090 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000bf090 end=0x000bf274 symbol=FUN_000bf090 lang=c++ data=0x0037bc1c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037bc1c-0x0037bc29) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Table update by key: when the length equals the stored one (+0x174), find the entry whose 6-byte name
    (+4, memcmp 0x1100c) matches in the pointer vector at +0x50 and overwrite its buffer (+0xc) with the data,
    resetting +0x10 to 600; otherwise create the vector on demand, build a new 20-byte entry (vptr, copied name,
@@ -51,7 +51,6 @@ char *FUN_000104b0(int);
 void FUN_000bd6f0(const char *);
 void FUN_000c1f04(Vec *, Entry **, Tag);
 extern char DAT_003b06a4[];
-extern char DAT_0037bc1c[];
 }
 
 extern "C" void FUN_000bf090(Self *self, const char *name, int len, const void *data)
@@ -82,7 +81,7 @@ extern "C" void FUN_000bf090(Self *self, const char *name, int len, const void *
     e->f10 = 600;
     e->buf = FUN_000104b0(len);
     FUN_00011090(e->buf, data, len);
-    FUN_000bd6f0(DAT_0037bc1c);
+    FUN_000bd6f0("SetGameList\n");
     Vec *v = self->vec;
     if (v->size < v->cap) {
       ++v->size;

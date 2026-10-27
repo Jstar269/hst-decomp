@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00100a1c end=0x00100b24 symbol=FUN_00100a1c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: if/else order restored (param_4 != 0 first, then the empty-string test, null case last); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00100a1c end=0x00100b24 symbol=FUN_00100a1c lang=c99 data=0x002d8a84 */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: if/else order restored (param_4 != 0 first, then the empty-string test, null case last); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d8a84-0x002d8a9b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -18,7 +18,6 @@ typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
 extern undefined DAT_002d8a54;
-extern char DAT_002d8a84[];
 extern uint * FUN_00014788();
 extern uint * FUN_000149a8();
 extern int FUN_00014a58();
@@ -32,7 +31,7 @@ void FUN_00100a1c(int param_1,char *param_2,undefined4 param_3,char *param_4,und
   
   iVar1 = FUN_00014a58(param_3,&DAT_002d8a54,4);
   if (iVar1 == 0) {
-    param_2 = DAT_002d8a84;
+    param_2 = "data/menu/menu_common/";
   }
   FUN_000149a8(auStack_100,param_2);
   FUN_00014788(auStack_100,param_3);

@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00100a38 end=0x00100bb4 symbol=FUN_00100a38 lang=c++ */
-/* Clone of src/eboot/map_emoji_mode_000fb2d0.cpp (hstclone.py tag km2): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00100a38 end=0x00100bb4 symbol=FUN_00100a38 lang=c++ data=0x0037f08c */
+/* Clone of src/eboot/map_emoji_mode_000fb2d0.cpp (hstclone.py tag km2): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037f08c-0x0037f098) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Maps the mode of the object at +0x38 to a rank (0..14) and, when the owner at +0x48 is idle,
    reports the rank: the rank is raised by 15 when the length of the vector at the third argument
@@ -29,7 +29,6 @@ extern "C" {
 extern float DAT_0037f080;
 extern float DAT_0037f084;
 extern int DAT_0037f088;
-extern char DAT_0037f08c[];
 void FUN_000f9728(char *msg);
 void FUN_00100bb4(Obj *owner, int r, float *p);
 float FUN_00022500(float *a, float *b);
@@ -42,7 +41,7 @@ extern "C" void FUN_00100a38(Obj *self, Thing *a1, float *a2)
   int mode = a1->f38;
 
   if (self->f48 > 0) {
-    FUN_000f9728(DAT_0037f08c);
+    FUN_000f9728("EmojiWait!\n");
   } else {
     switch (mode) {
     case 22: r = 0; break;

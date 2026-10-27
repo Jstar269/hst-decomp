@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0014e738 end=0x0014e86c symbol=FUN_0014e738 lang=c++ */
-/* Clone of src/eboot/open_stream_start_00142f90.cpp (hstclone.py tag c47): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0014e738 end=0x0014e86c symbol=FUN_0014e738 lang=c++ data=0x00382e48 */
+/* Clone of src/eboot/open_stream_start_00142f90.cpp (hstclone.py tag c47): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00382e48-0x00382e56) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ virtual call (slot 2) on the device with 6 arguments, flag ternary reversed (param_5 != 0 ? 3 : 1), float first argument 0.0f (f12) to FUN_0005fe20, float fields copied, typed structs; exact match verified; names and types await human review. */
 struct Dev {
   virtual void d0();
@@ -21,7 +21,6 @@ struct Obj {
 };
 
 extern "C" {
-extern char DAT_00382e48[];
 extern void FUN_00014788(char *, char *);
 extern void FUN_0005fa04(Dev *, int, char *, int, int, int, int, int);
 extern int FUN_0005fde8(Dev *, int);
@@ -53,7 +52,7 @@ extern "C" void FUN_0014e738(Obj *param_1, char *param_2, int param_3, int param
     } while (param_2[i] != '.');
   }
   buf[i] = '\0';
-  FUN_00014788(buf, DAT_00382e48);
+  FUN_00014788(buf, "_motion01.tat");
   FUN_0005fa04(param_1->dev, 0, buf, param_3, 0, 0, 0, 0);
   if (FUN_0005fde8(param_1->dev, 0) == 0) {
     param_1->ok = 0;

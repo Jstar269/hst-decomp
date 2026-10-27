@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00096924 end=0x00096fb0 symbol=FUN_00096924 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00096924 end=0x00096fb0 symbol=FUN_00096924 lang=c++ data=0x00378db8 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00378db8-0x00378dc9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Debug-build twin of EBOOT 0x94978 (node_look_at_update_00094978.cpp) with its two asserts kept; node look-at controller (PCObject.cpp): while active (pos.w != 0; -1 = fading out) turn the controller's
    angles toward the target direction seen from the parent node (yaw/pitch limited to the DAT_ ranges, step per
    frame), then blend the node's own angles toward them by t and rebuild the node matrix keeping its row scales.
@@ -12,7 +12,6 @@ extern "C" void FUN_00094494(...);
 extern char DAT_00378b80[];     /* assertion "%s" failed: file "%s", line %d */
 extern char DAT_00378bd0[];     /* PCObject.cpp */
 extern char DAT_00378d80[];     /* nodeIndex >= 0 */
-extern char DAT_00378db8[];     /* parentIndex >= 0 */
 #define HST_ASSERT(cond, text, line) \
     do { if (!(cond)) { FUN_00094494(DAT_00378b80, text, DAT_00378bd0, line); for (;;) {} } } while (0)
 
@@ -106,7 +105,7 @@ extern "C" void FUN_00096924(Cam *cam, Obj *obj)
     int node = FindNode(obj, cam->node);
     HST_ASSERT(node >= 0, DAT_00378d80, 1745);
     int parent = FindNode(obj, cam->parent);
-    HST_ASSERT(parent >= 0, DAT_00378db8, 1747);
+    HST_ASSERT(parent >= 0, "parentIndex >= 0", 1747);
     if (cam->pos.w == -1.0f) {
         cam->t = Max(DAT_00378d90, cam->t - 0.1f);
         if (cam->t <= 0.0f)

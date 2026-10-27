@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00098bc8 end=0x00098d64 symbol=FUN_00098bc8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed structs, gate flag as int ok = (G != 0); if (ok) ok = (b != 0) ^ 1, unsigned char flags, entry byte compared through an int local with (uchar) cast; matching idiom: the result of the debug print stub FUN_00097e3c is assigned back to the entry pointer (retail keeps the entry in v0 across the stub call, as MWCC does for an empty static stub defined earlier in the same file, which hstmatch cannot place); exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00098bc8 end=0x00098d64 symbol=FUN_00098bc8 lang=c99 data=0x0037a74c */
+/* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed structs, gate flag as int ok = (G != 0); if (ok) ok = (b != 0) ^ 1, unsigned char flags, entry byte compared through an int local with (uchar) cast; matching idiom: the result of the debug print stub FUN_00097e3c is assigned back to the entry pointer (retail keeps the entry in v0 across the stub call, as MWCC does for an empty static stub defined earlier in the same file, which hstmatch cannot place); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037a74c-0x0037a760) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char uchar;
 
 typedef struct {
@@ -36,7 +36,6 @@ typedef struct {
 extern uchar DAT_003e19f8;
 extern Mgr *DAT_003e1e30;
 extern Sys *DAT_003e1e84;
-extern char DAT_0037a74c[];
 extern Entry *FUN_00097e3c();
 extern Entry *FUN_000c8538();
 
@@ -79,7 +78,7 @@ void FUN_00098bc8(Obj *o)
       if (ok && DAT_003e1e30 != 0) {
         e = FUN_000c8538(DAT_003e1e30, o->idx);
         if (e->b0 != 0 && o->w2fc != e->w13c) {
-          e = FUN_00097e3c(DAT_0037a74c, e->b138, (int)e->b139);
+          e = FUN_00097e3c("ReceivePoint %d %d\n", e->b138, (int)e->b139);
           o->b2f8 = e->b138;
           o->b2f9 = e->b139;
           o->w2fc = e->w13c;

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0010aae4 end=0x0010abe8 symbol=FUN_0010aae4 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag gen-a1/v0) corrected by hand: the function returns int (the stripped print call is declared int and its result is stored back into the checked value, which is returned: `if (r) r = print(fmt, r); return r;`), which keeps r in v0 and gives retail beqzl/move a1,v0 shape; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0010aae4 end=0x0010abe8 symbol=FUN_0010aae4 lang=c99 data=0x002d90b4 */
+/* Ghidra pseudocode (hstgen.py tag gen-a1/v0) corrected by hand: the function returns int (the stripped print call is declared int and its result is stored back into the checked value, which is returned: `if (r) r = print(fmt, r); return r;`), which keeps r in v0 and gives retail beqzl/move a1,v0 shape; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d90b4-0x002d90e9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -17,7 +17,6 @@ typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
-extern char DAT_002d90b4[];
 extern uint * FUN_000114c0();
 extern char * FUN_00014b74();
 extern int FUN_0010a4a8(const char *, ...);
@@ -51,7 +50,7 @@ int FUN_0010aae4(undefined4 *param_1,undefined4 *param_2)
   *(undefined1 *)(param_1 + 0x156) = *(undefined1 *)(param_2 + 5);
   iVar1 = FUN_002b7c10(param_1);
   if (iVar1 != 0) {
-    iVar1 = FUN_0010a4a8(DAT_002d90b4,iVar1);
+    iVar1 = FUN_0010a4a8("ERROR: sceUtilityGamedataInstallInitStart(): 0x%08x\n",iVar1);
   }
   return iVar1;
 }

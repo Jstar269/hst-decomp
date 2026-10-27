@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0019695c end=0x00196aac symbol=FUN_0019695c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0019695c end=0x00196aac symbol=FUN_0019695c lang=c++ data=0x002e15e4 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002e15e4-0x002e15fe) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* MSL-style tree insert-at: length check ("tree::insert length_error"), allocate a 20-byte node into a
    holder that references the allocator (an empty member at tree+4), copy-construct the 8-byte value,
    release, link under the parent, ++size, rebalance (0x6445c), update leftmost. Names provisional. */
@@ -10,7 +10,6 @@ int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d518(void);
 void *FUN_00000bcc(unsigned size);
 void FUN_00000a00(void *p);
-extern char DAT_002e15e4[];
 extern char DAT_002c2884[];
 }
 inline void *operator new(unsigned, void *p) throw() { return p; }
@@ -62,7 +61,7 @@ extern "C" Node_0019695c *FUN_0019695c(Tree_0019695c *t, Node_0019695c *parent, 
                                        const Value_0019695c &v)
 {
     if (t->size_ == 0xffffffff) {
-        FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002e15e4);
+        FUN_0000f3e8(FUN_0000fe3c()->err, "tree::insert length error");
         FUN_0000d518();
     }
     Alloc_0019695c &a = t->alloc();

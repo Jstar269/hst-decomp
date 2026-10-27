@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00222bb8 end=0x00222f58 symbol=FUN_00222bb8 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified (matching idioms: #pragma opt_strength_reduction off with the pointer walks written out by hand [the panes loop walks a Obj pointer by 4, the two 16-entry clears walk s += 0x30 and MWCC unrolls them 8x], the fb1 != 0 arm written first, the float defaults as ternaries 'p3 != 0 ? G : 0.0f', and sel declared before g); names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00222bb8 end=0x00222f58 symbol=FUN_00222bb8 lang=c++ data=0x002f0fb4 */
+/* Hand-written reconstruction from the disassembly; exact match verified (matching idioms: #pragma opt_strength_reduction off with the pointer walks written out by hand [the panes loop walks a Obj pointer by 4, the two 16-entry clears walk s += 0x30 and MWCC unrolls them 8x], the fb1 != 0 arm written first, the float defaults as ternaries 'p3 != 0 ? G : 0.0f', and sel declared before g); names and types await human review. Data: its string literals (2 strings, 0x002f0fb4-0x002f1000) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 #pragma opt_strength_reduction off
 
 struct Widget {
@@ -58,8 +58,6 @@ extern "C" {
 extern int DAT_002eff90;
 extern float DAT_002eff88;
 extern char DAT_002f0190[];
-extern char DAT_002f0fb4[];
-extern char DAT_002f0fdc[];
 extern char DAT_0030ebf4[];
 extern float DAT_0034a270;
 extern float DAT_0034a274;
@@ -118,10 +116,10 @@ extern "C" void FUN_00222bb8(Obj *self, int p2, int p3)
     Slot *q = (Slot *)((Node *)self->fa4)->items[self->fa8];
     q->f24 = q->f28 + self->fac;
   }
-  FUN_000143b0(buf, DAT_002f0fb4, self->fa8 + 1);
+  FUN_000143b0(buf, "data/menu/menu_common/info_kunsyou%03d", self->fa8 + 1);
   if (self->fb1 == 0) {
     if (FUN_00014934(buf, DAT_002f0190) != 0) {
-      FUN_0001cad0(DAT_0030ebf4, 1, DAT_002f0fdc);
+      FUN_0001cad0(DAT_0030ebf4, 1, "game/700_prize/040_prize_display.xb");
       void *m = ::operator new(0x48);
       if (m != 0)
         m = FUN_00050fc0(m);

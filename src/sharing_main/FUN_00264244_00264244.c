@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00264244 end=0x002643dc symbol=FUN_00264244 lang=c99 */
-/* Clone of src/eboot/FUN_00253da0_00253da0.c (hstclone.py tag u5cr1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00264244 end=0x002643dc symbol=FUN_00264244 lang=c99 data=0x003a5820 */
+/* Clone of src/eboot/FUN_00253da0_00253da0.c (hstclone.py tag u5cr1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (6 strings, 0x003a5820-0x003a592f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag a1/v0c) corrected by hand: declared the loop index before the byte offset to match the retail saved-register allocation; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
@@ -19,12 +19,6 @@ typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
 extern undefined * DAT_003f3acc;
-extern char DAT_003a5820[];
-extern char DAT_003a5850[];
-extern char DAT_003a5880[];
-extern char DAT_003a58ac[];
-extern char DAT_003a58d8[];
-extern char DAT_003a5904[];
 extern int * FUN_000008d8();
 extern int FUN_00000a90();
 extern void FUN_000143b0();
@@ -45,25 +39,25 @@ void FUN_00264244(void)
   iVar2 = 0;
   do {
     if (iVar3 < 0xf) {
-      FUN_000143b0(auStack_100,DAT_003a5820,iVar3,iVar3);
+      FUN_000143b0(auStack_100,"data/chara/menu_motion/%02d/chrm_pc%02d_00.i3m",iVar3,iVar3);
       FUN_00056a58(DAT_003f3acc + iVar2,auStack_100,0);
     }
     else if (iVar3 < 0x1e) {
-      FUN_000143b0(auStack_100,DAT_003a5850,iVar3 + -0xf,iVar3 + -0xf
+      FUN_000143b0(auStack_100,"data/chara/menu_motion/%02d/chrm_pc%02d_01.i3m",iVar3 + -0xf,iVar3 + -0xf
                   );
       FUN_00056a58(DAT_003f3acc + iVar2,auStack_100,0);
     }
     else if (iVar3 == 0x1e) {
-      FUN_00056a58(DAT_003f3acc + iVar2,DAT_003a5880,0);
+      FUN_00056a58(DAT_003f3acc + iVar2,"data/chara/menu_motion/99/chrm_pc_f_00.i3m",0);
     }
     else if (iVar3 == 0x1f) {
-      FUN_00056a58(DAT_003f3acc + iVar2,DAT_003a58ac,0);
+      FUN_00056a58(DAT_003f3acc + iVar2,"data/chara/menu_motion/99/chrm_pc_f_01.i3m",0);
     }
     else if (iVar3 == 0x20) {
-      FUN_00056a58(DAT_003f3acc + iVar2,DAT_003a58d8,0);
+      FUN_00056a58(DAT_003f3acc + iVar2,"data/chara/menu_motion/99/chrm_pc_m_00.i3m",0);
     }
     else if (iVar3 == 0x21) {
-      FUN_00056a58(DAT_003f3acc + iVar2,DAT_003a5904,0);
+      FUN_00056a58(DAT_003f3acc + iVar2,"data/chara/menu_motion/99/chrm_pc_m_01.i3m",0);
     }
     iVar3 = iVar3 + 1;
     iVar2 = iVar2 + 0x10;

@@ -6,40 +6,38 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
-#define true 1
-#define false 0
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
+extern "C" {
 extern undefined DAT_002f3538;
 extern undefined * DAT_003415a8;
 extern undefined4 DAT_003415ac;
 extern undefined4 DAT_003415d4;
 extern undefined1 DAT_00341771;
-extern undefined4 FUN_000031f0();
-extern undefined4 FUN_00003e04();
-extern int FUN_00004138();
-extern void FUN_000143b0();
-extern int FUN_00014934();
-extern uint * FUN_000149a8();
-extern undefined4 * FUN_00045730();
-extern uint * FUN_000462a0();
-extern void FUN_00103628();
-extern void FUN_00115088();
-extern undefined1 FUN_001155c0();
-extern undefined4 FUN_001156d4();
-extern undefined4 FUN_00190830();
-extern int FUN_0019083c();
-extern uint * FUN_00190880();
-extern undefined * FUN_001fea10();
-extern void FUN_0022d848();
-extern void FUN_0022fcdc();
-extern undefined4 FUN_002add24();
+extern undefined4 FUN_000031f0(unsigned char *, unsigned char *);
+extern undefined4 FUN_00003e04(char *, unsigned char *);
+extern int FUN_00004138(unsigned char *, int);
+extern void FUN_000143b0(unsigned char *, unsigned int, int);
+extern int FUN_00014934(int, void *);
+extern uint * FUN_000149a8(undefined *, int);
+extern undefined4 * FUN_00045730(unsigned char *, unsigned int);
+extern uint * FUN_000462a0(void *, unsigned int);
+extern void FUN_00103628(unsigned int, int);
+extern void FUN_00115088(unsigned int, int, char *, int, int);
+extern undefined1 FUN_001155c0(unsigned int);
+extern undefined4 FUN_001156d4(unsigned int);
+extern undefined4 FUN_00190830(unsigned int);
+extern int FUN_0019083c(unsigned int);
+extern uint * FUN_00190880(void *, void *);
+extern undefined * FUN_001fea10(int, int, int);
+extern void FUN_0022d848(char *, int);
+extern void FUN_0022fcdc(char *, int);
+extern undefined4 FUN_002add24(unsigned int);
 
 void FUN_0022da30(char *param_1)
 {
@@ -151,3 +149,6 @@ void FUN_0022da30(char *param_1)
 // Near miss: 164 of 181 retail words differ, starting after the early item-name pointer branch.
 // Ruled out switch versus if on the state result and integer versus pointer prototypes for the backing globals and accessors.
 // near miss from lane km5 (unreviewed)
+
+}  /* extern "C" */
+// improved by lane dsm1 (unreviewed): no comparable result -> 164 differing words

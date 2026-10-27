@@ -1,11 +1,10 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0004fcf8 end=0x0004fe04 symbol=FUN_0004fcf8 lang=c99 */
-/* Clone of src/sharing_main/FUN_000505ac.c (hstclone.py tag s10170158a1r4e): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0004fcf8 end=0x0004fe04 symbol=FUN_0004fcf8 lang=c99 data=0x002d0e24 */
+/* Clone of src/sharing_main/FUN_000505ac.c (hstclone.py tag s10170158a1r4e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d0e24-0x002d0e60) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 extern undefined DAT_002d0d40;
 extern undefined DAT_002d0a6c;
 extern undefined DAT_00311170;
-extern char DAT_002d0e24[];
 extern int FUN_00014934(const char *, const char *);
 extern void FUN_0004ea98(const char *, const char *);
 extern void FUN_0004f010(void *, int, void *, int, void *);
@@ -43,7 +42,7 @@ void FUN_0004fcf8(Table *t, const char *name)
     }
   }
   if (!found) {
-    FUN_0004ea98(DAT_002d0e24, name);
+    FUN_0004ea98("I3d::DeleteTexture(const char* pTexName) can not found %s.\n", name);
     FUN_0004f010(&DAT_00311170, 0, &DAT_002d0a6c, 1546, &DAT_002d0d40);
   }
 }

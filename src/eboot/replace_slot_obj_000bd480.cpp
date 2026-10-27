@@ -1,9 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000bd480 end=0x000bd568 symbol=FUN_000bd480 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5/v17c) corrected by hand: typed 7-byte entry struct (unsigned char on = lbu) and slot array member addressed as g->slots[idx] at every use (the local-pointer form flips the addu operands), allocation stored with the merged store (beqzl) and o->c written through the new object; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000bd480 end=0x000bd568 symbol=FUN_000bd480 lang=c++ data=0x002d5498 */
+/* Ghidra pseudocode (hstgen.py tag a5/v17c) corrected by hand: typed 7-byte entry struct (unsigned char on = lbu) and slot array member addressed as g->slots[idx] at every use (the local-pointer form flips the addu operands), allocation stored with the merged store (beqzl) and o->c written through the new object; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d5498-0x002d54e2) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" {
 extern char DAT_003073e4;
-extern char DAT_002d5498[];
-extern char DAT_002d54c4[];
 extern int FUN_00000a90(...);
 extern void *FUN_00000bcc(...);
 extern void FUN_000ba3ac(...);
@@ -21,7 +19,7 @@ struct Self {
 extern "C" int FUN_000bd480(Self *g, int idx, int a, int b)
 {
     if (g->ent[idx].on == 0) {
-        FUN_000ba3ac(DAT_002d5498);
+        FUN_000ba3ac("CreateCHReplicaObj() member is not exist\n");
         return 0;
     }
     if (g->slots[idx] != 0) {
@@ -41,6 +39,6 @@ extern "C" int FUN_000bd480(Self *g, int idx, int a, int b)
     ((Rec *)g->slots[idx])->a = a;
     int r = FUN_00000a90(b);
     ((Rec *)g->slots[idx])->b = r;
-    FUN_000ba3ac(DAT_002d54c4);
+    FUN_000ba3ac("CreateCHReplicaObj() success\n");
     return 1;
 }

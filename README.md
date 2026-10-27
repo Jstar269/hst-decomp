@@ -40,10 +40,10 @@ will let more of it run as real, readable code over time.
 
 | | Progress | What it means |
 |---|---|---|
-| **Code matched** | **31.3%** | 11,567 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
-| **Built from source** | **21.7%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
+| **Code matched** | **35.8%** | 12,146 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
+| **Built from source** | **28.3%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
-The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-25.
+The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-27.
 
 <!-- hstprogress:end -->
 
@@ -101,14 +101,14 @@ How a function is matched is described in [CONTRIBUTING.md](CONTRIBUTING.md), an
 
 <!-- hstprogress:begin readme-progress -->
 
-**11,565 exact sources** (11,567 functions) and 990 near misses, measured 2026-10-25 with `python tools/hstcov.py`
+**12,143 exact sources** (12,146 functions) and 996 near misses, measured 2026-10-27 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 5,941 / 9,804 | 966,288 / 2,849,076 | 33.916 % |
-| `hstp_trans_main.prx` (Sharing Version) | 5,626 / 9,830 | 839,668 / 2,914,004 | 28.815 % |
-| **Both** | 11,567 / 19,634 | 1,805,956 / 5,763,080 | 31.337 % |
+| `EBOOT.BIN` | 6,152 / 9,804 | 1,067,608 / 2,849,076 | 37.472 % |
+| `hstp_trans_main.prx` (Sharing Version) | 5,994 / 9,830 | 994,948 / 2,914,004 | 34.144 % |
+| **Both** | 12,146 / 19,634 | 2,062,556 / 5,763,080 | 35.789 % |
 
 <!-- hstprogress:end -->
 

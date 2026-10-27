@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000b5760 end=0x000b603c symbol=FUN_000b5760 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000b5760 end=0x000b603c symbol=FUN_000b5760 lang=c++ data=0x0037af14 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x0037af14-0x0037af9f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct CVec {
     float x, y, z, w;
     CVec() {}
@@ -134,9 +134,6 @@ extern "C" float fabsf(float);
 /* Debug build: assertions print through the (empty) variadic debug printf and hang. */
 extern const char DAT_0037a6cc[];   /* assertion message format */
 extern const char DAT_0037a704[];   /* source file name */
-extern const char DAT_0037af14[];   /* id1 range check text */
-extern const char DAT_0037af48[];   /* id2 range check text */
-extern const char DAT_0037af7c[];   /* layer count check text */
 extern "C" void FUN_00097e3c(...);
 #define HST_ASSERT(cond, text, line)     do { if (!(cond)) { FUN_00097e3c(DAT_0037a6cc, text, DAT_0037a704, line); for (;;) {} } } while (0)
 static inline CVec Mul(const CVec &a, CVec b) { CVec r; FUN_00022478(&r, &a, &b); return r; }
@@ -144,8 +141,8 @@ static inline CVec Mul(const CVec &a, CVec b) { CVec r; FUN_00022478(&r, &a, &b)
 extern "C" void FUN_000b5760(Player *pl, float speed1, int id1, unsigned char c1, int id2, unsigned char c2, float speed2,
                              unsigned char extra, int flag1, int flag2, float add)
 {
-    HST_ASSERT((id1 >= -1 && id1 < 277) || id1 == 0x7fff, DAT_0037af14, 12145);
-    HST_ASSERT((id2 >= -1 && id2 < 277) || id2 == 0x7fff, DAT_0037af48, 12146);
+    HST_ASSERT((id1 >= -1 && id1 < 277) || id1 == 0x7fff, "(-1 <= no0 && no0 < eANM_NUM) || no0 == SHRT_MAX", 12145);
+    HST_ASSERT((id2 >= -1 && id2 < 277) || id2 == 0x7fff, "(-1 <= no1 && no1 < eANM_NUM) || no1 == SHRT_MAX", 12146);
     if (id2 != 0x7fff) {
         if (pl->effect.IsActive())
             FUN_00059ca4(&pl->effect, -1);
@@ -186,7 +183,7 @@ extern "C" void FUN_000b5760(Player *pl, float speed1, int id1, unsigned char c1
     Effect *q = pl->model->m64;
     if (q) {
         int n = FUN_000b6164(pl, id1);
-        HST_ASSERT(n >= 0 && n <= 2, DAT_0037af7c, 12218);
+        HST_ASSERT(n >= 0 && n <= 2, "0 <= linkRacket && linkRacket <= 2", 12218);
         bool has = q->m180 != 0;
         if (n < 2) {
             if (!has) FUN_00058b84(q, pl->model->m58);

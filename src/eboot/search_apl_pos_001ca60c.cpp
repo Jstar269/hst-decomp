@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001ca60c end=0x001ca8e8 symbol=FUN_001ca60c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: Vec4 copies written field by field (a struct copy batches the loads), the scratch Vec4 w2 declared before w (frame slots 64/48), the matrix copied by initialisation, FUN_00022498 declared (out, in, float) so the float move lands in the jal slot, the outer loop as do/while (i < 2) with the epilogue after it; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001ca60c end=0x001ca8e8 symbol=FUN_001ca60c lang=c++ data=0x002eaa50 */
+/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: Vec4 copies written field by field (a struct copy batches the loads), the scratch Vec4 w2 declared before w (frame slots 64/48), the matrix copied by initialisation, FUN_00022498 declared (out, in, float) so the float move lands in the jal slot, the outer loop as do/while (i < 2) with the epilogue after it; names and types await human review. Data: its string literals (1 strings, 0x002eaa50-0x002eaa61) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Vec4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
@@ -48,7 +48,6 @@ struct Cam {
 };
 extern Cam *DAT_0034a118;
 extern Mat4 DAT_002bc410;
-extern char DAT_002eaa50[];
 extern char DAT_002eaa64[];
 extern char DAT_002eaa68[];
 extern char DAT_002eaa6c[];
@@ -71,7 +70,7 @@ extern "C" int FUN_001ca60c(int unused, Vec4 *dir, Vec4 *out)
     pos.z = p->z;
     pos.w = p->w;
     int local4 = 0;
-    FUN_001c5018(DAT_002eaa50);
+    FUN_001c5018("search Apl Pos: ");
     int i = 0;
     do {
         int j = 0;

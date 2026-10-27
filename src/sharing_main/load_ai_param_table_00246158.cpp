@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00246158 end=0x002464b8 symbol=FUN_00246158 lang=c++ */
-/* Clone of src/eboot/load_ai_param_table_00235ff4.cpp (hstclone.py tag s10170158a3r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00246158 end=0x002464b8 symbol=FUN_00246158 lang=c++ data=0x0039db3c */
+/* Clone of src/eboot/load_ai_param_table_00235ff4.cpp (hstclone.py tag s10170158a3r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0039db3c-0x0039db6d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly (recipe of src/eboot/table_records_load_001607a4.cpp); exact match verified; names and types await human review. */
 /* Loads the table file at 0x39db3c (data/common/parameter/AI/Param_D...) through a local reader object (derived class of the FUN_00065884 base,
    two sub-objects built with FUN_0008d97c and torn down with FUN_0006778c, destructor storing the vptr), first clearing the vector through the
@@ -8,8 +8,6 @@
 extern "C" {
 extern char DAT_003b0388[];
 extern char DAT_0039d364[];
-extern char DAT_0039db3c[];
-extern char DAT_0039db68[];
 extern char DAT_0039d8dc[];
 extern char DAT_0039d8f0[];
 extern char DAT_0039d904[];
@@ -88,7 +86,7 @@ extern "C" void FUN_00246158(Vec *v)
 {
     FUN_0008c898(v, v->size, Tag());
     Res r;
-    if (FUN_00066260(&r, DAT_0039db3c, 0, 1, DAT_0039d364)) {
+    if (FUN_00066260(&r, "data/common/parameter/AI_Param_Doubles.csv", 0, 1, DAT_0039d364)) {
         int n = FUN_00065fa4(&r);
         if (v->cap < (unsigned)(n - 1)) {
             FUN_0024729c(v, n - 1);
@@ -96,7 +94,7 @@ extern "C" void FUN_00246158(Vec *v)
         for (int i = 1; i < n; i++) {
             Entry e;
             FUN_000114c0(&e, 0, sizeof(Entry));
-            e.id = FUN_00066700(&r, i, DAT_0039db68);
+            e.id = FUN_00066700(&r, i, "Rank");
             e.judgmentA = FUN_0006682c(&r, i, DAT_0039d8dc);
             e.judgmentB = FUN_0006682c(&r, i, DAT_0039d8f0);
             e.judgmentC = FUN_0006682c(&r, i, DAT_0039d904);

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00288c74 end=0x00288cf4 symbol=FUN_00288c74 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ mode, struct member access and virtual method call on slot 11; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00288c74 end=0x00288cf4 symbol=FUN_00288c74 lang=c++ data=0x002feb20 */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ mode, struct member access and virtual method call on slot 11; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002feb20-0x002feb2e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 struct Sub2 {
     char pad[0x40];
@@ -27,7 +27,6 @@ struct Obj {
     Sub2 *sub;
 };
 
-extern "C" char DAT_002feb20[];
 extern "C" void FUN_000143b0(void*, const void*, int, int);
 extern "C" Sub2* FUN_00193024(void*);
 
@@ -44,7 +43,7 @@ extern "C" void FUN_00288c74(Obj *param_1)
     bVar1 = iVar2 == 3;
   }
   if (bVar1) {
-    FUN_000143b0(auStack_40, DAT_002feb20, param_1->arg1, param_1->arg2);
+    FUN_000143b0(auStack_40, "Npc_%03d_%02d", param_1->arg1, param_1->arg2);
     param_1->sub = FUN_00193024(auStack_40);
   }
 }

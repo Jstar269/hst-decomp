@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0010ae20 end=0x0010aeb0 symbol=FUN_0010ae20 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0010ae20 end=0x0010aeb0 symbol=FUN_0010ae20 lang=c99 data=0x002d91c0 */
+/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d91c0-0x002d920f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -17,8 +17,6 @@ typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
-extern char DAT_002d91c0[];
-extern char DAT_002d91e8[];
 extern void FUN_00012ad0();
 extern uint FUN_0004cad0();
 extern undefined4 FUN_0010ad1c();
@@ -31,11 +29,11 @@ undefined4 FUN_0010ae20(undefined1 *param_1,undefined4 param_2)
   
   iVar1 = FUN_0004cad0(param_2,&local_4,0x10,1);
   if (iVar1 == 0) {
-    FUN_00012ad0(DAT_002d91c0,param_2);
+    FUN_00012ad0("ERROR: Text::Load(%s): file not found.\n",param_2);
     uVar2 = 0;
   }
   else if (local_4 < 1) {
-    FUN_00012ad0(DAT_002d91e8,param_2);
+    FUN_00012ad0("ERROR: Text::Load(%s): file is empty.\n",param_2);
     uVar2 = 0;
   }
   else {

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00096a90 end=0x00096c2c symbol=FUN_00096a90 lang=c99 */
-/* Clone of src/sharing_main/sync_entry_gated_00098bc8.c (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00096a90 end=0x00096c2c symbol=FUN_00096a90 lang=c99 data=0x002d438c */
+/* Clone of src/sharing_main/sync_entry_gated_00098bc8.c (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d438c-0x002d43a0) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed structs, gate flag as int ok = (G != 0); if (ok) ok = (b != 0) ^ 1, unsigned char flags, entry byte compared through an int local with (uchar) cast; matching idiom: the result of the debug print stub FUN_00096994 is assigned back to the entry pointer (retail keeps the entry in v0 across the stub call, as MWCC does for an empty static stub defined earlier in the same file, which hstmatch cannot place); exact match verified; names and types await human review. */
 typedef unsigned char uchar;
 
@@ -37,7 +37,6 @@ typedef struct {
 extern uchar DAT_003386b8;
 extern Mgr *DAT_00338af0;
 extern Sys *DAT_00338b44;
-extern char DAT_002d438c[];
 extern Entry *FUN_00096994();
 extern Entry *FUN_000c4ba0();
 
@@ -80,7 +79,7 @@ void FUN_00096a90(Obj *o)
       if (ok && DAT_00338af0 != 0) {
         e = FUN_000c4ba0(DAT_00338af0, o->idx);
         if (e->b0 != 0 && o->w2fc != e->w13c) {
-          e = FUN_00096994(DAT_002d438c, e->b138, (int)e->b139);
+          e = FUN_00096994("ReceivePoint %d %d\n", e->b138, (int)e->b139);
           o->b2f8 = e->b138;
           o->b2f9 = e->b139;
           o->w2fc = e->w13c;

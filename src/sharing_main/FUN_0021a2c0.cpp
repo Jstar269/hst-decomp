@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0021a2c0 end=0x0021a978 symbol=FUN_0021a2c0 lang=c++ */
-/* Clone of src/eboot/FUN_0020b7a0.cpp (hstclone.py tag c155507): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0021a2c0 end=0x0021a978 symbol=FUN_0021a2c0 lang=c++ data=0x00397a98 */
+/* Clone of src/eboot/FUN_0020b7a0.cpp (hstclone.py tag c155507): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00397a98-0x00397ab1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 typedef unsigned int uint;
 
@@ -52,8 +52,6 @@ extern float DAT_00397a88;
 extern float DAT_00397a8c;
 extern float DAT_00397a90;
 extern float DAT_00397a94;
-extern char DAT_00397a98[];
-extern char DAT_00397aa4[];
 extern Cfg *DAT_003e1e84;
 
 extern float FUN_0000ce54(float, float);
@@ -155,12 +153,12 @@ extern "C" int FUN_0021a2c0(Self *param_3, int param_4, int param_5, float param
       if (bVar3) {
         fVar10 = Min(fVar10 + (float)param_3->f850, DAT_00397a70);
         fVar11 = Min(fVar11 + 0.5f * (float)param_3->f850, DAT_00397a74);
-        FUN_002164c4(DAT_00397a98, param_3->f850);
+        FUN_002164c4("not lob %d\n", param_3->f850);
       }
       if (bVar2) {
         fVar10 = Min(fVar10 + 0.4f * (float)param_3->f84c, DAT_00397a78);
         fVar11 = Min(fVar11 + 0.2f * (float)param_3->f84c, DAT_00397a7c);
-        FUN_002164c4(DAT_00397aa4, param_3->f84c);
+        FUN_002164c4("not drop %d\n", param_3->f84c);
       }
       float sign = 0.0f;
       if (param_4 == 1) {

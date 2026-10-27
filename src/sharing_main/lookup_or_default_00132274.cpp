@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00132274 end=0x001322bc symbol=FUN_00132274 lang=c++ */
-/* Clone of src/eboot/lookup_or_default_00127004.cpp (hstclone.py tag x1237s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00132274 end=0x001322bc symbol=FUN_00132274 lang=c++ data=0x0038188c */
+/* Clone of src/eboot/lookup_or_default_00127004.cpp (hstclone.py tag x1237s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0038188c-0x00381898) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Sub8c {
     char pad[8];
@@ -19,12 +19,11 @@ struct Self {
 };
 
 extern "C" {
-extern char DAT_0038188c[];
 extern int FUN_0002fea8(int, char *);
 }
 
 extern "C" void FUN_00132274(Self *self)
 {
     int h = self->p58->p8c->f8;
-    self->f350 = h != 0 ? FUN_0002fea8(h, DAT_0038188c) : -1;
+    self->f350 = h != 0 ? FUN_0002fea8(h, "Bip01Pelvis") : -1;
 }

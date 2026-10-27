@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x001d8be0 end=0x001d8ebc symbol=FUN_001d8be0 lang=c++ */
-/* Clone of src/eboot/search_apl_pos_001ca60c.cpp (hstclone.py tag c21sn6s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x001d8be0 end=0x001d8ebc symbol=FUN_001d8be0 lang=c++ data=0x00392820 */
+/* Clone of src/eboot/search_apl_pos_001ca60c.cpp (hstclone.py tag c21sn6s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00392820-0x00392831) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: Vec4 copies written field by field (a struct copy batches the loads), the scratch Vec4 w2 declared before w (frame slots 64/48), the matrix copied by initialisation, FUN_000224c0 declared (out, in, float) so the float move lands in the jal slot, the outer loop as do/while (i < 2) with the epilogue after it; names and types await human review. */
 struct Vec4 {
     float x, y, z, w;
@@ -49,7 +49,6 @@ struct Cam {
 };
 extern Cam *DAT_003f3450;
 extern Mat4 DAT_002cc260;
-extern char DAT_00392820[];
 extern char DAT_00392834[];
 extern char DAT_00392838[];
 extern char DAT_0039283c[];
@@ -72,7 +71,7 @@ extern "C" int FUN_001d8be0(int unused, Vec4 *dir, Vec4 *out)
     pos.z = p->z;
     pos.w = p->w;
     int local4 = 0;
-    FUN_001d0468(DAT_00392820);
+    FUN_001d0468("search Apl Pos: ");
     int i = 0;
     do {
         int j = 0;

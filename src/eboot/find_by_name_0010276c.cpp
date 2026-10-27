@@ -1,10 +1,9 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0010276c end=0x00102824 symbol=FUN_0010276c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0010276c end=0x00102824 symbol=FUN_0010276c lang=c++ data=0x002d8b80 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d8b80-0x002d8bb5) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 extern "C" {
     extern int FUN_00014934(const char *, const char *);
     extern void FUN_001006b0(const void *, const char *);
-    extern char DAT_002d8b80;
 }
 
 struct Elem {
@@ -43,6 +42,6 @@ extern "C" int FUN_0010276c(Container *self, const char *name)
             return i;
         }
     }
-    FUN_001006b0(&DAT_002d8b80, name);
+    FUN_001006b0("ERROR: SpriteGroup::GetSpriteIndex(\"%s\") not found.\n", name);
     return -1;
 }

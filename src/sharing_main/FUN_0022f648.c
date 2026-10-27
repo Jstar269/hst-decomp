@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0022f648 end=0x0022f748 symbol=FUN_0022f648 lang=c99 */
-/* Clone of src/eboot/FUN_002200d4.c (hstclone.py tag c25unfold): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0022f648 end=0x0022f748 symbol=FUN_0022f648 lang=c99 data=0x00398f20 */
+/* Clone of src/eboot/FUN_002200d4.c (hstclone.py tag c25unfold): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00398f20-0x00398f48) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern void FUN_0010873c(void *self);
 extern void FUN_00109a44(void *self, const char *name, int flag);
@@ -10,7 +10,6 @@ extern void *FUN_00108124(void *model, const char *name);
 extern void FUN_0022f8ac(void *self);
 extern char DAT_003b29b0[];
 extern char DAT_00398ee0[];
-extern char DAT_00398f20[];
 struct Entry_0022f648 { int idx; const char *name; int result; };
 extern struct Entry_0022f648 DAT_00398ef4[3];
 struct Obj_0022f648 { int pad[9]; int f24; };
@@ -20,7 +19,7 @@ void *FUN_0022f648(void *self)
     FUN_0010873c(self);
     *(void **)self = &DAT_003b29b0;
     p[0x1c] = 0;
-    FUN_00109a44(self, DAT_00398f20, 0);
+    FUN_00109a44(self, "data/menu/lobby/lobby_add/addlayout.lay", 0);
     FUN_00108e6c(self, 1110.0f);
     FUN_001090f4(self, 18);
     {

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00044f4c end=0x00045160 symbol=FUN_00044f4c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00044f4c end=0x00045160 symbol=FUN_00044f4c lang=c++ data=0x002d00a0 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002d00a0-0x002d010d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct VD {
     virtual ~VD();
 };
@@ -37,9 +37,6 @@ void FUN_00000a00(void *);
 
 extern char DAT_00306f7c;
 extern int DAT_0030ff7c;
-extern const char DAT_002d00a0[];
-extern const char DAT_002d00c4[];
-extern const char DAT_002d00ec[];
 
 extern "C" Self *FUN_00044f4c(Self *self, short flag)
 {
@@ -67,12 +64,12 @@ extern "C" Self *FUN_00044f4c(Self *self, short flag)
         FUN_002b7ab0(self->heap);
         int status;
         if (FUN_002b7808(self->module, 0, 0, &status, 0) < 0)
-            FUN_00042dd8(FUN_0000fe3c()->err, DAT_002d00a0);
+            FUN_00042dd8(FUN_0000fe3c()->err, "fatal error : sceKernelStopModule\n");
         else if (FUN_002b7800(self->module) < 0)
-            FUN_00042dd8(FUN_0000fe3c()->err, DAT_002d00c4);
+            FUN_00042dd8(FUN_0000fe3c()->err, "fatal error : sceKernelUnloadModule\n");
         else if (FUN_000df5c0(DAT_0030ff7c) == (int)0x80000100) {
             DAT_0030ff7c = 0;
-            FUN_00042dd8(FUN_0000fe3c()->err, DAT_002d00ec);
+            FUN_00042dd8(FUN_0000fe3c()->err, "fatal error : sceHeapDeleteHeap\n");
         }
         DAT_0030ff7c = 0;
         FUN_0001f0f0(self, 0);

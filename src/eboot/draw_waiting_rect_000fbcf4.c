@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000fbcf4 end=0x000fbec8 symbol=FUN_000fbcf4 lang=c99 */
-/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000fbcf4 end=0x000fbec8 symbol=FUN_000fbcf4 lang=c99 data=0x002d8344 */
+/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d8344-0x002d8354) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef struct {
     unsigned char pad[0x4c];
     unsigned char flag;
@@ -25,8 +25,6 @@ struct Rect {
 
 extern Cfg *DAT_003386b0;
 extern int DAT_002d8278;
-extern char DAT_002d8344;
-extern char DAT_002d834c[];
 
 extern void *FUN_001039d8(void *, void *, int);
 extern struct Rect *FUN_001026b8(void *, const char *);
@@ -58,8 +56,8 @@ void FUN_000fbcf4(Self *s)
     if (s->f3c == 0) return;
     if (s->f58 == 0) return;
 
-    void *handle = FUN_001039d8(s->f3c, &DAT_002d8344, 0);
-    struct Rect *r = FUN_001026b8(handle, DAT_002d834c);
+    void *handle = FUN_001039d8(s->f3c, "main", 0);
+    struct Rect *r = FUN_001026b8(handle, "waiting");
     void *tex = s->tex[s->f5c / DAT_002d8278];
 
     DrawRect(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, tex, r, 0, 0);

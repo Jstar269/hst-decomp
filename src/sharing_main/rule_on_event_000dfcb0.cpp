@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000dfcb0 end=0x000e07a8 symbol=FUN_000dfcb0 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000dfcb0 end=0x000e07a8 symbol=FUN_000dfcb0 lang=c++ data=0x0037d788 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x0037d788-0x0037d810) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Rule.cpp (file name, assert texts and the m_ResultGame / GetGameResult() names come from this function's
    assert strings): point-won / event handler of the match rule object; Sharing twin of EBOOT 0xdbc90
    (asserts enabled, plus the counter bump before the game-won bookkeeping). */
@@ -93,9 +93,6 @@ extern Entry120 DAT_003eaaf0[4];
 
 extern const char DAT_0037d738[]; /* "assertion \"%s\" failed: file \"%s\", line %d\n" */
 extern const char DAT_0037d774[]; /* "Rule.cpp" */
-extern const char DAT_0037d788[]; /* "setNo < BULK_OF(m_ResultGame[0])" */
-extern const char DAT_0037d7ac[]; /* "gameNo < BULK_OF(GetGameResult().m_getGame[0])" */
-extern const char DAT_0037d7dc[]; /* "gameNo < BULK_OF(GetGameResult().m_pointPerGame[0])" */
 
 extern "C" {
 Player *FUN_00089f84(Game *g);
@@ -200,15 +197,15 @@ extern "C" int FUN_000dfcb0(Rule *self, int ev)
             if (!DAT_003eabd3 && !DAT_003eacf3 && self->points[w ^ 1] == 0)
                 DAT_003e19f0->record->result.players[w].loveGames++;
             int setNo = self->sets[0] + self->sets[1];
-            RULE_ASSERT(setNo < BULK_OF(self->m_ResultGame[0]), DAT_0037d788, 439);
+            RULE_ASSERT(setNo < BULK_OF(self->m_ResultGame[0]), "setNo < BULK_OF(m_ResultGame[0])", 439);
             int gameNo = 0;
             for (int i = 0; i <= setNo; i++) {
                 gameNo += self->m_ResultGame[0][i];
                 gameNo += self->m_ResultGame[1][i];
             }
-            RULE_ASSERT(gameNo < BULK_OF(GetGameResult().m_getGame[0]), DAT_0037d7ac, 450);
+            RULE_ASSERT(gameNo < BULK_OF(GetGameResult().m_getGame[0]), "gameNo < BULK_OF(GetGameResult().m_getGame[0])", 450);
             GetGameResult().m_getGame[w][gameNo] = 1;
-            RULE_ASSERT(gameNo < BULK_OF(GetGameResult().m_pointPerGame[0]), DAT_0037d7dc, 454);
+            RULE_ASSERT(gameNo < BULK_OF(GetGameResult().m_pointPerGame[0]), "gameNo < BULK_OF(GetGameResult().m_pointPerGame[0])", 454);
             GetGameResult().m_pointPerGame[0][gameNo] = min_(DAT_0037d780, self->points[0]);
             GetGameResult().m_pointPerGame[1][gameNo] = min_(DAT_0037d784, self->points[1]);
             self->games[w]++;

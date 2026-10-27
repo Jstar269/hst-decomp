@@ -1,9 +1,6 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0010aa08 end=0x0010aae4 symbol=game_sharing_update_0010aa08 lang=c99 */
-/* Clone of src/sharing_main/game_sharing_update_001107c8.c (hstclone.py tag u3r2e): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0010aa08 end=0x0010aae4 symbol=game_sharing_update_0010aa08 lang=c99 data=0x002d9014 */
+/* Clone of src/sharing_main/game_sharing_update_001107c8.c (hstclone.py tag u3r2e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002d9014-0x002d90b1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
-extern const char DAT_002d9014[];
-extern const char DAT_002d9044[];
-extern const char DAT_002d907c[];
 extern void FUN_0010a4a8(const char *name, int val);
 extern int FUN_002b7c68(int mode);
 extern int FUN_002b7c80(void);
@@ -20,13 +17,13 @@ int game_sharing_update_0010aa08(char *param_1)
         case 2:
             res = FUN_002b7c68(2);
             if (res != 0) {
-                FUN_0010a4a8(DAT_002d9014, res);
+                FUN_0010a4a8("ERROR: sceUtilityGameSharingUpdate failed - %x\n", res);
             }
             break;
         case 3:
             res = FUN_002b7cc8();
             if (res != 0) {
-                FUN_0010a4a8(DAT_002d9044, res);
+                FUN_0010a4a8("ERROR: sceUtilityGameSharingShutdownStart failed - %x\n", res);
             }
             break;
         case 4:
@@ -35,7 +32,7 @@ int game_sharing_update_0010aa08(char *param_1)
             break;
         }
     } else {
-        FUN_0010a4a8(DAT_002d907c, *(int *)(param_1 + 0x4c));
+        FUN_0010a4a8("UtilityGameSharing::Update(): m_param.result = 0x%x\n", *(int *)(param_1 + 0x4c));
         res = *(int *)(param_1 + 0x4c);
     }
     return res;

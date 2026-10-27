@@ -1,7 +1,6 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x001104b8 end=0x0011058c symbol=FUN_001104b8 lang=c99 */
-/* Clone of src/eboot/obj_init_register_0010a6f8.c (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x001104b8 end=0x0011058c symbol=FUN_001104b8 lang=c99 data=0x0037fcb8 */
+/* Clone of src/eboot/obj_init_register_0010a6f8.c (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037fcb8-0x0037fcee) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern char DAT_0037fcb8[];
 extern void *FUN_00011090(void *, void *, int);
 extern void *FUN_000114c0(void *, int, int);
 extern int FUN_00110268(char *, int);
@@ -34,7 +33,7 @@ int FUN_001104b8(struct Obj *o, int user, void *src)
   o->cfg.self = o;
   r = FUN_002c79e8(&o->cfg);
   if (r != 0) {
-    r = FUN_00110268(DAT_0037fcb8, r);
+    r = FUN_00110268("ERROR: sceUtilityNetconfInitStart failed. ret = 0x%x\n", r);
   }
   return r;
 }

@@ -1,15 +1,9 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000ba78c end=0x000ba96c symbol=FUN_000ba78c lang=c++ */
+/* HSTMATCH module=EBOOT.BIN start=0x000ba78c end=0x000ba96c symbol=FUN_000ba78c lang=c++ data=0x002d4e68 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review.
    Matching idiom: each slot release keeps a redundant second null test (`if (p != 0) { if (p != 0) ... }`) -
    retail carries three tests per slot (outer guard, redundant guard, and delete's own test), and MWCC folds
    away a single guard. The net teardown is written as sequential early-return guards, which is what puts the
-   continuation out of line and leaves `beqzl v0,<success>`. */
-extern "C" char s_sceNetAdhocctlTerm___success_002d4e8c[];
-extern "C" char s_sceNetAdhocctlTerm___failed_0x_X_002d4e68[];
-extern "C" char s_sceNetAdhocTerm___failed_0x_X__002d4eac[];
-extern "C" char s_sceNetAdhocTerm___success_002d4ecc[];
-extern "C" char s_sceNetTerm___failed_0x_X__002d4ee8[];
-extern "C" char s_sceNetTerm___success_002d4f04[];
+   continuation out of line and leaves `beqzl v0,<success>`. Data: its string literals (6 strings, 0x002d4e68-0x002d4f1a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 extern "C" void FUN_000009e4(void *);
 extern "C" void FUN_000ba3ac(char *, ...);
@@ -89,21 +83,21 @@ extern "C" int FUN_000ba78c(Net *self)
 
   mode = FUN_002b7d78();
   if (mode != 0) {
-    FUN_000ba3ac(s_sceNetAdhocctlTerm___failed_0x_X_002d4e68,mode);
+    FUN_000ba3ac("sceNetAdhocctlTerm() failed(0x%X)\n",mode);
     return 0;
   }
-  FUN_000ba3ac(s_sceNetAdhocctlTerm___success_002d4e8c);
+  FUN_000ba3ac("sceNetAdhocctlTerm() success\n");
   mode = FUN_002b7e40();
   if (mode != 0) {
-    FUN_000ba3ac(s_sceNetAdhocTerm___failed_0x_X__002d4eac,mode);
+    FUN_000ba3ac("sceNetAdhocTerm() failed(0x%X)\n",mode);
     return 0;
   }
-  FUN_000ba3ac(s_sceNetAdhocTerm___success_002d4ecc);
+  FUN_000ba3ac("sceNetAdhocTerm() success\n");
   mode = FUN_002b7d90();
   if (mode != 0) {
-    FUN_000ba3ac(s_sceNetTerm___failed_0x_X__002d4ee8,mode);
+    FUN_000ba3ac("sceNetTerm() failed(0x%X)\n",mode);
     return 0;
   }
-  FUN_000ba3ac(s_sceNetTerm___success_002d4f04);
+  FUN_000ba3ac("sceNetTerm() success\n");
   return 1;
 }

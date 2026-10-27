@@ -1,6 +1,6 @@
 {
  "schema": "hst-decomp.milestone-record.v1",
- "generated": "2026-10-25",
+ "generated": "2026-10-27",
  "milestones": [
   {
    "id": "inventory",
@@ -13,48 +13,48 @@
   {
    "id": "game-code",
    "title": "Game code matched",
-   "progress": 31.690799757698105,
-   "detail": "1,805,956 of 5,698,676 code bytes (64,404 B of Sony code kept out of this repository are not counted)",
+   "progress": 36.26854701155287,
+   "detail": "2,062,556 of 5,686,900 code bytes (76,180 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "all-code",
    "title": "All code matched",
-   "progress": 31.690799757698105,
-   "detail": "1,805,956 of 5,698,676 code bytes (191,012 B of Sony code kept out of this repository are not counted)",
+   "progress": 36.26854701155287,
+   "detail": "2,062,556 of 5,686,900 code bytes (202,788 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-rebuild",
    "title": "PSP rebuild",
-   "progress": 22.171526366427994,
-   "detail": "2,010,373 of 9,067,364 image bytes from source in the whole-module build",
+   "progress": 28.967815231876717,
+   "detail": "2,623,206 of 9,055,588 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-moddable",
    "title": "Moddable PSP rebuild",
-   "progress": 18.640445006950202,
-   "detail": "1,690,197 of 9,067,364 image bytes from source in the relocated build",
+   "progress": 28.94369752687512,
+   "detail": "2,621,022 of 9,055,588 image bytes from source in the relocated build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "full-rebuild",
    "title": "Every module rebuilt",
-   "progress": 22.171526366427994,
-   "detail": "2,010,373 of 9,067,364 image bytes from source in the whole-module build",
+   "progress": 28.967815231876717,
+   "detail": "2,623,206 of 9,055,588 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "portable-source",
    "title": "Portable source",
-   "progress": 14.815565364644506,
-   "detail": "845,148 of 5,704,460 code bytes are source that compiles for all 5 host targets (6,694 of 10,828 sources)",
+   "progress": 17.469894341071157,
+   "detail": "993,972 of 5,689,628 code bytes are source that compiles for all 5 host targets (7,076 of 11,571 sources)",
    "reached": null,
    "regressed": false
   },

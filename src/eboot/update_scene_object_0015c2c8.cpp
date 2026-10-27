@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0015c2c8 end=0x0015c4e0 symbol=FUN_0015c2c8 lang=c++ */
-/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0015c2c8 end=0x0015c4e0 symbol=FUN_0015c2c8 lang=c++ data=0x002de420 */
+/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002de420-0x002de47e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode corrected by hand: object pointers use byte offsets; global references and the float callback argument are typed to retail; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
@@ -16,9 +16,6 @@ typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
 extern "C" {
-extern char DAT_002de420[];
-extern char DAT_002de448[];
-extern char DAT_002de464[];
 extern undefined DAT_0030ebf4;
 extern undefined DAT_0034179c;
 extern int FUN_00000bcc(...);
@@ -42,10 +39,10 @@ extern "C" void FUN_0015c2c8(char *param_1,int param_2,int param_3)
   undefined4 uVar2;
   int *piVar3;
   
-  FUN_000143b0(param_1 + 0x370,DAT_002de420,param_2);
+  FUN_000143b0(param_1 + 0x370,"menu/loadmes/special/loadmes_s%02d.xb",param_2);
   FUN_0001cad0(&DAT_0030ebf4,1,(void *)(param_1 + 0x370));
   if (param_2 == 0) {
-    FUN_000143b0(param_1 + 0x370,DAT_002de448,param_2);
+    FUN_000143b0(param_1 + 0x370,"data/menu/loadmes/S_d%02d",param_2);
     if (*(int *)(param_1 + 0x34) != 0) {
       iVar1 = FUN_00014934(param_1 + 0x70,param_1 + 0x370);
       if (iVar1 == 0) goto LAB_0015c49c;
@@ -70,7 +67,7 @@ extern "C" void FUN_0015c2c8(char *param_1,int param_2,int param_3)
     *(undefined4 *)(param_1 + 0x4c) = 0x3f800000;
   }
   else {
-    FUN_000143b0(param_1 + 0x370,DAT_002de464,param_2 + -1);
+    FUN_000143b0(param_1 + 0x370,"data/menu/loadmes/S_u%02d",param_2 + -1);
     if (*(int *)(param_1 + 0x34) != 0) {
       iVar1 = FUN_00014934(param_1 + 0x70,param_1 + 0x370);
       if (iVar1 == 0) goto LAB_0015c49c;

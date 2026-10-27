@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00119040 end=0x0011931c symbol=FUN_00119040 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00119040 end=0x0011931c symbol=FUN_00119040 lang=c++ data=0x002d9c2c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002d9c2c-0x002d9c5c) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Banner {
     virtual void v0();
     virtual void v1();
@@ -37,9 +37,6 @@ void *FUN_00000bcc(unsigned);
 }
 
 extern char DAT_0030ebf4;
-extern const char DAT_002d9c2c[];
-extern const char DAT_002d9c34[];
-extern const char DAT_002d9c48[];
 extern const char DAT_002d9c5c[];
 extern const char *DAT_002d95e8[];
 extern const char *DAT_002d98c0[];
@@ -51,18 +48,18 @@ inline void *operator new[](unsigned int, void *p) { return p; }
 
 extern "C" void FUN_00119040(Screen *self)
 {
-    FUN_00000020(DAT_002d9c2c);
+    FUN_00000020("Banner");
     char path[128];
     new (path) char[128]();
     char name[128];
     new (name) char[128]();
-    FUN_0001cad0(&DAT_0030ebf4, 1, DAT_002d9c34);
+    FUN_0001cad0(&DAT_0030ebf4, 1, "menu/030_banner.xb");
     for (int i = 0; i < 27; i++) {
         Banner *b = (Banner *)FUN_00000bcc(0x1b0);
         if (b)
             b = FUN_00056b98(b);
         self->banners[i] = b;
-        FUN_000143b0(name, DAT_002d9c48, DAT_002d95e8[i]);
+        FUN_000143b0(name, "data/menu/banner/%s", DAT_002d95e8[i]);
         FUN_000143b0(path, DAT_002d9c5c, name, DAT_002d98c0[i]);
         self->banners[i]->Load(path, name, 0, 0, 0, 0);
         FUN_000143b0(path, DAT_002d9c5c, name, DAT_002d9b2c[i]);

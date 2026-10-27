@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00142f90 end=0x001430c4 symbol=FUN_00142f90 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ virtual call (slot 2) on the device with 6 arguments, flag ternary reversed (param_5 != 0 ? 3 : 1), float first argument 0.0f (f12) to FUN_0005f030, float fields copied, typed structs; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00142f90 end=0x001430c4 symbol=FUN_00142f90 lang=c++ data=0x002dbb7c */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ virtual call (slot 2) on the device with 6 arguments, flag ternary reversed (param_5 != 0 ? 3 : 1), float first argument 0.0f (f12) to FUN_0005f030, float fields copied, typed structs; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dbb7c-0x002dbb8a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Dev {
   virtual void d0();
   virtual void d1();
@@ -20,7 +20,6 @@ struct Obj {
 };
 
 extern "C" {
-extern char DAT_002dbb7c[];
 extern void FUN_00014788(char *, char *);
 extern void FUN_0005ec14(Dev *, int, char *, int, int, int, int, int);
 extern int FUN_0005eff8(Dev *, int);
@@ -52,7 +51,7 @@ extern "C" void FUN_00142f90(Obj *param_1, char *param_2, int param_3, int param
     } while (param_2[i] != '.');
   }
   buf[i] = '\0';
-  FUN_00014788(buf, DAT_002dbb7c);
+  FUN_00014788(buf, "_motion01.tat");
   FUN_0005ec14(param_1->dev, 0, buf, param_3, 0, 0, 0, 0);
   if (FUN_0005eff8(param_1->dev, 0) == 0) {
     param_1->ok = 0;

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000f0b64 end=0x000f0d84 symbol=FUN_000f0b64 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000f0b64 end=0x000f0d84 symbol=FUN_000f0b64 lang=c99 data=0x002d7454 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 3 strings, 0x002d7454-0x002d7480) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -31,7 +31,11 @@ extern float DAT_002d6c9c;
 extern const float DAT_002d757c;
 extern const float DAT_002d7580;
 extern char DAT_002d7584[];
-extern char *DAT_002d7474[];
+char *DAT_002d7474[] = {
+    "minipoint",
+    "point",
+    "regulation",
+};
 extern int DAT_002d74f8[];
 
 static inline int Width(Rect *r) { return r->x2 - r->x; }

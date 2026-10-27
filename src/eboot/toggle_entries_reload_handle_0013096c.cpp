@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0013096c end=0x00130b10 symbol=FUN_0013096c lang=c++ */
-/* Clone of src/sharing_main/toggle_entries_reload_handle_0013bf24.cpp (hstclone.py tag s10170158a1r2e): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0013096c end=0x00130b10 symbol=FUN_0013096c lang=c++ data=0x002db190 */
+/* Clone of src/sharing_main/toggle_entries_reload_handle_0013bf24.cpp (hstclone.py tag s10170158a1r2e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002db190-0x002db19d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag gen-sh2/v0) corrected by hand: typed the list and object structs, restored the dropped second argument of FUN_001b1f7c (the tested handle), wrote the flag as !p2 and swapped the Ghidra if/else arms; exact match verified; names and types await human review. */
 struct Ent;
 struct List { char pad[0xa8]; Ent *fa8; };
@@ -10,7 +10,6 @@ extern List *DAT_003386b0;
 extern Ent *DAT_00340284;
 extern Ent *DAT_00338c20;
 extern char DAT_0034179c[];
-extern char DAT_002db190[];
 extern int FUN_0001f2f8(List *);
 extern Ent *FUN_0001f300(List *, int);
 extern void FUN_0001f63c(Ent *, int, bool);
@@ -40,7 +39,7 @@ void FUN_0013096c(Obj *o, int p2)
             FUN_001b1f84(DAT_0034179c, &o->f124);
             o->f124 = -1;
         }
-        o->f124 = FUN_001b28f0(DAT_0034179c, DAT_002db190);
+        o->f124 = FUN_001b28f0(DAT_0034179c, "matrixcamera");
         FUN_00062afc(o->f124, 10);
     } else {
         o->f120 = -1;

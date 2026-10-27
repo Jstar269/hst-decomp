@@ -25,6 +25,7 @@ struct Vec {
     unsigned int size;
     unsigned int cap;
 
+    void swap(Vec &x) { Swap(cap, x.cap); Swap(data, x.data); Swap(size, x.size); }
     void shrink(int n, Alloc) { size -= n; }
     void clear(Alloc a = Alloc()) { shrink(size, a); }
 };
@@ -79,18 +80,14 @@ extern "C" void *FUN_00226af0(void *param_1, short param_2) {
             v1.size = 0;
             v1.cap = 0;
             FUN_0022909c(&v1, DAT_0034a2f0.data, DAT_0034a2f0.data + DAT_0034a2f0.size, tag1);
-            Swap(DAT_0034a2f0.cap, v1.cap);
-            Swap(DAT_0034a2f0.data, v1.data);
-            Swap(DAT_0034a2f0.size, v1.size);
+            v1.swap(DAT_0034a2f0);
             FUN_001466dc(&v1, 0);
 
             v2.data = 0;
             v2.size = 0;
             v2.cap = 0;
             FUN_0022909c(&v2, DAT_0034a308.data, DAT_0034a308.data + DAT_0034a308.size, tag2);
-            Swap(DAT_0034a308.cap, v2.cap);
-            Swap(DAT_0034a308.data, v2.data);
-            Swap(DAT_0034a308.size, v2.size);
+            v2.swap(DAT_0034a308);
             FUN_001466dc(&v2, 0);
         }
 
@@ -105,9 +102,11 @@ extern "C" void *FUN_00226af0(void *param_1, short param_2) {
     return param_1;
 }
 
-// Differing words: 42 words out of 162 words (first at +0x118).
-// Prologue through 0x226c04 is 100% exact match.
-// Mismatch is in the second clear and swap temporaries (retail keeps old size in v1, lui in v0;
-// ours hoists lui into v1 and puts size into a0, with swap block register colors a1/a0 vs v1/a1/a0).
-// Identical unsolved MWCC issue as documented for sister function 0x2471c4 in docs/MWCC-NOTES.md.
-// near miss from lane ag4 (unreviewed)
+// lane wf20261026-e01-06 (2026-10-26): 42 -> 14 words. The swap blocks are exact once written as an inline member
+// `void swap(Vec &x) { Swap(cap, x.cap); Swap(data, x.data); Swap(size, x.size); }` called as `v1.swap(G)` (the temp's
+// member, global as argument); `G.swap(v1)` or free Swaps stay at 42. Remaining 14: the SECOND clear only (retail
+// lw v1 size, lui v0 per access, subu/sw scheduled after `lb a3; addiu a0,sp,68`; ours lw a0 + hoisted lui v1).
+// Ruled out this pass: begin()/end() const getters for the range args, a Vec() ctor (43), clear via a Vec* local,
+// moving the clear after the decls / the v1 zero stores (scheduler ignores it), int/unsigned n temps (19), direct
+// shrink(size), size -= size (82), unsigned shrink param (114), size = size - n.
+// improved by lane wf20261026-e01-06 (unreviewed): 42 -> 14 differing words

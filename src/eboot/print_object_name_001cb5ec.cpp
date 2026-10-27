@@ -1,9 +1,8 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001cb5ec end=0x001cb700 symbol=FUN_001cb5ec lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001cb5ec end=0x001cb700 symbol=FUN_001cb5ec lang=c++ data=0x002eaa9c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002eaa9c-0x002eaaac) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 extern "C" {
 extern unsigned char DAT_002ea308;
-extern char DAT_002eaa9c[];
 extern int FUN_0000d62c(const char *);
 extern void FUN_000143b0(void *, const char *, int, int);
 extern int FUN_000149a8(...);
@@ -32,7 +31,7 @@ extern "C" void FUN_001cb5ec(int param_1, void *param_2, VC_0 *param_3, int para
       while (*p >= '0' && *p <= '9') p--;
       if (p != 0) v = FUN_0000d62c(p + 1);
     }
-    FUN_000143b0(param_2, DAT_002eaa9c, v, param_4);
+    FUN_000143b0(param_2, "EVENT%02d_%02d_", v, param_4);
     r = FUN_002295f4(*(int *)(param_1 + 0x15c) + 0x34, param_2, 0);
     if (r != 0) FUN_000149a8(param_2, r);
   }

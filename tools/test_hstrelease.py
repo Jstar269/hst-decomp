@@ -102,7 +102,8 @@ def ladder() -> dict:
 
 
 KINDS = {"sources": 14, "kinds": {"clone": 6, "generated": 3, "corrected": 1, "hand": 2, "template": 1, "library": 1},
-         "classes": {"game": 12, "newlib": 2}, "newlib_clones": 1}
+         "classes": {"game": 12, "newlib": 2}, "newlib_clones": 1,
+         "profiles": {"mwcc219": 11, "gcc171-O2": 2, "gcc171-O0": 1}}
 
 DOCS = {
     "README.md": "# T\n\n<!-- hstprogress:begin readme-glance -->\n\nold\n\n<!-- hstprogress:end -->\n\n"
@@ -115,7 +116,10 @@ DOCS = {
                           "| T3 | x | <!-- hstprogress:begin completion-t3 -->3% (3 B<!-- hstprogress:end -->; s) |\n"
                           "| T4 | x | <!-- hstprogress:begin completion-t4 -->0%<!-- hstprogress:end --> |\n",
     "docs/GUIDE.md": "- First item.\n  <!-- hstprogress:begin guide-source-kinds -->\n- old one\n- old two\n"
-                     "  <!-- hstprogress:end -->\n- Last item.\n"}
+                     "  <!-- hstprogress:end -->\n- Last item.\n- `cc=` item.\n"
+                     "  <!-- hstprogress:begin guide-profiles -->\n  old\n  <!-- hstprogress:end -->\n- After.\n",
+    "docs/PROGRESS.md": "# P\n\n<!-- hstprogress:begin progress-figures -->\n\nold\n\n<!-- hstprogress:end -->\n\n"
+                        "## Next\n"}
 
 
 class BlockTests(unittest.TestCase):
@@ -140,6 +144,15 @@ class BlockTests(unittest.TestCase):
         self.assertIn("- 2 of the sources are newlib library functions", guide)
         self.assertIn("all others are game code", guide.replace("\n  ", " "))
         self.assertTrue(all(len(line) <= 118 for line in guide.splitlines()))
+        self.assertEqual(b["guide-profiles"], "  Measured 2000-02-03, the public sources use `mwcc219` (11 sources), "
+                                              "`gcc171-O2` (2 sources) and `gcc171-O0` (1\n  source).")
+        figures = b["progress-figures"]
+        self.assertTrue(figures.startswith("Measured 2000-02-03 from the public sources: 14 exact sources and 3 near"))
+        self.assertIn("| Code matched, both game modules | 450 B (15 functions) | 5,000 B (150 functions) | 9.000% |",
+                      figures)
+        self.assertIn("| `EBOOT.BIN` code | 400 B (10 functions) | 4,000 B (100 functions) | 10.000% |", figures)
+        self.assertIn("| Tier 2: whole-module build | 1,234 B | the six modules in scope, 10,000 B | 12.340% |", figures)
+        self.assertTrue(figures.endswith("| Tier 4: strict (reviewed) | 0 B | the six modules in scope, 10,000 B | 0.000% |"))
 
     def test_unexpected_classes_and_kinds_are_named_not_hidden(self) -> None:
         kinds = copy.deepcopy(KINDS)
@@ -163,7 +176,13 @@ class BlockTests(unittest.TestCase):
                       completion)
         guide, _ = P.rewrite_blocks(DOCS["docs/GUIDE.md"], b)
         self.assertTrue(guide.startswith("- First item.\n  <!-- hstprogress:begin guide-source-kinds -->\n- Of the 14"))
-        self.assertTrue(guide.endswith("`mwccpsp`.\n  <!-- hstprogress:end -->\n- Last item.\n"))  # one list, no gap
+        self.assertIn("`mwccpsp`.\n  <!-- hstprogress:end -->\n- Last item.\n", guide)          # one list, no gap
+        self.assertTrue(guide.endswith("<!-- hstprogress:begin guide-profiles -->\n  Measured 2000-02-03"
+                                       ", the public sources use `mwcc219` (11 sources), `gcc171-O2` (2 sources) and "
+                                       "`gcc171-O0` (1\n  source).\n  <!-- hstprogress:end -->\n- After.\n"))
+        progress, _ = P.rewrite_blocks(DOCS["docs/PROGRESS.md"], b)
+        self.assertIn("<!-- hstprogress:begin progress-figures -->\n\nMeasured 2000-02-03", progress)
+        self.assertIn("0.000% |\n\n<!-- hstprogress:end -->\n\n## Next\n", progress)       # the table ends before the marker
         again, _ = P.rewrite_blocks(guide, b)
         self.assertEqual(again, guide)                                                      # idempotent
         self.assertEqual(P.blocks_in(guide)["guide-source-kinds"], b["guide-source-kinds"])
@@ -180,9 +199,9 @@ class BlockTests(unittest.TestCase):
                 (root / rel).parent.mkdir(parents=True, exist_ok=True)
                 (root / rel).write_text(text, encoding="utf-8")
             render = lambda d: P.render_blocks(fig(), ladder(), KINDS, d)          # noqa: E731
-            self.assertEqual(len(P.compare_blocks(render, root)), 7)    # every block but the date, which is checked as itself
+            self.assertEqual(len(P.compare_blocks(render, root)), 9)    # every block but the date, which is checked as itself
             self.assertEqual(sorted(P.write_blocks(render("2000-02-03"), root)),
-                             ["README.md", "docs/COMPLETION.md", "docs/GUIDE.md"])
+                             ["README.md", "docs/COMPLETION.md", "docs/GUIDE.md", "docs/PROGRESS.md"])
             self.assertEqual(P.compare_blocks(render, root), [])
             self.assertEqual(P.write_blocks(render("2000-02-03"), root), [])     # nothing left to rewrite
             # a later day is not a difference by itself (each block is checked with the date it shows) ...
@@ -193,7 +212,8 @@ class BlockTests(unittest.TestCase):
             diffs = P.compare_blocks(lambda d: P.render_blocks(fig(), ladder(), more, d), root)
             self.assertEqual(diffs, ["docs/GUIDE.md: block guide-source-kinds differs from the figures measured now"])
             (root / "docs/GUIDE.md").write_text("- no block\n", encoding="utf-8")
-            self.assertEqual(P.compare_blocks(render, root), ["docs/GUIDE.md: no hstprogress block guide-source-kinds"])
+            self.assertEqual(P.compare_blocks(render, root), ["docs/GUIDE.md: no hstprogress block guide-source-kinds",
+                                                          "docs/GUIDE.md: no hstprogress block guide-profiles"])
             with self.assertRaises(SystemExit):
                 P.write_blocks(render("2000-02-03"), root)
 

@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002b62f8 end=0x002b6568 symbol=__ct__10C_002b62f8Fv lang=c++ */
-/* Clone of src/eboot/menu_ad_history_ctor_002a6b68.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002b62f8 end=0x002b6568 symbol=__ct__10C_002b62f8Fv lang=c++ data=0x003aad04 */
+/* Clone of src/eboot/menu_ad_history_ctor_002a6b68.cpp (hstclone.py tag ol23c): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003aad04-0x003aad2b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Obj {
     virtual void v0();
@@ -61,7 +61,6 @@ struct C_002b62f8 : B_0010873c {
     virtual void v1();
 };
 
-extern char DAT_003aad04[];
 extern char *PTR_003aa144[];
 extern Lookup DAT_003aa5ac[];
 extern int DAT_003aac3c[];
@@ -77,7 +76,7 @@ void FUN_00105470(Item *it, int on);
 
 C_002b62f8::C_002b62f8()
 {
-    FUN_00109a44(this, DAT_003aad04, 0);
+    FUN_00109a44(this, "data/menu/ad_history/ad_history_02.lay", 0);
     FUN_00108e6c(1000.0f, this);
     int base = (int)this;
     {

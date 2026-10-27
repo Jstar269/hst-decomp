@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002a5278 end=0x002a55d8 symbol=FUN_002a5278 lang=c++ */
-/* Clone of src/eboot/shop_item_table_00293c6c.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002a5278 end=0x002a55d8 symbol=FUN_002a5278 lang=c++ data=0x003a8af4 */
+/* Clone of src/eboot/shop_item_table_00293c6c.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (7 strings, 0x003a8af4-0x003a8b4b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly and the Ghidra pseudocode (loads data/menu/shop/Item.csv rows into seven record vectors by name prefix); matching idioms: trailing unused empty By-value tag parameter False (retail frame is 16 bytes larger), push_back inline taking an unused char-member Tag that it forwards as Tag() to the out-of-line grow (a plain struct Tag { signed char c; } gives move v0,zero + seb; a constructor folds it), capacity() returning const unsigned & (the cap address hoisted into s0), the two record temporaries declared at function top, the name test chain as if (cmp != 0) idx = K else-if, the allocated Csv as csv = alloc(16); if (csv != 0) csv = ctor(csv), and delete without an extra explicit null test; exact match verified; names and types await human review. */
 inline void *operator new(unsigned, void *p) { return p; }
 
@@ -32,13 +32,6 @@ struct Obj {
 extern Csv *DAT_003f3b7c;
 extern char DAT_003a8ad8[];
 extern char DAT_003a8af0[];
-extern char DAT_003a8af4[];
-extern char DAT_003a8b00[];
-extern char DAT_003a8b08[];
-extern char DAT_003a8b14[];
-extern char DAT_003a8b24[];
-extern char DAT_003a8b34[];
-extern char DAT_003a8b44[];
 
 extern "C" {
 void *FUN_00000bcc(unsigned);
@@ -90,19 +83,19 @@ extern "C" void FUN_002a5278(Obj *self, False)
     }
     for (row = 0; row < FUN_00065fa4(DAT_003f3b7c); row++) {
         name = FUN_000661a8(DAT_003f3b7c, row, 0);
-        if (FUN_00014d64(name, DAT_003a8af4) != 0) {
+        if (FUN_00014d64(name, "Item_Cam") != 0) {
             idx = 0;
-        } else if (FUN_00014d64(name, DAT_003a8b00) != 0) {
+        } else if (FUN_00014d64(name, "Item_CD") != 0) {
             idx = 1;
-        } else if (FUN_00014d64(name, DAT_003a8b08) != 0) {
+        } else if (FUN_00014d64(name, "Item_Voice") != 0) {
             idx = 2;
-        } else if (FUN_00014d64(name, DAT_003a8b14) != 0) {
+        } else if (FUN_00014d64(name, "Item_JudgeVoice") != 0) {
             idx = 3;
-        } else if (FUN_00014d64(name, DAT_003a8b24) != 0) {
+        } else if (FUN_00014d64(name, "Item_Wallpaper") != 0) {
             idx = 4;
-        } else if (FUN_00014d64(name, DAT_003a8b34) != 0) {
+        } else if (FUN_00014d64(name, "Item_Tickets") != 0) {
             idx = 5;
-        } else if (FUN_00014d64(name, DAT_003a8b44) != 0) {
+        } else if (FUN_00014d64(name, "Judge_") != 0) {
             idx = 6;
         }
         r.v[0] = FUN_00066038(DAT_003f3b7c, row, 1);

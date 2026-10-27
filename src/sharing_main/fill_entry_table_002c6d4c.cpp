@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002c6d4c end=0x002c6f80 symbol=FUN_002c6d4c lang=c++ */
-/* Clone of src/eboot/fill_entry_table_002b6fac.cpp (hstclone.py tag s10170158a1r4s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002c6d4c end=0x002c6f80 symbol=FUN_002c6d4c lang=c++ data=0x003ac3dc */
+/* Clone of src/eboot/fill_entry_table_002b6fac.cpp (hstclone.py tag s10170158a1r4s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x003ac3dc-0x003ac41a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Started from hstgen.py tag v0. Matching idioms: the local C_002b6eb0 (vtable __vt__10C_002b6eb0 = 0x3b32c8) has an inline ctor that stores the vptr, memset()s the whole 8 bytes and sets two bytes to -1, and an inline virtual dtor that only restores the vptr; each loop has its own int index (i, j, k) with explicit walking pointers assigned in the guard shape of the pseudocode; the index is int against the unsigned size so the entry address stays i*8; the sort argument reads the size through an inline getter so it is reloaded after the loop. */
 extern "C" void *FUN_000114c0(void *, int, unsigned);
@@ -22,9 +22,6 @@ struct Pair { int key; int idx; };
 extern "C" {
 extern signed char DAT_002dc81c[];
 extern int DAT_003ac3d8;
-extern char DAT_003ac3dc[];
-extern char DAT_003ac3f4[];
-extern char DAT_003ac40c[];
 void FUN_002c6ff8(EntryVec *, unsigned, C_002b6eb0 *, Tag);
 void FUN_0001cbf0(Pair *, int, int);
 void FUN_001b3198(IntVec *, int, int *, Tag);
@@ -88,13 +85,13 @@ void FUN_002c6d4c(Self *self)
       q++;
     } while ((unsigned)k < self->ints.size);
   }
-  FUN_002c6f80(DAT_003ac3dc);
+  FUN_002c6f80("--- JudgeDatabase ---\n");
   for (i = 0; i < self->entries.size; i++) {
     C_002b6eb0 *e = &self->entries[i];
-    FUN_002c6f80(DAT_003ac3f4, i, e->a, e->b);
+    FUN_002c6f80("ID=%d: Get=%d, No=%d\n", i, e->a, e->b);
   }
   for (i = 0; i < self->ints.size; i++) {
-    FUN_002c6f80(DAT_003ac40c, i, self->ints[i]);
+    FUN_002c6f80("No=%d: ID=%d\n", i, self->ints[i]);
   }
 }
 }

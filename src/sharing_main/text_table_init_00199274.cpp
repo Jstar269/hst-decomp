@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00199274 end=0x00199308 symbol=FUN_00199274 lang=c++ */
-/* Clone of src/eboot/text_table_init_0018ca94.cpp (hstclone.py tag c155507): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00199274 end=0x00199308 symbol=FUN_00199274 lang=c++ data=0x00388530 */
+/* Clone of src/eboot/text_table_init_0018ca94.cpp (hstclone.py tag c155507): addresses substituted; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 21 strings, 0x00388530-0x0038888c) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern "C" void FUN_00199308();
 extern "C" void FUN_001022b8();
@@ -7,7 +7,29 @@ extern "C" void *FUN_00000a90(int size);
 extern "C" void *FUN_000008d8(void *a0, void *a1, void *a2, int a3, int a4);
 extern "C" void FUN_00110be0(void *dst, const char *src);
 extern char *DAT_003ea8f0;
-extern const char *DAT_00388838[];
+const char *DAT_00388838[] = {
+    "data/menu/text/CommonText_Acce.to",
+    "data/menu/text/CommonText_Body.to",
+    "data/menu/text/CommonText_Court.to",
+    "data/menu/text/CommonText_Head.to",
+    "data/menu/text/CommonText_Item.to",
+    "data/menu/text/CommonText_Judge.to",
+    "data/menu/text/CommonText_Lobby.to",
+    "data/menu/text/CommonText_Npc.to",
+    "data/menu/text/CommonText_ObjItem.to",
+    "data/menu/text/CommonText_Other.to",
+    "data/menu/text/CommonText_P_Set.to",
+    "data/menu/text/CommonText_Param.to",
+    "data/menu/text/CommonText_Pc.to",
+    "data/menu/text/CommonText_Racket.to",
+    "data/menu/text/CommonText_Rank.to",
+    "data/menu/text/CommonText_Stamp.to",
+    "data/menu/text/CommonText_TitleHS.to",
+    "data/menu/text/MenuText_Generic_Dialog.to",
+    "data/menu/text/MenuText_Menu_Help.to",
+    "data/menu/text/MenuText_Menu_Help_2.to",
+    "data/menu/text/MenuText_Top_Lady.to",
+};
 
 extern "C" void FUN_00199274(void)
 {

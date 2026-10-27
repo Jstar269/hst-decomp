@@ -1,11 +1,10 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x001081d8 end=0x00108290 symbol=FUN_001081d8 lang=c++ */
-/* Clone of src/eboot/find_by_name_0010276c.cpp (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x001081d8 end=0x00108290 symbol=FUN_001081d8 lang=c++ data=0x0037f94c */
+/* Clone of src/eboot/find_by_name_0010276c.cpp (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0037f94c-0x0037f981) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
 extern "C" {
     extern int FUN_00014934(const char *, const char *);
     extern void FUN_0010532c(const void *, const char *);
-    extern char DAT_0037f94c;
 }
 
 struct Elem {
@@ -44,6 +43,6 @@ extern "C" int FUN_001081d8(Container *self, const char *name)
             return i;
         }
     }
-    FUN_0010532c(&DAT_0037f94c, name);
+    FUN_0010532c("ERROR: SpriteGroup::GetSpriteIndex(\"%s\") not found.\n", name);
     return -1;
 }

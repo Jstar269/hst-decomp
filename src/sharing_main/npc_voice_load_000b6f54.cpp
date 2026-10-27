@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000b6f54 end=0x000b7180 symbol=FUN_000b6f54 lang=c++ */
-/* Clone of src/eboot/npc_voice_load_000b3cf4.cpp (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000b6f54 end=0x000b7180 symbol=FUN_000b6f54 lang=c++ data=0x0037afd4 */
+/* Clone of src/eboot/npc_voice_load_000b3cf4.cpp (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0037afd4-0x0037affe) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* LoadNpcVoicePack: data/chara/parameter/npc_voicepack.csv; see docs/DATA-TABLES.md */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Tag {};
@@ -23,8 +23,6 @@ void FUN_000b7650(Vec *, Name18 *, Tag);
 void FUN_0006778c(void *, int);
 void FUN_000658cc(void *, int);
 extern int DAT_003b0388;
-extern char DAT_0037afd4[];
-extern char DAT_0037affc[];
 extern char DAT_0037b000[];
 }
 
@@ -65,7 +63,7 @@ extern "C" void FUN_000b6f54(Vec *v)
   }
   Sprite spr;
   Name18 name;
-  if (FUN_00066260(&spr, DAT_0037afd4, 0, 0, DAT_0037affc) != 0) {
+  if (FUN_00066260(&spr, "data/chara/parameter/npc_voicepack.csv", 0, 0, ",") != 0) {
     n = FUN_00065fa4(&spr);
     j = 0;
     while (j < n) {

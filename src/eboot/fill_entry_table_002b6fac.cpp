@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x002b6fac end=0x002b71e0 symbol=FUN_002b6fac lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x002b6fac end=0x002b71e0 symbol=FUN_002b6fac lang=c++ data=0x00303140 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x00303140-0x0030317e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Started from hstgen.py tag v0. Matching idioms: the local C_002b6eb0 (vtable __vt__10C_002b6eb0 = 0x309ffc) has an inline ctor that stores the vptr, memset()s the whole 8 bytes and sets two bytes to -1, and an inline virtual dtor that only restores the vptr; each loop has its own int index (i, j, k) with explicit walking pointers assigned in the guard shape of the pseudocode; the index is int against the unsigned size so the entry address stays i*8; the sort argument reads the size through an inline getter so it is reloaded after the loop. */
 extern "C" void *FUN_000114c0(void *, int, unsigned);
 extern "C" void FUN_002b71e0(...);
@@ -21,9 +21,6 @@ struct Pair { int key; int idx; };
 extern "C" {
 extern signed char DAT_002cc530[];
 extern int DAT_0030313c;
-extern char DAT_00303140[];
-extern char DAT_00303158[];
-extern char DAT_00303170[];
 void FUN_002b7258(EntryVec *, unsigned, C_002b6eb0 *, Tag);
 void FUN_0001cfa4(Pair *, int, int);
 void FUN_001a5bcc(IntVec *, int, int *, Tag);
@@ -87,13 +84,13 @@ void FUN_002b6fac(Self *self)
       q++;
     } while ((unsigned)k < self->ints.size);
   }
-  FUN_002b71e0(DAT_00303140);
+  FUN_002b71e0("--- JudgeDatabase ---\n");
   for (i = 0; i < self->entries.size; i++) {
     C_002b6eb0 *e = &self->entries[i];
-    FUN_002b71e0(DAT_00303158, i, e->a, e->b);
+    FUN_002b71e0("ID=%d: Get=%d, No=%d\n", i, e->a, e->b);
   }
   for (i = 0; i < self->ints.size; i++) {
-    FUN_002b71e0(DAT_00303170, i, self->ints[i]);
+    FUN_002b71e0("No=%d: ID=%d\n", i, self->ints[i]);
   }
 }
 }

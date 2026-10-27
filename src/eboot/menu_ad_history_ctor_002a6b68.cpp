@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x002a6b68 end=0x002a6dd8 symbol=__ct__10C_002a6b68Fv lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x002a6b68 end=0x002a6dd8 symbol=__ct__10C_002a6b68Fv lang=c++ data=0x00301c68 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00301c68-0x00301c8f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Obj {
     virtual void v0();
     virtual void Show(int on);
@@ -60,7 +60,6 @@ struct C_002a6b68 : B_00102e38 {
     virtual void v1();
 };
 
-extern char DAT_00301c68[];
 extern char *PTR_003010a8[];
 extern Lookup DAT_00301510[];
 extern int DAT_00301ba0[];
@@ -76,7 +75,7 @@ void FUN_000ffb3c(Item *it, int on);
 
 C_002a6b68::C_002a6b68()
 {
-    FUN_00104118(this, DAT_00301c68, 0);
+    FUN_00104118(this, "data/menu/ad_history/ad_history_02.lay", 0);
     FUN_00103540(1000.0f, this);
     int base = (int)this;
     {

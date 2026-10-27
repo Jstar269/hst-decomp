@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00137a18 end=0x00137c20 symbol=FUN_00137a18 lang=c++ */
-/* Clone of src/eboot/follow_route_step_0012c5ac.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00137a18 end=0x00137c20 symbol=FUN_00137a18 lang=c++ data=0x00381b4c */
+/* Clone of src/eboot/follow_route_step_0012c5ac.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00381b4c-0x00381b80) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Matching idioms: error branch first as an early return; the flag != 0 arm before the else arm; the success branch falls out to the shared return 0 instead of returning 0 explicitly (the explicit form materialises !(idx < count) with xori); d and t are separate Vec4 locals (t declared after d) with d = t, and the length test is written len > 1e-5f. */
 struct Vec4 {
@@ -24,7 +24,6 @@ struct Route {
 
 extern "C" {
 extern float DAT_00381420;
-extern char DAT_00381b4c[];
 void FUN_00131f8c(char *);
 Vec4 *FUN_0002245c(Vec4 *, const Vec4 *, const Vec4 *);
 float FUN_00022500(const Vec4 *, const Vec4 *);
@@ -44,7 +43,7 @@ static inline Vec4 Sub(const Vec4 &a, const Vec4 &b)
 extern "C" int FUN_00137a18(Route *r)
 {
   if (!(r->idx < r->count)) {
-    FUN_00131f8c(DAT_00381b4c);
+    FUN_00131f8c("ERROR: Avatar::Route::Next(): route data is empty.\n");
     return 1;
   }
   if (r->flag != 0) {

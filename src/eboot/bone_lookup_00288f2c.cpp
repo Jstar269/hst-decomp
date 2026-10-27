@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00288f2c end=0x002890c0 symbol=FUN_00288f2c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00288f2c end=0x002890c0 symbol=FUN_00288f2c lang=c++ data=0x002feb6c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002feb6c-0x002feb83) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Res { char pad[8]; int h; };
 struct Owner { char pad[0x8c]; Res *f8c; };
 
@@ -29,8 +29,6 @@ struct Obj {
 };
 
 extern "C" {
-extern char DAT_002feb6c[];
-extern char DAT_002feb7c[];
 int FUN_0002fe80(int h, char *name);
 }
 
@@ -43,11 +41,11 @@ extern "C" int FUN_00288f2c(Obj *self, Owner **out)
     if (match) {
         owner = self->AsMode23()->f58;
         int h = owner->f8c->h;
-        result = h ? FUN_0002fe80(h, DAT_002feb6c) : -1;
+        result = h ? FUN_0002fe80(h, "Bip01HeadNub") : -1;
     } else if (self->m11() == 4) {
         owner = self->AsMode4()->f70;
         int h = owner->f8c->h;
-        result = h ? FUN_0002fe80(h, DAT_002feb7c) : -1;
+        result = h ? FUN_0002fe80(h, "Pelvis") : -1;
     }
     if (out) *out = owner;
     return result;

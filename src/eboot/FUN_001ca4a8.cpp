@@ -1,9 +1,8 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001ca4a8 end=0x001ca60c symbol=FUN_001ca4a8 lang=c++ */
-/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001ca4a8 end=0x001ca60c symbol=FUN_001ca4a8 lang=c++ data=0x002eaa48 */
+/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002eaa48-0x002eaa50) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" {
 extern int *DAT_0034a118;
 extern char DAT_0034179c[];
-extern char DAT_002eaa48[];
 extern void FUN_001b2430(char *);
 extern void FUN_00288828(int, int, int);
 extern void FUN_00022434(float *, float *, float *);
@@ -112,7 +111,7 @@ extern "C" void FUN_001ca4a8(int param_1)
     ((ObjEvent *)*(int *)(param_1 + 0x98))->setVec(v);
     ((ObjEvent *)*(int *)(param_1 + 0x98))->setMat(param_1 + 0xa0);
     ((ObjEvent *)*(int *)(param_1 + 0x98))->end();
-    FUN_001cc7d0(param_1, DAT_002eaa48);
+    FUN_001cc7d0(param_1, "event98");
 }
 // EXACT (89/89 words). The last delta was the argument setup order for FUN_00022434: retail
 // materialises a0 (sp+0x20) before a1 (s0+0xa0). It only flips when the second argument is a

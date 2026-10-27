@@ -1,18 +1,9 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x001fb5ec end=0x001fb7d0 symbol=FUN_001fb5ec lang=c++ */
-/* Clone of src/eboot/init_items_from_config_001ed27c.cpp (hstclone.py tag s10170049g1r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x001fb5ec end=0x001fb7d0 symbol=FUN_001fb5ec lang=c++ data=0x00396380 */
+/* Clone of src/eboot/init_items_from_config_001ed27c.cpp (hstclone.py tag s10170049g1r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (9 strings, 0x00396380-0x003963d2) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: C++ with an inline-constructed `new Res` (matching shape for `beqz v0; move s0,v0`), typed query results as floats, the two-entry item array indexed by the loop counter, first-call argument restored; exact match verified; names and types await human review. */
 extern "C" {
 extern char DAT_00396360[];
 extern char DAT_0039637c[];
-extern char DAT_00396380[];
-extern char DAT_0039638c[];
-extern char DAT_00396394[];
-extern char DAT_0039639c[];
-extern char DAT_003963a8[];
-extern char DAT_003963b0[];
-extern char DAT_003963b8[];
-extern char DAT_003963c0[];
-extern char DAT_003963c4[];
 extern char DAT_003b0388[];
 extern void FUN_00065884(void *);
 extern void FUN_0008d97c(void *);
@@ -51,14 +42,14 @@ extern "C" void FUN_001fb5ec(Obj *self)
   for (unsigned int i = 0; i < 2; i++) {
     Item *it = &self->items[i];
     int n = i + 1;
-    it->a = FUN_00066bb0(self->res, DAT_00396380, n) * 0.017453292f * 0.033333335f;
-    it->b = FUN_00066bb0(self->res, DAT_0039638c, n) * 0.017453292f;
-    it->c = FUN_00066bb0(self->res, DAT_00396394, n) * 0.017453292f;
-    it->d = FUN_00066bb0(self->res, DAT_0039639c, n);
-    it->e = FUN_00066bb0(self->res, DAT_003963a8, n);
-    it->f = FUN_00066bb0(self->res, DAT_003963b0, n);
-    it->g = FUN_00066bb0(self->res, DAT_003963b8, n);
-    it->h = FUN_00066bb0(self->res, DAT_003963c0, n);
-    it->i = FUN_00066bb0(self->res, DAT_003963c4, n) * 0.017453292f;
+    it->a = FUN_00066bb0(self->res, "RotSpeed", n) * 0.017453292f * 0.033333335f;
+    it->b = FUN_00066bb0(self->res, "Tilt", n) * 0.017453292f;
+    it->c = FUN_00066bb0(self->res, "TiltWin", n) * 0.017453292f;
+    it->d = FUN_00066bb0(self->res, "Distance", n);
+    it->e = FUN_00066bb0(self->res, "FovX", n);
+    it->f = FUN_00066bb0(self->res, "OffsetY", n);
+    it->g = FUN_00066bb0(self->res, "Near", n);
+    it->h = FUN_00066bb0(self->res, "Far", n);
+    it->i = FUN_00066bb0(self->res, "DefaultAngleY", n) * 0.017453292f;
   }
 }

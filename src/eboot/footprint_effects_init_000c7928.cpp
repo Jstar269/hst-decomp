@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000c7928 end=0x000c7cd0 symbol=FUN_000c7928 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000c7928 end=0x000c7cd0 symbol=FUN_000c7928 lang=c++ data=0x002d5f4c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (10 strings, 0x002d5f4c-0x002d6125) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Effect;
 struct Anim;
 
@@ -62,16 +62,6 @@ struct Self {
 
 extern Ctx *DAT_003386b0;
 extern Game *DAT_003402a0;
-extern const char DAT_002d5f4c[];
-extern const char DAT_002d5f78[];
-extern const char DAT_002d5f94[];
-extern const char DAT_002d5fc0[];
-extern const char DAT_002d5ff4[];
-extern const char DAT_002d6014[];
-extern const char DAT_002d6048[];
-extern const char DAT_002d6080[];
-extern const char DAT_002d60b8[];
-extern const char DAT_002d60f0[];
 
 extern "C" void FUN_000c7928(Self *self)
 {
@@ -81,8 +71,8 @@ extern "C" void FUN_000c7928(Self *self)
             b = FUN_00056b98(b);
         self->piyori = b;
     }
-    self->piyori->Load(DAT_002d5f4c, DAT_002d5f78, 0, 0, 0, 0);
-    FUN_000573a0(self->piyori, 0, DAT_002d5f94, 0, 0);
+    self->piyori->Load("data/menu/game_eff/piyori/eff_piyori.i3r", "data/menu/game_eff/piyori/", 0, 0, 0, 0);
+    FUN_000573a0(self->piyori, 0, "data/menu/game_eff/piyori/eff_piyori.i3m", 0, 0);
     if (self->effect == 0) {
         Effect *e = (Effect *)FUN_00000bcc(0x30);
         if (e)
@@ -97,17 +87,17 @@ extern "C" void FUN_000c7928(Self *self)
     }
     int court = DAT_003402a0->court;
     if (court == 3 || court == 5 || court == 9 || court == 13 || court == 15) {
-        FUN_000537bc(self->effect, DAT_002d5fc0, DAT_002d5ff4, 0, 0, 0, 0);
-        FUN_00055eac(self->anim, DAT_002d6014, 0);
+        FUN_000537bc(self->effect, "data/menu/game_eff/footprint/eff_tobitsuki_zuza.i3r", "data/menu/game_eff/footprint/", 0, 0, 0, 0);
+        FUN_00055eac(self->anim, "data/menu/game_eff/footprint/eff_tobitsuki_zuza.i3m", 0);
     } else if (court == 2 || court == 4 || court == 7 || court == 16 || court == 17 || court == 20) {
-        FUN_000537bc(self->effect, DAT_002d6048, DAT_002d5ff4, 0, 0, 0, 0);
-        FUN_00055eac(self->anim, DAT_002d6080, 0);
+        FUN_000537bc(self->effect, "data/menu/game_eff/footprint/eff_tobitsuki_zuza2.i3r", "data/menu/game_eff/footprint/", 0, 0, 0, 0);
+        FUN_00055eac(self->anim, "data/menu/game_eff/footprint/eff_tobitsuki_zuza2.i3m", 0);
     } else if (court == 1 || court == 6 || court == 14 || court == 18) {
-        FUN_000537bc(self->effect, DAT_002d60b8, DAT_002d5ff4, 0, 0, 0, 0);
-        FUN_00055eac(self->anim, DAT_002d60f0, 0);
+        FUN_000537bc(self->effect, "data/menu/game_eff/footprint/eff_tobitsuki_zuza3.i3r", "data/menu/game_eff/footprint/", 0, 0, 0, 0);
+        FUN_00055eac(self->anim, "data/menu/game_eff/footprint/eff_tobitsuki_zuza3.i3m", 0);
     } else {
-        FUN_000537bc(self->effect, DAT_002d5fc0, DAT_002d5ff4, 0, 0, 0, 0);
-        FUN_00055eac(self->anim, DAT_002d6014, 0);
+        FUN_000537bc(self->effect, "data/menu/game_eff/footprint/eff_tobitsuki_zuza.i3r", "data/menu/game_eff/footprint/", 0, 0, 0, 0);
+        FUN_00055eac(self->anim, "data/menu/game_eff/footprint/eff_tobitsuki_zuza.i3m", 0);
     }
     for (int i = 0; i < 4; i++) {
         self->flags[i] = 0;

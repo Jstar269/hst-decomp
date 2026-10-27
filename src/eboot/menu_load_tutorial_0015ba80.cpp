@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0015ba80 end=0x0015bc5c symbol=FUN_0015ba80 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0015ba80 end=0x0015bc5c symbol=FUN_0015ba80 lang=c++ data=0x002de29c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002de29c-0x002de2f5) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 struct Obj_000511c4 {
     virtual ~Obj_000511c4();
@@ -25,9 +25,6 @@ struct Obj {
 };
 
 extern "C" {
-extern char DAT_002de29c[];
-extern char DAT_002de2b4[];
-extern char DAT_002de2d4[];
 extern char DAT_0030ebf4[];
 
 extern void *FUN_00000bcc(unsigned);
@@ -42,9 +39,9 @@ extern void FUN_00051398(float, Obj_000511c4 *);
 }
 
 extern "C" void FUN_0015ba80(Obj *self, int param_2) {
-    FUN_000143b0(self->buf370, DAT_002de29c);
+    FUN_000143b0(self->buf370, "menu/020_tutorial.xb");
     FUN_0001cad0(DAT_0030ebf4, 1, self->buf370);
-    FUN_000143b0(self->buf370, DAT_002de2b4);
+    FUN_000143b0(self->buf370, "data/menu/tutorial/tutorial_bg");
 
     if (self->obj34 == 0 || FUN_00014934(self->sub70, self->buf370) != 0) {
         if (self->obj34 != 0) {
@@ -65,7 +62,7 @@ extern "C" void FUN_0015ba80(Obj *self, int param_2) {
         self->f4c = 1.0f;
     }
 
-    FUN_000143b0(self->buf370, DAT_002de2d4, param_2 + 1);
+    FUN_000143b0(self->buf370, "data/menu/tutorial/tutorial_%03d", param_2 + 1);
 
     if (self->obj38 == 0 || FUN_00014934(self->sub170, self->buf370) != 0) {
         if (self->obj38 != 0) {

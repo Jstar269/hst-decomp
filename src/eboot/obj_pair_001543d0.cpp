@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001543d0 end=0x001544ec symbol=FUN_001543d0 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified (id->object lookup in an inline helper with early returns, as in 0x0014fbd4; names and types await human review). */
+/* HSTMATCH module=EBOOT.BIN start=0x001543d0 end=0x001544ec symbol=FUN_001543d0 lang=c++ data=0x002dc8c4 */
+/* Hand-written reconstruction from the disassembly; exact match verified (id->object lookup in an inline helper with early returns, as in 0x0014fbd4; names and types await human review). Data: its string literals (1 strings, 0x002dc8c4-0x002dc8dd) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Obj {
     virtual void v0();
 };
@@ -10,7 +10,6 @@ struct Ctx { int a; int b; int c; Obj *obj; };
 struct Cmd { void *vt; int a; int id; int pos; };
 extern "C" {
 extern unsigned char DAT_003402f0;
-extern char DAT_002dc8c4[];
 extern Mgr *DAT_0034a114;
 extern Player *DAT_0034a118;
 void FUN_0014d044(Ctx *);
@@ -37,7 +36,7 @@ extern "C" int FUN_001543d0(Cmd *self, Ctx *ctx)
 {
     if (DAT_003402f0 != 0) {
         FUN_0014d044(ctx);
-        FUN_0014fd94(DAT_002dc8c4, self->id, self->pos);
+        FUN_0014fd94("LinkKomono [%d -> (%d)]\n", self->id, self->pos);
     }
     Obj *p = Find(self, ctx);
     Obj *cur = FUN_001c70c0(DAT_0034a114, self->id);

@@ -2,6 +2,7 @@
 """Random-mutation search (hstperm.py's mutations) seeded with the cheapest near misses in wip/.
 
     python tools/hstnearperm.py --tag n1 [--max-left 6] [--classes register_colouring,instruction_schedule,...]
+                                [--levers permute,frame,types,expression]
                                 [--rounds 8] [--mutants 16] [--parallel 6] [--seed 1] [--limit N] [wip/file ...]
 
 hstperm.py starts from generated candidates under try/gen-*; this tool starts from the files in wip/ that
@@ -12,6 +13,11 @@ and stops a seed the moment a variant is EXACT. Nothing is installed: exact vari
 try/nearperm-<tag>/exact/ (with the seed's name) for a person to review, give a provenance note and install, and
 the best non-exact variants to try/nearperm-<tag>/best/. Mutations need not preserve meaning; only a byte-exact
 build counts, but a variant that reads worse than its seed (casts, duplicated conditions) should not be installed.
+
+Seeds must also have one of --levers (tools/hstnearmiss.py's routing; default: the levers whose calls and control
+flow already agree with retail). A file whose calls or branches differ (lever body or structure) or whose only
+difference is a symbol (referent) is not a permuter problem, so it is left out unless it is named on the command
+line. Rows of a report written before the levers existed have no lever and are not filtered by it.
 
 Compile cost is printed: every variant is one mwccpsp run.
 """
@@ -30,6 +36,7 @@ import hstmatch as M
 import hstperm as P
 
 ROOT = M.ROOT
+DEFAULT_LEVERS = ("permute", "frame", "types", "expression")
 DEFAULT_CLASSES = ("register_colouring", "instruction_schedule", "frame_layout", "branch_shape", "unknown",
                    "constant_materialisation")
 
@@ -40,6 +47,7 @@ def main() -> int:
     ap.add_argument("--tag", required=True)
     ap.add_argument("--max-left", type=int, default=6, help="seed only files with at most this many words left")
     ap.add_argument("--classes", default=",".join(DEFAULT_CLASSES))
+    ap.add_argument("--levers", default=",".join(DEFAULT_LEVERS))
     ap.add_argument("--rounds", type=int, default=8)
     ap.add_argument("--mutants", type=int, default=16)
     ap.add_argument("--parallel", type=int, default=6)
@@ -53,6 +61,7 @@ def main() -> int:
         raise SystemExit(f"{work} exists; use a new tag")
     report = json.loads((ROOT / "try" / "nearmiss-report.json").read_text(encoding="utf-8"))
     classes = set(args.classes.split(","))
+    levers = set(args.levers.split(","))
     attempts = A.collect()          # reserved addresses (batches of lanes that are not finished) are never touched
     src = attempts.src
     chosen = {Path(f).as_posix() for f in args.files}
@@ -62,6 +71,8 @@ def main() -> int:
         if chosen and row["wip"] not in chosen:
             continue
         if not chosen and (row["class"] not in classes or row["words_left"] is None or row["words_left"] > args.max_left):
+            continue
+        if not chosen and row.get("lever", next(iter(levers))) not in levers:
             continue
         if row["class"] in ("superseded", "blocked", "tool_state", "exact_now") and not chosen:
             continue
@@ -74,7 +85,7 @@ def main() -> int:
         seeds.append(row)
     if args.limit:
         seeds = seeds[:args.limit]
-    print(f"seeds={len(seeds)} (skipped {reserved} reserved by lane batches) classes={sorted(classes)} max_left={args.max_left}", flush=True)
+    print(f"seeds={len(seeds)} (skipped {reserved} reserved by lane batches) classes={sorted(classes)} levers={sorted(levers)} max_left={args.max_left}", flush=True)
     state, owner, ends = {}, {}, {}
     for idx, row in enumerate(seeds):
         path = ROOT / row["wip"]

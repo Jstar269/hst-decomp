@@ -1,10 +1,6 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001802b4 end=0x0018059c symbol=FUN_001802b4 lang=c++ */
-/* DressUp_LoadLayoutAndUnitList: data/menu/dressup/dressup_unitlist.txt; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x001802b4 end=0x0018059c symbol=FUN_001802b4 lang=c++ data=0x002e08a4 */
+/* DressUp_LoadLayoutAndUnitList: data/menu/dressup/dressup_unitlist.txt; see docs/DATA-TABLES.md Data: its string literals (4 strings, 0x002e08a4-0x002e092b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly and the Ghidra pseudocode; matching idioms: each member is allocated as p = alloc(n); if (p != 0) p = ctor(p); field = p (merged likely-branch store), the screen is a struct so every access is a displacement off one register, and the panel is read into a local for the two stores but through the member again for the virtual call; exact match verified; names and types await human review. */
-extern char DAT_002e08a4[];
-extern char DAT_002e08c0[];
-extern char DAT_002e08e8[];
-extern char DAT_002e0908[];
 extern char DAT_0030ebf4[];
 extern char DAT_002e07f8[];
 extern char DAT_002e0820[];
@@ -124,12 +120,12 @@ extern "C" void FUN_001802b4(Screen *self)
             if (p != 0) p = FUN_00102e38(p);
             self->names = p;
         }
-        FUN_0001cad0(DAT_0030ebf4, 1, DAT_002e08a4);
-        FUN_002172f4(&DAT_00341520, DAT_002e08c0, 0x6b);
-        FUN_00104118(self->layout, DAT_002e08e8, 0);
+        FUN_0001cad0(DAT_0030ebf4, 1, "menu/chrsel_050_kigae.xb");
+        FUN_002172f4(&DAT_00341520, "data/menu/dressup/dressup_unitlist.txt", 0x6b);
+        FUN_00104118(self->layout, "data/menu/dressup/dressup.lay", 0);
         FUN_00103540(0.0f, self->layout);
         FUN_001037c8(self->layout, 0x10);
-        FUN_00104118(self->names, DAT_002e0908, 0);
+        FUN_00104118(self->names, "data/menu/dressup/dressup_name.lay", 0);
         FUN_00103540(2900.0f, self->names);
         FUN_001037c8(self->names, -256);
         FUN_0001cb88(DAT_0030ebf4);

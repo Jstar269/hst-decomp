@@ -4,7 +4,8 @@
     python tools/hstqueue.py --name fam1 [--module EBOOT.BIN] [--kind families|singles] [--per-batch 8]
                              [--max-size 1600] [--min-size 64] [--batches 4] [--exclude 0xb49ec,...]
                              [--execution-rank try/execution-rank.json]
-                             [--near first|off|only] [--near-max-left N] [--near-max-size N] [--include-skipped] [--include-unrecorded]
+                             [--near first|off|only] [--near-max-left N] [--near-max-size N] [--lever body,structure,...]
+                             [--include-skipped] [--include-unrecorded]
                              [--fresh-order legacy|bytes] [--lanes N --lane-size M] [--public-first [--min-p 0.9]] [--dry-run]
 
 families: one representative per unmatched clone family (same masked code as hstclone.py), largest total
@@ -40,13 +41,18 @@ try/family-predictions.json (written by `hstfamily.py predict`; made on demand w
 
 --lanes N --lane-size M writes N disjoint batches <name>1-00.json .. <name>N-00.json of M items each (for lanes
 sn1..snN): the first N*M rows in rank order are dealt out so that every lane gets a similar number of items of each
-group (near misses by mismatch class from try/nearmiss-report.json, untouched, fresh), and each batch keeps the
-rank order, near misses first.
+group (near misses by lever from try/nearmiss-report.json, untouched, fresh), and each batch keeps the rank order,
+near misses first.
+
+Levers. tools/hstnearmiss.py gives every measured near miss a lever: the kind of work it needs (body, structure,
+referent, permute, types, frame, expression; its docstring has the rules). A near-miss item carries "near_class",
+"lever", "lever_why" (the evidence) and "lever_digest" (the docs/MWCC-DIGEST.md sections to read), so a lane works
+on the right problem instead of guessing from the word count. --lever L1,L2 offers only near misses with one of those
+levers (other tiers are unaffected); a near miss with no measurement has no lever and is left out by --lever.
 """
 from __future__ import annotations
 
 import argparse
-import glob
 import hashlib
 import json
 import re
@@ -206,6 +212,25 @@ def queue_sort_key(row: dict, execution_enabled: bool, fresh_by_bytes: bool = Fa
     return (tier, *fam, *_execution_queue_key(row, execution_enabled))
 
 
+LEVER_NAMES = ("install", "none", "tooling", "body", "structure", "referent", "permute", "types", "frame", "expression")
+
+
+def load_near_info(report: Path) -> dict[str, dict]:
+    """wip path -> its row of try/nearmiss-report.json (class, lever, ...); empty when there is no report."""
+    if not report.exists():
+        return {}
+    return {r["wip"]: r for r in json.loads(report.read_text(encoding="utf-8"))["files"]}
+
+
+def lever_fields(row: dict | None) -> dict:
+    """The routing fields a near-miss item carries (none for an unmeasured file or a report without levers)."""
+    if not row or "lever" not in row:
+        return {}
+    import hstnearmiss as N
+    return {"near_class": row["class"], "lever": row["lever"], "lever_why": row.get("lever_why", ""),
+            "lever_digest": N.LEVERS.get(row["lever"], ("", ""))[0]}
+
+
 def deal_lanes(rows: list[dict], lanes: int, size: int, group_of) -> list[list[dict]]:
     """Deal the first lanes*size rows (already in rank order) out to `lanes` batches so that every lane gets a similar
     mix: each group's rows (in rank order) go round-robin to the lanes with the fewest items, so the lanes' counts of
@@ -249,6 +274,8 @@ def main() -> int:
                     help="order of the never-queued tier: the old one, or code bytes unlocked")
     ap.add_argument("--lanes", type=int, default=0, help="write this many disjoint batches <name>1-00.json ..")
     ap.add_argument("--lane-size", type=int, default=40, help="items per batch with --lanes")
+    ap.add_argument("--lever", default="",
+                    help="offer only near misses with one of these comma-separated levers (tools/hstnearmiss.py)")
     ap.add_argument("--include-skipped", action="store_true", help="also offer functions a lane marked SKIP")
     ap.add_argument("--include-unrecorded", action="store_true",
                     help="also offer functions queued by a batch that kept no per-function record")
@@ -390,17 +417,26 @@ def main() -> int:
                 "starts": starts, "n_twins": n_twins,
                 "execution_count": execution_count, "execution_score": execution_score, **extra,
             })
+    near_info = load_near_info(M.ROOT / "try" / "nearmiss-report.json")
+    if args.lever:
+        wanted = set(args.lever.split(","))
+        unknown = wanted - set(LEVER_NAMES)
+        if unknown:
+            raise SystemExit(f"unknown lever(s) {sorted(unknown)}; known: {', '.join(LEVER_NAMES)}")
+        kept = []
+        for row in rows:
+            if row["tier"] == 0 and near_info.get(row["wip"] or "", {}).get("lever") not in wanted:
+                withheld["near-other-lever"] += 1
+                continue
+            kept.append(row)
+        rows = kept
     rows.sort(key=lambda row: queue_sort_key(row, args.execution_rank is not None, args.fresh_order == "bytes", args.public_first))
     tiers = {name: sum(1 for r in rows if r["tier"] == i) for i, name in enumerate(TIER_NAMES)}
     print(f"offerable {args.kind}: " + ", ".join(f"{n} {name}" for name, n in tiers.items() if n)
           + (f"; withheld: {dict(withheld)}" if withheld else ""))
     if args.lanes:
-        classes = {}
-        report = M.ROOT / "try" / "nearmiss-report.json"
-        if report.exists():
-            classes = {r["wip"]: r["class"] for r in json.loads(report.read_text(encoding="utf-8"))["files"]}
         batches = deal_lanes(rows, args.lanes, args.lane_size,
-                             lambda r: (r["tier"], classes.get(r["wip"], "") if r["tier"] == 0 else ""))
+                             lambda r: (r["tier"], near_info.get(r["wip"] or "", {}).get("lever", "") if r["tier"] == 0 else ""))
         batch_names = [f"{args.name}{i + 1}-00" for i in range(args.lanes)]
         if not args.dry_run and any((queue_dir / f"{n}.json").exists() for n in batch_names):
             raise SystemExit(f"a queue file {args.name}<N>-00.json exists; use a new name")
@@ -436,10 +472,11 @@ def main() -> int:
             if row["wip"] and row["twin_near"] is None:
                 item["wip"] = row["wip"]
                 item["words_left"] = row["words_left"]
+                item.update(lever_fields(near_info.get(row["wip"])))
             if row["twin_near"] is not None:
                 t = row["twin_near"]
                 item["twin_near_miss"] = {"module": other_name, "address": t["start"], "wip": t["wip"],
-                                          "words_left": t["words_left"]}
+                                          "words_left": t["words_left"], **lever_fields(near_info.get(t["wip"]))}
             prev = row["previous"]
             if prev and prev["status"] in ("skip", "near", "untouched"):
                 item["previous_attempt"] = {"status": prev["status"], "lanes": prev["lanes"],

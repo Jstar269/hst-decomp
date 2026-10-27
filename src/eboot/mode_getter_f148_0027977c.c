@@ -1,6 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0027977c end=0x002797e8 symbol=FUN_0027977c lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern char DAT_002fe674[];
+/* HSTMATCH module=EBOOT.BIN start=0x0027977c end=0x002797e8 symbol=FUN_0027977c lang=c99 data=0x002fe674 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002fe674-0x002fe68d) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern void FUN_0026f7f4();
 
 typedef struct Obj {
@@ -23,7 +22,7 @@ int FUN_0027977c(Obj *o)
   case 4:
     return o->f148[mode - 1];
   default:
-    FUN_0026f7f4(DAT_002fe674, mode);
+    FUN_0026f7f4("Error, GetScrollOld(%d)\n", mode);
     return 0;
   }
 }

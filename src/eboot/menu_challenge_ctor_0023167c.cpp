@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0023167c end=0x00231a18 symbol=FUN_0023167c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: each loop is a block with its own counter, table pointer and byte offset declared in that order (saved regs counter > pointer > offset), stores through (unsigned int)self + off + DISP and the reload through (unsigned long)self + off + DISP (the two casts stop MWCC folding them into one pointer), FUN_00051398 declared (obj, float), the first widget slot re-read for the virtual call, FUN_0008d994 takes the tested global; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0023167c end=0x00231a18 symbol=FUN_0023167c lang=c++ data=0x002f3dd0 */
+/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: each loop is a block with its own counter, table pointer and byte offset declared in that order (saved regs counter > pointer > offset), stores through (unsigned int)self + off + DISP and the reload through (unsigned long)self + off + DISP (the two casts stop MWCC folding them into one pointer), FUN_00051398 declared (obj, float), the first widget slot re-read for the virtual call, FUN_0008d994 takes the tested global; names and types await human review. Data: its string literals (2 strings, 0x002f3dd0-0x002f3e22) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Widget {
     virtual void m0();
     virtual void m1();
@@ -14,8 +14,6 @@ struct Rec3 {
     int out;
 };
 extern unsigned DAT_00309878;
-extern char DAT_002f3dd0[];
-extern char DAT_002f3df8[];
 extern char *DAT_002f36b8[];
 extern Rec3 DAT_002f39f0[];
 extern int DAT_003386c8;
@@ -40,14 +38,14 @@ extern "C" unsigned *FUN_0023167c(unsigned *self)
     FUN_00102e38(self);
     self[0] = (unsigned)&DAT_00309878;
     self[0x75] = 0;
-    FUN_00104118(self, DAT_002f3dd0, 0);
+    FUN_00104118(self, "data/menu/challengedisp/challenge.lay", 0);
     FUN_00103540(1100.0f, self);
     FUN_001037c8(self, 17);
     {
     int i = 0;
     int off = 0;
     do {
-        FUN_000143b0(buf, DAT_002f3df8, i);
+        FUN_000143b0(buf, "data/menu/challengedisp/challenge_cha%02d", i);
         void *mem = FUN_00000bcc(0x48);
         void *obj = mem;
         if (mem != 0) {

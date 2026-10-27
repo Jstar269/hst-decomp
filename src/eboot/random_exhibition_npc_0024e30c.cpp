@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0024e30c end=0x0024e6a0 symbol=FUN_0024e30c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0024e30c end=0x0024e6a0 symbol=FUN_0024e30c lang=c++ data=0x002fbf00 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (8 strings, 0x002fbf00-0x002fbfb9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Npc {
     char pad0[0x20];
     unsigned short id;
@@ -13,14 +13,6 @@ struct Npc {
 struct Spot;
 inline void *operator new[](unsigned, void *p) { return p; }
 extern "C" {
-extern char DAT_002fbf00[];
-extern char DAT_002fbf04[];
-extern char DAT_002fbf38[];
-extern char DAT_002fbf44[];
-extern char DAT_002fbf4c[];
-extern char DAT_002fbf50[];
-extern char DAT_002fbf64[];
-extern char DAT_002fbf88[];
 extern unsigned DAT_00310fc8;
 int FUN_001930a8(void);
 Npc *FUN_00192fd0(int);
@@ -91,15 +83,15 @@ extern "C" Npc *FUN_0024e30c(unsigned want)
             }
         }
     }
-    FUN_0024e6a0(DAT_002fbf00);
-    FUN_0024e6a0(DAT_002fbf04);
+    FUN_0024e6a0("\n");
+    FUN_0024e6a0("******** ExhibitionRandomNpc Calc Start. ********\n");
     FUN_0001cfa4(pairs, 0, count - 1);
-    FUN_0024e6a0(DAT_002fbf38);
+    FUN_0024e6a0("npcList = {");
     for (int i = 0; i < count; i++)
-        FUN_0024e6a0(DAT_002fbf44, pairs[i * 2 + 1]);
-    FUN_0024e6a0(DAT_002fbf4c);
-    FUN_0024e6a0(DAT_002fbf50, count);
-    FUN_0024e6a0(DAT_002fbf00);
+        FUN_0024e6a0("%03d,", pairs[i * 2 + 1]);
+    FUN_0024e6a0("};\n");
+    FUN_0024e6a0("ListLength = %d\n", count);
+    FUN_0024e6a0("\n");
     Npc *r;
     do {
         DAT_00310fc8 = DAT_00310fc8 * 0x343fd + 0x269ec3;
@@ -107,8 +99,8 @@ extern "C" Npc *FUN_0024e30c(unsigned want)
         if (!want)
             break;
     } while (want == r->id);
-    FUN_0024e6a0(DAT_002fbf64, r->id, r->sub);
-    FUN_0024e6a0(DAT_002fbf88);
-    FUN_0024e6a0(DAT_002fbf00);
+    FUN_0024e6a0("Calc Result Is = [Npc_%03d_%02d].\n", r->id, r->sub);
+    FUN_0024e6a0("******** ExhibitionRandomNpc Calc End. ********\n");
+    FUN_0024e6a0("\n");
     return r;
 }

@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0027c50c end=0x0027c5f0 symbol=FUN_0027c50c lang=c++ */
-/* Clone of src/eboot/FUN_0026b590.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0027c50c end=0x0027c5f0 symbol=FUN_0027c50c lang=c++ data=0x003a6d70 */
+/* Clone of src/eboot/FUN_0026b590.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (5 strings, 0x003a6d70-0x003a6dca) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -17,11 +17,6 @@ typedef unsigned int undefined4;
 extern "C" {
 extern undefined DAT_003b264c;
 extern undefined DAT_003b2e5c;
-extern char DAT_003a6d70[];
-extern char DAT_003a6da0[];
-extern char DAT_003a6dac[];
-extern char DAT_003a6db8[];
-extern char DAT_003a6dc0[];
 extern int FUN_00108124(...);
 extern undefined4 * FUN_0010873c(...);
 extern int FUN_00109304(...);
@@ -40,14 +35,14 @@ extern "C" int * FUN_0027c50c(int *param_1)
   *(undefined1 *)((int)param_1 + 0x55) = 0;
   param_1[0x16] = 0;
   *param_1 = (int)&DAT_003b2e5c;
-  FUN_00109a44(param_1,DAT_003a6d70,0);
-  iVar1 = FUN_00109304(param_1,DAT_003a6da0,0);
+  FUN_00109a44(param_1,"data/menu/gamesharing/gamehsareing1layout.lay",0);
+  iVar1 = FUN_00109304(param_1,"sharing1",0);
   param_1[0x18] = iVar1;
-  iVar1 = FUN_00109304(param_1,DAT_003a6dac,0);
+  iVar1 = FUN_00109304(param_1,"sharing2",0);
   param_1[0x19] = iVar1;
-  iVar1 = FUN_00108124(param_1[0x18],DAT_003a6db8);
+  iVar1 = FUN_00108124(param_1[0x18],"key040");
   param_1[0x16] = *(int *)(iVar1 + 0x20);
-  iVar1 = FUN_00108124(param_1[0x19],DAT_003a6dc0);
+  iVar1 = FUN_00108124(param_1[0x19],"assign010");
   *(int *)(iVar1 + 0x24) = *(int *)(iVar1 + 0x28) + 1;
   param_1[0x1a] = 0;
   FUN_0027c6a0(param_1,0);

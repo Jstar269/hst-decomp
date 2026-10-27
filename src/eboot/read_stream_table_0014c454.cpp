@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0014c454 end=0x0014c610 symbol=FUN_0014c454 lang=c++ */
-/* Hand-written reconstruction: C++ Table with inline constructor, unrolled loops off, and inline push_back with empty tag temporary for frame size; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0014c454 end=0x0014c610 symbol=FUN_0014c454 lang=c++ data=0x002dc174 */
+/* Hand-written reconstruction: C++ Table with inline constructor, unrolled loops off, and inline push_back with empty tag temporary for frame size; exact match verified; names and types await human review. Data: its string literals (4 strings, 0x002dc174-0x002dc208) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 #pragma opt_unroll_loops off
 
@@ -35,10 +35,6 @@ struct Res {
 struct Tag {};
 
 extern "C" {
-extern char DAT_002dc174;
-extern char DAT_002dc17c[];
-extern char DAT_002dc1a4[];
-extern char DAT_002dc1d0[];
 
 int FUN_00014a58(unsigned ptr, const void *sig, int len);
 void FUN_0014c610(const char *fmt, ...);
@@ -64,21 +60,21 @@ extern "C" Table *FUN_0014c454(void *param_1, unsigned param_2, int param_3)
     unsigned local_4 = param_2;
     unsigned end = param_2 + param_3;
 
-    if (FUN_00014a58(param_2, &DAT_002dc174, 4) != 0) {
-        FUN_0014c610(DAT_002dc17c, local_4);
+    if (FUN_00014a58(param_2, "ESD ", 4) != 0) {
+        FUN_0014c610("error! Script data code is wrong -> %s\n", local_4);
         return 0;
     }
 
     local_4 += 4;
     int v1 = FUN_0014f03c(&local_4);
     if (v1 != 1) {
-        FUN_0014c610(DAT_002dc1a4, v1);
+        FUN_0014c610("error! Script data version is wrong -> %d\n", v1);
         return 0;
     }
 
     int v2 = FUN_0014f03c(&local_4);
     if (v2 != param_3) {
-        FUN_0014c610(DAT_002dc1d0, v2, param_3);
+        FUN_0014c610("error! Script data size is wrong -> (data:%d, file:%d)\n", v2, param_3);
         return 0;
     }
 

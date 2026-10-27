@@ -73,12 +73,21 @@ def mapping(e_refs, t_refs) -> tuple[dict[int, int], dict[int, int], dict[int, i
     calls, data, his = {}, {}, {}
     if len(e_refs) != len(t_refs):
         return None
+    bad_hi = set()
     for (ek, ei, ev), (tk, ti, tv) in zip(e_refs, t_refs):
         if ek != tk or ei != ti:
             return None
-        table = calls if ek == "call" else his if ek == "hi" else data
+        if ek == "hi":
+            # two exemplar addresses in one 64 KiB page can land in two target pages; the hi table only feeds
+            # literal rewriting, so an ambiguous high half is dropped (its literal is left alone), never fatal
+            if his.setdefault(ev, tv) != tv:
+                bad_hi.add(ev)
+            continue
+        table = calls if ek == "call" else data
         if table.setdefault(ev, tv) != tv:
             return None
+    for key in bad_hi:
+        his.pop(key, None)
     return calls, data, his
 
 
@@ -170,13 +179,28 @@ def retarget(text: str, e_start: int, t_start: int, t_end: int, calls: dict[int,
     head, rest = body.split("\n", 1)
     head = re.sub(r"start=0x[0-9a-fA-F]+", f"start=0x{t_start:08x}", head)
     head = re.sub(r"end=0x[0-9a-fA-F]+", f"end=0x{t_end:08x}", head)
+    # helpers=NAME@0xSTART-0xEND: a local helper compiled into the same object. The exemplar calls it, so the
+    # call mapping gives the clone's helper; its size is the exemplar helper's (hstmatch then checks its bytes).
+    unmapped = []
+
+    def helper(m: re.Match) -> str:
+        e_lo, e_hi = int(m.group(2), 16), int(m.group(3), 16)
+        t_lo = calls.get(e_lo)
+        if t_lo is None:
+            unmapped.append(e_lo)
+            return m.group(0)
+        return f"{m.group(1)}@0x{t_lo:08x}-0x{t_lo + (e_hi - e_lo):08x}"
+    head = re.sub(r"(\w+)@0x([0-9a-fA-F]{8})-0x([0-9a-fA-F]{8})", helper, head)
+    if unmapped:
+        return None  # a helper the exemplar never calls directly cannot be placed in the clone
     # a jump table's base is built with lui/addiu, so the placed .rodata moves with the data mapping
-    rodata = re.search(r"rodata=0x([0-9a-fA-F]+)", head)
-    if rodata:
+    # placed data sections (rodata=, data=, sdata=, bss=, sbss=) move with the data mapping as well
+    for placed in re.finditer(r"\b(rodata|data|sdata|bss|sbss)=0x([0-9a-fA-F]+)", head):
         try:
-            head = head.replace(rodata.group(0), f"rodata=0x{map_value('DAT', int(rodata.group(1), 16), e_start, t_start, calls, data):08x}")
+            new = map_value("DAT", int(placed.group(2), 16), e_start, t_start, calls, data)
         except KeyError:
-            pass  # no data reference reveals the clone's table: keep the exemplar's placement
+            continue  # no data reference reveals the clone's placement: keep the exemplar's (hstmatch decides)
+        head = head.replace(placed.group(0), f"{placed.group(1)}=0x{new:08x}", 1)
     return head + "\n" + rest
 
 
@@ -278,8 +302,11 @@ def main() -> int:
             status[str((M.ROOT / row["source"]).resolve())] = row["status"]
     dest_dir = M.ROOT / "src" / SRC_DIRS[args.module]
     dest_dir.mkdir(parents=True, exist_ok=True)
-    covered = {M.parse_header(q)["start"] for q in (M.ROOT / "src").rglob("*")
-               if q.suffix in (".c", ".cpp") and M.parse_header(q)["module"] == args.module}
+    ranges = [(int(h["start"]), int(h["end"])) for h in (M.parse_header(q) for q in (M.ROOT / "src").rglob("*")
+              if q.suffix in (".c", ".cpp")) if h["module"] == args.module]
+    covered = {h_start for h_start, _ in ranges}
+    # a run source (one file over several functions) covers every target inside its range, not only its start
+    covered |= {t for t in candidates if any(lo <= t < hi for lo, hi in ranges if hi - lo > 0)}
     accepted = 0
     accepted_bytes = 0
     committed: dict[str, int] = {}

@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00201a84 end=0x00201cf4 symbol=FUN_00201a84 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00201a84 end=0x00201cf4 symbol=FUN_00201a84 lang=c99 data=0x002ef19c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002ef19c-0x002ef1af) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Matching idioms: the radians conversion must be one direct multiply expression assigned to the member (a local factor puts the constant in the multiply destination FPR); the two player statements use distinct p1/p2 locals (retail reuses s1) and access the member directly for the two later stat reads. */
 struct Sub {
     char pad0[0xf0];
@@ -47,8 +47,6 @@ extern void FUN_00093484(struct Player *, float);
 extern void FUN_00091c48(struct Player *, int);
 extern void FUN_0012b2b0(float, struct Player *, int, int);
 extern void FUN_0019335c(void *, void *, void *);
-extern char DAT_002ef19c[];
-extern char DAT_002ef1a8[];
 extern char *DAT_0034a13c;
 
 void FUN_00201a84(struct This *self, unsigned char kind, struct Player *a, struct Player *b)
@@ -87,8 +85,8 @@ void FUN_00201a84(struct This *self, unsigned char kind, struct Player *a, struc
         self->f34 = self->p1->sub ? self->p1->sub->f104 : 0.0f;
         self->f3c = p1->f32d;
         FUN_0012b2b0(-1.0f, p1, 0, 1);
-        FUN_00093484(self->p1, FUN_00195a18(FUN_000657e4(base, DAT_002ef19c, 1),
-                                  FUN_000657e4(base, DAT_002ef1a8, 1), x));
+        FUN_00093484(self->p1, FUN_00195a18(FUN_000657e4(base, "BaseTall", 1),
+                                  FUN_000657e4(base, "Rating", 1), x));
         FUN_00091c48(p1, -1);
     }
     p2 = self->p2;
@@ -99,8 +97,8 @@ void FUN_00201a84(struct This *self, unsigned char kind, struct Player *a, struc
         self->f38 = self->p2->sub ? self->p2->sub->f104 : 0.0f;
         self->f3d = p2->f32d;
         FUN_0012b2b0(-1.0f, p2, 0, 1);
-        FUN_00093484(self->p2, FUN_00195a18(FUN_000657e4(base, DAT_002ef19c, 1),
-                                  FUN_000657e4(base, DAT_002ef1a8, 1), y));
+        FUN_00093484(self->p2, FUN_00195a18(FUN_000657e4(base, "BaseTall", 1),
+                                  FUN_000657e4(base, "Rating", 1), y));
         FUN_00091c48(p2, -1);
     }
 }

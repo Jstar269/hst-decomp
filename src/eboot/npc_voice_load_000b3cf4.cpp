@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000b3cf4 end=0x000b3f20 symbol=FUN_000b3cf4 lang=c++ */
-/* LoadNpcVoicePack: data/chara/parameter/npc_voicepack.csv; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x000b3cf4 end=0x000b3f20 symbol=FUN_000b3cf4 lang=c++ data=0x002d4780 */
+/* LoadNpcVoicePack: data/chara/parameter/npc_voicepack.csv; see docs/DATA-TABLES.md Data: its string literals (2 strings, 0x002d4780-0x002d47aa) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Tag {};
 struct Name18 { char c[18]; };
@@ -22,8 +22,6 @@ void FUN_000b4360(Vec *, Name18 *, Tag);
 void FUN_00066338(void *, int);
 void FUN_00064a08(void *, int);
 extern int DAT_003070bc;
-extern char DAT_002d4780[];
-extern char DAT_002d47a8[];
 extern char DAT_002d47ac[];
 }
 
@@ -64,7 +62,7 @@ extern "C" void FUN_000b3cf4(Vec *v)
   }
   Sprite spr;
   Name18 name;
-  if (FUN_000651b8(&spr, DAT_002d4780, 0, 0, DAT_002d47a8) != 0) {
+  if (FUN_000651b8(&spr, "data/chara/parameter/npc_voicepack.csv", 0, 0, ",") != 0) {
     n = FUN_000650e0(&spr);
     j = 0;
     while (j < n) {

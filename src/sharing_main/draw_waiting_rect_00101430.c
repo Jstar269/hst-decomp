@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00101430 end=0x00101604 symbol=FUN_00101430 lang=c99 */
-/* Clone of src/eboot/draw_waiting_rect_000fbcf4.c (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00101430 end=0x00101604 symbol=FUN_00101430 lang=c99 data=0x0037f164 */
+/* Clone of src/eboot/draw_waiting_rect_000fbcf4.c (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0037f164-0x0037f174) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 typedef struct {
     unsigned char pad[0x4c];
@@ -26,8 +26,6 @@ struct Rect {
 
 extern Cfg *DAT_003e19f0;
 extern int DAT_0037f098;
-extern char DAT_0037f164;
-extern char DAT_0037f16c[];
 
 extern void *FUN_00109304(void *, void *, int);
 extern struct Rect *FUN_00108124(void *, const char *);
@@ -59,8 +57,8 @@ void FUN_00101430(Self *s)
     if (s->f3c == 0) return;
     if (s->f58 == 0) return;
 
-    void *handle = FUN_00109304(s->f3c, &DAT_0037f164, 0);
-    struct Rect *r = FUN_00108124(handle, DAT_0037f16c);
+    void *handle = FUN_00109304(s->f3c, "main", 0);
+    struct Rect *r = FUN_00108124(handle, "waiting");
     void *tex = s->tex[s->f5c / DAT_0037f098];
 
     DrawRect(0.0f, 0.0f, 1.0f, 1.0f, 1.0f, tex, r, 0, 0);

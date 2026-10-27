@@ -1,8 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0008ac88 end=0x0008ad40 symbol=FUN_0008ac88 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: fixed inverted condition to logical OR; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0008ac88 end=0x0008ad40 symbol=FUN_0008ac88 lang=c99 data=0x002d241c */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: fixed inverted condition to logical OR; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d241c-0x002d2428) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 extern char *DAT_00338b44;
-extern char DAT_002d241c;
 extern void FUN_0001f558(void *, int, int, int);
 extern void FUN_0008822c(const void *, ...);
 extern void FUN_0008ad40(void *);
@@ -27,7 +26,7 @@ void FUN_0008ac88(struct S *self)
             self->state_64 = 6;
         }
     } else {
-        FUN_0008822c(&DAT_002d241c, *(int *)(DAT_00338b44 + 0x9c));
+        FUN_0008822c("PlayEnd %d\n", *(int *)(DAT_00338b44 + 0x9c));
         FUN_0001f558(self, 20, 0, 0);
         self->state_64 = 5;
     }

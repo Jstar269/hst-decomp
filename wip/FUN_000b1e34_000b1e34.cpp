@@ -6,16 +6,14 @@ typedef unsigned int uint;
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned char uchar;
-typedef unsigned char bool;
 typedef unsigned long long undefined8;
 typedef int code();
-#define true 1
-#define false 0
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 typedef unsigned char undefined1;
 typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
+extern "C" {
 extern undefined * DAT_003386b0;
 extern undefined1 DAT_003386b8;
 extern undefined * DAT_00338af0;
@@ -168,3 +166,6 @@ void FUN_000b1e34(char *param_1,int param_2,int param_3)
 // Near miss: 154 of 196 words differ; the initial state-code branch and later parameter/register scheduling still diverge.
 // Ruled out outer-if versus switch forms, int/byte return forms for the mode helper, pointer-typed global/helper forms, and scalar versus array output buffers.
 // near miss from lane km5 (unreviewed)
+
+}  /* extern "C" */
+// improved by lane dsm1 (unreviewed): no comparable result -> 154 differing words

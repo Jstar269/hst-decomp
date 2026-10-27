@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00150c1c end=0x00150cdc symbol=FUN_00150c1c lang=c99 */
-/* Clone of src/sharing_main/update_status_code_0015cc54.c (hstclone.py tag u4r2e): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00150c1c end=0x00150cdc symbol=FUN_00150c1c lang=c99 data=0x002dc444 */
+/* Clone of src/sharing_main/update_status_code_0015cc54.c (hstclone.py tag u4r2e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc444-0x002dc45a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 typedef unsigned char uchar;
 
@@ -23,7 +23,6 @@ typedef struct {
 } Param2;
 
 extern uchar DAT_003402f0;
-extern char DAT_002dc444[];
 extern int *FUN_0014c384(void *target, int f8);
 extern void FUN_0014d044(Param2 *param_2);
 extern void FUN_0014fd94(char *buf, int f8);
@@ -34,7 +33,7 @@ int FUN_00150c1c(Param1 *param_1, Param2 *param_2)
 {
     if (DAT_003402f0 != 0) {
         FUN_0014d044(param_2);
-        FUN_0014fd94(DAT_002dc444, param_1->f8);
+        FUN_0014fd94("MatchRecord [reg:%d]\n", param_1->f8);
     }
     Sub *sub = param_2->sub;
     void *target = param_2->target;

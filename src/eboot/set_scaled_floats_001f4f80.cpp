@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001f4f80 end=0x001f5260 symbol=FUN_001f4f80 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a3) corrected by hand: typed Obj/Ent/Ctx structs, const-ref Clamp (double bound loads) with the b521 != 0 arm first, the negated clamp in the other arm, the (int)(x + 0.5f) / -(int)(0.5f - x) rounding as a conditional expression; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001f4f80 end=0x001f5260 symbol=FUN_001f4f80 lang=c++ data=0x002ee8f4 */
+/* Ghidra pseudocode (hstgen.py tag a3) corrected by hand: typed Obj/Ent/Ctx structs, const-ref Clamp (double bound loads) with the b521 != 0 arm first, the negated clamp in the other arm, the (int)(x + 0.5f) / -(int)(0.5f - x) rounding as a conditional expression; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002ee8f4-0x002ee8fa) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" {
 extern float DAT_002ee8dc;
 extern float DAT_002ee8e0;
@@ -7,8 +7,6 @@ extern float DAT_002ee8e4;
 extern float DAT_002ee8e8;
 extern float DAT_002ee8ec;
 extern float DAT_002ee8f0;
-extern char DAT_002ee8f4;
-extern char DAT_002ee8f8;
 struct Ent { float f0; char pad[0x11c]; };
 extern Ent DAT_003418cc[];
 struct Ctx { char pad[0x1394]; float f1394; };
@@ -48,8 +46,8 @@ extern "C" void FUN_001f4f80(Obj *o, int flag)
     o->f5e4 = FUN_0016bb88()->f1394;
     if (flag != 0) o->f5e4 = 6.3f;
     float base = DAT_003418cc[o->i3d4].f0;
-    float a = FUN_000657e4(o->sub, &DAT_002ee8f4, 1) * 0.01f;
-    float b = FUN_000657e4(o->sub, &DAT_002ee8f8, 1);
+    float a = FUN_000657e4(o->sub, "A", 1) * 0.01f;
+    float b = FUN_000657e4(o->sub, "B", 1);
     if (o->b521 != 0) {
         o->f5e8 = Clamp(a + b * (base - o->f5e4), DAT_002ee8dc, DAT_002ee8e0);
     } else {

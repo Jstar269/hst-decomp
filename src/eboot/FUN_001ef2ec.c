@@ -1,7 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001ef2ec end=0x001ef3f8 symbol=FUN_001ef2ec lang=c99 */
-/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-extern char DAT_002ee7d0[];
-extern char DAT_002ee7d8[];
+/* HSTMATCH module=EBOOT.BIN start=0x001ef2ec end=0x001ef3f8 symbol=FUN_001ef2ec lang=c99 data=0x002ee7d0 */
+/* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002ee7d0-0x002ee806) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern int DAT_00310fc4;
 extern int DAT_0034b5d0;
 extern void FUN_00000020(char *);
@@ -23,8 +21,8 @@ void FUN_001ef2ec(int param_1)
 {
     int v;
 
-    FUN_00000020(DAT_002ee7d0);
-    FUN_001ef3f8(DAT_002ee7d8);
+    FUN_00000020("Prize");
+    FUN_001ef3f8("============ Start Prize ===================\n");
     FUN_000429a0(DAT_00310fc4);
     FUN_00042698(DAT_00310fc4, 0x200, 0x100);
     *(char *)(param_1 + 0x515) = 0;

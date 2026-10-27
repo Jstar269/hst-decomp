@@ -1,8 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001504d8 end=0x001505c4 symbol=FUN_001504d8 lang=c++ */
-/* Hand-written reconstruction from the disassembly (started from the Sharing-twin wip of lane u6cr2-0, wip/device_init_0015c510.cpp); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001504d8 end=0x001505c4 symbol=FUN_001504d8 lang=c++ data=0x002dc3e0 */
+/* Hand-written reconstruction from the disassembly (started from the Sharing-twin wip of lane u6cr2-0, wip/device_init_0015c510.cpp); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc3e0-0x002dc3f8) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern "C" unsigned char DAT_003402f0;
 extern "C" int DAT_0034a114;
-extern "C" char DAT_002dc3e0[];
 extern "C" char DAT_003083cc;
 extern "C" char DAT_00308f14;
 extern "C" void *FUN_00000bcc(int);
@@ -28,7 +27,7 @@ extern "C" Device *FUN_001504d8(Context *context, float progress, Resource *reso
   int result;
   if (DAT_003402f0 != 0) {
     FUN_0014d044(resource);
-    FUN_0014fd94(DAT_002dc3e0, context->first, context->second);
+    FUN_0014fd94("TextQuest [%s, reg:%d]\n", context->first, context->second);
   }
   FUN_001cb7d0(DAT_0034a114, context->first);
   if ((device = (Device *)FUN_00000bcc(8)) != 0) {

@@ -1,6 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0010a6f8 end=0x0010a7cc symbol=FUN_0010a6f8 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern char DAT_002d8ee4[];
+/* HSTMATCH module=EBOOT.BIN start=0x0010a6f8 end=0x0010a7cc symbol=FUN_0010a6f8 lang=c99 data=0x002d8ee4 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d8ee4-0x002d8f1a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern void *FUN_00011090(void *, void *, int);
 extern void *FUN_000114c0(void *, int, int);
 extern int FUN_0010a4a8(char *, int);
@@ -33,7 +32,7 @@ int FUN_0010a6f8(struct Obj *o, int user, void *src)
   o->cfg.self = o;
   r = FUN_002b7c48(&o->cfg);
   if (r != 0) {
-    r = FUN_0010a4a8(DAT_002d8ee4, r);
+    r = FUN_0010a4a8("ERROR: sceUtilityNetconfInitStart failed. ret = 0x%x\n", r);
   }
   return r;
 }

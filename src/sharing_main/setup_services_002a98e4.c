@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x002a98e4 end=0x002a9ab4 symbol=FUN_002a98e4 lang=c99 */
-/* Clone of src/eboot/setup_services_0029a660.c (hstclone.py tag u5cr3s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x002a98e4 end=0x002a9ab4 symbol=FUN_002a98e4 lang=c99 data=0x003a8cd0 */
+/* Clone of src/eboot/setup_services_0029a660.c (hstclone.py tag u5cr3s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (5 strings, 0x003a8cd0-0x003a8dc5) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: ordered the guarded setup calls through a shared cleanup path and typed the channel count passed to cleanup; exact match verified; names and types await human review. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
@@ -26,11 +26,6 @@ extern char DAT_003a8c10[];
 extern char DAT_003a8c48[];
 extern char DAT_003a8c78[];
 extern char DAT_003a8ca8[];
-extern char DAT_003a8cd0[];
-extern char DAT_003a8cf8[];
-extern char DAT_003a8d28[];
-extern char DAT_003a8d58[];
-extern char DAT_003a8d90[];
 extern void FUN_002a9808();
 extern int FUN_002c7ae8();
 extern int FUN_002c7af8(int);
@@ -52,30 +47,30 @@ int FUN_002a98e4(void)
   DAT_003f4664 = 0;
   iVar1 = FUN_002c7b20(0xb800,0x20,0x1000,0x20,0x1000);
   if (iVar1 < 0) {
-    FUN_002a9808(DAT_003a8cd0,iVar1);
+    FUN_002a9808("ERROR: sceNetInit() failed. ret = 0x%x\n",iVar1);
     goto cleanup;
   }
   iVar1 = FUN_002c7be8();
   if (iVar1 < 0) {
-    FUN_002a9808(DAT_003a8cf8,iVar1);
+    FUN_002a9808("ERROR: sceNetAdhocInit() failed. ret = 0x%x\n",iVar1);
     goto cleanup;
   }
   iVar1 = FUN_002c7b08(0x2000,0x30,&DAT_003a8b84);
   if (iVar1 < 0) {
-    FUN_002a9808(DAT_003a8d28,iVar1);
+    FUN_002a9808("ERROR: sceNetAdhocctlInit() failed. ret = 0x%x\n",iVar1);
     goto cleanup;
   }
   DAT_003f4660 = 0;
   DAT_003f4664 = 0;
   iVar1 = FUN_002c7ae8(FUN_002a96f8,0);
   if (iVar1 < 0) {
-    FUN_002a9808(DAT_003a8d58,iVar1);
+    FUN_002a9808("ERROR: sceNetAdhocctlAddHandler() failed. ret = 0x%x\n",iVar1);
     goto cleanup;
   }
   DAT_003a8b9c = iVar1;
   iVar1 = FUN_002c7b30(0x1000);
   if (iVar1 < 0) {
-    FUN_002a9808(DAT_003a8d90,iVar1);
+    FUN_002a9808("ERROR: sceNetAdhocMatchingInit() failed. ret = 0x%x\n",iVar1);
     goto cleanup;
   }
   else {

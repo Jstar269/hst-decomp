@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000d4ddc end=0x000d4f44 symbol=FUN_000d4ddc lang=c++ */
-/* Clone of src/sharing_main/init_entries_000d8acc.cpp (hstclone.py tag c034920): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000d4ddc end=0x000d4f44 symbol=FUN_000d4ddc lang=c++ data=0x002d67cc */
+/* Clone of src/sharing_main/init_entries_000d8acc.cpp (hstclone.py tag c034920): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d67cc-0x002d680f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* matching idiom: the global's pointer slot is read through a byte offset (`(char *)G + 0x70 + off`) with the counter, offset and entry pointer declared in that order; `G->players[i]` gives other registers. The entry pointer starts at self itself (entry 0 overlaps the +0x3c/+0x40 members). */
 struct A3c { int x; };
@@ -30,8 +30,6 @@ struct Obj {
     A40 *f40;
 };
 extern Glob *DAT_003386b0;
-extern char DAT_002d67cc[];
-extern char DAT_002d67f4[];
 extern char DAT_002d6810[];
 extern "C" {
 void *FUN_00000bcc(int);
@@ -54,7 +52,7 @@ extern "C" void FUN_000d4ddc(Obj *self)
     m = FUN_00000bcc(0x10);
     if (m != 0) m = FUN_00055dd0(m);
     self->f40 = (A40 *)m;
-    FUN_000537bc(self->f3c, DAT_002d67cc, DAT_002d67f4, 0, 0, 0, 0);
+    FUN_000537bc(self->f3c, "data/menu/game_eff/charge/charge.i3r", "data/menu/game_eff/charge/", 0, 0, 0, 0);
     FUN_00055eac(self->f40, DAT_002d6810, 0);
     int i = 0;
     int off = 0;

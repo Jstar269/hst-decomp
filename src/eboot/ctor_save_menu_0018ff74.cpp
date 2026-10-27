@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0018ff74 end=0x00190248 symbol=FUN_0018ff74 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0018ff74 end=0x00190248 symbol=FUN_0018ff74 lang=c++ data=0x002e11b0 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 1 strings, 0x002e11b0-0x002e11d4) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
 /* Menu object constructor: base ctor, vtable store, then a 0x57c-byte state block created with new + an inline constructor taking the owner (null-test on the allocation result, the block's fields zeroed, three sub-objects allocated, two save-slot descriptors filled with their icon/title strings and widgets created, with a temporary string object constructed and destroyed with delete-flag -1). The inline constructor form is what makes the allocation test use v0 with the copy to s0 in the delay slot. Names provisional. */
 struct Tmp {
   int a, b, c, d, e, f;
@@ -60,7 +60,7 @@ extern char DAT_002c27d0[];
 extern char DAT_002c27c4[];
 extern char DAT_002c27c0[];
 extern int DAT_0034176c;
-extern char *DAT_002e11d0;
+char *DAT_002e11d0 = "data/menu/saveicon/US/ICON0.PNG";
 extern Self *DAT_003415d4;
 void FUN_0001f06c(void *);
 void *FUN_00000bcc(unsigned);

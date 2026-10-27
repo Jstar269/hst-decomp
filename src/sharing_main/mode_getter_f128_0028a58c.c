@@ -1,7 +1,6 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0028a58c end=0x0028a5f8 symbol=FUN_0028a58c lang=c99 */
-/* Clone of src/eboot/mode_getter_f128_002792a8.c (hstclone.py tag s10170158a2r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0028a58c end=0x0028a5f8 symbol=FUN_0028a58c lang=c99 data=0x003a733c */
+/* Clone of src/eboot/mode_getter_f128_002792a8.c (hstclone.py tag s10170158a2r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003a733c-0x003a7355) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern char DAT_003a733c[];
 extern void FUN_00280834();
 
 typedef struct Obj {
@@ -24,7 +23,7 @@ int FUN_0028a58c(Obj *o)
   case 4:
     return o->f128[mode - 1];
   default:
-    FUN_00280834(DAT_003a733c, mode);
+    FUN_00280834("Error, GetCursorOld(%d)\n", mode);
     return 4;
   }
 }

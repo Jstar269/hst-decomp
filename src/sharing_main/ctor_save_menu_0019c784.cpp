@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0019c784 end=0x0019ca58 symbol=FUN_0019c784 lang=c++ */
-/* Clone of src/eboot/ctor_save_menu_0018ff74.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0019c784 end=0x0019ca58 symbol=FUN_0019c784 lang=c++ data=0x0038888c */
+/* Clone of src/eboot/ctor_save_menu_0018ff74.cpp (hstclone.py tag c21sn35s): addresses substituted; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 1 strings, 0x0038888c-0x003888b0) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Menu object constructor: base ctor, vtable store, then a 0x57c-byte state block created with new + an inline constructor taking the owner (null-test on the allocation result, the block's fields zeroed, three sub-objects allocated, two save-slot descriptors filled with their icon/title strings and widgets created, with a temporary string object constructed and destroyed with delete-flag -1). The inline constructor form is what makes the allocation test use v0 with the copy to s0 in the delay slot. Names provisional. */
 struct Tmp {
@@ -61,7 +61,7 @@ extern char DAT_002d2cd0[];
 extern char DAT_002d2cc4[];
 extern char DAT_002d2cc0[];
 extern int DAT_003eaaac;
-extern char *DAT_003888ac;
+char *DAT_003888ac = "data/menu/saveicon/US/ICON0.PNG";
 extern Self *DAT_003ea914;
 void FUN_0001ec44(void *);
 void *FUN_00000bcc(unsigned);

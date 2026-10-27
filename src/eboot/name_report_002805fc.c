@@ -1,8 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x002805fc end=0x002807d0 symbol=FUN_002805fc lang=c99 */
+/* HSTMATCH module=EBOOT.BIN start=0x002805fc end=0x002807d0 symbol=FUN_002805fc lang=c99 data=0x002fe8d4 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review.
    The three arms are written positive-test-first (a2 != 0, then a1 != 0): MWCC keeps the fall-through arm
-   inline and puts the taken arm out of line, which is retail's layout. */
-extern char s_IllegalErrorMessage__002fe8d4[];
+   inline and puts the taken arm out of line, which is retail's layout. Data: its string literals (1 strings, 0x002fe8d4-0x002fe8ea) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern char DAT_002c0e20;
 extern char DAT_002c0e1c;
 extern char DAT_002c0e18;
@@ -62,7 +61,7 @@ void FUN_002805fc(int a0, int a1, int a2, int a3)
     if (a0 != 0)
       FUN_000143b0(a0, name);
   } else {
-    FUN_002803d8(s_IllegalErrorMessage__002fe8d4);
+    FUN_002803d8("IllegalErrorMessage=\n");
     n = FUN_0018c9f4(0x11);
     if (n->f4 == 0)
       name = &DAT_002c0e20;

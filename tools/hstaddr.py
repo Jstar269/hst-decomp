@@ -9,8 +9,13 @@ are language properties, while the pointer width and the same freestanding heade
 by :mod:`hstport` are held fixed.
 
 ``integral-to-pointer`` marks every non-null integer constant expression cast to a pointer,
-including folded arithmetic and enumerators. ``module-address-conversion`` marks a non-constant
-integer-to-pointer conversion containing a constant within the source module's mapped range.
+including folded arithmetic and enumerators. ``module-address-conversion`` marks a constant within
+the source module's mapped range that a non-constant integer-to-pointer conversion uses as the
+address: added to indices only, with no address-carrying base. A constant added to (or subtracted
+from) a base that can hold an address -- a pointer converted to an integer, or a 32-bit value read
+from a parameter, local, member, element, dereference or call, as in Ghidra's
+``*(T *)(param_1 + 0x524)`` -- is an offset and is not reported. Shapes the rule does not classify
+keep the conservative check: every module-range constant inside the conversion is reported.
 ``module-address-pointer-compare`` marks a pointer comparison against a module-range integer
 constant when Clang has not already represented that integer as an IntegralToPointer cast.
 """
@@ -292,6 +297,189 @@ def _pointer_related(node: dict) -> bool:
     )
 
 
+# --------------------------------------------------------------------------------------------------------------
+# module-address-conversion: which constants of a non-constant integer-to-pointer conversion are absolute addresses
+#
+# The converted integer is read as a signed sum of terms, through parentheses, + and -, integral casts to a type
+# of at least 32 bits, and the value side of an assignment or comma expression; a conditional inside it gives one
+# sum per branch. Each term is
+#   const   an integer constant expression (literal, folded arithmetic, enumerator, constexpr)
+#   base    something that can hold an address: a pointer converted to an integer of at least 32 bits, or a value
+#           of at least 32 bits read from a variable, parameter, member, array element, dereference, call,
+#           assignment or increment, or such a base with only low bits cleared (& 0xfffffffe, & ~7)
+#   index   a value that cannot be an address by itself: a product, quotient, remainder or shift, a negation or
+#           complement, a comparison or logical value, sizeof/alignof, a pointer difference, a floating-point
+#           value, or a value narrower than 32 bits
+# When the bases of a sum add up to at least one (more added than subtracted), the sum is a base moved by the
+# constants: they are offsets, whatever their size, and nothing is reported. Otherwise the constants are the
+# address: each module-range constant term is reported, or the first constant term when only their sum lies in the
+# range. Any other shape (other bitwise composition, truncation below 32 bits, a statement expression, more than
+# MAX_ALTERNATIVES branch combinations, ...) is not classified, and every module-range
+# constant inside the converted expression is reported, as the detector did before the rule existed.
+
+MAX_ALTERNATIVES = 16
+LOW_BITS_MASK = 0xffff0000          # an & with a constant at or above this clears only low bits
+_TRANSPARENT_KINDS = frozenset(("ParenExpr", "ExprWithCleanups", "FullExpr", "MaterializeTemporaryExpr",
+                                "CXXBindTemporaryExpr"))
+_INTEGRAL_CAST_KINDS = frozenset(("ImplicitCastExpr", "CStyleCastExpr", "CXXStaticCastExpr",
+                                  "CXXFunctionalCastExpr", "CXXConstCastExpr", "CXXReinterpretCastExpr"))
+_LOAD_KINDS = frozenset(("DeclRefExpr", "MemberExpr", "ArraySubscriptExpr", "CompoundLiteralExpr"))
+_CALL_KINDS = frozenset(("CallExpr", "CXXMemberCallExpr", "CXXOperatorCallExpr"))
+_INDEX_BINARY = frozenset(("*", "/", "%", "<<", ">>", "==", "!=", "<", "<=", ">", ">=", "&&", "||"))
+_INDEX_UNARY = frozenset(("-", "~", "!"))
+_INDEX_CASTS = frozenset(("IntegralToBoolean", "FloatingToIntegral", "BooleanToSignedIntegral"))
+_TYPE_BITS = {
+    "_Bool": 1, "bool": 1,
+    "char": 8, "signed char": 8, "unsigned char": 8,
+    "short": 16, "unsigned short": 16, "short int": 16, "unsigned short int": 16, "signed short": 16,
+    "wchar_t": 16, "char16_t": 16, "char32_t": 32,
+    "int": 32, "unsigned int": 32, "signed int": 32, "unsigned": 32, "signed": 32,
+    "long": 32, "unsigned long": 32, "long int": 32, "unsigned long int": 32, "signed long": 32,
+    "long long": 64, "unsigned long long": 64, "long long int": 64, "unsigned long long int": 64,
+    "signed long long": 64, "__int64": 64, "unsigned __int64": 64,
+}
+
+Term = tuple[str, int, dict, "int | None"]          # role, sign, node, constant value
+
+
+class _Unclassified(Exception):
+    """The converted integer has a shape the offset rule does not classify."""
+
+
+def _type_bits(node: dict) -> int | None:
+    """Width in bits of an integral expression type, or None when it is not a known integral type. The AST target
+    is LLP64 (long is 32 bits); only the question 'at least 32 bits' matters, and the PSP agrees on it."""
+    type_info = node.get("type", {})
+    qual_type = type_info.get("desugaredQualType") or type_info.get("qualType") or ""
+    name = " ".join(word for word in qual_type.split() if word not in ("const", "volatile", "restrict", "__restrict"))
+    if name in _TYPE_BITS:
+        return _TYPE_BITS[name]
+    if name.startswith("enum "):
+        return 32
+    return None
+
+
+def _wide(node: dict) -> bool:
+    bits = _type_bits(node)
+    return bits is not None and bits >= 32
+
+
+def _children(node: dict) -> list[dict]:
+    return [child for child in node.get("inner", ()) if isinstance(child, dict)]
+
+
+def _strip(node: dict) -> dict:
+    while node.get("kind") in _TRANSPARENT_KINDS and _children(node):
+        node = _children(node)[-1]
+    return node
+
+
+def _value_role(node: dict) -> str:
+    """base when a value of this node's type can hold an address, else index."""
+    return "base" if _wide(node) else "index"
+
+
+def _sums(node: dict, sign: int, enum_values: dict[str, int], constexpr_values: dict[str, int]) -> list[list[Term]]:
+    """The alternative sums (one per combination of conditional branches) that `node` evaluates to."""
+    value = _integer_value(node, enum_values, constexpr_values)
+    if value is not None:
+        return [[("const", sign, node, value)]]
+    kind = node.get("kind")
+    children = _children(node)
+    if kind in _TRANSPARENT_KINDS and children:
+        return _sums(children[-1], sign, enum_values, constexpr_values)
+    if kind in _INTEGRAL_CAST_KINDS and children:
+        cast_kind = node.get("castKind")
+        if cast_kind == "PointerToIntegral":
+            return [[(_value_role(node), sign, node, None)]]
+        if cast_kind in ("IntegralCast", "NoOp"):
+            if not _wide(node):
+                raise _Unclassified("truncating cast")
+            return _sums(children[-1], sign, enum_values, constexpr_values)
+        if cast_kind == "LValueToRValue":
+            target = _strip(children[-1])
+            if target.get("kind") in _LOAD_KINDS or (target.get("kind") == "UnaryOperator"
+                                                     and target.get("opcode") == "*"):
+                return [[(_value_role(node), sign, node, None)]]
+            raise _Unclassified("load of an unclassified lvalue")
+        if cast_kind in _INDEX_CASTS:
+            return [[("index", sign, node, None)]]
+        raise _Unclassified(f"cast {cast_kind}")
+    if kind == "BinaryOperator" and len(children) >= 2:
+        opcode = node.get("opcode")
+        if opcode in ("+", "-"):
+            if _is_pointer(children[0]) and _is_pointer(children[1]):
+                return [[("index", sign, node, None)]]          # a pointer difference is a displacement
+            left = _sums(children[0], sign, enum_values, constexpr_values)
+            right = _sums(children[1], sign if opcode == "+" else -sign, enum_values, constexpr_values)
+            if len(left) * len(right) > MAX_ALTERNATIVES:
+                raise _Unclassified("too many alternatives")
+            return [a + b for a in left for b in right]
+        if opcode in _INDEX_BINARY:
+            return [[("index", sign, node, None)]]
+        if opcode in ("=", ","):
+            # an assignment's value is its right side; so is a comma expression's
+            return _sums(children[1], sign, enum_values, constexpr_values)
+        if opcode == "&":
+            # clearing only low bits (a tag or alignment mask) of an address leaves an address
+            for mask_side, other in ((children[1], children[0]), (children[0], children[1])):
+                mask = _integer_value(mask_side, enum_values, constexpr_values)
+                if mask is not None and (mask & 0xffffffff) >= LOW_BITS_MASK:
+                    if all(_net_bases(terms) >= 1 for terms in _sums(other, 1, enum_values, constexpr_values)):
+                        return [[("base", sign, node, None)]]
+            raise _Unclassified("bitwise and")
+        raise _Unclassified(f"binary {opcode}")
+    if kind == "CompoundAssignOperator" and children:
+        return [[(_value_role(node), sign, node, None)]]
+    if kind == "UnaryOperator" and children:
+        opcode = node.get("opcode")
+        if opcode in _INDEX_UNARY:
+            return [[("index", sign, node, None)]]
+        if opcode == "+":
+            return _sums(children[0], sign, enum_values, constexpr_values)
+        if opcode in ("++", "--"):
+            return [[(_value_role(node), sign, node, None)]]
+        raise _Unclassified(f"unary {opcode}")
+    if kind == "ConditionalOperator" and len(children) >= 3:
+        alternatives = (_sums(children[1], sign, enum_values, constexpr_values)
+                        + _sums(children[2], sign, enum_values, constexpr_values))
+        if len(alternatives) > MAX_ALTERNATIVES:
+            raise _Unclassified("too many alternatives")
+        return alternatives
+    if kind in _CALL_KINDS:
+        return [[(_value_role(node), sign, node, None)]]
+    if kind == "UnaryExprOrTypeTraitExpr":
+        return [[("index", sign, node, None)]]
+    raise _Unclassified(f"expression {kind}")
+
+
+def _net_bases(terms: list[Term]) -> int:
+    return sum(sign for role, sign, _node, _value in terms if role == "base")
+
+
+def _absolute_constants(operand: dict, ranges: list[tuple[int, int]], enum_values: dict[str, int],
+                        constexpr_values: dict[str, int]) -> list[dict]:
+    """The constant nodes of the converted integer `operand` that are used as module addresses (see above)."""
+    try:
+        alternatives = _sums(operand, 1, enum_values, constexpr_values)
+    except _Unclassified:
+        return [child for child in _walk(operand)
+                if (value := _integer_value(child, enum_values, constexpr_values)) is not None
+                and value != 0 and _in_ranges(value, ranges)]
+    hits: list[dict] = []
+    for terms in alternatives:
+        if _net_bases(terms) >= 1:
+            continue
+        constants = [(sign, node, value) for role, sign, node, value in terms if role == "const"]
+        found = [node for _sign, node, value in constants if value != 0 and _in_ranges(value, ranges)]
+        if not found and constants:
+            total = sum(sign * value for sign, _node, value in constants)
+            if total != 0 and _in_ranges(total, ranges):
+                found = [constants[0][1]]
+        hits.extend(found)
+    return hits
+
+
 def _ast_command(source: Path, lang: str, root: Path, overlay: Path, compiler: Path) -> list[str]:
     return [
         str(compiler), f"--target={TARGET}", *_language_args(lang), "-ffreestanding", "-nostdinc",
@@ -380,12 +568,10 @@ def findings(path: str | Path, lang: str, *, root: str | Path | None = None,
                 if value != 0:
                     add("integral-to-pointer", node)
             elif ranges:
-                # An address constant buried in a non-constant expression is still a fixed
-                # module address. Keep this separate from the general ICE cast finding.
-                for child in [operand, *[n for n in _walk(operand) if n is not operand]]:
-                    child_value = _integer_value(child, enum_values, constexpr_values)
-                    if child_value is not None and child_value != 0 and _in_ranges(child_value, ranges):
-                        add("module-address-conversion", child)
+                # A module-range constant used as the address in a non-constant conversion is still a
+                # fixed module address; an offset from an address-carrying base is not (see above).
+                for constant in _absolute_constants(operand, ranges, enum_values, constexpr_values):
+                    add("module-address-conversion", constant)
         if node_kind == "BinaryOperator" and node.get("opcode") in POINTER_COMPARE_OPS and len(children) >= 2:
             left, right = children[0], children[1]
             if _is_pointer(left) and not _is_pointer(right):

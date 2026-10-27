@@ -1,10 +1,9 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00212b30 end=0x00212be4 symbol=FUN_00212b30 lang=c99 */
-/* Clone of src/eboot/global_alloc_init_002042c8.c (hstclone.py tag c155507): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00212b30 end=0x00212be4 symbol=FUN_00212b30 lang=c99 data=0x003976a4 */
+/* Clone of src/eboot/global_alloc_init_002042c8.c (hstclone.py tag c155507): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003976a4-0x003976cf) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 extern void *DAT_003f3480;
 extern void *DAT_003f3484;
 extern char DAT_00212be4[];
-extern char DAT_003976a4[];
 extern char DAT_003b0388[];
 
 extern void *FUN_00000a90(int size);
@@ -32,5 +31,5 @@ void FUN_00212b30(void)
         FUN_0008d97c((char *)obj + 32);
     }
     DAT_003f3484 = obj;
-    FUN_00187724(DAT_003f3480, obj, DAT_003976a4, 16, 15);
+    FUN_00187724(DAT_003f3480, obj, "data/menu/chrselect/chrsel_param_chara.csv", 16, 15);
 }

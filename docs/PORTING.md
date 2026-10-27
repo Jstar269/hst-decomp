@@ -71,22 +71,28 @@ where those differences matter.
 
 ## Measurement
 
-The full run used `python tools/hstport.py --parallel 4 --host-clang "C:\Program Files\LLVM\bin\clang.exe" --android-ndk "<ndk>\30.0.16248370"` on 2026-10-21. It analyzed and measured all 11,893 sources for all five targets and took 1,219.979 seconds (20 minutes 19.979 seconds), including 263.697 seconds (4 minutes 23.697 seconds) for the AST numeric-address scan. The detector reported 8,651 findings across 2,451 published sources.
+The full measurement runs `python tools/hstport.py --parallel 4 --host-clang "C:\Program Files\LLVM\bin\clang.exe" --android-ndk "<ndk>\30.0.16248370" --write-doc`, which rewrites the block below from its reports (`--doc-only` rewrites it from the last reports without measuring). It is not part of a release, so the block shows the date of the last run.
+
+<!-- hstport:begin measurement -->
+
+The last full run, on 2026-10-25, analyzed and measured all 12,921 sources for all five targets and took 1,064.557 seconds (17 minutes 44.557 seconds), including 238.990 seconds (3 minutes 58.990 seconds) for the AST numeric-address scan. The detector reported 10,250 findings across 2,675 published sources.
 
 | View | Sources | Compile all 5 | Code bytes | Compiling bytes | Byte progress |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Public | 10,583 | 6,511 | 5,704,460 | 753,868 | 13.215% |
-| Private | 11,893 | 6,970 | 5,763,080 | 781,436 | 13.559% |
+| Public | 11,571 | 7,076 | 5,689,628 | 993,972 | 17.470% |
+| Private | 12,921 | 7,573 | 5,763,080 | 1,035,700 | 17.971% |
 
 Per-target source counts are shown as `ok / fail`:
 
 | Target | Public | Private |
 | --- | ---: | ---: |
-| `x86_64-pc-windows-msvc` | 6,513 / 4,070 | 6,972 / 4,921 |
-| `i686-pc-windows-msvc` | 7,562 / 3,021 | 8,096 / 3,797 |
-| `aarch64-linux-android24` | 6,564 / 4,019 | 7,023 / 4,870 |
-| `armv7a-linux-androideabi24` | 7,558 / 3,025 | 8,092 / 3,801 |
-| `x86_64-linux-android24` | 6,564 / 4,019 | 7,023 / 4,870 |
+| `x86_64-pc-windows-msvc` | 7,078 / 4,493 | 7,575 / 5,346 |
+| `i686-pc-windows-msvc` | 8,217 / 3,354 | 8,791 / 4,130 |
+| `aarch64-linux-android24` | 7,129 / 4,442 | 7,626 / 5,295 |
+| `armv7a-linux-androideabi24` | 8,213 / 3,358 | 8,787 / 4,134 |
+| `x86_64-linux-android24` | 7,129 / 4,442 | 7,626 / 5,295 |
+
+<!-- hstport:end -->
 
 The run used LLVM for the Windows targets and Android NDK r30 for Android:
 

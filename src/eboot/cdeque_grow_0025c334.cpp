@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0025c334 end=0x0025c42c symbol=FUN_0025c334 lang=c++ */
-/* Clone of src/eboot/cdeque_grow_00192a3c.cpp (hstclone.py tag c38): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0025c334 end=0x0025c42c symbol=FUN_0025c334 lang=c++ data=0x002fd884 */
+/* Clone of src/eboot/cdeque_grow_00192a3c.cpp (hstclone.py tag c38): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002fd884-0x002fd89a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* MSL-style circular deque (cdeque) growth helper: new capacity for n elements (same shape as
    cdeque_grow_0011f440). Here max_size() is min(alloc.max_size(), 0x7fffffff) - 1 in a guarded local static;
@@ -11,7 +11,6 @@ struct Reent_0025c334 { int pad[3]; void *err; };
 Reent_0025c334 *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d518(void);
-extern char DAT_002fd884[]; /* "cdeque max_size error" */
 extern char DAT_0034a7c1;     /* max_size() static guard */
 extern unsigned DAT_002ca7b4; /* max_size() static value */
 }
@@ -45,7 +44,7 @@ extern "C" unsigned FUN_0025c334(const Cdeque_0025c334 *self, unsigned n)
 {
     unsigned m = self->max_size();
     if (n > m)
-        Error_0025c334(DAT_002fd884);
+        Error_0025c334("cdeque max_size error");
     unsigned c = self->cap_ ? self->cap_ - 1 : 1;
     while (n > c)
         c = c < m / 2 ? 2 * c : m;

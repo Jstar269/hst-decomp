@@ -44,6 +44,15 @@ ASM_ADDR = 0x10                                           # an EBOOT function th
 HELPED = "src/eboot/power_callback_00291434.cpp"          # helpers=: a static stub at 0x28fb44 placed apart from the target
 HELPER_OWN = "src/eboot/FUN_0028fb44.cpp"                 # the same stub as its own one-function source
 
+# RUN owns the INNER functions' bytes, so the real tree keeps no separate sources for them (ff11391): the test
+# copies them from tools/testdata/hstpromote/ to their src/ paths.
+FIXTURES = REAL / "tools" / "testdata" / "hstpromote"
+
+
+def real_source(rel: str) -> Path:
+    """The source file a sandbox path is copied from: the real tree, or the fixture copy for an INNER source."""
+    return FIXTURES / Path(rel).name if rel in INNER else REAL / rel
+
 
 def _rmtree(path: Path) -> None:
     def onexc(func, p, _exc):
@@ -151,7 +160,7 @@ def setUpModule() -> None:
         shutil.copyfile(REAL / "data" / f, BASE / "data" / f)
     for rel in SEEDED:
         (BASE / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(REAL / rel, BASE / rel)
+        shutil.copyfile(real_source(rel), BASE / rel)
     minimal_campaign(BASE / "campaign")
     cfg = json.loads((REAL / "hst-config.json").read_text(encoding="utf-8"))
     cfg["campaign_root"] = str(BASE / "campaign")
@@ -311,7 +320,7 @@ class Wiring(GateCase):
         (lane / "docs" / "MWCC-NOTES.md").write_text("# notes\n", encoding="utf-8")
         shutil.copyfile(REAL / NEW, lane / NEW)
         (self.dir / INNER[0]).unlink()                        # unproven (subsumed): the lane offers it again
-        shutil.copyfile(REAL / INNER[0], lane / INNER[0])
+        shutil.copyfile(real_source(INNER[0]), lane / INNER[0])
         self.sb.config(ext_root=str(self.dir / "ext"))
         r = self.sb.run("hstlane.py", "harvest", "lane1")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)

@@ -1,9 +1,8 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0019dc20 end=0x0019dd0c symbol=FUN_0019dc20 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0019dc20 end=0x0019dd0c symbol=FUN_0019dc20 lang=c99 data=0x002e1b68 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002e1b68-0x002e1b69) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
 struct Obj { char pad[4]; short *f4; char pad2[0x10 - 8]; char body; };
 
-extern char DAT_002e1b68[];
 char *FUN_000149a8(char *, const char *);
 unsigned char *FUN_00193474(int);
 
@@ -25,7 +24,7 @@ void FUN_0019dc20(struct Obj *self, int x, short p3, short p4, short p5, short p
   if (p11 != 0) {
     FUN_000149a8((char *)self + 0x10, p11);
   } else {
-    FUN_000149a8((char *)self + 0x10, DAT_002e1b68);
+    FUN_000149a8((char *)self + 0x10, "");
   }
   if (x >= 0 && x < 0xf) {
     rec = FUN_00193474(x);

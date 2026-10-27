@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00126c2c end=0x00126d1c symbol=FUN_00126c2c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag q2) corrected by hand: the member sub-object null test restored (Ghidra folded its offset into the compared constant); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00126c2c end=0x00126d1c symbol=FUN_00126c2c lang=c99 data=0x002da7d4 */
+/* Ghidra pseudocode (hstgen.py tag q2) corrected by hand: the member sub-object null test restored (Ghidra folded its offset into the compared constant); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002da7d4-0x002da7f0) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -19,7 +19,6 @@ typedef unsigned int undefined4;
 
 extern undefined DAT_00308050;
 extern undefined DAT_00308064;
-extern char DAT_002da7d4[];
 extern void FUN_00000a00();
 extern undefined4 * FUN_000918ac();
 extern int FUN_000d7e30();
@@ -34,7 +33,7 @@ undefined4 * FUN_00126c2c(undefined4 *param_1,short param_2)
   if (param_1 != (undefined4 *)0x0) {
     *param_1 = (unsigned int)(&DAT_00308050);
     param_1[0x38] = (unsigned int)(&DAT_00308064);
-    FUN_00126d1c(DAT_002da7d4);
+    FUN_00126d1c("Avatar: destructor called.\n");
     puVar1 = param_1 + 0x105;
     if ((puVar1 != (undefined4 *)0x0) && (puVar1 != (undefined4 *)0x0)) {
       FUN_000e88e4(puVar1,0);

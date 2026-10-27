@@ -1,7 +1,6 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00094ba4 end=0x00094c5c symbol=FUN_00094ba4 lang=c++ */
-/* Clone of src/eboot/open_init_object_00092d10.cpp (hstclone.py tag c47): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00094ba4 end=0x00094c5c symbol=FUN_00094ba4 lang=c++ data=0x00378cd0 */
+/* Clone of src/eboot/open_init_object_00092d10.cpp (hstclone.py tag c47): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00378cd0-0x00378cfe) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed Obj struct, new-with-ctor store through one local, dropped call arguments restored (FUN_0004d2c4 receives the open result, FUN_00057c88 receives the two tested members); exact match verified; names and types await human review. */
-extern char DAT_00378cd0[];
 struct Sub;
 struct Obj {
   char pad0[0x58];
@@ -21,7 +20,7 @@ extern "C" void FUN_00094c5c(Obj *);
 extern "C" void FUN_00094ba4(Obj *self, int param_2)
 {
   char buf[256];
-  FUN_000143b0(buf, DAT_00378cd0, param_2);
+  FUN_000143b0(buf, "data/chara/model/body_type/body_type_%03d.i3m", param_2);
   int r = FUN_0004cfac(buf, 1, 1);
   if (r >= 0) {
     FUN_0004d2c4(r);

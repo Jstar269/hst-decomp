@@ -1,12 +1,11 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0015f648 end=0x0015f730 symbol=FUN_0015f648 lang=c++ */
-/* Clone of src/eboot/command_factory_00153418.cpp (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0015f648 end=0x0015f730 symbol=FUN_0015f648 lang=c++ data=0x00383c34 */
+/* Clone of src/eboot/command_factory_00153418.cpp (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00383c34-0x00383c45) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Ctx_0015f648;
 struct Mgr_0015f648;
 struct Settings_0015f648 { int pad[2]; int id; };
 extern "C" {
 extern unsigned char DAT_003e9630;
-extern char DAT_00383c34[];
 extern Mgr_0015f648 *DAT_003f344c;
 void FUN_00158b2c(Ctx_0015f648 *ctx);
 void FUN_0015bb68(char *fmt, ...);
@@ -30,7 +29,7 @@ extern "C" C_0014c8cc *FUN_0015f648(Settings_0015f648 *settings, float amount, C
 {
   if (DAT_003e9630) {
     FUN_00158b2c(ctx);
-    FUN_0015bb68(DAT_00383c34, settings->id);
+    FUN_0015bb68("StageUnlock[%d]\n", settings->id);
   }
   FUN_0023c364(settings->id - 1);
   FUN_001daeb0(DAT_003f344c, settings->id);

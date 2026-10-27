@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0015cc54 end=0x0015cd14 symbol=FUN_0015cc54 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0015cc54 end=0x0015cd14 symbol=FUN_0015cc54 lang=c99 data=0x0038392c */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0038392c-0x00383942) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char uchar;
 
 typedef struct {
@@ -22,7 +22,6 @@ typedef struct {
 } Param2;
 
 extern uchar DAT_003e9630;
-extern char DAT_0038392c[];
 extern int *FUN_00157e10(void *target, int f8);
 extern void FUN_00158b2c(Param2 *param_2);
 extern void FUN_0015bb68(char *buf, int f8);
@@ -33,7 +32,7 @@ int FUN_0015cc54(Param1 *param_1, Param2 *param_2)
 {
     if (DAT_003e9630 != 0) {
         FUN_00158b2c(param_2);
-        FUN_0015bb68(DAT_0038392c, param_1->f8);
+        FUN_0015bb68("MatchRecord [reg:%d]\n", param_1->f8);
     }
     Sub *sub = param_2->sub;
     void *target = param_2->target;

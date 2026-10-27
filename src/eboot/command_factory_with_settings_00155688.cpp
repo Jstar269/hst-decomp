@@ -1,11 +1,10 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00155688 end=0x0015576c symbol=FUN_00155688 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00155688 end=0x0015576c symbol=FUN_00155688 lang=c++ data=0x002dcb00 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dcb00-0x002dcb18) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Ctx_00155688;
 struct Mgr_00155688;
 struct Settings_00155688 { int pad[2]; int id; };
 extern "C" {
 extern unsigned char DAT_003402f0;
-extern char DAT_002dcb00[];
 extern Mgr_00155688 *DAT_0034a114;
 void FUN_0014d044(Ctx_00155688 *ctx);
 void FUN_0014fd94(char *fmt, ...);
@@ -30,7 +29,7 @@ extern "C" C_0014c8cc *FUN_00155688(Settings_00155688 *settings, float amount, C
 {
   if (DAT_003402f0) {
     FUN_0014d044(ctx);
-    FUN_0014fd94(DAT_002dcb00, settings->id);
+    FUN_0014fd94("SelectPcQuest [reg:%d]\n", settings->id);
   }
   FUN_001cc510(DAT_0034a114);
   C_0014c8cc *action = new C_00155688(settings);

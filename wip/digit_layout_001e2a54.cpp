@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001e2a54 end=0x001e2c84 symbol=FUN_001e2a54 lang=c++ */
-/* Hand-written reconstruction from the disassembly; NOT exact: same opcodes as retail (140 words), 32 words differ in register naming/load order of the post-loop block only; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; NOT exact: same opcodes as retail (140 words), 22 words differ in register naming/load order of the post-loop block only; names and types await human review. */
 struct Widget {
     char pad0[4];
     short x;
@@ -57,19 +57,21 @@ extern "C" void FUN_001e2a54(Self *self)
     }
     Slot *last = &self->items[4];
     int left = self->left;
-    int right = self->right;
+    int span = self->total - left;
+    int gap = self->right - left;
     Widget *base = self->items[0].w;
     Slot *p = &self->items[1];
     int w0 = (short)(p->w->x2 - p->w->x);
     int w3 = (short)(last->w->x2 - last->w->x);
-    int rem = (self->total - left) - w0 * (3 - lead);
+    int rem = span - w0 * (3 - lead);
     int half = rem / 2;
     int start = 0xf0 - half;
     int end = half + 0xf0;
     MoveX(base, start);
-    int pos = start + (right - left);
+    int pos = start + gap;
+    int i = 0;
     int acc = 0;
-    for (int i = 0; i < 3; i++) {
+    for (; i < 3; i++) {
         Widget *w = p->w;
         if ((w->flags & 3) == 0) {
             MoveX(w, pos + acc);
@@ -81,3 +83,8 @@ extern "C" void FUN_001e2a54(Self *self)
 }
 // Near miss, snE1-00: part 1 (digit loop) is exact; part 2 differs by registers only (retail loads left/total/right/base first into a1/a0/v1/a2, subtracts, then loads the two widget pointers; ours interleaves).
 // Ruled out: statement order of the local declarations (1260 permutations, best 32 words), Width(const) getter, rem>>1 form (rem / 2 is right: gives the duplicated delay-slot sra), explicit pos/end locals (both needed for the opcode match).
+// Lane wf20261026-e01-05: 32 -> 22. `span = total - left` and `gap = right - left` as their own locals (retail computes both
+// subtractions early, a3 = gap feeds pos), and `int i = 0; int acc = 0; for (; i < 3; i++)` (retail zeroes i (t1) before acc (a3)):
+// the second loop is now exact. Remaining 22 words: the 0x1e2b40 prelude schedule (retail issues left/total/right/base loads and both
+// subtractions before the widget-pointer loads; ours starts with p->w). All 120 orders of span/gap/base/w0/w3 give 22 (try/lane-work/1e2a54/p).
+// improved by lane wf20261026-e01-05 (unreviewed): 32 -> 22 differing words

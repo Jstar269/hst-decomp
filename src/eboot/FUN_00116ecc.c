@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00116ecc end=0x00116f98 symbol=FUN_00116ecc lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00116ecc end=0x00116f98 symbol=FUN_00116ecc lang=c99 data=0x002d9384 */
+/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002d9384-0x002d93e1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -18,9 +18,6 @@ typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
 extern undefined DAT_00307fa8;
-extern char DAT_002d9384[];
-extern char DAT_002d93a4[];
-extern char DAT_002d93c4[];
 extern uint * FUN_000114c0();
 extern undefined4 * FUN_0001f06c();
 extern void FUN_00116f98();
@@ -47,9 +44,9 @@ undefined4 * FUN_00116ecc(undefined4 *param_1)
     *(undefined1 *)((int)puVar1 + 0x61) = 0;
     puVar1 = puVar1 + 0x1c;
   } while (puVar1 < param_1 + 0x11c);
-  FUN_00116f98(DAT_002d9384,0x3f0);
-  FUN_00116f98(DAT_002d93a4,0x90);
-  FUN_00116f98(DAT_002d93c4,0x24);
+  FUN_00116f98("Replay sizeof(m_Shot)   %7d\n",0x3f0);
+  FUN_00116f98("Replay sizeof(m_Player) %7d\n",0x90);
+  FUN_00116f98("Replay sizeof(m_Common) %7d\n",0x24);
   FUN_00117020(param_1);
   return param_1;
 }

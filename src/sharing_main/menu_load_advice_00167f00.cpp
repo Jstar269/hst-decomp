@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00167f00 end=0x00168028 symbol=FUN_00167f00 lang=c++ */
-/* Clone of src/eboot/menu_load_advice_0015b958.cpp (hstclone.py tag c30): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00167f00 end=0x00168028 symbol=FUN_00167f00 lang=c++ data=0x00385818 */
+/* Clone of src/eboot/menu_load_advice_0015b958.cpp (hstclone.py tag c30): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00385818-0x00385858) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Menu "load message advice" setup: format two resource paths into the object's path buffer, and when no
    model is loaded yet (or the resource check 0x14934 says so) replace the model: virtual delete, new 0x48-byte
@@ -9,8 +9,6 @@ struct Model_000518d4 {
 };
 struct Self_00167f00;
 extern "C" {
-extern char DAT_00385818[];
-extern char DAT_00385840[];
 extern char DAT_003b7ebc[];
 void FUN_00166aa0(Self_00167f00 *self, int a);
 void FUN_000143b0(char *buf, const char *fmt, ...);
@@ -37,9 +35,9 @@ struct Self_00167f00 {
 extern "C" void FUN_00167f00(Self_00167f00 *self, int idx)
 {
     FUN_00166aa0(self, 0);
-    FUN_000143b0(self->path, DAT_00385818, idx);
+    FUN_000143b0(self->path, "menu/loadmes/advice/loadmes_a%02d.xb", idx);
     FUN_0001c684(DAT_003b7ebc, 1, self->path);
-    FUN_000143b0(self->path, DAT_00385840, idx);
+    FUN_000143b0(self->path, "data/menu/loadmes/A%02d", idx);
     if (self->model == 0 || FUN_00014934(self->res, self->path)) {
         if (self->model) {
             delete self->model;

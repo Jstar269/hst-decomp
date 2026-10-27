@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00154cc0 end=0x00154dc8 symbol=FUN_00154cc0 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified (id->object lookup in an inline helper with early returns, as in 0x0014fbd4/0x001543d0; names and types await human review). */
+/* HSTMATCH module=EBOOT.BIN start=0x00154cc0 end=0x00154dc8 symbol=FUN_00154cc0 lang=c++ data=0x002dc9e8 */
+/* Hand-written reconstruction from the disassembly; exact match verified (id->object lookup in an inline helper with early returns, as in 0x0014fbd4/0x001543d0; names and types await human review). Data: its string literals (1 strings, 0x002dc9e8-0x002dca07) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Obj {
     virtual void v0();
 };
@@ -10,7 +10,6 @@ struct Ctx { int a; int b; int c; Obj *obj; };
 struct Cmd { void *vt; int a; int id; int pos; int pos2; };
 extern "C" {
 extern unsigned char DAT_003402f0;
-extern char DAT_002dc9e8[];
 extern Mgr *DAT_0034a114;
 extern Player *DAT_0034a118;
 void FUN_0014d044(Ctx *);
@@ -37,7 +36,7 @@ extern "C" int FUN_00154cc0(Cmd *self, Ctx *ctx)
 {
     if (DAT_003402f0 != 0) {
         FUN_0014d044(ctx);
-        FUN_0014fd94(DAT_002dc9e8, self->id, self->pos, self->pos2);
+        FUN_0014fd94("SetFacial [%d, %d (delay:%d)]\n", self->id, self->pos, self->pos2);
     }
     Obj *p = Find(self, ctx);
     if (p != 0)

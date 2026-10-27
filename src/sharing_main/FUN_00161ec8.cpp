@@ -1,10 +1,9 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00161ec8 end=0x00161fa4 symbol=FUN_00161ec8 lang=c++ */
-/* Clone of src/eboot/FUN_001559c0.cpp (hstclone.py tag u3r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00161ec8 end=0x00161fa4 symbol=FUN_00161ec8 lang=c++ data=0x00384034 */
+/* Clone of src/eboot/FUN_001559c0.cpp (hstclone.py tag u3r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00384034-0x00384045) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: modeled the receiver as a virtual object, restored the float input and (float, int) method signature, and used the context pointer for +8 reads; exact match verified; names and types await human review. */
 extern "C" {
 extern unsigned char DAT_003e9630;
 extern int DAT_003f344c;
-extern char DAT_00384034[];
 extern unsigned char DAT_003b1698;
 extern unsigned char DAT_003b1888;
 void *FUN_00000bcc(int);
@@ -23,7 +22,7 @@ extern "C" int *FUN_00161ec8(int *param_1, float param_3, int param_2)
   int result;
   if (DAT_003e9630 != 0) {
     FUN_00158b2c(param_2);
-    FUN_0015bb68(DAT_00384034, param_1[2]);
+    FUN_0015bb68("AppealText [%d]\n", param_1[2]);
   }
   FUN_001daa88(DAT_003f344c, param_1[2]);
   if ((p = (Allocated *)FUN_00000bcc(4)) != 0) {

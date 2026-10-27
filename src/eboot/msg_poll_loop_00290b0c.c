@@ -1,10 +1,7 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00290b0c end=0x00290c94 symbol=FUN_00290b0c lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00290b0c end=0x00290c94 symbol=FUN_00290b0c lang=c99 data=0x002ff720 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002ff720-0x002ff7a8) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Receive loop: poll FUN_002b78a0 into a 0x48-byte message, handle the 0x800201b4 status (FUN_002b7ee0, retry after FUN_002b7958(33000)) and message types 0 and 1; leaves when DAT_0034a80c is set or the closing flag at +0x2a is set. */
 extern unsigned char DAT_0034a80c;
-extern char DAT_002ff720[];
-extern char DAT_002ff754[];
-extern char DAT_002ff780[];
 extern void FUN_0028fb44();
 extern void FUN_002905bc(void *, void *, int, int);
 extern void FUN_002908cc(void *);
@@ -39,7 +36,7 @@ int FUN_00290b0c(struct Obj *self)
         if (r == (int)0x800201b4) {
             r = FUN_002b7ee0(self);
             if (r < 0) {
-                FUN_0028fb44(DAT_002ff720, r);
+                FUN_0028fb44("ERROR: scePsmfPlayerGetCurrentStatus()[1]: 0x%08x\n", r);
             } else if (r == 0x200) {
                 if (DAT_0034a80c != 0)
                     break;
@@ -54,10 +51,10 @@ int FUN_00290b0c(struct Obj *self)
             continue;
         }
         if (r != 0) {
-            FUN_0028fb44(DAT_002ff754, r);
+            FUN_0028fb44("ERROR: sceKernelReceiveMsgPipe(): 0x%08x\n", r);
         } else {
             if (msg.type == 1 && prev != 0) {
-                FUN_0028fb44(DAT_002ff780);
+                FUN_0028fb44("PsmfPlayerManagerThread: StopRequest()\n");
                 FUN_002908cc(self);
             }
             prev = msg.type;

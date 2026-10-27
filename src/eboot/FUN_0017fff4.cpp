@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0017fff4 end=0x001802b4 symbol=FUN_0017fff4 lang=c++ */
-/* ChrSelect_LoadLayoutAndUnitList: data/menu/chrselect/chrsel_unitlist.txt; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x0017fff4 end=0x001802b4 symbol=FUN_0017fff4 lang=c++ data=0x002e083c */
+/* ChrSelect_LoadLayoutAndUnitList: data/menu/chrselect/chrsel_unitlist.txt; see docs/DATA-TABLES.md Data: its string literals (3 strings, 0x002e083c-0x002e08a2) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly and the Ghidra pseudocode (character-select screen init, sibling of 0x1802b4); the two globals tested first are the arguments of FUN_0008d994 / FUN_001cd804 (Ghidra dropped them), the layout is a struct so accesses are displacements off s0; exact match verified; names and types await human review. */
 struct Rect {
     char pad0[4];
@@ -79,9 +79,6 @@ struct Screen {
     char s16b4[0x8c];
 };
 
-extern char DAT_002e083c[];
-extern char DAT_002e0858[];
-extern char DAT_002e0880[];
 extern char DAT_0030ebf4[];
 extern char DAT_002e0798[];
 extern char DAT_002c2080[];
@@ -117,9 +114,9 @@ void FUN_00217614(void *, int);
 
 extern "C" void FUN_0017fff4(Screen *self)
 {
-    FUN_0001cad0(DAT_0030ebf4, 1, DAT_002e083c);
-    FUN_002172f4(&DAT_0034151c, DAT_002e0858, 0xd6);
-    FUN_00104118(self->layout, DAT_002e0880, 0);
+    FUN_0001cad0(DAT_0030ebf4, 1, "menu/chrsel_030_chrsel.xb");
+    FUN_002172f4(&DAT_0034151c, "data/menu/chrselect/chrsel_unitlist.txt", 0xd6);
+    FUN_00104118(self->layout, "data/menu/chrselect/chrselect.lay", 0);
     FUN_00103540(0.0f, self->layout);
     FUN_001037c8(self->layout, 0x10);
     FUN_0001cb88(DAT_0030ebf4);

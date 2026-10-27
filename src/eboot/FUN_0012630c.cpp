@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0012630c end=0x001264f8 symbol=FUN_0012630c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0012630c end=0x001264f8 symbol=FUN_0012630c lang=c++ data=0x002da210 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (4 strings, 0x002da210-0x002da283) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Net {
     virtual ~Net();
     int f04;                /* 0x04 */
@@ -19,10 +19,6 @@ struct Ctx {
 };
 
 extern "C" {
-extern char DAT_002da210[];
-extern char DAT_002da224[];
-extern char DAT_002da250[];
-extern char DAT_002da268[];
 extern char DAT_002da284[];
 extern char DAT_002da2b0[];
 extern void *FUN_00000a90(unsigned size);
@@ -50,7 +46,7 @@ extern "C" int FUN_0012630c(int unused, Ctx *c)
     int r;
 
     c->status[0] = 0x4000;
-    FUN_001264f8(DAT_002da210);
+    FUN_001264f8("Thread loop start\n");
     for (;;) {
         if (*c->quit != 0)
             break;
@@ -60,15 +56,15 @@ extern "C" int FUN_0012630c(int unused, Ctx *c)
             if (r == 0) {
                 FUN_000ff5b0(c->net24, buf, args.len);
             } else if (r != -0x7fbef8f7) {
-                FUN_001264f8(DAT_002da224, r);
+                FUN_001264f8("sceNetAdhocPdpRecv() failed. ret = 0x%x\n", r);
                 *c->status |= 0x8040;
             }
         } else {
             FUN_002b7888(16000);
         }
     }
-    FUN_001264f8(DAT_002da250);
-    FUN_001264f8(DAT_002da268);
+    FUN_001264f8("ThreadFunc Exit loop\n");
+    FUN_001264f8("ThreadFunc Delete ownself\n");
     r = FUN_002b78e8(sema);
     if (r != 0)
         FUN_001264f8(DAT_002da284, r);

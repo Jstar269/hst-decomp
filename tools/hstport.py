@@ -2,7 +2,11 @@
 """Measure strict source portability for the EBOOT and Sharing game executables.
 
     python tools/hstport.py [--root DIR] [--config FILE] [--parallel N]
-                            [--targets TRIPLE ...] [--json]
+                            [--targets TRIPLE ...] [--json] [--write-doc]
+    python tools/hstport.py --doc-only      rewrite docs/PORTING.md's measurement block from the last reports
+
+--write-doc (after a run of all five targets) and --doc-only rewrite the block between
+`<!-- hstport:begin measurement -->` and `<!-- hstport:end -->` in docs/PORTING.md; never edit it by hand.
 
 Strict success means Clang exits zero and no fixed portability diagnostic below fires. Translation units are
 compiled with -c to unique system-temporary object paths, never into the repository. C is C99. C++ is C++17,
@@ -611,6 +615,63 @@ def write_report(path: Path, report: dict) -> None:
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
 
 
+PORTING_DOC = Path("docs/PORTING.md")
+DOC_BLOCK = re.compile(r"(<!-- hstport:begin measurement -->)(.*?)(<!-- hstport:end -->)", re.S)
+
+
+def _duration(seconds: float) -> str:
+    minutes, rest = divmod(seconds, 60)
+    unit = "minute" if int(minutes) == 1 else "minutes"
+    return f"{seconds:,.3f} seconds ({int(minutes)} {unit} {rest:.3f} seconds)" if minutes else f"{seconds:.3f} seconds"
+
+
+def render_measurement(public: dict, private: dict) -> str:
+    """The docs/PORTING.md measurement block from one full run's public and private reports."""
+    if not (public.get("all_five_targets") and private.get("all_five_targets")):
+        raise ValueError("a target subset is iteration-only: the measurement needs all five targets")
+    findings = public["numeric_address_findings"]
+    flagged = sum(1 for n in findings.values() if n)
+
+    def share(report: dict) -> str:
+        return f"{100 * report['compiling_bytes'] / report['code_bytes']:.3f}%" if report["code_bytes"] else "0.000%"
+
+    def row(name: str, report: dict) -> str:
+        return (f"| {name} | {report['sources']:,} | {report['compiling_all_targets']:,} | {report['code_bytes']:,} | "
+                f"{report['compiling_bytes']:,} | {share(report)} |")
+
+    lines = [
+        f"The last full run, on {private['generated_at'][:10]}, analyzed and measured all {private['sources']:,} "
+        f"sources for all five targets and took {_duration(private['elapsed_seconds'])}, including "
+        f"{_duration(private['numeric_address_scan_seconds'])} for the AST numeric-address scan. The detector "
+        f"reported {sum(findings.values()):,} findings across {flagged:,} published sources.",
+        "",
+        "| View | Sources | Compile all 5 | Code bytes | Compiling bytes | Byte progress |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+        row("Public", public),
+        row("Private", private),
+        "",
+        "Per-target source counts are shown as `ok / fail`:",
+        "",
+        "| Target | Public | Private |",
+        "| --- | ---: | ---: |",
+        *(f"| `{t}` | {public['per_target'][t]['ok']:,} / {public['per_target'][t]['fail']:,} | "
+          f"{private['per_target'][t]['ok']:,} / {private['per_target'][t]['fail']:,} |" for t in public["targets"])]
+    return "\n".join(lines)
+
+
+def write_doc(root: Path, public: dict, private: dict) -> bool:
+    """Rewrite the measurement block of docs/PORTING.md; True when the file changed. A missing block is an error."""
+    path = root / PORTING_DOC
+    text = path.read_text(encoding="utf-8")
+    if not DOC_BLOCK.search(text):
+        raise SystemExit(f"{PORTING_DOC.as_posix()} has no hstport measurement block")
+    body = "\n\n" + render_measurement(public, private) + "\n\n"
+    new = DOC_BLOCK.sub(lambda m: m.group(1) + body + m.group(3), text, count=1)
+    if new != text:
+        path.write_text(new, encoding="utf-8", newline="\n")
+    return new != text
+
+
 def _print_progress(target: str, completed: int, total: int) -> None:
     print(f"{target}: {completed}/{total} sources", file=sys.stderr, flush=True)
 
@@ -630,7 +691,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--targets", nargs="+", choices=TARGETS, default=list(TARGETS),
                     help="targets to measure (default: all five; subsets are iteration-only)")
     ap.add_argument("--json", action="store_true", help="print a JSON summary to stdout")
+    ap.add_argument("--write-doc", action="store_true",
+                    help="after a run of all five targets, rewrite the measurement block of docs/PORTING.md")
+    ap.add_argument("--doc-only", action="store_true",
+                    help="rewrite the docs/PORTING.md measurement block from the existing reports; measure nothing")
     args = ap.parse_args(argv)
+    if args.doc_only:
+        root = args.root.resolve()
+        output_dir = args.output_dir.resolve() if args.output_dir else root / "try"
+        reports = [json.loads(p.read_text(encoding="utf-8")) for p in (
+            args.public_report.resolve() if args.public_report else output_dir / "port-report.json",
+            args.private_report.resolve() if args.private_report else output_dir / "port-private-report.json")]
+        changed = write_doc(root, *reports)
+        print(f"{PORTING_DOC.as_posix()}: " + ("measurement rewritten" if changed else "measurement unchanged"))
+        return 0
 
     root = args.root.resolve()
     config = args.config.resolve() if args.config else root / "hst-config.json"
@@ -661,6 +735,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"private: {result['private']['sources']} sources; {result['private']['compiling_all_targets']} compile "
               f"all selected target(s); {result['private']['compiling_bytes']}/{result['private']['code_bytes']} code bytes")
         print(f"reports: {public_path} ; {private_path}")
+    if args.write_doc:
+        changed = write_doc(root, result["public"], result["private"])
+        print(f"{PORTING_DOC.as_posix()}: " + ("measurement rewritten" if changed else "measurement unchanged"))
     return 0
 
 

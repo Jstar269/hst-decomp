@@ -1,12 +1,10 @@
-/* HSTMATCH module=EBOOT.BIN start=0x0009f0ec end=0x0009f230 symbol=FUN_0009f0ec lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag from inputs/generated/FUN_0009f0ec.c) corrected by hand, from the lane fm5 near miss: restructured into struct members and ternaries, added the dropped leading owner argument (int) to FUN_000937c8; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x0009f0ec end=0x0009f230 symbol=FUN_0009f0ec lang=c99 data=0x002d45fc */
+/* Ghidra pseudocode (hstgen.py tag from inputs/generated/FUN_0009f0ec.c) corrected by hand, from the lane fm5 near miss: restructured into struct members and ternaries, added the dropped leading owner argument (int) to FUN_000937c8; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d45fc-0x002d4613) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern void FUN_000937c8(int, float, float);
 extern void FUN_0009b96c(int);
 extern void FUN_000939a4(float *, int, char *);
 extern void FUN_00022498(float, float *, float *);
 extern void FUN_00022548(float *, float *, float *);
-extern char DAT_002d45fc[];
-extern char DAT_002d4608[];
 
 struct Self { char pad[0x150]; int mode; char pad2[0x468]; int owner; };
 
@@ -32,7 +30,7 @@ void FUN_0009f0ec(float *param_1,struct Self *param_2)
   if (param_2->mode == 1) {
     v[0] = v[0] * -1.0f;
   }
-  name = param_2->mode == 0 ? DAT_002d45fc : DAT_002d4608;
+  name = param_2->mode == 0 ? "Bip01LHand" : "Bip01RHand";
   FUN_000939a4(m[0],param_2->owner,name);
   FUN_00022498(100.0f,m[0],m[0]);
   FUN_00022498(100.0f,m[1],m[1]);

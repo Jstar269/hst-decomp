@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001428d4 end=0x00142f90 symbol=FUN_001428d4 lang=c++ */
-/* Stage_LoadLightingAndFog: courtlight/playerlight/balllight/fogsetting.csv; see docs/DATA-TABLES.md */
+/* HSTMATCH module=EBOOT.BIN start=0x001428d4 end=0x00142f90 symbol=FUN_001428d4 lang=c++ data=0x002dbb68 */
+/* Stage_LoadLightingAndFog: courtlight/playerlight/balllight/fogsetting.csv; see docs/DATA-TABLES.md Data: its string literals (1 strings, 0x002dbb68-0x002dbb7a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Ground (ClassGround.cpp, per the Sharing twin's assert strings) light setup: set default ambient and two
    directional lights on the light manager, read them back into three light sets, override them from the
@@ -86,7 +86,6 @@ struct Ground {
 extern LightMgr *DAT_003313c4;
 extern const char DAT_002dbb34[];   /* "," */
 extern const char DAT_002c1910[];   /* "%s%s" */
-extern const char DAT_002dbb68[];   /* "%s/pointlight.dat" */
 
 extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char *f3, const char *f2, const char *f4)
 {
@@ -191,7 +190,7 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
 
     size = 0;
     FUN_000143b0(buf, DAT_002c1910, self->base, self->dir);
-    FUN_000143b0(path, DAT_002dbb68, buf);
+    FUN_000143b0(path, "%s/pointlight.dat", buf);
     int *data = (int *)FUN_0004cad0(path, &size, 16, 1);
     if (data) {
         int n = data[0];

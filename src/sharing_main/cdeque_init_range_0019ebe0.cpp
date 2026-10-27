@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0019ebe0 end=0x0019edb0 symbol=FUN_0019ebe0 lang=c++ */
-/* Clone of src/eboot/cdeque_init_range_0011bcb8.cpp (hstclone.py tag c24): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0019ebe0 end=0x0019edb0 symbol=FUN_0019ebe0 lang=c++ data=0x00388a6c */
+/* Clone of src/eboot/cdeque_init_range_0011bcb8.cpp (hstclone.py tag c24): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00388a6c-0x00388a8e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* MSL-style circular deque (cdeque) of 4-byte elements: range initialisation from a pair of cdeque
    iterators (forward-iterator overload). The forward_iterator_tag by-value parameter gives the 16-byte
@@ -10,7 +10,6 @@ Reent_0019ebe0 *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
 void FUN_0000d530(void);
 void *FUN_00000bcc(unsigned size);
-extern char DAT_00388a6c[]; /* "cdeque construction length error" */
 extern char DAT_002d2c88[]; /* "Memory allocation failure" */
 }
 inline void *operator new(unsigned, void *p) { return p; }
@@ -74,7 +73,7 @@ extern "C" void FUN_0019ebe0(Cdeque_0019ebe0 *self, Iter_0019ebe0 first, Iter_00
     unsigned n = (unsigned)(last - first);
     if (n != 0) {
         if (n > FUN_0019f350(self)) {
-            FUN_0000f3e8(FUN_0000fe3c()->err, DAT_00388a6c);
+            FUN_0000f3e8(FUN_0000fe3c()->err, "cdeque::construction length error");
             FUN_0000d530();
         }
         Alloc_0019ebe0 a;

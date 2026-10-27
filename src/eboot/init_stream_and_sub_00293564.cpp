@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x00293564 end=0x0029365c symbol=FUN_00293564 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x00293564 end=0x0029365c symbol=FUN_00293564 lang=c++ data=0x002ffb90 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002ffb90-0x002ffbcc) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Stream {
     char pad0[8];
     int f8;
@@ -18,8 +18,6 @@ struct Obj {
 };
 
 extern "C" {
-extern char DAT_002ffb90[];
-extern char DAT_002ffbac[];
 void *FUN_00000bcc(unsigned);
 void FUN_000143b0(char *, const char *, const char *, const char *);
 Stream *FUN_00053670(void *, char *, const char *, int, int, int, int);
@@ -31,9 +29,9 @@ void FUN_0005743c(Sub *, int, int, int);
 extern "C" void FUN_00293564(Obj *o, const char *name)
 {
     char buf[256];
-    FUN_000143b0(buf, DAT_002ffb90, name, name);
+    FUN_000143b0(buf, "data/lobby/komono/%s/%s.i3r", name, name);
     Stream *s = (Stream *)FUN_00000bcc(0x30);
-    if (s) s = FUN_00053670(s, buf, DAT_002ffbac, 0, 0, 0, 0);
+    if (s) s = FUN_00053670(s, buf, "data/lobby/komono/sourceimages/", 0, 0, 0, 0);
     o->stream = s;
     if (s->f8 == 0 && s != 0) {
         FUN_00053718(s, 1);

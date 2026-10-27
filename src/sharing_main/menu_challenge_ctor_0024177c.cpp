@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x0024177c end=0x00241b18 symbol=FUN_0024177c lang=c++ */
-/* Clone of src/eboot/menu_challenge_ctor_0023167c.cpp (hstclone.py tag c21sn6s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x0024177c end=0x00241b18 symbol=FUN_0024177c lang=c++ data=0x0039c694 */
+/* Clone of src/eboot/menu_challenge_ctor_0023167c.cpp (hstclone.py tag c21sn6s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x0039c694-0x0039c6e6) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: each loop is a block with its own counter, table pointer and byte offset declared in that order (saved regs counter > pointer > offset), stores through (unsigned int)self + off + DISP and the reload through (unsigned long)self + off + DISP (the two casts stop MWCC folding them into one pointer), FUN_00051d38 declared (obj, float), the first widget slot re-read for the virtual call, FUN_0008f170 takes the tested global; names and types await human review. */
 struct Widget {
     virtual void m0();
@@ -15,8 +15,6 @@ struct Rec3 {
     int out;
 };
 extern unsigned DAT_003b2b44;
-extern char DAT_0039c694[];
-extern char DAT_0039c6bc[];
 extern char *DAT_0039bf7c[];
 extern Rec3 DAT_0039c2b4[];
 extern int DAT_003e1a08;
@@ -41,14 +39,14 @@ extern "C" unsigned *FUN_0024177c(unsigned *self)
     FUN_0010873c(self);
     self[0] = (unsigned)&DAT_003b2b44;
     self[0x75] = 0;
-    FUN_00109a44(self, DAT_0039c694, 0);
+    FUN_00109a44(self, "data/menu/challengedisp/challenge.lay", 0);
     FUN_00108e6c(1100.0f, self);
     FUN_001090f4(self, 17);
     {
     int i = 0;
     int off = 0;
     do {
-        FUN_000143b0(buf, DAT_0039c6bc, i);
+        FUN_000143b0(buf, "data/menu/challengedisp/challenge_cha%02d", i);
         void *mem = FUN_00000bcc(0x48);
         void *obj = mem;
         if (mem != 0) {

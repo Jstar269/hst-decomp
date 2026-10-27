@@ -1,5 +1,5 @@
-/* HSTMATCH module=EBOOT.BIN start=0x000ba2a8 end=0x000ba3ac symbol=FUN_000ba2a8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag not recorded in lane candidate inputs/generated/FUN_000ba2a8.c) corrected by hand: inverted the create-result branch and used block-scoped cursor and count locals for the array-clear loop; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x000ba2a8 end=0x000ba3ac symbol=FUN_000ba2a8 lang=c99 data=0x002d4ab4 */
+/* Ghidra pseudocode (hstgen.py tag not recorded in lane candidate inputs/generated/FUN_000ba2a8.c) corrected by hand: inverted the create-result branch and used block-scoped cursor and count locals for the array-clear loop; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002d4ab4-0x002d4b0a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -18,9 +18,6 @@ typedef unsigned short undefined2;
 typedef unsigned int undefined4;
 
 extern undefined DAT_003073f0;
-extern char DAT_002d4ab4[];
-extern char DAT_002d4ac0[];
-extern char DAT_002d4ae0[];
 extern uint * FUN_000114c0();
 extern void FUN_000ba3ac();
 extern void FUN_000bb9d4();
@@ -44,13 +41,13 @@ undefined4 * FUN_000ba2a8(undefined4 *param_1)
   param_1[0xa1] = 0;
   FUN_000bb9d4();
   param_1[0xd] = 0xffffffff;
-  iVar1 = FUN_002b7890(DAT_002d4ab4,0,1,1,0);
+  iVar1 = FUN_002b7890("AdhocSema",0,1,1,0);
   if (iVar1 > 0) {
     param_1[0xd] = iVar1;
-    FUN_000ba3ac(DAT_002d4ac0);
+    FUN_000ba3ac("sceKernelCreateSema() success\n");
     param_1[0x9b] = 0;
   } else {
-    FUN_000ba3ac(DAT_002d4ae0,iVar1);
+    FUN_000ba3ac("sceKernelCreateSema() failed. ret = 0x%x\n",iVar1);
     param_1[0x9b] = 0;
   }
   {

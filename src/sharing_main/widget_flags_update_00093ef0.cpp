@@ -1,5 +1,5 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x00093ef0 end=0x000942c8 symbol=FUN_00093ef0 lang=c++ */
-/* Clone of src/eboot/widget_flags_update_00092258.cpp (hstclone.py tag s10170158a3r1s): addresses substituted; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x00093ef0 end=0x000942c8 symbol=FUN_00093ef0 lang=c++ data=0x00378b24 */
+/* Clone of src/eboot/widget_flags_update_00092258.cpp (hstclone.py tag s10170158a3r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00378b24-0x00378b4a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly (restructured from the hstgen.py tag a3 candidate); exact match verified; names and types await human review. */
 /* Matching idioms: the four state flags are `bool`s read from signed 4-bit field bits (`e->hi62 & 1`, `& 2`) and the second accumulates with `b2 |= e->hi62 & 1` (a `||` short-circuits); `if (b4 || (b1 && b3))` is one shared block; the loop counts go through an inline `Count(c)` ternary in a `while` condition (rotated test with entry jump); the per-index value is `v9 != 0 && !(flags & 2)` (the `^ 1` and bool-variable spellings add an extra sltu/andi); `(v9 != 0) ^ 1` is kept for the later call (sltu;xori). Names provisional. */
 struct List;
@@ -34,8 +34,6 @@ struct Self {
 };
 extern "C" {
 extern Reg *DAT_003e1e48;
-extern char DAT_00378b24[];
-extern char DAT_00378b38[];
 Ent *FUN_000dca74(Reg *, int, unsigned);
 unsigned FUN_0002fe30(List *);
 int FUN_0002fea8(List *, char *);
@@ -95,7 +93,7 @@ extern "C" void FUN_00093ef0(Self *s)
             if (e->lo64 != 1)
                 v9 = 0;
         }
-        int idx = Find(s->f50->ctrl->list, DAT_00378b24);
+        int idx = Find(s->f50->ctrl->list, "Bip01Head9for_hat");
         if (idx >= 0) {
             if (v9 != 0 && b2) {
                 b2 = false;
@@ -117,10 +115,10 @@ extern "C" void FUN_00093ef0(Self *s)
                 }
             }
         }
-        idx = Find(s->f54->ctrl->list, DAT_00378b24);
+        idx = Find(s->f54->ctrl->list, "Bip01Head9for_hat");
         if (idx >= 0)
             FUN_00054fb0(s->f54->ctrl, -1, idx, (v9 != 0) ^ 1, 0);
-        idx = Find(s->f54->ctrl->list, DAT_00378b38);
+        idx = Find(s->f54->ctrl->list, "Bip01Head9for_org");
         if (idx >= 0)
             FUN_00054fb0(s->f54->ctrl, -1, idx, v9, 0);
     }

@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ddf10 end=0x000de100 symbol=FUN_000ddf10 lang=c++ */
-// NEAR: 124/124 words, 24 differ, ALL of them float-register allocation/operand order:
+// NEAR: 124/124 words, 22 differ, ALL of them float-register allocation/operand order:
 // retail keeps base=$f4, first limit=$f3, second limit=$f2, mul.s $f4,$f0,$f1 (const loaded first);
 // ours base=$f3, limit=$f2. Everything else (frame, table index addu order, branch ladder,
 // constants, c.ngt/bc1t compares) is exact.
@@ -64,16 +64,20 @@ extern "C" int FUN_000ddf10(char *self, int flag)
 
     base = *(float *)(*(char **)(DAT_003386b0 + 0x88) + 0x110) * DAT_002d279c;
     if (flag != 0) {
-        if (fabsf(t.x) < 0.5f * *(float *)(DAT_003402a0 + 0x1420) + base)
+        if (fabsf(t.x) < base + 0.5f * *(float *)(DAT_003402a0 + 0x1420))
             *(unsigned char *)(self + 0x63) = 1;
     }
     lim = (*(unsigned char *)(self + 0x45) != 0 || flag != 0) ? 4.1148f : 5.4863997f;
-    if (fabsf(t.x) > lim - (base + *(float *)(DAT_003402a0 + 0x1420)))
+    float d = lim - (base + *(float *)(DAT_003402a0 + 0x1420));
+    if (fabsf(t.x) > d)
         *(unsigned char *)(self + 0x63) = 1;
 
     lim = flag != 0 ? 6.4007998f : 11.887199f;
-    if (t.z > lim - (base + *(float *)(DAT_003402a0 + 0x1424)))
+    float d2 = lim - (base + *(float *)(DAT_003402a0 + 0x1424));
+    if (t.z > d2)
         *(unsigned char *)(self + 0x63) = 1;
     return 1;
 }
 // improved by lane sn7 (unreviewed): 59 -> 24 differing words
+// Lane wf20261026-e01-05: 24 -> 22 with `base + 0.5f * X` in the flag block and each compare's right side in a local first (float d = lim - (base + X); if (fabsf(t.x) > d)). base stays $f3 (retail $f4); see try/lane-work/0xddf10.md for the ruled-out list.
+// improved by lane wf20261026-e01-05 (unreviewed): 24 -> 22 differing words

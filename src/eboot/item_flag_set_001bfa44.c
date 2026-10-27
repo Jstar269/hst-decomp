@@ -1,12 +1,11 @@
-/* HSTMATCH module=EBOOT.BIN start=0x001bfa44 end=0x001bfbe8 symbol=FUN_001bfa44 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=EBOOT.BIN start=0x001bfa44 end=0x001bfbe8 symbol=FUN_001bfa44 lang=c99 data=0x002ea004 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002ea004-0x002ea010) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined1;
 
 extern undefined1 DAT_002e9fec;
 extern undefined1 DAT_002e9ff4;
 extern undefined1 DAT_002e9ffc;
 extern int DAT_0034174c;
-extern char DAT_002ea004[];
 extern int FUN_0000d62c(int);
 extern int FUN_00014d64(int, void *);
 extern int FUN_000650e0(int);
@@ -57,7 +56,7 @@ void FUN_001bfa44(int param_1, int param_2, char param_3)
         *p = param_3;
       }
     } else {
-      FUN_001be424(DAT_002ea004);
+      FUN_001be424("ItemIsNull\n");
     }
   }
 }

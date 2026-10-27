@@ -1,10 +1,9 @@
-/* HSTMATCH module=hstp_trans_main.prx start=0x000505ac end=0x000506b8 symbol=FUN_000505ac lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* HSTMATCH module=hstp_trans_main.prx start=0x000505ac end=0x000506b8 symbol=FUN_000505ac lang=c99 data=0x00376928 */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00376928-0x00376964) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 typedef unsigned char undefined;
 extern undefined DAT_003767fc;
 extern undefined DAT_003763c8;
 extern undefined DAT_003ba4b0;
-extern char DAT_00376928[];
 extern int FUN_00014934(const char *, const char *);
 extern void FUN_0004efe0(const char *, const char *);
 extern void FUN_0004f864(void *, int, void *, int, void *);
@@ -42,7 +41,7 @@ void FUN_000505ac(Table *t, const char *name)
     }
   }
   if (!found) {
-    FUN_0004efe0(DAT_00376928, name);
+    FUN_0004efe0("I3d::DeleteTexture(const char* pTexName) can not found %s.\n", name);
     FUN_0004f864(&DAT_003ba4b0, 0, &DAT_003763c8, 1546, &DAT_003767fc);
   }
 }

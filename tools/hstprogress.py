@@ -32,8 +32,9 @@ TIERS (each a share of `scope_bytes`):
   T4  = STRICT headline: T3 and the source is human reviewed (gate 7): 0 until T3 exists. Nothing is estimated.
 
 GENERATED FIGURE BLOCKS. The published figures in README.md (the progress table and the line above it),
-docs/COMPLETION.md (the measured date and the T1-T4 figures) and docs/GUIDE.md (the source-kind breakdown, from the
-note line of every public source and its origin class) sit between `<!-- hstprogress:begin NAME -->` and
+docs/COMPLETION.md (the measured date and the T1-T4 figures), docs/GUIDE.md (the source-kind breakdown, from the
+note line of every public source and its origin class, and the compiler profiles the sources' headers select) and
+docs/PROGRESS.md (the full figure table) sit between `<!-- hstprogress:begin NAME -->` and
 `<!-- hstprogress:end -->`; --write rewrites them and --check-readme checks every one. Do not edit them by hand.
 
 docs/progress.csv keeps one row per day and source. The first rows were seeded from the figures the README showed
@@ -282,16 +283,19 @@ BLOCK = re.compile(r"<!-- hstprogress:begin ([\w-]+) -->(.*?)<!-- hstprogress:en
 BLOCK_FILES = {"README.md": ("readme-glance", "readme-progress"),
                "docs/COMPLETION.md": ("completion-date", "completion-t1", "completion-t2", "completion-t3",
                                       "completion-t4"),
-               "docs/GUIDE.md": ("guide-source-kinds",)}
+               "docs/GUIDE.md": ("guide-source-kinds", "guide-profiles"),
+               "docs/PROGRESS.md": ("progress-figures",)}
+HEADER_CC = re.compile(r"\bcc=(\S+)")
 DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 def source_kinds(classes: dict[str, str], root: Path = ROOT) -> dict:
     """Public sources in src/ by note kind (line 2, tools/hstlint.py) and by origin class; clones of newlib functions
-    are counted separately."""
+    are counted separately; and by compiler profile (the header's cc=, absent meaning mwcc219)."""
     import hstlint
     kinds: dict[str, int] = {}
     by_class: dict[str, int] = {}
+    profiles: dict[str, int] = {}
     newlib_clones = 0
     for rel, cls in classes.items():
         if cls in hstpublish.EXCLUDED_CLASSES or not rel.startswith("src/"):
@@ -303,9 +307,13 @@ def source_kinds(classes: dict[str, str], root: Path = ROOT) -> dict:
         kind = next((k for k, rx in hstlint.NOTE_KINDS if rx.search(note)), "unknown")
         kinds[kind] = kinds.get(kind, 0) + 1
         by_class[cls] = by_class.get(cls, 0) + 1
+        cc = HEADER_CC.search(lines[0])
+        profile = cc.group(1).rstrip("*/").strip() if cc else "mwcc219"
+        profiles[profile] = profiles.get(profile, 0) + 1
         if kind == "clone" and cls == "newlib":
             newlib_clones += 1
-    return {"sources": sum(kinds.values()), "kinds": kinds, "classes": by_class, "newlib_clones": newlib_clones}
+    return {"sources": sum(kinds.values()), "kinds": kinds, "classes": by_class, "newlib_clones": newlib_clones,
+            "profiles": profiles}
 
 
 def wrap(text: str, first: str = "- ", rest: str = "  ", width: int = 118) -> str:
@@ -360,9 +368,31 @@ def render_blocks(fig: dict, ladder: dict, kinds: dict, date: str) -> dict[str, 
     compilers = wrap(f"{c.get('newlib', 0):,} of the sources are newlib library functions compiled with Sony's "
                      f"`psp-gcc` kits; {rest}.")
     tier = lambda n: f"{ladder[f't{n}_percent']:.3f}% ({ladder[f't{n}_bytes']:,} B"      # noqa: E731
+    used = sorted(kinds["profiles"].items(), key=lambda kv: (-kv[1], kv[0]))
+    named = [f"`{cc}` ({n:,} source{'s' if n != 1 else ''})" for cc, n in used]
+    profiles = wrap(f"Measured {date}, the public sources use "
+                    + (", ".join(named[:-1]) + " and " + named[-1] if len(named) > 1 else "".join(named)) + ".",
+                    first="  ", rest="  ")
+    scope = f"the six modules in scope, {ladder['scope_bytes']:,} B"
+    module_rows = [f"| {names.get(n, f'`{n}`')} code | {r['matched_code_bytes']:,} B ({r['matched_functions']:,} "
+                   f"functions) | {r['code_bytes']:,} B ({r['functions']:,} functions) | "
+                   f"{100 * r['matched_code_bytes'] / r['code_bytes']:.3f}% |" for n, r in fig["modules"].items()]
+    figures = "\n".join([
+        f"Measured {date} from the public sources: {fig['sources']:,} exact sources and {fig['near_misses']:,} near "
+        "misses.",
+        "",
+        "| Figure | Matched | Of | Share |",
+        "|---|---|---|---|",
+        f"| Code matched, both game modules | {t['matched_code_bytes']:,} B ({t['matched_functions']:,} functions) | "
+        f"{t['code_bytes']:,} B ({t['functions']:,} functions) | {t['percent_code_bytes']:.3f}% |",
+        *module_rows,
+        *(f"| Tier {n}: {label} | {ladder[f't{n}_bytes']:,} B | {scope} | {ladder[f't{n}_percent']:.3f}% |"
+          for n, label in ((1, "function matches"), (2, "whole-module build"), (3, "shifted build"),
+                           (4, "strict (reviewed)")))])
     return {"readme-glance": glance, "readme-progress": readme, "completion-date": date,
             "completion-t1": tier(1), "completion-t2": tier(2), "completion-t3": tier(3),
-            "completion-t4": tier(4) + ")", "guide-source-kinds": breakdown + "\n" + compilers}
+            "completion-t4": tier(4) + ")", "guide-source-kinds": breakdown + "\n" + compilers,
+            "guide-profiles": profiles, "progress-figures": figures}
 
 
 def blocks_in(text: str) -> dict[str, str]:
@@ -490,7 +520,7 @@ def main() -> int:
         for d in report_diffs:
             print("  " + d)
         block_diffs = compare_blocks(lambda d: render_blocks(fig, ladder, kinds(), d))
-        print("generated figure blocks (README.md, docs/COMPLETION.md, docs/GUIDE.md): "
+        print(f"generated figure blocks ({', '.join(BLOCK_FILES)}): "
               + ("agree" if not block_diffs else "DIFFER (python tools/hstprogress.py --write rewrites them)"))
         for d in block_diffs:
             print("  " + d)

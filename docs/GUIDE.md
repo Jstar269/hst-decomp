@@ -12,9 +12,9 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
   <!-- hstprogress:begin guide-source-kinds -->
-- Of the 11,565 sources (measured 2026-10-25), 6,814 are address-substituted **clones** of another matched source
-  (retail contains the same code many times), 2,129 are mechanical translations of Ghidra pseudocode, 772 are such
-  translations corrected by hand, 1,617 are hand-written, 136 are instances of container templates, and 63 are newlib
+- Of the 12,143 sources (measured 2026-10-27), 6,944 are address-substituted **clones** of another matched source
+  (retail contains the same code many times), 2,129 are mechanical translations of Ghidra pseudocode, 776 are such
+  translations corrected by hand, 2,061 are hand-written, 136 are instances of container templates, and 63 are newlib
   library functions translated from newlib sources (19 more are clones of them, counted among the clones), and 34 have
   no known note kind.
 - 82 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
@@ -210,7 +210,9 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 - `cc=<profile>` selects the compiler: absent means `mwcc219` (mwccpsp build 219, `-c -O4,p -sdatathreshold 0`);
   `gcc131-` or `gcc171-` plus `O1`, `O2`, `O3` or `Os` select a Sony `psp-gcc` kit (`gcc171x-*` adds `-mext`);
   `gcc131-O0` and `gcc171-O0` select the unoptimized builds (Sony SDK objects with a `move s8,sp` frame pointer).
-  The tree currently uses `mwcc219`, `gcc171-O2`, `gcc171-Os` and `gcc171-O0`.
+  <!-- hstprogress:begin guide-profiles -->
+  Measured 2026-10-27, the public sources use `mwcc219` (12,061 sources) and `gcc171-O2` (82 sources).
+  <!-- hstprogress:end -->
 - `rodata=0xADDR`, `data=`, `sdata=`, `bss=`, `sbss=`: where the object's sections go when the function refers to
   them; the matcher then also requires the placed `.rodata`/`.data`/`.sdata` bytes to equal retail.
 - `extra="..."`: experimental extra compiler flags; such a source is never counted as a match (none are installed).
@@ -251,7 +253,8 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 | `hsttmpl.py` | Instantiate known container templates for every element size found in retail. |
 | `hstlib.py` | Find newlib functions in retail by compiled-code signature (`index`, `report`). |
 | `hstnewlib.py` | Turn `hstlib.py` hits into exact library sources (preprocessed with `-nostdinc`: newlib's headers plus `include/`, no compiler header text); `--regenerate` rebuilds installed library sources and their clones from the release, file and function their notes record. |
-| `hstqueue.py` | Build work batches for matching agents: near misses first (ranked by code bytes per word left), then functions an earlier lane never reached, then fresh ones; never a matched or blocked function. |
+| `hstqueue.py` | Build work batches for matching agents: near misses first (ranked by code bytes per word left), then functions an earlier lane never reached, then fresh ones; never a matched or blocked function. Near-miss items carry their lever, and `--lever` offers only near misses with given levers. |
+| `hstnearmiss.py` | Re-measure the near misses in `wip/` and give each a word class (which words are wrong) and a lever: the kind of work it needs, decided from its calls, then its control flow, then whether only relocated fields differ (`body`, `structure`, `referent`, `permute`, `types`, `frame`, `expression`), with the `MWCC-DIGEST.md` sections to read. Writes `try/nearmiss-report.json` and `.md`; `hstnearperm.py` seeds only the levers a permuter can fix. |
 | `hstattempts.py` | Attempt ledger (`try/attempts.json`): one status per function (`exact`, `near`, `skip`, `untouched`, `blocked`) from the batches, the lanes' progress files, `src/`, `wip/` and `data/blocked_functions.json`; `blocked` validates the blocked list. |
 | `hstfamily.py` | Compiler-family predictor (Metrowerks game code versus Sony psp-gcc SDK code) for functions that have no source yet; `evaluate` reports its cross-validated accuracy, `predict` writes `try/family-predictions.json`, which `hstqueue.py --public-first` uses. |
 | `hstreview.py` | Local web app (127.0.0.1) for the owner's human review of matched sources. |
@@ -260,7 +263,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 | `hstbootstrap.py` | `--out DIR --eboot FILE --sharing FILE`: check your decrypted executables against `data/modules.json` and write the campaign directory (ledger and input selection) the other tools read. |
 | `hstpublish.py` | `--out DIR`: copy the would-be public tree, without the Sony SDK classes and without anything gitignored, and print what was left out. Never touches a git remote. |
 | `hstpublic.py` | Maintainers: `sync` mirrors the `hstpublish.py` tree into the public-branch worktree and commits it; `check COMMIT` (run by the pre-push hook) refuses a commit that contains a non-publishable source. |
-| `hstprogress.py` | Progress against `docs/COMPLETION.md`: the tier ladder T1-T4 and the strict headline over all six modules' bytes, the public-eligible figures, toolchain-blocked and awaiting-review counts. `--write` refreshes `progress.json` (shields.io endpoint), `docs/progress.svg`, `docs/progress.csv`, `docs/objdiff-report.json` (see `hstreport.py`) and the generated figure blocks (`<!-- hstprogress:begin NAME -->` ... `<!-- hstprogress:end -->`) in `README.md`, `docs/COMPLETION.md` and this guide; never edit those by hand. `--check-readme` checks every block. |
+| `hstprogress.py` | Progress against `docs/COMPLETION.md`: the tier ladder T1-T4 and the strict headline over all six modules' bytes, the public-eligible figures, toolchain-blocked and awaiting-review counts. `--write` refreshes `progress.json` (shields.io endpoint), `docs/progress.svg`, `docs/progress.csv`, `docs/objdiff-report.json` (see `hstreport.py`) and the generated figure blocks (`<!-- hstprogress:begin NAME -->` ... `<!-- hstprogress:end -->`) in `README.md`, `docs/COMPLETION.md`, `docs/PROGRESS.md` and this guide; never edit those by hand. `--check-readme` checks every block. |
 | `hstrelease.py` | Maintainers: the whole publish in one command. Dry run by default; `--apply -m MSG` runs push preparation and commits on `full`, refreshes the figures in a clean worktree (with the git-ignored build and port reports copied in), refuses if any published figure would go down, syncs the public worktree and re-matches its new sources; `--push` also pushes and verifies the remote. |
 | `hstreport.py` | Writes `docs/objdiff-report.json`, an objdiff progress report (`report.proto` version 2, JSON form) of the two game modules' matched code, from the same figures as the README table; `--check` compares it with the figures measured now. `.github/workflows/progress-report.yml` uploads it as the artifact `UCUS98701_report` so recomp.fyi can show the matched-code share. Counts only: no game bytes, names or paths; data is reported as unmatched. |
 | `hstport.py` | `python tools/hstport.py` compiles each EBOOT and Sharing source for Windows x64/x86 and Android arm64/armv7/x64 with a host ABI overlay; writes public/private byte-weighted reports under `try/`. `--targets` narrows iteration, `--parallel` sets compiler concurrency, and `--json` prints a summary. |
