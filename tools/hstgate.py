@@ -21,6 +21,20 @@ Tagged but allowed:
 
   register-asm-binding   `register T x asm("$N")`: binds a variable to a register and emits nothing (idiom)
   empty-asm-barrier      `asm("" ...)` with an empty template: emits nothing (idiom)
+  vfpu-inline-asm        project rule (owner decision 2026-10-27, the rule lbp-decomp adopted): an `asm` statement
+                         whose template holds only Allegrex VFPU instructions, in a source whose HSTMATCH header says
+                         `asm=vfpu` and which has a line starting `Original inline VFPU asm:` with the reason. The SDK
+                         and game code wrote VFPU math as inline asm (the PSP compilers emit almost no VFPU
+                         instructions themselves), so it is reconstructed as the inline asm it was. Every template
+                         instruction must be a VFPU instruction: no other instruction, no label, no VFPU branch
+                         (bvf/bvt: the assembler would fill or reorder the delay slot), and every VFPU load/store
+                         names `offset(base)` explicitly or is a bare `%N` whose operand constraint is "m" (a
+                         local, parameter or dereference the compiler addresses as offset(base); write a global's
+                         access through a pointer, since a symbolic address expands to an extra lui). The only
+                         directives allowed are the assembler-mode switches that emit nothing,
+                         `.set push|pop|noreorder|reorder|nomacro|macro` (the SDK's VFPU blocks are wrapped in
+                         `.set push; .set noreorder ... .set pop`, which is why retail keeps a `nop` after them in a
+                         return's delay slot). Anything else stays asm-emit (refused).
 
 Reported only (a warning): pragma-unknown, a #pragma that is not on the list of the compiler controls this project uses.
 Every refusal and idiom is a finding with a line number; `refusals(findings)` is what the callers act on.
@@ -49,7 +63,7 @@ KNOWN_PRAGMAS = {"opt_strength_reduction", "opt_unroll_loops", "opt_common_subs"
                  "inline_depth", "inline_max_size", "inline_max_total_size", "inline_bottom_up", "auto_inline",
                  "dont_inline", "peephole", "scheduling", "global_optimizer", "optimization_level", "optimize_for_size",
                  "fp_contract", "pack", "once", "exceptions", "cplusplus", "ANSI_strict", "warning", "message",
-                 "readonly_strings", "pool_strings", "opt_unroll_count"}
+                 "readonly_strings", "pool_strings", "opt_unroll_count", "inline_max_auto_size"}
 CODE_PRAGMA = re.compile(r"asm", re.I)
 
 
@@ -102,6 +116,155 @@ def _statement_around(text: str, pos: int) -> str:
     return text[start:(min(ends) + 1 if ends else len(text))]
 
 
+# Allegrex VFPU instructions. Every VFPU arithmetic/move mnemonic begins with `v` (no other Allegrex mnemonic does);
+# the rest are the COP2 loads/stores and the GPR<->VFPU moves. The VFPU branches bvf/bvt/bvfl/bvtl are left out on
+# purpose: the assembler fills or reorders their delay slot itself.
+VFPU_MNEMONIC = re.compile(r"^(?:v[a-z0-9]+(?:\.[spqt])?|lv\.[sq]|lvl\.q|lvr\.q|sv\.[sq]|svl\.q|svr\.q|ulv\.q|usv\.q|"
+                           r"mfv|mtv|mfvc|mtvc)$", re.I)
+VFPU_MEMORY = re.compile(r"^(?:lv\.[sq]|lvl\.q|lvr\.q|sv\.[sq]|svl\.q|svr\.q|ulv\.q|usv\.q)$", re.I)
+# the memory operand of a VFPU load/store: an optional numeric (or %N) offset, then an explicit base register
+VFPU_ADDRESS = re.compile(r"^(?:-?(?:0x[0-9a-f]+|\d+)|%\d+|%\[\w+\])?\s*\(\s*(?:%\d+|%\[\w+\]|\$\w+)\s*\)(?:\s*,\s*wb)?$",
+                          re.I)
+# assembler-mode switches that emit no instruction (allowed inside a VFPU template)
+VFPU_SET = re.compile(r"^\.set\s+(?:push|pop|noreorder|reorder|nomacro|macro)$")
+VFPU_REASON = re.compile(r"^[ \t]*(?:/\*+|\*+|//+)?[ \t]*Original inline VFPU asm:[ \t]*\w", re.M)
+ASM_PREFIX = re.compile(r"^(?:__asm__|__asm|_asm|asm)\s*(?:__volatile__|volatile)?$")
+BACKSLASH = chr(92)
+
+
+def asm_template(code: str, pos: int) -> str | None:
+    """The template of the asm statement whose keyword is at `pos`: its string literals up to the first ':' at the
+    top level, one line per literal, escape sequences kept as written. None unless the statement is
+    `asm [volatile] ( "..." ... )` with nothing but string literals before the operands."""
+    i = code.find("(", pos)
+    if i < 0 or not ASM_PREFIX.match(code[pos:i].strip()):
+        return None
+    out: list[str] = []
+    depth, j = 0, i
+    while j < len(code):
+        ch = code[j]
+        if ch == "(":
+            depth += 1
+            if depth > 1:
+                return None     # a parenthesised or macro-built template
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                break
+        elif ch == ":" and depth == 1:
+            break
+        elif ch == '"':
+            k = j + 1
+            while k < len(code) and code[k] != '"':
+                step = 2 if code[k] == BACKSLASH and k + 1 < len(code) else 1
+                out.append(code[k:k + step])
+                k += step
+            out.append("\n")
+            j = k
+        elif not ch.isspace():
+            return None         # anything but string literals in the template
+        j += 1
+    return "".join(out)
+
+
+ASM_OPERAND = re.compile(r'\s*(?:\[(\w+)\]\s*)?"([^"]*)"\s*\(')
+MEMORY_REF = re.compile(r"^%(?:(\d+)|\[(\w+)\])$")
+
+
+def asm_operands(code: str, pos: int) -> list[tuple[str | None, str]] | None:
+    """(name, constraint) of every output and input operand of the asm statement whose keyword is at `pos`, in
+    operand-number order, or None when they cannot be read."""
+    i = code.find("(", pos)
+    if i < 0:
+        return None
+    sections: list[str] = [""]
+    depth, j = 0, i
+    while j < len(code):
+        ch = code[j]
+        if ch == '"':
+            k = j + 1
+            while k < len(code) and code[k] != '"':
+                k += 2 if code[k] == BACKSLASH else 1
+            sections[-1] += code[j:k + 1]
+            j = k + 1
+            continue
+        if ch == "(":
+            depth += 1
+            if depth == 1:
+                j += 1
+                continue
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                break
+        elif ch == ":" and depth == 1:
+            sections.append("")
+            j += 1
+            continue
+        sections[-1] += ch
+        j += 1
+    out: list[tuple[str | None, str]] = []
+    for sec in sections[1:3]:
+        k = 0
+        while k < len(sec) and sec[k:].strip():
+            m = ASM_OPERAND.match(sec, k)
+            if not m:
+                return None
+            depth, k = 1, m.end()
+            while k < len(sec) and depth:
+                depth += {"(": 1, ")": -1}.get(sec[k], 0)
+                k += 1
+            out.append((m.group(1), m.group(2)))
+            while k < len(sec) and sec[k] in " \t\n,":
+                k += 1
+    return out
+
+
+def memory_operand(ref: str, operands: list[tuple[str | None, str]] | None) -> bool:
+    """`%N` / `%[name]` naming an operand whose constraint is a plain memory constraint ("m", "=m", "+m")."""
+    m = MEMORY_REF.match(ref)
+    if not m or not operands:
+        return False
+    if m.group(1) is not None:
+        n = int(m.group(1))
+        if n >= len(operands):
+            return False
+        constraint = operands[n][1]
+    else:
+        named = [c for name, c in operands if name == m.group(2)]
+        if len(named) != 1:
+            return False
+        constraint = named[0]
+    return constraint.lstrip("=+&") == "m"
+
+
+def vfpu_only(template: str, operands: list[tuple[str | None, str]] | None = None) -> bool:
+    """True when the template holds at least one instruction and every instruction is a VFPU instruction whose
+    memory operand, if it has one, is an explicit `offset(base)` or a `%N` whose constraint (from `operands`) is
+    "m". Empty parts and the `.set` mode switches of VFPU_SET are ignored; labels, other directives and any other
+    mnemonic make it False."""
+    text = template.replace(BACKSLASH + "n", "\n").replace(BACKSLASH + "t", " ")
+    seen = False
+    for part in re.split(r"[\n;]", text):
+        part = part.split("#", 1)[0].strip()
+        if not part or VFPU_SET.match(part):
+            continue
+        mnemonic, _, args = part.partition(" ")
+        if not VFPU_MNEMONIC.match(mnemonic):
+            return False
+        if VFPU_MEMORY.match(mnemonic):
+            ops = [o.strip() for o in args.split(",", 1)]
+            if len(ops) != 2 or not (VFPU_ADDRESS.match(ops[1]) or memory_operand(ops[1], operands)):
+                return False
+        seen = True
+    return seen
+
+
+def vfpu_allowed(text: str, header: dict | None) -> bool:
+    """The source-level conditions of the VFPU rule: header key `asm=vfpu` and a line `Original inline VFPU asm: ...`."""
+    return header is not None and header.get("asm") == "vfpu" and bool(VFPU_REASON.search(text))
+
+
 REGISTER_BINDING = re.compile(r"""^\s*(?:static\s+|volatile\s+|const\s+)*register\b[^;{}]*?(?<![\w$])(?:__asm__|__asm|asm)\s*\(\s*["']\$?\w+["']\s*\)\s*(?:=[^;]*)?;?\s*$""", re.S)
 EMPTY_ASM = re.compile(r"""(?:__asm__|__asm|asm)\s*(?:__volatile__|volatile)?\s*\(\s*(?:""\s*)+(?:[:)]|$)""")
 
@@ -112,16 +275,20 @@ def check_text(text: str, header: dict | None = None, tree: str = "src") -> list
     code = strip_comments(text)
     findings: list[Finding] = []
     lines = text.split("\n")
+    vfpu_ok = vfpu_allowed(text, header)
     for m in ASM_TOKEN.finditer(code):
         stmt = _statement_around(code, m.start())
         ln = _line_of(code, m.start())
         shown = lines[ln - 1] if ln - 1 < len(lines) else m.group(0)
-        if shown.lstrip().startswith("#"):
-            continue            # a #pragma asm line is reported once, as pragma-code
+        if PRAGMA.match(shown):
+            continue            # a #pragma asm line is reported once, as pragma-code (an asm in a #define is not)
         if REGISTER_BINDING.match(stmt):
             findings.append(Finding("register-asm-binding", IDIOM, ln, shown))
         elif EMPTY_ASM.search(code[m.start():m.start() + 200]):
             findings.append(Finding("empty-asm-barrier", IDIOM, ln, shown))
+        elif (vfpu_ok and (tpl := asm_template(code, m.start())) is not None
+              and vfpu_only(tpl, asm_operands(code, m.start()))):
+            findings.append(Finding("vfpu-inline-asm", IDIOM, ln, shown))
         else:
             findings.append(Finding("asm-emit", REFUSE, ln, shown))
     for m in DIRECTIVE.finditer(code):

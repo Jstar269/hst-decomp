@@ -40,8 +40,13 @@ repository. Where the brief and this file disagree, the stricter rule applies.
   harvested source; a claim without matcher output is not a result.
 - **Real source only.** No machine code in a source: no `asm` statements that emit instructions, no
   `.word`/`.byte`/`.incbin`, no code-emitting pragmas, no data steered into `.text`, no `extra=` header or `--flags`
-  result in `src/`. `tools/hstgate.py` refuses such a source (`EXACT_FAILS_GATE`). A `register T x asm("$N")`
-  binding is the only allowed `asm`, and it is reported as an idiom.
+  result in `src/`. `tools/hstgate.py` refuses such a source (`EXACT_FAILS_GATE`). Allowed `asm`, reported as
+  idioms: a `register T x asm("$N")` binding, an empty `asm("" ::: "memory")` barrier, and **inline VFPU asm
+  where the original SDK or game code used it** (owner decision 2026-10-27, the LittleBigPlanet rule): the header
+  says `asm=vfpu`, a line starting `Original inline VFPU asm:` gives the reason, and every instruction in the
+  asm is a VFPU instruction (no other instruction, label or VFPU branch; loads/stores as `offset(%N)`, or a bare
+  `%N` whose constraint is `"m"` for a local or parameter; the only directives are the SDK's
+  `.set push`/`noreorder`/`pop` style mode switches). Write everything else in C; one non-VFPU instruction makes it `asm-emit` again.
 - **No steering tricks presented as code.** Avoid duplicated conditions, dummy locals or parameters, `volatile`,
   self-assignments and gratuitous casts or `goto`; when one is the only exact form found, keep it and name it in the
   note line ("matching idiom: ..."). Note lines must be true.

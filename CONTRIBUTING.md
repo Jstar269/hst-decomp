@@ -15,6 +15,13 @@ owner and for anyone the owner invites.
   project-authored headers in `include/` exist for that). Library sources are produced by `tools/hstnewlib.py`.
 - Do not commit game data of any kind: no retail modules, no disassembly dumps of whole modules, no keys, no
   compilers. The ignore rules already exclude binaries and key files; keep it that way.
+- No machine code in a source (`tools/hstgate.py`, gate 2 of `docs/COMPLETION.md`). The one exception is inline
+  VFPU asm where the original SDK or game code used it (owner decision 2026-10-27): the header says `asm=vfpu`,
+  a line starting `Original inline VFPU asm:` gives the reason, and every instruction in the asm is a VFPU
+  instruction, with loads and stores written `lv.q C000, 16(%0)` (an explicit base register) or `sv.s S000, %0`
+  with an `"=m"`/`"m"` operand for a local or parameter (never a global: its address expands to a lui); the SDK's
+  `.set push` / `.set noreorder` / `.set pop` wrapper (it emits nothing) is allowed. Anything else in an `asm`
+  statement is refused.
 - Do not edit existing lines of `symbols/` (appending is allowed, see below), and do not edit `tools/` as part of a
   matching change.
 - The tools that write into `src/` (`hstgen`, `hstclone`, `hsttmpl`, `hstperm`, `hstnewlib`) and the one that builds
@@ -98,7 +105,9 @@ grep -l "start=0x<addr>" src/*/* wip/*
 
 `module`, `start`, `end` and `symbol` are required (`symbol` must be the name your source defines for the function).
 `lang` is `c99` or `c++`. Optional: `cc=<profile>` (absent means MWCC build 219; GCC sources say `cc=gcc171-O2`,
-`cc=gcc171-Os` or, for unoptimized SDK code, `cc=gcc171-O0`), the section placement keys above, and the experimental `extra=`.
+`cc=gcc171-Os` or, for unoptimized SDK code, `cc=gcc171-O0`), the section placement keys above, `asm=vfpu` (inline
+VFPU asm, see the ground rules; the source then carries a line `/* Original inline VFPU asm: <reason> */` after the
+note) and the experimental `extra=`.
 
 **Line 2: the note.** Exactly one provenance note, and it must be true. "Hand-written" means a person wrote it; a
 source that started from a generated candidate names the generator tag.

@@ -346,6 +346,7 @@ def parse_header(source: Path) -> dict[str, object]:
         "lang",
         "cc",
         "profile",
+        "asm",
         *placement_keys,
     }
     unknown = sorted(set(fields) - accepted)
@@ -353,6 +354,8 @@ def parse_header(source: Path) -> dict[str, object]:
         raise VerificationRefusal(
             f"{source}: unsupported header key(s): {', '.join(unknown)}"
         )
+    if fields.get("asm", "vfpu") != "vfpu":
+        raise VerificationRefusal(f"{source}: asm= may only be vfpu (the VFPU inline-asm rule, hstgate.py)")
     if "cc" in fields and "profile" in fields:
         raise VerificationRefusal(f"{source}: use only one of cc= or profile=")
     try:

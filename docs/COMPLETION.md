@@ -27,6 +27,14 @@ the definition from the start, and the scope never shrinks.
    hand-written assembly only where the original was assembly. Never: retail bytes included as binary, machine code
    pasted into a source (`asm` statements that emit instructions, `.word`/`.byte` emission), object or byte patching,
    post-link fix-ups, changes to the verifier, skipped comparisons, or experimental flags (`extra=`).
+   One exception (owner decision 2026-10-27, the rule lbp-decomp also adopted): inline VFPU assembly where the
+   original SDK or game code used it. The PSP compilers emit almost no VFPU instructions, so that code was
+   written as inline `asm` and is reconstructed as such. It is allowed only in a source whose header says
+   `asm=vfpu`, with a line starting `Original inline VFPU asm:` giving the reason, and only when every
+   instruction in the asm is a VFPU instruction with explicit `offset(base)` memory operands or `"m"` operands
+   for locals and parameters (plus the SDK's
+   `.set push`/`noreorder`/`pop` mode switches, which emit nothing); `hstgate.py`
+   reports it as the idiom `vfpu-inline-asm` and refuses anything else. All other code around it is C.
 3. **In its place in the whole module.** The source is compiled in its translation unit and linked in link order as
    part of the module build. Today's function-at-a-time matches (`tools/hstmatch.py`) are a necessary step, counted
    in tier 1 below, not the goal.

@@ -2613,3 +2613,19 @@ pointer: a local `pp = &DAT; *pp` probe folds back and was recorded as a dead en
   is GCC 3.3 fp-bit.c with `fp_number_type {class, sign, normal_exp, fraction}`; `__adddf3`/`__subdf3` stay 9 words
   off (retail gives each `FLO_union_type` local a 16-byte slot, ours 8). EABI varargs wrappers around vsprintf
   (0x1aca4) match with `<stdarg.h>` and `va_start` on the last named argument, including a named float (0x766cc).
+- 2026-10-27 (a0db3, VFPU under the gate-2 rule; commits b81203eb, 6d20f7d6, e8e1ff54, 41db5752): inline VFPU asm is
+  allowed where the SDK used it (header `asm=vfpu`, an `Original inline VFPU asm:` line, VFPU-only templates). Recipes,
+  all gcc171-O2: (a) one plain `__asm__ volatile` block per function; the assembler fills the return's delay slot
+  with the block's last instruction (retail `jr ra; sv.q ...`). (b) Retail `sv.q ...; jr ra; nop` is the same block
+  wrapped in `.set push` / `.set noreorder` / `.set pop` (0x22418 family). (c) A single-instruction asm statement is
+  put into a delay slot by gcc itself (0x2beac: lv.q, mtv, vscl as separate statements, sv.q in the slot). (d) A float
+  argument moved through a fixed GPR (`mfc1 t0/a2/a3,$f12; mtv ...`) is `register float t asm("$8") = s;` placed
+  right before the asm that uses it. (e) A float result read with `mfv a2,S003; mtc1 a2,$f0` is
+  `register float r asm("$6"); asm(... "mfv %0, S003" : "=r"(r) ...)`; reuse the float parameter (`t = d;`) to get
+  retail's `$f12`. (f) A pointer argument copied to `v0` before the block (Euler 0x2ca30, slerp 0x31ee8) is a
+  `register ... asm("$2")` binding. (g) A stack temporary (`sv.s S000, 0(sp)` then lwc1) is an `"=m"` operand.
+  gas syntax: prefixes without brackets (`vpfxt x,x,x,x`, `vpfxs w,z,-y,-x`) except vpfxd (`[-1:1,-1:1,-1:1,m]`);
+  `vrot.q C000, S100, [c,s,0,0]`. Later-compiler VFPU functions (EXACT only under the LBP gcc402x scratch profile):
+  0x3e858 (hot frustum test; `return any == 0 ? 1 : 2;`, duplicated epilogue), 0x36e7c (lw, not lhu, from the
+  stack temporary); gcc171 near misses: 0x31ee8/0x31d24 slerp (2 words, a lui register), 0x35610 (-Os, 4 words),
+  0x225b0 family (branch-likely layout), 0x3e9d8 (retail fills the slot with mtc1).

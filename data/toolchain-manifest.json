@@ -2,7 +2,7 @@
  "core": {
   "comparison_code": {
    "tools/hstconfig.py": "588053bfa6316f89d737907bffad104cecb8160fabd74fbab07d22beabe30cc3",
-   "tools/hstgate.py": "de66708f4e517bf7fb5c2080d833bcf4bfffdca5d2c6e15151487ddb12243fb8",
+   "tools/hstgate.py": "1f1402334b3ac022a9e827bdc12e725c609fdbc42e0326fc3dec2549ac0ac66b",
    "tools/hstmatch.py": "9626e2f323198a748a776504813fce63284fe94f79c70b0a451f94c18bb93766",
    "tools/hstpromote.py": "377e4cb433debc85b9b3e64bb0d95650f3e01a5b4a6ae9c63cc73382ae034a01",
    "tools/hstproof.py": "7b98e546084c0c99deab68e7b84ca57a1155172ca7b0d672d4581d67efce004d"
@@ -773,7 +773,7 @@
    }
   }
  },
- "core_digest": "2cdb835be21332648aabb254c1f9c41a90af9fdd87c7590fe7c71b81c40b24ef",
+ "core_digest": "110048922eec8045d31ad01dae14338bde7306315f3422e07c460f2564cf4ca2",
  "history": [
   {
    "digest": "9493e6106636aff84e57adce4cf0c985983ac492b1ed6d40292a0f87ce79ae7e",
@@ -811,6 +811,48 @@
    "scope": "full",
    "to": "2cdb835be21332648aabb254c1f9c41a90af9fdd87c7590fe7c71b81c40b24ef",
    "utc": "2026-10-25T13:53:51Z"
+  },
+  {
+   "changes": [
+    "tools/hstgate.py changed"
+   ],
+   "event": "migrate-toolchain",
+   "from": "2cdb835be21332648aabb254c1f9c41a90af9fdd87c7590fe7c71b81c40b24ef",
+   "journal_seq": 184,
+   "reason": "Gate 2: inline VFPU asm allowed where the original SDK code used it (owner decision 2026-10-27, the LittleBigPlanet rule): header asm=vfpu, an 'Original inline VFPU asm:' reason line, VFPU-only templates with explicit offset(base) memory operands -> idiom vfpu-inline-asm; an asm inside a #define is now checked too; MWCC pragma inline_max_auto_size known",
+   "reverified": 0,
+   "run": "20261027T134617Z-78a176",
+   "scope": "gate",
+   "to": "93930e55bc851ea52dd82b45ce7f007578d5fdb606f00f59e689b7fecda2b4e8",
+   "utc": "2026-10-27T13:46:40Z"
+  },
+  {
+   "changes": [
+    "tools/hstgate.py changed"
+   ],
+   "event": "migrate-toolchain",
+   "from": "93930e55bc851ea52dd82b45ce7f007578d5fdb606f00f59e689b7fecda2b4e8",
+   "journal_seq": 185,
+   "reason": "Gate 2 VFPU rule: the SDK's non-emitting assembler-mode switches (.set push|pop|noreorder|reorder|nomacro|macro) are allowed inside a VFPU-only template; retail's nop after a VFPU block in a return delay slot shows the original blocks were wrapped in .set push/noreorder/pop",
+   "reverified": 0,
+   "run": "20261027T135352Z-9baa99",
+   "scope": "gate",
+   "to": "55f6c5c2b8edc44a0fc4b20191c6f954bdc6ad6c3439097dbc67a577f6ae070b",
+   "utc": "2026-10-27T13:54:11Z"
+  },
+  {
+   "changes": [
+    "tools/hstgate.py changed"
+   ],
+   "event": "migrate-toolchain",
+   "from": "55f6c5c2b8edc44a0fc4b20191c6f954bdc6ad6c3439097dbc67a577f6ae070b",
+   "journal_seq": 190,
+   "reason": "Gate 2 VFPU rule: a VFPU load/store may take a bare %N/%[name] memory operand whose constraint is \"m\" (a local or parameter the compiler addresses as offset(base), as the SDK sources wrote it, e.g. FUN_000224d8 sv.s to a stack float); the tree-wiring test now accepts the asm=vfpu sources",
+   "reverified": 0,
+   "run": "20261027T141549Z-50db74",
+   "scope": "gate",
+   "to": "110048922eec8045d31ad01dae14338bde7306315f3422e07c460f2564cf4ca2",
+   "utc": "2026-10-27T14:16:15Z"
   }
  ],
  "schema": "hst-decomp.toolchain-manifest.v1",

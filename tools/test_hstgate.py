@@ -101,16 +101,105 @@ class WiringTests(unittest.TestCase):
 
     def test_the_tree_has_no_refused_source_and_only_the_known_idioms(self) -> None:
         root = G.ROOT
-        refused_files, idioms = [], []
+        refused_files, idioms, vfpu = [], [], []
         for p in sorted((root / "src").rglob("*")):
             if p.suffix in (".c", ".cpp"):
                 found = G.check_file(p, root)
                 if G.refusals(found):
                     refused_files.append(p.name)
-                if found:
+                if any(f.kind == "vfpu-inline-asm" for f in found):
+                    vfpu.append(p.name)       # the VFPU rule's sources (owner decision 2026-10-27)
+                    self.assertIn(" asm=vfpu", p.read_text(encoding="utf-8").split("\n", 1)[0], p.name)
+                elif found:
                     idioms.append(p.name)
         self.assertEqual(refused_files, [])
         self.assertEqual(sorted(idioms), ["str_copy_n_0006f644.c", "str_copy_n_00070e04.c"])
+
+
+class VfpuRuleTests(unittest.TestCase):
+    """Project rule (owner decision 2026-10-27): VFPU-only inline asm is allowed, as the idiom vfpu-inline-asm, when
+    the header says asm=vfpu and a line starting 'Original inline VFPU asm:' gives the reason. Anything else is
+    asm-emit."""
+    HEADER = {"module": "EBOOT.BIN", "start": "0x0", "end": "0x4", "symbol": "f", "asm": "vfpu"}
+    OK = ('/* HSTMATCH module=EBOOT.BIN start=0x0 end=0x4 symbol=f cc=gcc171-O2 asm=vfpu */\n'
+          '/* Original inline VFPU asm: the SDK vector helper loads, dots and stores through the VFPU. */\n'
+          'void f(float *v, const float *a) {\n'
+          '    __asm__ volatile ("lv.q C000, 0(%1)\\n"\n'
+          '                      "vdot.q S010, C000, C000\\n"\n'
+          '                      "vi2f.q C100, C200, 1/2^31\\n"\n'
+          '                      "sv.s S010, 16(%0)" : : "r"(v), "r"(a) : "memory");\n'
+          '}\n')
+
+    def found(self, text: str, header: dict | None) -> set[tuple[str, str]]:
+        return {(f.kind, f.severity) for f in G.check_text(text, header, "src")}
+
+    def test_vfpu_only_asm_with_header_and_reason_passes(self) -> None:
+        self.assertEqual(self.found(self.OK, self.HEADER), {("vfpu-inline-asm", G.IDIOM)})
+        self.assertEqual(G.refusals(G.check_text(self.OK, self.HEADER, "src")), [])
+        # a mtv/mfv move and a reason given as a // comment pass too
+        text = self.OK.replace("/* Original inline VFPU asm: the SDK", "// Original inline VFPU asm: the SDK").replace(
+            "through the VFPU. */", "through the VFPU.").replace('"vdot.q', '"mtv $4, S000\\n" "vdot.q')
+        self.assertEqual(self.found(text, self.HEADER), {("vfpu-inline-asm", G.IDIOM)})
+        # the SDK's .set push / noreorder / pop wrapper emits nothing and is allowed
+        text = self.OK.replace('"lv.q C000, 0(%1)\\n"', '".set push\\n" ".set noreorder\\n" "lv.q C000, 0(%1)\\n"').replace(
+            '"sv.s S010, 16(%0)"', '"sv.s S010, 16(%0)\\n" ".set pop\\n"')
+        self.assertIn(".set noreorder", text)
+        self.assertEqual(self.found(text, self.HEADER), {("vfpu-inline-asm", G.IDIOM)})
+        # but a template of directives alone is not VFPU code
+        self.assertFalse(G.vfpu_only(".set push\n.set noreorder\n.set pop\n"))
+
+    def test_a_memory_operand_must_have_an_m_constraint(self) -> None:
+        # sv.s to a local through an "m" operand (the compiler addresses it as offset($sp)) passes
+        text = ('/* HSTMATCH module=EBOOT.BIN start=0x0 end=0x4 symbol=f cc=gcc171-O2 asm=vfpu */'+chr(10)+
+                '/* Original inline VFPU asm: the dot product is stored to the result with sv.s. */'+chr(10)+
+                'float f(const float *a) { float r; __asm__ volatile ("lv.q C010, 0(%1)'+chr(92)+'n" "vdot.t S000, C010, C010'+chr(92)+'n" '
+                '"sv.s S000, %0'+chr(92)+'n" : "=m"(r) : "r"(a)); return r; }'+chr(10))
+        self.assertEqual(self.found(text, self.HEADER), {("vfpu-inline-asm", G.IDIOM)})
+        self.assertEqual(self.found(text.replace('%0'+chr(92)+'n" : "=m"(r)', '%[out]'+chr(92)+'n" : [out] "=m"(r)'), self.HEADER),
+                         {("vfpu-inline-asm", G.IDIOM)})
+        # the same bare operand with a register constraint is refused
+        self.assertEqual(self.found(text.replace('"=m"(r)', '"=r"(r)'), self.HEADER), {("asm-emit", G.REFUSE)})
+        self.assertEqual(self.found(text.replace('S000, %0', 'S000, %2'), self.HEADER), {("asm-emit", G.REFUSE)})
+
+    def test_a_non_vfpu_instruction_is_refused(self) -> None:
+        for bad in ("addiu $2, $2, 1", "nop", "lw $2, 0($4)", "mfc1 $8, $f12", ".set mips2", ".set noat", "bvt 0, 1f",
+                    "1:", ".word 0", ".align 4"):
+            text = self.OK.replace("vdot.q S010, C000, C000", bad)
+            self.assertIn(("asm-emit", G.REFUSE), self.found(text, self.HEADER), bad)
+        # a VFPU load through a bare symbolic operand can expand to lui/addu: refused
+        text = self.OK.replace("lv.q C000, 0(%1)", "lv.q C000, %1")
+        self.assertEqual(self.found(text, self.HEADER), {("asm-emit", G.REFUSE)})
+        # a VFPU instruction does not excuse a second, non-VFPU asm statement in the same source
+        text = self.OK.replace("}\n", '    __asm__ volatile ("sync");\n}\n')
+        self.assertEqual(self.found(text, self.HEADER), {("vfpu-inline-asm", G.IDIOM), ("asm-emit", G.REFUSE)})
+
+    def test_a_missing_reason_line_is_refused(self) -> None:
+        text = self.OK.replace("Original inline VFPU asm:", "VFPU:")
+        self.assertEqual(self.found(text, self.HEADER), {("asm-emit", G.REFUSE)})
+        # the reason must follow the prefix on the same line, and the prefix must start the line
+        text = self.OK.replace("Original inline VFPU asm: the SDK vector helper loads, dots and stores through "
+                               "the VFPU.", "Original inline VFPU asm:")
+        self.assertEqual(self.found(text, self.HEADER), {("asm-emit", G.REFUSE)})
+        text = self.OK.replace("/* Original inline VFPU asm:", "/* see: Original inline VFPU asm:")
+        self.assertEqual(self.found(text, self.HEADER), {("asm-emit", G.REFUSE)})
+
+    def test_a_missing_header_key_is_refused(self) -> None:
+        header = {k: v for k, v in self.HEADER.items() if k != "asm"}
+        self.assertEqual(self.found(self.OK, header), {("asm-emit", G.REFUSE)})
+        self.assertEqual(self.found(self.OK, None), {("asm-emit", G.REFUSE)})
+        self.assertEqual(self.found(self.OK, dict(self.HEADER, asm="any")), {("asm-emit", G.REFUSE)})
+        # check_file reads the key from the HSTMATCH header itself
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "src").mkdir()
+            (root / "src" / "ok.c").write_text(self.OK, encoding="utf-8")
+            (root / "src" / "nokey.c").write_text(self.OK.replace(" asm=vfpu", ""), encoding="utf-8")
+            self.assertEqual(G.refusals(G.check_file(root / "src" / "ok.c", root)), [])
+            self.assertEqual(G.summary(G.check_file(root / "src" / "nokey.c", root)), "asm-emit")
+
+    def test_asm_in_a_define_is_checked(self) -> None:
+        text = '#define BUMP() __asm__ volatile ("addiu $2, $2, 1")\nvoid f(void) { BUMP(); }\n'
+        self.assertEqual(refused(text), {"asm-emit"})
 
 
 if __name__ == "__main__":
