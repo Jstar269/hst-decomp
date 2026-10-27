@@ -53,6 +53,10 @@ KEYS: dict[str, Key] = {
     "gcc_home": Key("wsl", "psp-gcc-1.3.1/bin/psp-gcc",
                     "WSL directory holding the decomp.me Sony psp-gcc kits: psp-gcc-1.3.1/ and psp-gcc-1.7.1/ "
                     "(used for sources with cc=gcc131-* / gcc171-*)."),
+    "gcc4_home": Key("wsl", "psp-gcc-4.0.2x/bin/psp-gcc",
+                     "WSL directory holding the open-source GCC 4.x PSP cross compilers shared with lbp-decomp "
+                     "(C:/nk/private/compilers/lbp-gcc4/PROVENANCE.json): psp-gcc-4.0.2x/ and the sony-as assembler "
+                     "wrapper (used for sources with cc=gcc402x-*, a secondary profile; owner decision 2026-10-27)."),
     "newlib_home": Key("wsl", "",
                        "WSL directory with the newlib source trees <version>/newlib-<version>/newlib and the "
                        "generated include directories inc-<version> (hstnewlib.py preprocesses library sources)."),

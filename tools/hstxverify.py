@@ -635,7 +635,7 @@ def wsl_path(path: Path) -> str:
     return f"/mnt/{value[0].lower()}{value[2:]}"
 
 
-def gcc_profiles(home: str) -> dict[str, dict[str, str]]:
+def gcc_profiles(home: str, gcc4_home: str | None = None) -> dict[str, dict[str, str]]:
     home = shell_config_path(home)
     driver = f"{home}/psp-gcc-1.3.1/bin/psp-gcc"
     prefix171 = f"{home}/psp-gcc-1.7.1/lib/gcc-lib/psp/3.3.3+allegrex-2.2.2-psp-1.7.1/"
@@ -655,6 +655,14 @@ def gcc_profiles(home: str) -> dict[str, dict[str, str]]:
             "prefix": prefix,
             "flags": "-O0 -G0 -fno-merge-constants",
         }
+    if gcc4_home:  # secondary profile (owner decision 2026-10-27): GCC 4.0.2 + pspdev patch + Allegrex tuning
+        g4 = shell_config_path(gcc4_home)
+        for optimization in ("O0",) + GCC_OPTIMIZATIONS:
+            profiles[f"gcc402x-{optimization}"] = {
+                "driver": f"{g4}/psp-gcc-4.0.2x/bin/psp-gcc",
+                "prefix": "",
+                "flags": f"-{optimization} -G0 -fno-merge-constants -mpreferred-stack-boundary=4",
+            }
     return profiles
 
 
@@ -686,7 +694,7 @@ def compile_command(
             f"-lang {shlex.quote(lang)} -o {shlex.quote(wsl_path(obj))} {shlex.quote(source.name)} "
             f"> {shlex.quote(wsl_path(log))} 2>&1"
         )
-    profiles = gcc_profiles(gcc_home)
+    profiles = gcc_profiles(gcc_home, CFG.get("gcc4_home"))
     if profile not in profiles:
         raise VerificationRefusal(f"unsupported compiler profile {profile}")
     selected = profiles[profile]

@@ -540,6 +540,12 @@ def live_profiles() -> dict:
                              "lang_option": "-lang", "include_env": "MWCIncludes=<repository>/include"}}
     home = M.gcc_home()
     for name, g in sorted(M.gcc_profiles().items()):
+        if g.get("kit"):            # a secondary kit (gcc402x-*): paths relative to its own directory setting
+            if g["driver"] is None:
+                raise ProofError("toolchain", f"profile {name} needs the {g['kit']} setting (hst-config.json)")
+            profiles[name] = {"compiler": "psp-gcc", "kit": g["kit"],
+                              "driver": _kit_relative(g["driver"], M.gcc4_home()), "B": None, "flags": g["flags"]}
+            continue
         profiles[name] = {"compiler": "psp-gcc", "driver": _kit_relative(g["driver"], home),
                           "B": _kit_relative(g["B"], home) if g["B"] else None, "flags": g["flags"]}
     return profiles
@@ -566,18 +572,23 @@ hashset() {
 def live_toolchain(root: Path = ROOT, workdir: Path | None = None) -> dict:
     """The toolchain core as it is now, hashed at the configured locations (hst-config.json / HST_* variables)."""
     native, home, pspdev = M.native_dir(), M.gcc_home(), M.pspdev_bin()
+    gcc4 = M.gcc4_home()
+    if gcc4 is None:
+        raise ProofError("toolchain", "the gcc4_home setting is not configured (the gcc402x-* kit is part of the lock)")
     build = M.PROFILE["build"]
     script = HASH_SCRIPT + "\n".join([
         f'hashset mwcc "{native}" wibo builds/{build}',
         f'hashset psp-gcc-1.3.1 "{home}/psp-gcc-1.3.1" .',
         f'hashset psp-gcc-1.7.1 "{home}/psp-gcc-1.7.1" .',
+        f'hashset psp-gcc-4.0.2x "{gcc4}" psp-gcc-4.0.2x sony-as',
         f'hashset binutils "{pspdev}" psp-ld psp-objcopy psp-objdump',
         f'hashset binutils-ldscripts "{pspdev}/.." psp/lib/ldscripts',
         f'hashset pspgcc-specs "{PSPGCC_SPECS_DIR}" .',
         'echo "E-BEGIN"', "env | sort", 'echo "E-END"'])
     out = run_wsl_script(script, workdir or root / "build" / "proof", "toolchain-hash")
     groups: dict[str, dict] = {g: {"present": True, "files": {}, "links": {}, "missing": []}
-                               for g in ("mwcc", "psp-gcc-1.3.1", "psp-gcc-1.7.1", "binutils", "binutils-ldscripts",
+                               for g in ("mwcc", "psp-gcc-1.3.1", "psp-gcc-1.7.1", "psp-gcc-4.0.2x", "binutils",
+                                         "binutils-ldscripts",
                                          "pspgcc-specs")}
     env_lines: list[str] = []
     in_env = False
@@ -614,7 +625,8 @@ def live_toolchain(root: Path = ROOT, workdir: Path | None = None) -> dict:
         rec["sha256"] = digest({"files": rec["files"], "links": rec["links"], "missing": rec["missing"],
                                 "present": rec["present"]})
     must = {"mwcc": ["wibo", f"builds/{build}/mwccpsp.exe"], "binutils": ["psp-ld", "psp-objcopy", "psp-objdump"],
-            "psp-gcc-1.3.1": ["bin/psp-gcc"], "psp-gcc-1.7.1": []}
+            "psp-gcc-1.3.1": ["bin/psp-gcc"], "psp-gcc-1.7.1": [],
+            "psp-gcc-4.0.2x": ["psp-gcc-4.0.2x/bin/psp-gcc", "psp-gcc-4.0.2x/libexec/gcc/psp/4.0.2/cc1", "sony-as"]}
     for g, files in must.items():
         if not groups[g]["present"] or any(f not in groups[g]["files"] for f in files):
             raise ProofError("toolchain-drift", f"toolchain component {g} is missing at its configured location")

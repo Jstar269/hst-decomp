@@ -1,11 +1,11 @@
 {
  "core": {
   "comparison_code": {
-   "tools/hstconfig.py": "588053bfa6316f89d737907bffad104cecb8160fabd74fbab07d22beabe30cc3",
+   "tools/hstconfig.py": "4f097a51607b3d5e8ebabd5f45503db2a119e3563d4135e7e465b9389e39d495",
    "tools/hstgate.py": "1f1402334b3ac022a9e827bdc12e725c609fdbc42e0326fc3dec2549ac0ac66b",
-   "tools/hstmatch.py": "9626e2f323198a748a776504813fce63284fe94f79c70b0a451f94c18bb93766",
-   "tools/hstpromote.py": "377e4cb433debc85b9b3e64bb0d95650f3e01a5b4a6ae9c63cc73382ae034a01",
-   "tools/hstproof.py": "7b98e546084c0c99deab68e7b84ca57a1155172ca7b0d672d4581d67efce004d"
+   "tools/hstmatch.py": "31a3791b5b61b3271910dc121df95597c4b38c06a9d39bc828991450d25b13ba",
+   "tools/hstpromote.py": "ea42919b65374fae63b4fc281e0e4b545adb350bbc60478f3ab9541b150c5b83",
+   "tools/hstproof.py": "8ffa635480ee4215cb935a16586800b6f351e3bf5af1c11707cf192ffd1d2c87"
   },
   "environment": {
    "LANG": "99fed2d548c2eb1022f4067f97fe838a2c3ea60ee0e0f53086788505c3ababad"
@@ -125,6 +125,41 @@
     "compiler": "psp-gcc",
     "driver": "psp-gcc-1.3.1/bin/psp-gcc",
     "flags": "-Os -G0 -fno-merge-constants -mext"
+   },
+   "gcc402x-O0": {
+    "B": null,
+    "compiler": "psp-gcc",
+    "driver": "psp-gcc-4.0.2x/bin/psp-gcc",
+    "flags": "-O0 -G0 -fno-merge-constants -mpreferred-stack-boundary=4",
+    "kit": "gcc4_home"
+   },
+   "gcc402x-O1": {
+    "B": null,
+    "compiler": "psp-gcc",
+    "driver": "psp-gcc-4.0.2x/bin/psp-gcc",
+    "flags": "-O1 -G0 -fno-merge-constants -mpreferred-stack-boundary=4",
+    "kit": "gcc4_home"
+   },
+   "gcc402x-O2": {
+    "B": null,
+    "compiler": "psp-gcc",
+    "driver": "psp-gcc-4.0.2x/bin/psp-gcc",
+    "flags": "-O2 -G0 -fno-merge-constants -mpreferred-stack-boundary=4",
+    "kit": "gcc4_home"
+   },
+   "gcc402x-O3": {
+    "B": null,
+    "compiler": "psp-gcc",
+    "driver": "psp-gcc-4.0.2x/bin/psp-gcc",
+    "flags": "-O3 -G0 -fno-merge-constants -mpreferred-stack-boundary=4",
+    "kit": "gcc4_home"
+   },
+   "gcc402x-Os": {
+    "B": null,
+    "compiler": "psp-gcc",
+    "driver": "psp-gcc-4.0.2x/bin/psp-gcc",
+    "flags": "-Os -G0 -fno-merge-constants -mpreferred-stack-boundary=4",
+    "kit": "gcc4_home"
    },
    "mwcc219": {
     "build": "219",
@@ -764,6 +799,41 @@
     "present": true,
     "sha256": "5a99e3599c0bec301424eeb4029f2b1ef1ab72412597533d8ad0dba987d620f3"
    },
+   "psp-gcc-4.0.2x": {
+    "files": {
+     "psp-gcc-4.0.2x/bin/psp-ar": "6452af2eea333b8c65e1adb92964fc8f97863ab003fa13f9d12bff5345cd7dbe",
+     "psp-gcc-4.0.2x/bin/psp-as": "3fcf0037111bc2ac9fbda0cb916b194bcbb66a3fd334fcc1d870c951fd4b3fc6",
+     "psp-gcc-4.0.2x/bin/psp-c++": "69d9d27b28ba81d515de1dd006ac84ae9459a854a8c12ab0147548c85095983e",
+     "psp-gcc-4.0.2x/bin/psp-g++": "69d9d27b28ba81d515de1dd006ac84ae9459a854a8c12ab0147548c85095983e",
+     "psp-gcc-4.0.2x/bin/psp-gcc": "d995679af6ad611955ae51dec4904a1aaf73fce6f835ce0de128dd656e3d501b",
+     "psp-gcc-4.0.2x/bin/psp-gcc-4.0.2": "d995679af6ad611955ae51dec4904a1aaf73fce6f835ce0de128dd656e3d501b",
+     "psp-gcc-4.0.2x/bin/psp-gccbug": "439e7ad99effa71ab927076eb2b929354fca44cc352f05f82b07eb4b23a2c3ba",
+     "psp-gcc-4.0.2x/bin/psp-gcov": "f0fd1b850b06922813582acff9ce7c8de264c538534126dae795a05d0c3edfe4",
+     "psp-gcc-4.0.2x/bin/psp-ld": "d119ef5866b70ce46293b4ee7bb5ac356d44f93d802ca25580d3ad682b95937b",
+     "psp-gcc-4.0.2x/bin/psp-nm": "3708df3d7ce16e2c1dcdcd722784ae382d4d582276a71ab7bbe2d542f5621202",
+     "psp-gcc-4.0.2x/bin/psp-objcopy": "86698de1a59d2298c3fdbcef007762f0157ccfdafa2ffc58d3310718572996fd",
+     "psp-gcc-4.0.2x/bin/psp-objdump": "bb9cfc15da96a8a2dfd4b6c0903e6b15bc746320f6bf4c7694489470f1bd161b",
+     "psp-gcc-4.0.2x/bin/psp-ranlib": "60254978b8ee2c1b21b41d16a18a621dbbcc72e43eb2fa9f916818256c77e9ee",
+     "psp-gcc-4.0.2x/bin/psp-strip": "0d980587ada7ab12193f39271f060d5663aa2f289b0e80d2a0274ce7306e4e42",
+     "psp-gcc-4.0.2x/libexec/gcc/psp/4.0.2/cc1": "927a916866d79fc01cc9559359a769cc759545c51732509fc356fbce3a208529",
+     "psp-gcc-4.0.2x/libexec/gcc/psp/4.0.2/cc1plus": "5faed0bfffa5653891546b9fee6a7973f04da89c6a2ff92abbc2fa01dec6335f",
+     "psp-gcc-4.0.2x/libexec/gcc/psp/4.0.2/collect2": "6b12b5f5000df4c0bbe788711bdf502a6865f92fbdab2f39e7bc3ac439cee0c3",
+     "sony-as": "79bfab65ad61ac1e0d908889439b6ac25831274e3e95787e91cc96554cb2f7a2"
+    },
+    "links": {
+     "psp-gcc-4.0.2x/bin/psp-ar": "/usr/bin/ar",
+     "psp-gcc-4.0.2x/bin/psp-as": "/mnt/c/nk/private/campaign-builds/hst-decomp-campaign-365-20261013/toolchain/pspdev/runtime/pspdev/bin/psp-as",
+     "psp-gcc-4.0.2x/bin/psp-ld": "/mnt/c/nk/private/campaign-builds/hst-decomp-campaign-365-20261013/toolchain/pspdev/runtime/pspdev/bin/psp-ld",
+     "psp-gcc-4.0.2x/bin/psp-nm": "/usr/bin/nm",
+     "psp-gcc-4.0.2x/bin/psp-objcopy": "/mnt/c/nk/private/campaign-builds/hst-decomp-campaign-365-20261013/toolchain/pspdev/runtime/pspdev/bin/psp-objcopy",
+     "psp-gcc-4.0.2x/bin/psp-objdump": "/mnt/c/nk/private/campaign-builds/hst-decomp-campaign-365-20261013/toolchain/pspdev/runtime/pspdev/bin/psp-objdump",
+     "psp-gcc-4.0.2x/bin/psp-ranlib": "/usr/bin/ranlib",
+     "psp-gcc-4.0.2x/bin/psp-strip": "/usr/bin/strip"
+    },
+    "missing": [],
+    "present": true,
+    "sha256": "e261d1d8250eb2f243a9ddf019d679cfd2d04670fab0a5cd7e39c9537e290813"
+   },
    "pspgcc-specs": {
     "files": {},
     "links": {},
@@ -773,7 +843,7 @@
    }
   }
  },
- "core_digest": "110048922eec8045d31ad01dae14338bde7306315f3422e07c460f2564cf4ca2",
+ "core_digest": "b4157f619728fc713c0f9ac8601b040fb968f2540f97385cd74be2cf674dbfba",
  "history": [
   {
    "digest": "9493e6106636aff84e57adce4cf0c985983ac492b1ed6d40292a0f87ce79ae7e",
@@ -853,6 +923,25 @@
    "scope": "gate",
    "to": "110048922eec8045d31ad01dae14338bde7306315f3422e07c460f2564cf4ca2",
    "utc": "2026-10-27T14:16:15Z"
+  },
+  {
+   "changes": [
+    "profiles: gcc402x-O0, gcc402x-O1, gcc402x-O2, gcc402x-O3, gcc402x-Os",
+    "tools/hstconfig.py changed",
+    "tools/hstmatch.py changed",
+    "tools/hstpromote.py changed",
+    "tools/hstproof.py changed",
+    "psp-gcc-4.0.2x: present"
+   ],
+   "event": "migrate-toolchain",
+   "from": "110048922eec8045d31ad01dae14338bde7306315f3422e07c460f2564cf4ca2",
+   "journal_seq": 195,
+   "reason": "Secondary compiler profile gcc402x-O0/O1/O2/O3/Os (owner decision 2026-10-27): open-source GCC 4.0.2 + pspdev Allegrex patch + lbp-decomp's Allegrex tuning, the kit shared with lbp-decomp (gcc4_home = $HOME/lbp-gcc4, psp-gcc-4.0.2x + sony-as; provenance C:/nk/private/compilers/lbp-gcc4/PROVENANCE.json); defaults unchanged",
+   "reverified": 14234,
+   "run": "20261027T151031Z-dfbbdc",
+   "scope": "full",
+   "to": "b4157f619728fc713c0f9ac8601b040fb968f2540f97385cd74be2cf674dbfba",
+   "utc": "2026-10-27T17:42:16Z"
   }
  ],
  "schema": "hst-decomp.toolchain-manifest.v1",

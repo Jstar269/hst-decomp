@@ -66,7 +66,15 @@ HEADER = re.compile(r"/\*\s*HSTMATCH\s+(.*?)\*/", re.S)
 # `j` between blocks); no -mext variant, because no known -O0 object uses ext/ins.
 GCC_PROFILE_NAMES = (frozenset(f"gcc{v}{x}-{o}" for v in ("131", "171") for o in ("O1", "O2", "O3", "Os")
                                for x in ("", "x"))  # gcc171x-*: Allegrex ext/ins enabled
-                     | frozenset(f"gcc{v}-O0" for v in ("131", "171")))
+                     | frozenset(f"gcc{v}-O0" for v in ("131", "171"))
+                     # gcc402x-*: SECONDARY profile (owner decision 2026-10-27): open-source GCC 4.0.2 + the pspdev
+                     # Allegrex patch (2007 revision, -mpreferred-stack-boundary) + lbp-decomp's measured Allegrex
+                     # tuning, built from GNU sources (provenance: C:/nk/private/compilers/lbp-gcc4/PROVENANCE.json,
+                     # "psp-gcc-4.0.2x"); it assembles with the Sony 1.3.1 kit's assembler through the kit's sony-as
+                     # wrapper. Only for the functions a later Sony compiler built (duplicated epilogues, tail calls,
+                     # no lhu narrowing); the gcc131/gcc171 profiles stay the defaults.
+                     | frozenset(f"gcc402x-{o}" for o in ("O0", "O1", "O2", "O3", "Os")))
+GCC4_PROFILE_KIT = "gcc4_home"    # profile records of the gcc402x-* profiles name their kit directory
 _gcc_profiles: dict | None = None
 
 
@@ -87,6 +95,11 @@ def gcc_home() -> str:
     return CFG.wsl_path("gcc_home")
 
 
+def gcc4_home() -> str | None:
+    """The gcc4_home setting, or None when it is not configured (only cc=gcc402x-* sources need it)."""
+    return CFG.get("gcc4_home") and CFG.wsl_path("gcc4_home")
+
+
 def gcc_profiles() -> dict:
     global _gcc_profiles
     if _gcc_profiles is None:
@@ -97,6 +110,11 @@ def gcc_profiles() -> dict:
                          for v in b for o in ("O1", "O2", "O3", "Os") for x, xf in (("", ""), ("x", " -mext"))}
         _gcc_profiles.update({f"gcc{v}-O0": {"driver": driver, "B": b[v], "flags": "-O0 -G0 -fno-merge-constants"}
                               for v in b})
+        g4 = gcc4_home()
+        _gcc_profiles.update({f"gcc402x-{o}": {"driver": f"{g4}/psp-gcc-4.0.2x/bin/psp-gcc" if g4 else None,
+                                               "B": None, "kit": GCC4_PROFILE_KIT,
+                                               "flags": f"-{o} -G0 -fno-merge-constants -mpreferred-stack-boundary=4"}
+                              for o in ("O0", "O1", "O2", "O3", "Os")})
         assert set(_gcc_profiles) == GCC_PROFILE_NAMES
     return _gcc_profiles
 
@@ -434,6 +452,8 @@ def main() -> int:
         cc = h.get("cc", "mwcc219")
         if cc in GCC_PROFILE_NAMES:
             g = gcc_profiles()[cc]
+            if g["driver"] is None:
+                raise SystemExit(f"{p}: cc={cc} needs the gcc4_home setting (hst-config.json)")
             gflags = args.flags if args.flags is not None else g["flags"]
             lang = "-x c++" if h["lang"] == "c++" else "-x c"
             bprefix = f"-B {g['B']} " if g["B"] else ""

@@ -46,7 +46,11 @@ repository. Where the brief and this file disagree, the stricter rule applies.
   says `asm=vfpu`, a line starting `Original inline VFPU asm:` gives the reason, and every instruction in the
   asm is a VFPU instruction (no other instruction, label or VFPU branch; loads/stores as `offset(%N)`, or a bare
   `%N` whose constraint is `"m"` for a local or parameter; the only directives are the SDK's
-  `.set push`/`noreorder`/`pop` style mode switches). Write everything else in C; one non-VFPU instruction makes it `asm-emit` again.
+  `.set push`/`noreorder`/`pop` style mode switches; both extensions approved by the owner 2026-10-27). Write
+  everything else in C; one non-VFPU instruction makes it `asm-emit` again.
+- **Compiler profiles.** MWCC build 219 and the Sony gcc131/gcc171 kits are the defaults; `cc=gcc402x-*` (GCC 4.0.2 +
+  pspdev patch + Allegrex tuning, owner decision 2026-10-27) is secondary, only for functions the defaults cannot
+  reproduce.
 - **No steering tricks presented as code.** Avoid duplicated conditions, dummy locals or parameters, `volatile`,
   self-assignments and gratuitous casts or `goto`; when one is the only exact form found, keep it and name it in the
   note line ("matching idiom: ..."). Note lines must be true.

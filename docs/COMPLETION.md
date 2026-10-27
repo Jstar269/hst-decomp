@@ -23,7 +23,10 @@ the definition from the start, and the scope never shrinks.
 1. **Exact.** The full module build reproduces the byte; a module is complete only when its whole rebuilt image has
    the same SHA-256 as the decrypted retail module.
 2. **From source, with the original toolchain.** The byte comes from C or C++ compiled with the recorded profile
-   (`mwccpsp` 3.0.1 build 219, or the identified Sony `psp-gcc` kit) and recorded per-file settings, or from
+   (`mwccpsp` 3.0.1 build 219, or the identified Sony `psp-gcc` kit; for code a later Sony compiler built, the
+   secondary `gcc402x` profile adopted by the owner on 2026-10-27, an open-source GCC 4.0.2 build with the pspdev
+   Allegrex patch and measured Allegrex tuning whose provenance the toolchain lock records) and recorded per-file
+   settings, or from
    hand-written assembly only where the original was assembly. Never: retail bytes included as binary, machine code
    pasted into a source (`asm` statements that emit instructions, `.word`/`.byte` emission), object or byte patching,
    post-link fix-ups, changes to the verifier, skipped comparisons, or experimental flags (`extra=`).
@@ -33,7 +36,8 @@ the definition from the start, and the scope never shrinks.
    `asm=vfpu`, with a line starting `Original inline VFPU asm:` giving the reason, and only when every
    instruction in the asm is a VFPU instruction with explicit `offset(base)` memory operands or `"m"` operands
    for locals and parameters (plus the SDK's
-   `.set push`/`noreorder`/`pop` mode switches, which emit nothing); `hstgate.py`
+   `.set push`/`noreorder`/`pop` mode switches, which emit nothing; the owner approved both of these extensions on
+   2026-10-27); `hstgate.py`
    reports it as the idiom `vfpu-inline-asm` and refuses anything else. All other code around it is C.
 3. **In its place in the whole module.** The source is compiled in its translation unit and linked in link order as
    part of the module build. Today's function-at-a-time matches (`tools/hstmatch.py`) are a necessary step, counted

@@ -105,7 +105,9 @@ grep -l "start=0x<addr>" src/*/* wip/*
 
 `module`, `start`, `end` and `symbol` are required (`symbol` must be the name your source defines for the function).
 `lang` is `c99` or `c++`. Optional: `cc=<profile>` (absent means MWCC build 219; GCC sources say `cc=gcc171-O2`,
-`cc=gcc171-Os` or, for unoptimized SDK code, `cc=gcc171-O0`), the section placement keys above, `asm=vfpu` (inline
+`cc=gcc171-Os` or, for unoptimized SDK code, `cc=gcc171-O0`; `cc=gcc402x-O2`/`-Os`/... is a secondary profile for
+functions a later Sony compiler built, used only when no gcc131/gcc171 profile matches), the section placement keys
+above, `asm=vfpu` (inline
 VFPU asm, see the ground rules; the source then carries a line `/* Original inline VFPU asm: <reason> */` after the
 note) and the experimental `extra=`.
 

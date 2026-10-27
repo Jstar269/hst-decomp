@@ -210,6 +210,11 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 - `cc=<profile>` selects the compiler: absent means `mwcc219` (mwccpsp build 219, `-c -O4,p -sdatathreshold 0`);
   `gcc131-` or `gcc171-` plus `O1`, `O2`, `O3` or `Os` select a Sony `psp-gcc` kit (`gcc171x-*` adds `-mext`);
   `gcc131-O0` and `gcc171-O0` select the unoptimized builds (Sony SDK objects with a `move s8,sp` frame pointer).
+  `gcc402x-O0`/`O1`/`O2`/`O3`/`Os` is a SECONDARY profile (owner decision 2026-10-27): open-source GCC 4.0.2 with the
+  pspdev Allegrex patch and lbp-decomp's measured Allegrex tuning (`-mpreferred-stack-boundary=4`), the kit shared
+  with lbp-decomp under the `gcc4_home` setting (provenance: the maintainers' `compilers/lbp-gcc4/PROVENANCE.json`,
+  hashed by the toolchain lock). Use it only for functions no gcc131/gcc171 profile reproduces (later-compiler
+  shapes: duplicated epilogues, tail calls, word loads where GCC 3.3 narrows).
   <!-- hstprogress:begin guide-profiles -->
   Measured 2026-10-27, the public sources use `mwcc219` (12,074 sources), `gcc171-O2` (103 sources), `gcc171x-O2` (17
   sources) and `gcc171x-O1` (2 sources).

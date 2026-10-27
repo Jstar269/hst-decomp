@@ -263,9 +263,14 @@ class Run:
                             f"{c.header['lang']} -o {q(P.to_wsl(obj))} {q(c.path.name)} > {q(P.to_wsl(log))} 2>&1")
             elif prof["compiler"] == "psp-gcc":
                 lang = "-x c++" if c.header["lang"] == "c++" else "-x c"
-                bopt = f"-B {home}/{prof['B']} " if prof.get("B") else ""
+                kit = home
+                if prof.get("kit"):
+                    if prof["kit"] != M.GCC4_PROFILE_KIT or M.gcc4_home() is None:
+                        raise ProofError("profile", f"kit {prof['kit']!r} of the toolchain lock is not configured")
+                    kit = M.gcc4_home()
+                bopt = f"-B {kit}/{prof['B']} " if prof.get("B") else ""
                 cmds.append(f"t=$(mktemp -d /tmp/hstproof.XXXXXX) && cp {q(P.to_wsl(c.path))} $t/ && cd $t && "
-                            f"{home}/{prof['driver']} {bopt}-c {prof['flags']} {lang} -o obj.o {q(c.path.name)} > log 2>&1; "
+                            f"{kit}/{prof['driver']} {bopt}-c {prof['flags']} {lang} -o obj.o {q(c.path.name)} > log 2>&1; "
                             f"cp log {q(P.to_wsl(log))}; [ -f obj.o ] && cp obj.o {q(P.to_wsl(obj))}; cd / && rm -rf $t")
             else:
                 raise ProofError("profile", f"unknown compiler kind {prof['compiler']!r} in the toolchain lock")
