@@ -2,7 +2,6 @@
 /* Clone of src/sharing_main/vec4_setup_000ae658.c (hstclone.py tag s10170049c1r1e): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: the local result vector is a struct of four named floats (v.w = 1.0f assigned last) instead of float[4], the 2.0574f factor sits in a non-const local k, and the two 6.4008-scaled globals are named locals a, b (acc4 first); exact match verified; names and types await human review. */
 /* Same code as EBOOT 0xabc64 (wip/vec4_setup_000abc64.c, 22 words off there). Matching idioms: `float k = 2.0574f;` (a literal factor beside fVar1 otherwise swaps the add operands), locals a/b in that order (they fix the DAT load order and the sub/add operand order), v.w assigned after v.z. Names provisional. */
-typedef unsigned int uint;
 typedef struct { float x, y, z, w; } Vec4;
 extern float DAT_002d46b8;
 extern float DAT_002d46bc;

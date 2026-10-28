@@ -1,18 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fc4e8 end=0x001fc5b8 symbol=FUN_001fc4e8 lang=c++ */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag a7); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 }
@@ -28,21 +16,20 @@ extern "C" void FUN_001fc4e8(int param_1,int param_2)
   piVar1 = *(int **)(param_1 + 0x48);
   if (piVar1 != (int *)0x0) {
     delete ((VC_0 *)(piVar1));
-    *(undefined4 *)(param_1 + 0x48) = 0;
+    *(u32 *)(param_1 + 0x48) = 0;
   }
   piVar1 = *(int **)(param_1 + 0x40);
   if (piVar1 != (int *)0x0) {
     delete ((VC_1 *)(piVar1));
-    *(undefined4 *)(param_1 + 0x40) = 0;
+    *(u32 *)(param_1 + 0x40) = 0;
   }
   piVar1 = *(int **)(param_1 + 0x3c);
   if (piVar1 != (int *)0x0) {
     delete ((VC_2 *)(piVar1));
-    *(undefined4 *)(param_1 + 0x3c) = 0;
+    *(u32 *)(param_1 + 0x3c) = 0;
   }
   if ((param_2 != 0) && (piVar1 = *(int **)(param_1 + 0x44), piVar1 != (int *)0x0)) {
     delete ((VC_3 *)(piVar1));
-    *(undefined4 *)(param_1 + 0x44) = 0;
+    *(u32 *)(param_1 + 0x44) = 0;
   }
-  return;
 }

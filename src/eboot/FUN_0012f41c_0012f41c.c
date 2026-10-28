@@ -1,75 +1,60 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0012f41c end=0x0012f698 symbol=FUN_0012f41c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 typedef struct Record {
-  undefined4 w00;
-  undefined4 w04;
-  undefined4 w08;
-  undefined4 w0c;
-  undefined4 w10;
-  undefined4 w14;
-  undefined4 w18;
-  undefined4 w1c;
-  undefined4 w20;
-  undefined4 w24;
-  undefined4 w28;
-  undefined4 w2c;
-  undefined4 w30;
-  undefined4 w34;
-  undefined4 w38;
-  undefined4 w3c;
-  undefined4 w40;
-  undefined2 h44;
-  undefined2 h46;
-  undefined2 h48;
-  undefined1 b4a;
-  undefined1 b4b;
-  undefined1 b4c;
-  undefined1 b4d;
-  undefined1 b4e;
-  undefined1 b4f;
-  undefined1 b50;
-  undefined1 b51;
-  undefined1 b52;
-  undefined1 b53;
-  undefined1 b54;
-  undefined1 b55;
-  undefined1 b56;
-  undefined1 b57;
+  u32 w00;
+  u32 w04;
+  u32 w08;
+  u32 w0c;
+  u32 w10;
+  u32 w14;
+  u32 w18;
+  u32 w1c;
+  u32 w20;
+  u32 w24;
+  u32 w28;
+  u32 w2c;
+  u32 w30;
+  u32 w34;
+  u32 w38;
+  u32 w3c;
+  u32 w40;
+  u16 h44;
+  u16 h46;
+  u16 h48;
+  u8 b4a;
+  u8 b4b;
+  u8 b4c;
+  u8 b4d;
+  u8 b4e;
+  u8 b4f;
+  u8 b50;
+  u8 b51;
+  u8 b52;
+  u8 b53;
+  u8 b54;
+  u8 b55;
+  u8 b56;
+  u8 b57;
 } Record;
 
-extern undefined DAT_003081f0;
+extern u8 DAT_003081f0;
 extern Record DAT_0033b584[];
-extern undefined4 * DAT_00340284;
+extern u32 * DAT_00340284;
 extern void * FUN_00000bcc(unsigned int);
 extern void FUN_0001f06c();
 extern void FUN_0001f1fc(void *, int);
 extern void FUN_0001f21c(void *, void *);
-extern undefined4 * FUN_000b7e7c(void *);
-extern undefined4 * FUN_00122888(void *);
-extern undefined4 FUN_0012f698(void *);
-extern undefined4 * FUN_001b9760(void *);
+extern u32 * FUN_000b7e7c(void *);
+extern u32 * FUN_00122888(void *);
+extern u32 FUN_0012f698(void *);
+extern u32 * FUN_001b9760(void *);
 
-undefined4 * FUN_0012f41c(undefined4 *param_1)
+u32 * FUN_0012f41c(u32 *param_1)
 {
-  undefined4 uVar1;
-  undefined4 *resource;
+  u32 uVar1;
+  u32 *resource;
   int iVar3;
   Record *puVar2;
   
@@ -154,11 +139,11 @@ undefined4 * FUN_0012f41c(undefined4 *param_1)
   param_1[0x39] = 0;
   param_1[0x3a] = 0;
   *(float *)((char *)param_1 + 0xec) = 1.0f;
-  *(undefined1 *)(param_1 + 0x3c) = 1;
-  *(undefined1 *)(param_1 + 0x4d) = 0;
-  *(undefined1 *)((int)param_1 + 0xf1) = 0;
-  *(undefined1 *)((int)param_1 + 0xf2) = 0;
-  *(undefined1 *)((int)param_1 + 0xf3) = 0;
+  *(u8 *)(param_1 + 0x3c) = 1;
+  *(u8 *)(param_1 + 0x4d) = 0;
+  *(u8 *)((int)param_1 + 0xf1) = 0;
+  *(u8 *)((int)param_1 + 0xf2) = 0;
+  *(u8 *)((int)param_1 + 0xf3) = 0;
   param_1[0x3d] = 0;
   param_1[0x3e] = 0;
   param_1[0x3f] = 0;
@@ -172,28 +157,28 @@ undefined4 * FUN_0012f41c(undefined4 *param_1)
   param_1[0xf] = 0;
   param_1[0x10] = 0xffffffff;
   param_1[0x12] = 0;
-  *(undefined1 *)(param_1 + 0x13) = 1;
+  *(u8 *)(param_1 + 0x13) = 1;
   param_1[0x4a] = 0;
   param_1[0x4b] = 1;
   param_1[0x4c] = 0;
   param_1[0x22] = 0;
   param_1[0x23] = 0;
   FUN_0012f698(param_1);
-  resource = (undefined4 *)FUN_00000bcc(0x100);
+  resource = (u32 *)FUN_00000bcc(0x100);
   if (resource != 0) {
     resource = FUN_000b7e7c(resource);
   }
   param_1[0x1f] = (unsigned int)resource;
   FUN_0001f21c(param_1,resource);
   FUN_0001f1fc((void *)param_1[0x1f],1);
-  resource = (undefined4 *)FUN_00000bcc(0xa0);
+  resource = (u32 *)FUN_00000bcc(0xa0);
   if (resource != 0) {
     resource = FUN_00122888(resource);
   }
   param_1[0x20] = (unsigned int)resource;
   FUN_0001f21c(param_1,resource);
   FUN_0001f1fc((void *)param_1[0x20],0);
-  resource = (undefined4 *)FUN_00000bcc(0x48);
+  resource = (u32 *)FUN_00000bcc(0x48);
   if (resource != 0) {
     resource = FUN_001b9760(resource);
   }

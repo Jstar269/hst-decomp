@@ -1,20 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001934c8 end=0x001936f0 symbol=FUN_001934c8 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 typedef struct {
     int key;
@@ -39,15 +25,15 @@ int FUN_001934c8(void)
   int i;
   int obj;
   int ret;
-  undefined1 b1[8];
+  u8 b1[8];
   Key k1;
-  undefined1 b2[8];
+  u8 b2[8];
   Key k2;
-  undefined1 b3[8];
+  u8 b3[8];
   Key k3;
-  undefined1 b4[8];
+  u8 b4[8];
   Key k4;
-  undefined1 b5[8];
+  u8 b5[8];
   Key k5;
 
   ret = 0;

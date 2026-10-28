@@ -1,22 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0004d6a0 end=0x0004d7dc symbol=FUN_0004d6a0 lang=c99 */
 /* Clone of src/sharing_main/vec4_combine_0004da18.c (hstclone.py tag s10170158a3r1e): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed the Vec4 locals (slots follow declaration order), restored the dropped float scale argument of FUN_00022498, rewrote the component loop with walking src/dst pointers; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 typedef struct Vec4 { float x, y, z, w; } Vec4;
 typedef struct Pair { Vec4 a; Vec4 b; } Pair;

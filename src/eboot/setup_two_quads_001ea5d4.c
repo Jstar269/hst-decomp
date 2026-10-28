@@ -1,25 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ea5d4 end=0x001ea814 symbol=FUN_001ea5d4 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Matching idiom: the quad cursor is the object pointer offset by selB*4 (`cur->quad[0]`, `cur->quad[2]`) and the locals are declared q, t, w, h but t (the texture) is assigned before q; both only steer address folding and register order. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 typedef struct Quad_001ea5d4 {
-  uint color;
+  u32 color;
   short x;
   short y;
   short x2;

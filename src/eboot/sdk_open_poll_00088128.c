@@ -7,20 +7,25 @@ extern void FUN_002b7958(int);
 extern int FUN_002b7790(int, int, int);
 extern int FUN_002b7738(int);
 
+#define DRIVE_READY_BIT 0x20 /* drive-status bit polled until set */
+#define POLL_USEC 1000000
+#define RETRY_USEC 100
+
+/* Waits for the disc drive, opens the file (retrying on failure) and closes it again. */
 void FUN_00088128(void)
 {
-    int h = FUN_0029a468();
-    int s1;
+    int path = FUN_0029a468();
+    int fd;
 
     FUN_0008822c("***** CheckDiskFile(): start. *****\n");
-    while ((FUN_002b7cf8() & 0x20) == 0)
-        FUN_002b7958(1000000);
-    while ((s1 = FUN_002b7790(h, 1, 0)) < 0) {
-        while ((FUN_002b7cf8() & 0x20) == 0)
-            FUN_002b7958(1000000);
-        FUN_002b7958(100);
+    while ((FUN_002b7cf8() & DRIVE_READY_BIT) == 0)
+        FUN_002b7958(POLL_USEC);
+    while ((fd = FUN_002b7790(path, 1, 0)) < 0) {
+        while ((FUN_002b7cf8() & DRIVE_READY_BIT) == 0)
+            FUN_002b7958(POLL_USEC);
+        FUN_002b7958(RETRY_USEC);
     }
-    while (FUN_002b7738(s1) < 0)
-        FUN_002b7958(1000000);
+    while (FUN_002b7738(fd) < 0)
+        FUN_002b7958(POLL_USEC);
     FUN_0008822c("***** CheckDiskFile(): end. *****\n");
 }

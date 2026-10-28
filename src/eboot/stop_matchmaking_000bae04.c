@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000bae04 end=0x000bae98 symbol=FUN_000bae04 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag from inputs/generated/FUN_000bae04.c) corrected by hand: FUN_002b7db0 takes the dropped handle argument (loaded into a0 before the test), the handle is a struct member tested as `h > -1` inside one outer if (gives slti/bnezl, not bgez); exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern char DAT_002d512c[];
 extern char DAT_002d515c[];
@@ -11,7 +11,7 @@ extern int FUN_002b7df8();
 
 typedef struct Obj { char pad[0x16c]; int h; } Obj;
 
-undefined4 FUN_000bae04(Obj *o)
+u32 FUN_000bae04(Obj *o)
 {
   int iVar2;
   if (o->h > -1) {

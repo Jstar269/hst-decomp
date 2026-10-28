@@ -2,7 +2,7 @@
 /* Clone of src/eboot/reset_subobjects_and_table_00222f58.c (hstclone.py tag u4r4s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: typed subobject access in loop, block-scoped counter/pointer in clear loops; exact match verified; names and types await human review. */
 
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
 typedef struct Sub Sub;
 typedef struct Obj Obj;
@@ -60,15 +60,15 @@ void FUN_002324cc(struct Obj *param_1)
       int j = 0;
       int q = DAT_003f3598;
       do {
-        *(undefined1 *)(q + 0x20) = 0;
-        *(undefined1 *)(q + 0x50) = 0;
-        *(undefined1 *)(q + 0x80) = 0;
-        *(undefined1 *)(q + 0xb0) = 0;
-        *(undefined1 *)(q + 0xe0) = 0;
-        *(undefined1 *)(q + 0x110) = 0;
-        *(undefined1 *)(q + 0x140) = 0;
+        *(u8 *)(q + 0x20) = 0;
+        *(u8 *)(q + 0x50) = 0;
+        *(u8 *)(q + 0x80) = 0;
+        *(u8 *)(q + 0xb0) = 0;
+        *(u8 *)(q + 0xe0) = 0;
+        *(u8 *)(q + 0x110) = 0;
+        *(u8 *)(q + 0x140) = 0;
         j = j + 8;
-        *(undefined1 *)(q + 0x170) = 0;
+        *(u8 *)(q + 0x170) = 0;
         q = q + 0x180;
       } while (j < 0x10);
     }
@@ -77,15 +77,15 @@ void FUN_002324cc(struct Obj *param_1)
       int j = 0;
       int q = DAT_003f359c;
       do {
-        *(undefined1 *)(q + 0x20) = 0;
-        *(undefined1 *)(q + 0x50) = 0;
-        *(undefined1 *)(q + 0x80) = 0;
-        *(undefined1 *)(q + 0xb0) = 0;
-        *(undefined1 *)(q + 0xe0) = 0;
-        *(undefined1 *)(q + 0x110) = 0;
-        *(undefined1 *)(q + 0x140) = 0;
+        *(u8 *)(q + 0x20) = 0;
+        *(u8 *)(q + 0x50) = 0;
+        *(u8 *)(q + 0x80) = 0;
+        *(u8 *)(q + 0xb0) = 0;
+        *(u8 *)(q + 0xe0) = 0;
+        *(u8 *)(q + 0x110) = 0;
+        *(u8 *)(q + 0x140) = 0;
         j = j + 8;
-        *(undefined1 *)(q + 0x170) = 0;
+        *(u8 *)(q + 0x170) = 0;
         q = q + 0x180;
       } while (j < 0x10);
     }

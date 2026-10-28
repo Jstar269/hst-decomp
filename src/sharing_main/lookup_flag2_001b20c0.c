@@ -10,16 +10,16 @@
    "bnel v0,v1"). */
 #pragma opt_strength_reduction off
 
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
   char pad178[0x178];
-  uchar flag;
+  u8 flag;
 } G2;
 
 typedef struct {
   char pad2a4[0x2a4];
-  uchar flag;
+  u8 flag;
   char pad360[0x360 - 0x2a5];
   int *arr;
   unsigned count;

@@ -1,22 +1,22 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000cf474 end=0x000cf54c symbol=FUN_000cf474 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: loop index declared before the member pointer (s-register order); exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern char DAT_003074dc;
 extern void FUN_00000a00(...);
-extern undefined4 * FUN_0001f0f0(...);
+extern u32 * FUN_0001f0f0(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
 
-extern "C" undefined4 * FUN_000cf474(undefined4 *param_1,short param_2)
+extern "C" u32 * FUN_000cf474(u32 *param_1,short param_2)
 {
   int iVar3;
-  undefined4 *puVar2;
+  u32 *puVar2;
   int *piVar1;
   
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_003074dc);
     iVar3 = 0;
     puVar2 = param_1;

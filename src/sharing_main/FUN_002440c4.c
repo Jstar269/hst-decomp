@@ -1,29 +1,14 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x002440c4 end=0x0024414c symbol=FUN_002440c4 lang=c99 */
 /* Clone of src/eboot/FUN_00233fc4.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern int * DAT_003f3994;
-extern undefined DAT_003f39a8;
+extern u8 DAT_003f39a8;
 extern void FUN_00243618();
 extern void FUN_00244258();
 extern void FUN_0024476c();
 
-void FUN_002440c4(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4, undefined4 param_5,undefined4 param_6,undefined4 param_7,undefined4 param_8)
+void FUN_002440c4(u32 param_1,u32 param_2,u32 param_3,u32 param_4, u32 param_5,u32 param_6,u32 param_7,u32 param_8)
 {
   bool bVar1;
   int iVar2;
@@ -42,5 +27,4 @@ void FUN_002440c4(undefined4 param_1,undefined4 param_2,undefined4 param_3,undef
       FUN_0024476c((int *)&DAT_003f39a8);
     }
   }
-  return;
 }

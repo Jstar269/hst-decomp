@@ -1,10 +1,9 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000c5928 end=0x000c5c78 symbol=FUN_000c5928 lang=c99 */
 /* Clone of src/eboot/FUN_000c2158.c (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
-extern undefined4 DAT_003b06f0;
+extern u32 DAT_003b06f0;
 extern float DAT_002cc260;
 extern float DAT_002cc264;
 extern float DAT_002cc268;
@@ -22,9 +21,9 @@ extern float DAT_002cc294;
 extern float DAT_002cc298;
 extern float DAT_002cc29c;
 
-undefined4 *FUN_000c5928(undefined4 *param_1)
+u32 *FUN_000c5928(u32 *param_1)
 {
-  *param_1 = (undefined4)&DAT_003b06f0;
+  *param_1 = (u32)&DAT_003b06f0;
   param_1[1] = 3;
   param_1[0x4] = 0;
   param_1[0x5] = 0;
@@ -95,7 +94,7 @@ undefined4 *FUN_000c5928(undefined4 *param_1)
   param_1[0x5d] = 0;
   param_1[0x5f] = 0;
   param_1[0x60] = 0;
-  *(undefined1 *)(param_1 + 0x74) = 0;
+  *(u8 *)(param_1 + 0x74) = 0;
   param_1[0x75] = 0;
   param_1[0x44] = 0x3d05f06f;
   param_1[0x45] = 0x3d656042;

@@ -4,34 +4,22 @@
    use the null-case-else shape (`if (p != 0) f74 = ctor(p); else f74 = p;`), the selection count is the
    ternary `param_2[2] ? param_2[2] : param_2[0]` and the effect handle is the ternary
    `x ? FUN_0002fe80(x, str) : -1`; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined DAT_00309d08;
+extern u8 DAT_00309d08;
 extern int FUN_00000bcc(...);
-extern uint FUN_0002fe80(...);
-extern undefined4 * FUN_00056b98(...);
-extern undefined4 * FUN_00286790(...);
+extern u32 FUN_0002fe80(...);
+extern u32 * FUN_00056b98(...);
+extern u32 * FUN_00286790(...);
 }
 struct VC_0 { virtual void d0(); virtual void m(int); };
 struct VC_1 { virtual void d0(); virtual void m(int); };
 
-extern "C" undefined4 * FUN_0028a230(undefined4 *param_1,int *param_2)
+extern "C" u32 * FUN_0028a230(u32 *param_1,int *param_2)
 {
   int iVar1;
-  undefined4 uVar2;
+  u32 uVar2;
   
   FUN_00286790(param_1);
   *param_1 = (unsigned int)(&DAT_00309d08);
@@ -60,7 +48,7 @@ extern "C" undefined4 * FUN_0028a230(undefined4 *param_1,int *param_2)
   ((VC_0 *)((int *)param_1[0x1d]))->m((int)(*param_2));
   ((VC_1 *)((int *)param_1[0x1e]))->m((int)(param_2[1]));
   param_1[0x1f] = param_2[3];
-  *(undefined1 *)(param_1 + 0x3b) = 0;
+  *(u8 *)(param_1 + 0x3b) = 0;
   param_1[0x3c] = *(int *)(param_1[0x1c] + 8) ? FUN_0002fe80(*(int *)(param_1[0x1c] + 8),"eff_get") : 0xffffffff;
   return param_1;
 }

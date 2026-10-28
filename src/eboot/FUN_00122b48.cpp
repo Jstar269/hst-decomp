@@ -1,18 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00122b48 end=0x001233bc symbol=FUN_00122b48 lang=c++ */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 struct Sub48 {
   char pad0[0x50];
@@ -62,15 +50,15 @@ struct TableEntry {
 };
 
 extern "C" {
-extern undefined4 DAT_003313c4;
-extern undefined * DAT_003386b0;
+extern u32 DAT_003313c4;
+extern u8 * DAT_003386b0;
 extern TableEntry DAT_0033b584[];
-extern undefined * DAT_00340284;
+extern u8 * DAT_00340284;
 extern void FUN_00124274(...);
 extern void FUN_0012441c(...);
 extern void FUN_00124610(...);
 extern int FUN_0012520c(...);
-extern undefined4 FUN_00125218(...);
+extern u32 FUN_00125218(...);
 extern float FUN_001252d0(...);
 extern int FUN_001252fc(...);
 extern void FUN_00125750(...);
@@ -79,7 +67,7 @@ extern void FUN_00125dd0(...);
 extern void FUN_0012603c(...);
 extern float FUN_00130b10(...);
 extern void FUN_0013115c(...);
-extern undefined1 * FUN_00132124(...);
+extern u8 * FUN_00132124(...);
 extern void FUN_0016a668(...);
 extern void FUN_002162dc(...);
 }
@@ -236,7 +224,7 @@ extern "C" void FUN_00122b48(Obj *param_1)
     FUN_0016a668(FUN_00125218(param_1), param_1->f48->f54 > 0);
     int uVar2 = FUN_00125218(param_1);
     int iVar3 = FUN_00125218(param_1);
-    FUN_0012603c(uVar2, **(undefined4 **)(iVar3 + 0x90));
+    FUN_0012603c(uVar2, **(u32 **)(iVar3 + 0x90));
     VC_0 *piVar4 = (VC_0 *)FUN_00125218(param_1);
     piVar4->m(DAT_003313c4);
   }

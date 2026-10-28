@@ -7,7 +7,7 @@
    identical struct) and the array store indexes with a differently typed index, so that MWCC does
    not common the two loads/computations; the item pointer is tested twice (nested if) before the
    destructor call. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern void FUN_00057b58(float, int, int, int);
 extern void FUN_00057bc0(float, int, int, int, float, float);
@@ -16,7 +16,7 @@ extern void FUN_000561d4(void *, int);
 typedef struct {
   char pad0[0xe0];
   void **fE0;
-  uint fE4;
+  u32 fE4;
   char padE8[8];
   char padF0[0x114 - 0xf0];
 } Obj;
@@ -32,18 +32,18 @@ typedef struct {
 #pragma opt_strength_reduction off
 void FUN_00057730(Obj *self)
 {
-  uint i = 0;
+  u32 i = 0;
   if (self->fE4 != 0) {
     do {
       if ((int)i < 0) {
-      } else if (i < (uint)((ObjInt *)self)->fE4) {
-        uint j = 0;
+      } else if (i < (u32)((ObjInt *)self)->fE4) {
+        u32 j = 0;
         char *p = (char *)self;
         while (j < 2) {
-          if (*(uint *)(p + 0xf0) == i) {
+          if (*(u32 *)(p + 0xf0) == i) {
             FUN_00057b58(0.0f, (int)self, (int)j, -1);
           }
-          if (*(uint *)(p + 0x110) == i) {
+          if (*(u32 *)(p + 0x110) == i) {
             FUN_00057bc0(0.0f, (int)self, (int)j, -1, 0.0f, 0.0f);
           }
           p += 0x34;

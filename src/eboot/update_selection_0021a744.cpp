@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021a744 end=0x0021a9ec symbol=FUN_0021a744 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
 struct Cfg8c {
     char pad[0x8b];

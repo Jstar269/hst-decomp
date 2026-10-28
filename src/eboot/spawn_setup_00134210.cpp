@@ -2,8 +2,6 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
 
-typedef unsigned int uint;
-
 struct Tag {};
 
 struct Vec4 {

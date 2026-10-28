@@ -41,7 +41,7 @@ will let more of it run as real, readable code over time.
 | | Progress | What it means |
 |---|---|---|
 | **Code matched** | **36.2%** | 12,334 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
-| **Built from source** | **29.3%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
+| **Built from source** | **29.4%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
 The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-28.
 

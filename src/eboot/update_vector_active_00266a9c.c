@@ -1,7 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00266a9c end=0x00266b1c symbol=FUN_00266a9c lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: typed Vec4 difference assignment and Vec3Pad local; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
-typedef unsigned int uint;
+#include "hst/types.h"
 
 struct Vec4 {
     float x, y, z, w;
@@ -22,7 +21,7 @@ void FUN_00266a9c(char *param_1)
     struct Vec3Pad local_10;
     struct Vec4 tmp;
 
-    if (*(uchar *)(param_1 + 0x160) != 0) {
+    if (*(u8 *)(param_1 + 0x160) != 0) {
         FUN_00022434(&tmp, param_1 + 0x150, param_1 + 0x130);
         diff = tmp;
         *(float *)(param_1 + 0x168) = *(float *)(param_1 + 0x164);

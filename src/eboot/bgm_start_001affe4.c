@@ -4,46 +4,53 @@
    the 0x100000-byte buffer, loads 0x002e9598 into the 0x30ebf4 sound bank, starts the three
    entries (only the first gets the optional BGM name from DAT_002c5a64 when param_3 bit 0 is
    set), records param_2 and frees the buffer. Names and types await human review. Data: its string literals (1 strings, 0x002e9598-0x002e95b8) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+#include "hst/slot_table.h"
+
 extern char DAT_0030ab9c[];
 extern char DAT_0030ebf4[];
 extern char *DAT_002c5a64;
 extern int FUN_00010184(int, int);
 extern void FUN_0001bfb4(char *, int, int);
 extern int FUN_0001ca58(char *, char *, int);
-extern void FUN_001b04d0(int, int);
-extern void FUN_001b0ef8(int, int, int, int, char *);
+extern void FUN_001b04d0(SlotTable *, int);
+extern void FUN_001b0ef8(SlotTable *, int, int, int, char *);
 extern void FUN_0001cb88(char *);
 extern int FUN_0001cbfc(void);
 extern int FUN_0001cc54(void);
 extern void FUN_000104e0(int);
 
-void FUN_001affe4(int param_1, int param_2, unsigned param_3)
+/* Offsets of the three sound entries within the slot table, relative to the court sound index. */
+enum { BGM_ENTRY_A = 0xe, BGM_ENTRY_B = 0x5c, BGM_ENTRY_C = 0x70 };
+#define SOUND_BUF_SIZE 0x100000
+#define BGM_FLAG_NAMED 1 /* start the first entry with the BGM name */
+
+void FUN_001affe4(SlotTable *self, int court, unsigned flags)
 {
     int buf;
     char *bgm;
-    int a;
-    int b;
+    int bank_ptr;
+    int bank_size;
 
-    if (*(int *)(param_1 + 0x79c) >= 0) {
-        FUN_001b04d0(param_1, *(int *)(param_1 + 0x79c) + 0xe);
-        FUN_001b04d0(param_1, *(int *)(param_1 + 0x79c) + 0x5c);
-        FUN_001b04d0(param_1, *(int *)(param_1 + 0x79c) + 0x70);
-        *(int *)(param_1 + 0x79c) = -1;
+    if (self->court_sound >= 0) {
+        FUN_001b04d0(self, self->court_sound + BGM_ENTRY_A);
+        FUN_001b04d0(self, self->court_sound + BGM_ENTRY_B);
+        FUN_001b04d0(self, self->court_sound + BGM_ENTRY_C);
+        self->court_sound = -1;
     }
-    buf = FUN_00010184(0x40, 0x100000);
-    FUN_0001bfb4(DAT_0030ab9c, buf, 0x100000);
-    FUN_0001ca58(DAT_0030ebf4, "game/900_sound/020_court%02d.xb", param_2 + 1);
+    buf = FUN_00010184(0x40, SOUND_BUF_SIZE);
+    FUN_0001bfb4(DAT_0030ab9c, buf, SOUND_BUF_SIZE);
+    FUN_0001ca58(DAT_0030ebf4, "game/900_sound/020_court%02d.xb", court + 1);
     bgm = 0;
-    if ((param_3 & 1) != 0)
+    if ((flags & BGM_FLAG_NAMED) != 0)
         bgm = DAT_002c5a64;
-    FUN_001b0ef8(param_1, param_2 + 0xe, 0, 0, bgm);
-    FUN_001b0ef8(param_1, param_2 + 0x5c, 0, 0, 0);
-    *(int *)(param_1 + 0x7c0) = param_2 + 0x70;
-    FUN_001b0ef8(param_1, param_2 + 0x70, 0, 0, 0);
-    *(int *)(param_1 + 0x79c) = param_2;
+    FUN_001b0ef8(self, court + BGM_ENTRY_A, 0, 0, bgm);
+    FUN_001b0ef8(self, court + BGM_ENTRY_B, 0, 0, 0);
+    self->unk7c0 = court + BGM_ENTRY_C;
+    FUN_001b0ef8(self, court + BGM_ENTRY_C, 0, 0, 0);
+    self->court_sound = court;
     FUN_0001cb88(DAT_0030ebf4);
-    a = FUN_0001cbfc();
-    b = FUN_0001cc54();
-    FUN_0001bfb4(DAT_0030ab9c, a, b);
+    bank_ptr = FUN_0001cbfc();
+    bank_size = FUN_0001cc54();
+    FUN_0001bfb4(DAT_0030ab9c, bank_ptr, bank_size);
     FUN_000104e0(buf);
 }

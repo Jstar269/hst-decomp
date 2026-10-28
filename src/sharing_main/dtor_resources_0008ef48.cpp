@@ -1,24 +1,23 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0008ef48 end=0x0008f050 symbol=FUN_0008ef48 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag sh2, variant v0c) corrected by hand: inlined array dtor double null check and member cleanup; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
-typedef unsigned char undefined;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined DAT_003b04c0;
-extern undefined4 DAT_003e1a08;
+extern u8 DAT_003b04c0;
+extern u32 DAT_003e1a08;
 extern void FUN_00000788(...);
 extern void FUN_00000a00(...);
-extern undefined4 * FUN_0001ed28(...);
+extern u32 * FUN_0001ed28(...);
 extern int * FUN_0008d994(...);
 extern int FUN_0008ee64(...);
 extern int FUN_0008eec4(...);
 }
 
-extern "C" undefined4 * FUN_0008ef48(undefined4 *param_1, short param_2)
+extern "C" u32 * FUN_0008ef48(u32 *param_1, short param_2)
 {
   void *s0;
 
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_003b04c0);
     s0 = (void *)param_1[0x10];
     if (s0 != 0) {

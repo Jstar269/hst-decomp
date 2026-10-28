@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0006cdb4 end=0x0006ce30 symbol=FUN_0006cdb4 lang=c99 */
 /* Clone of src/sharing_main/copy_construct_0006e39c.c (hstclone.py tag s10170158a1r3e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct { int pad[3]; } Blob12;
 typedef struct { int pad[4]; } Blob16;
@@ -11,7 +11,7 @@ typedef struct {
   Blob12 m0;
   Blob16 m1;
   float f;
-  uchar g;
+  u8 g;
 } Body;
 typedef struct {
   int a;

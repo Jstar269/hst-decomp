@@ -2,9 +2,6 @@
 /* Clone of src/eboot/deleting_dtor_container_002387dc.c (hstclone.py tag u4r4s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: unified element pointer in reverse destruction loop, typed buffer delete; exact match verified; names and types await human review. */
 
-typedef unsigned char undefined1;
-typedef unsigned int undefined4;
-
 extern void FUN_00000788(void *, void *, int, int);
 extern void FUN_00000a00(void *);
 extern int FUN_00248a0c(void *);

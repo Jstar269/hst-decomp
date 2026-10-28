@@ -2,7 +2,7 @@
 /* Clone of src/sharing_main/init_item_vectors_001884d4.c (hstclone.py tag u4r2e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
-typedef unsigned int uint;
+#include "hst/types.h"
 
 typedef struct {
     float x, y, z, w;
@@ -11,7 +11,7 @@ typedef struct {
 typedef struct {
     char pad[8];
     void **items;
-    uint count;
+    u32 count;
     char pad2[0x20 - 0x10];
     Vec4 v;
 } Obj;
@@ -28,7 +28,7 @@ void FUN_0017bde0(Obj *self)
     self->v.z = 0.0f;
     self->v.w = 1.0f;
     FUN_0017de50(0.0f);
-    for (uint i = 0; i < self->count; i++) {
+    for (u32 i = 0; i < self->count; i++) {
         Vec4 a;
         a.y = -1.0f;
         a.x = 0.0f;

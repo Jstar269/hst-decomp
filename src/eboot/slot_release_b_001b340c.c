@@ -1,22 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b340c end=0x001b34b4 symbol=FUN_001b340c lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py draft inputs/generated/FUN_001b340c.c) corrected by hand: single load of the 0x7a8 field, `idx >= 0` instead of `-1 < idx`, and the bounds test assigned to the bool before the short-circuit load; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern int FUN_00062418();
 extern void FUN_001b0ef8();
@@ -43,9 +28,8 @@ void FUN_001b340c(int *param_1,int param_2)
         *piVar4 = 0;
       }
     }
-    *(undefined4 *)(iVar3 + 0x7a8) = 0xffffffff;
+    *(u32 *)(iVar3 + 0x7a8) = 0xffffffff;
   }
   *(int *)(iVar3 + 0x7a8) = param_2;
   FUN_001b0ef8(iVar3,param_2 + 0xb4,0,0,0);
-  return;
 }

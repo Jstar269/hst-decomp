@@ -1,28 +1,26 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0001ebdc end=0x0001ec44 symbol=FUN_0001ebdc lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned short ushort;
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
-    uint timeStamp;
+    u32 timeStamp;
     union {
-        uint buttons;
-        ushort buttons_u16[2];
+        u32 buttons;
+        u16 buttons_u16[2];
     };
     union {
         struct {
-            uchar lx;
-            uchar ly;
+            u8 lx;
+            u8 ly;
         };
-        ushort analog;
+        u16 analog;
     };
-    uchar rsrv[6];
+    u8 rsrv[6];
 } SceCtrlData;
 
 extern int FUN_002c7830(SceCtrlData *pad, int n);
 
-int FUN_0001ebdc(ushort *param_1)
+int FUN_0001ebdc(u16 *param_1)
 {
     SceCtrlData pad;
     if (FUN_002c7830(&pad, 1)) {

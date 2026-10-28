@@ -1,21 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00098a0c end=0x00098b64 symbol=FUN_00098a0c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idiom: share the action path and jump rejected states to the loop increment. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
 typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 extern char DAT_002beb78[];
 extern void *DAT_00338b08;

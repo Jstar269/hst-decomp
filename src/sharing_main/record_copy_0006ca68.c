@@ -1,26 +1,11 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0006ca68 end=0x0006cb54 symbol=FUN_0006ca68 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: typed floating record members as float while preserving adjacent integer fields; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 * FUN_0004c898();
-extern undefined4 * FUN_0005931c();
+extern u32 * FUN_0004c898();
+extern u32 * FUN_0005931c();
 
-undefined4 * FUN_0006ca68(undefined4 *param_1,undefined4 *param_2)
+u32 * FUN_0006ca68(u32 *param_1,u32 *param_2)
 {
   *param_1 = *param_2;
   FUN_0005931c(param_1 + 4,param_2 + 4);
@@ -39,10 +24,10 @@ undefined4 * FUN_0006ca68(undefined4 *param_1,undefined4 *param_2)
   ((float *)param_1)[0x26] = ((float *)param_2)[0x26];
   ((float *)param_1)[0x27] = ((float *)param_2)[0x27];
   ((float *)param_1)[0x28] = ((float *)param_2)[0x28];
-  *(undefined1 *)(param_1 + 0x29) = *(undefined1 *)(param_2 + 0x29);
-  *(undefined1 *)((int)param_1 + 0xa5) = *(undefined1 *)((int)param_2 + 0xa5);
-  *(undefined1 *)((int)param_1 + 0xa6) = *(undefined1 *)((int)param_2 + 0xa6);
-  *(undefined1 *)((int)param_1 + 0xa7) = *(undefined1 *)((int)param_2 + 0xa7);
-  *(undefined1 *)(param_1 + 0x2a) = *(undefined1 *)(param_2 + 0x2a);
+  *(u8 *)(param_1 + 0x29) = *(u8 *)(param_2 + 0x29);
+  *(u8 *)((int)param_1 + 0xa5) = *(u8 *)((int)param_2 + 0xa5);
+  *(u8 *)((int)param_1 + 0xa6) = *(u8 *)((int)param_2 + 0xa6);
+  *(u8 *)((int)param_1 + 0xa7) = *(u8 *)((int)param_2 + 0xa7);
+  *(u8 *)(param_1 + 0x2a) = *(u8 *)(param_2 + 0x2a);
   return param_1;
 }

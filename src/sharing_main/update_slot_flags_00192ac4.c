@@ -3,14 +3,14 @@
 /* Ghidra pseudocode (hstgen.py tag gen-a1/v0) corrected by hand: 3-way mode switch with case-scoped loop induction variables, Table5 struct copy, pragma opt_strength_reduction off for indexed access; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
 
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 typedef struct {
     int v[5];
 } Table5;
 
 extern Table5 DAT_00388008;
-extern void FUN_00105470(undefined4, int);
+extern void FUN_00105470(u32, int);
 extern int FUN_00177e98(void);
 
 void FUN_00192ac4(int param_1)
@@ -30,7 +30,7 @@ void FUN_00192ac4(int param_1)
         for (; i < 5; i++, off += 20, pTab++) {
             int off1 = off + 1420;
             char *p = (char *)param_1 + off1;
-            undefined4 *puVar3 = (undefined4 *)(p + 8052);
+            u32 *puVar3 = (u32 *)(p + 8052);
             if (base1[*pTab] > 0) {
                 FUN_00105470(*puVar3, 0);
             } else {
@@ -51,7 +51,7 @@ void FUN_00192ac4(int param_1)
             j = 0;
             idx = i + 78;
             for (; j < 2; j++, idx += 5) {
-                undefined4 *puVar3 = (undefined4 *)((char *)param_1 + idx * 20 + 8052);
+                u32 *puVar3 = (u32 *)((char *)param_1 + idx * 20 + 8052);
                 if (base1[*pTab] >= j + 1) {
                     FUN_00105470(*puVar3, 0);
                 } else {
@@ -73,7 +73,7 @@ void FUN_00192ac4(int param_1)
             j = 0;
             idx = i + 91;
             for (; j < 3; j++, idx += 5) {
-                undefined4 *puVar3 = (undefined4 *)((char *)param_1 + idx * 20 + 8052);
+                u32 *puVar3 = (u32 *)((char *)param_1 + idx * 20 + 8052);
                 if (base1[*pTab] >= j + 1) {
                     FUN_00105470(*puVar3, 0);
                 } else {

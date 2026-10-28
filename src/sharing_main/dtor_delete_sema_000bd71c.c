@@ -1,24 +1,9 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000bd71c end=0x000bd7d0 symbol=FUN_000bd71c lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Hand-adapted clone of src/eboot/FUN_000ba3d8.c (EXACT EBOOT sibling, same instruction shape; that source corrected the Ghidra pseudocode by passing the tested field to the sema-delete call, typing the variadic log helper and reversing the result branch): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003b06bc;
+extern u8 DAT_003b06bc;
 extern char DAT_0037b3d4[];
 extern char DAT_0037b400[];
 extern void FUN_00000a00();

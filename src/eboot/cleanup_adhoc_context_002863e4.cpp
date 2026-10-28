@@ -1,20 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002863e4 end=0x00286490 symbol=FUN_002863e4 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idiom: pass the global object to FUN_000ba78c and dispatch Release through the second vtable slot. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 struct RefObj {
   virtual void Release(int);
@@ -28,7 +14,7 @@ extern "C" void FUN_00103628(void *, int);
 
 extern "C" void FUN_002863e4(void)
 {
-  if (((*(ushort *)(**(int **)(*(int *)(DAT_003415ac + 0x54) + 0x10) + 0xe) & 3) == 0) &&
+  if (((*(u16 *)(**(int **)(*(int *)(DAT_003415ac + 0x54) + 0x10) + 0xe) & 3) == 0) &&
      (*(int *)(DAT_003415ac + 0x68) == 6)) {
     FUN_00103628(DAT_003415ac,1);
   }
@@ -44,5 +30,4 @@ extern "C" void FUN_002863e4(void)
     }
     DAT_003386b8 = 0;
   }
-  return;
 }

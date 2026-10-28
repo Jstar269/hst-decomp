@@ -1,6 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001e5a34 end=0x001e5a84 symbol=FUN_001e5a34 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-typedef unsigned char bool;
 typedef struct { unsigned char pad[0x78]; float limit; } Sub;
 typedef struct { unsigned char pad0[0x60]; int state; unsigned char pad1[4]; Sub *sub; } Inner;
 typedef struct { unsigned char pad[0x1954]; Inner *obj; } Self;

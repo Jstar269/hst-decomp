@@ -1,12 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000efa04 end=0x000efb74 symbol=FUN_000efa04 lang=c++ */
 /* Hand-written reconstruction from Ghidra decompilation; matching idiom: class virtual action dispatch, offset array indexing, and switch mode handling; exact match verified; names and types await human review. */
 
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned char uchar;
-
 extern char *DAT_002cfc8c;
 extern float DAT_002d71d0;
 extern unsigned char DAT_003386b8;

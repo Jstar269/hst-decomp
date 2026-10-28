@@ -1,24 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000ce044 end=0x000ce050 symbol=FUN_000ce044 lang=c99 */
 /* Clone of src/eboot/FUN_0008d994.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_0037c3dc;
+extern u32 DAT_0037c3dc;
 
-undefined4 FUN_000ce044(void)
+u32 FUN_000ce044(void)
 {
   return DAT_0037c3dc;
 }

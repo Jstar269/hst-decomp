@@ -1,11 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001cd83c end=0x001cd88c symbol=FUN_001cd83c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned char uchar;
-typedef unsigned int undefined4;
 
 struct Obj {
   int f0;

@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00214e4c end=0x002150fc symbol=FUN_00214e4c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
 struct Vec4 {
     float x, y, z, w;
@@ -49,7 +49,7 @@ extern const float DAT_002ef9c0;
 extern const float DAT_002ef9c4;
 
 float sqrtf(float);
-uint FUN_0001342c(void);
+u32 FUN_0001342c(void);
 Vec4 *FUN_00022434(Vec4 *, const Vec4 *, const Vec4 *);
 Vec4 *FUN_00022498(Vec4 *, const Vec4 *, float);
 int FUN_000b3c68(Player *);

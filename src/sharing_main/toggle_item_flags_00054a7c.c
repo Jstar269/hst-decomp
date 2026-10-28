@@ -2,9 +2,9 @@
 /* Clone of src/eboot/toggle_item_flags_00053f30.c (hstclone.py tag km1): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Walks the two nested lists of a scene object (the list head is the member at +8 plus 0x10) and sets or
-   clears bit 0x10 of the flag byte at +0x33 of every leaf item, depending on the mode argument.
+   clears bit 0x10 of the flag u8 at +0x33 of every leaf item, depending on the mode argument.
    Names provisional. */
-typedef unsigned char byte;
+#include "hst/types.h"
 
 extern int FUN_0002e868(void *);
 extern void *FUN_0002e678(void *, int);
@@ -13,7 +13,7 @@ extern void *FUN_0002e3f8(void *, int);
 
 typedef struct {
   char pad[0x33];
-  byte flags;
+  u8 flags;
 } Item;
 
 void FUN_00054a7c(void *self, int mode)

@@ -1,21 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00212410 end=0x00212634 symbol=FUN_00212410 lang=c99 */
 /* Clone of src/eboot/overlay_alpha_00203ba8.c (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 typedef union {
     unsigned int w;
@@ -96,7 +82,6 @@ void FUN_00212410(int param_1)
     FUN_000524d0(*(int *)(param_1 + 0x524), blk.col, 0.0f, 0.0f, 480.0f, 272.0f, f20);
     FUN_000522c0(*(int *)(param_1 + 0x524));
   }
-  return;
 }
 
-/* Matching notes: the colour argument of FUN_000524d0 is declared unsigned int (with int, the handle and colour loads swap); the clamp must be `n > 0xff` (`n >= 0x100` allocates the slti to v1 instead of at); the 4-float extent is the first 16 bytes of the 32-byte Blk aggregate whose last word is the colour. */
+/* Matching notes: the colour argument of FUN_000524d0 is declared unsigned int (with int, the handle and colour loads swap); the clamp must be `n > 0xff` (`n >= 0x100` allocates the slti to v1 instead of at); the 4-float extent is the first 16 bytes of the 32-u8 Blk aggregate whose last word is the colour. */

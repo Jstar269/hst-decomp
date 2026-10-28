@@ -1,6 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001c5d10 end=0x001c5ee4 symbol=FUN_001c5d10 lang=c99 */
 /* Hand-written reconstruction (port of src/eboot/set_threshold_flags_001b8050.c, its twin: addresses substituted by try/twins-20261026/port.py; no other change); exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 typedef struct Game { char pad[0x3c]; int mode; } Game;
 typedef struct Pl {
   char pad0[0x148];
@@ -30,20 +30,20 @@ void FUN_001c5d10(int idx)
     if (p != 0) {
       char *f = p->f148;
       float r = (float)p->f41c / DAT_003ea654;
-      uchar a = r >= 0.2f;
-      uchar b = r >= 1.0f;
+      u8 a = r >= 0.2f;
+      u8 b = r >= 1.0f;
       int t1;
       int t2;
-      if (a && *(uchar *)(f + idx + 0x95) == 0) {
+      if (a && *(u8 *)(f + idx + 0x95) == 0) {
         t1 = FUN_001bfc3c(&DAT_003eaad8, 0x4c);
         FUN_001c02d4(&DAT_003eaad8, &t1, FUN_0009575c(p->f5bc), 1.0f, 1.0f, 30.0f, 75.0f, 0, 0, 0);
       }
-      if (b && *(uchar *)(f + idx + 0x99) == 0) {
+      if (b && *(u8 *)(f + idx + 0x99) == 0) {
         t2 = FUN_001bfc3c(&DAT_003eaad8, 0x4d);
         FUN_001c02d4(&DAT_003eaad8, &t2, FUN_0009575c(p->f5bc), 1.0f, 1.0f, 30.0f, 75.0f, 0, 0, 0);
       }
-      *(uchar *)(f + idx + 0x95) = a;
-      *(uchar *)(f + idx + 0x99) = b;
+      *(u8 *)(f + idx + 0x95) = a;
+      *(u8 *)(f + idx + 0x99) = b;
     }
   }
 }

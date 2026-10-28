@@ -15,8 +15,8 @@ Measured 2026-10-28 from the public sources: 12,331 exact sources and 1,045 near
 | `EBOOT.BIN` code | 1,081,440 B (6,269 functions) | 2,849,076 B (9,804 functions) | 37.958% |
 | `hstp_trans_main.prx` (Sharing Version) code | 1,002,888 B (6,065 functions) | 2,914,004 B (9,830 functions) | 34.416% |
 | Tier 1: function matches | 2,084,328 B | the six modules in scope, 9,275,840 B | 22.471% |
-| Tier 2: whole-module build | 2,717,814 B | the six modules in scope, 9,275,840 B | 29.300% |
-| Tier 3: shifted build | 2,715,630 B | the six modules in scope, 9,275,840 B | 29.276% |
+| Tier 2: whole-module build | 2,724,342 B | the six modules in scope, 9,275,840 B | 29.370% |
+| Tier 3: shifted build | 2,722,158 B | the six modules in scope, 9,275,840 B | 29.347% |
 | Tier 4: strict (reviewed) | 0 B | the six modules in scope, 9,275,840 B | 0.000% |
 
 <!-- hstprogress:end -->

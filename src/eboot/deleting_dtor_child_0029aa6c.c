@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0029aa6c end=0x0029ab94 symbol=FUN_0029aa6c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/net_adhoc.h"
+
 extern unsigned char DAT_00309e64[];
 extern unsigned int DAT_0034b328;
 extern void FUN_00000a00(void *);
@@ -9,69 +11,52 @@ extern void FUN_0029a5b0();
 extern void FUN_0029a830();
 extern void FUN_0029ab94(void *, int);
 
-struct Child
-{
-  unsigned char f0;
-  unsigned char pad[0xb];
-  void *fc;
-  void *f10;
-  void *f14;
-  void *f18;
-  void *f1c;
-};
-
-struct Parent
-{
-  void *vptr;
-  unsigned char pad[0x38];
-  struct Child *child;
-};
-
-void *FUN_0029aa6c(struct Parent *self, short flag)
+/* Net task deleting destructor: frees the net context and its buffers, stops the network if up. */
+void *FUN_0029aa6c(NetTask *self, short flag)
 {
   if (self != 0)
   {
-  self->vptr = DAT_00309e64;
+  self->vtbl = DAT_00309e64;
   DAT_0034b328 = 0;
-  struct Child *c = self->child;
+  NetCtx *c = self->ctx;
   if (c != 0)
   {
     if (c != 0)
     {
-    if (c->f1c != 0)
+    if (c->bundle != 0)
     {
-      FUN_000104e0(c->f1c);
-      c->f1c = 0;
+      FUN_000104e0(c->bundle);
+      c->bundle = 0;
     }
-    if (c->f18 != 0)
+    if (c->buf18 != 0)
     {
-      FUN_00000a00(c->f18);
-      c->f18 = 0;
+      FUN_00000a00(c->buf18);
+      c->buf18 = 0;
     }
-    if (c->f14 != 0)
+    if (c->buf14 != 0)
     {
-      FUN_00000a00(c->f14);
-      c->f14 = 0;
+      FUN_00000a00(c->buf14);
+      c->buf14 = 0;
     }
-    if (c->f10 != 0)
+    if (c->buf10 != 0)
     {
-      FUN_00000a00(c->f10);
-      c->f10 = 0;
+      FUN_00000a00(c->buf10);
+      c->buf10 = 0;
     }
-    if (c->fc != 0)
+    if (c->match != 0)
     {
-      FUN_0029ab94(c->fc, 1);
-      c->fc = 0;
+      FUN_0029ab94(c->match, 1);
+      c->match = 0;
     }
-    if (c->f0 != 0)
+    if (c->active != 0)
     {
-      c->f0 = 0;
+      c->active = 0;
       FUN_0029a830();
       FUN_0029a5b0();
     }
     FUN_00000a00(c);
     }
-    self->child = 0;
+    self->ctx = 0;
   }
   FUN_0001f0f0(self, 0);
   if (flag > 0)

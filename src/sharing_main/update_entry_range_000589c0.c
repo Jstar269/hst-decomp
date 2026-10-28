@@ -6,7 +6,7 @@
    [start_idx, end_idx], stores (entry->f18 - 1.0f) into entry->f14 and calls the per-entry update
    FUN_000593fc; finally it clears the flag byte at +0xec and refreshes the pose (FUN_0005982c) and
    the matrices (FUN_00059f10) when the object's animation list at +0x16c is present. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
     char pad[8];
@@ -16,7 +16,7 @@ typedef struct {
 typedef struct {
     int f00;
     int f04;
-    uchar f08;
+    u8 f08;
     char pad1[3];
     float f0c;
     float f10;
@@ -32,7 +32,7 @@ typedef struct {
     char pad[0x8c];
     Mgr *f8c;
     char pad1[0xec - 0x90];
-    uchar flag_ec;
+    u8 flag_ec;
     char pad2[3];
     Rec recs[2];
     int start_idx;

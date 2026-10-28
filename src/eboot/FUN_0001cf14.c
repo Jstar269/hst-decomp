@@ -1,30 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0001cf14 end=0x0001cfa4 symbol=FUN_0001cf14 lang=c99 */
 /* Clone of src/sharing_main/FUN_0001cb60.c (hstclone.py tag u1ae): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: reversed the direct and indirect callback arms to match the retail branch path; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
+#include "hst/types.h"
 typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 extern int FUN_00000a90();
-extern undefined4 * FUN_00011090();
+extern u32 * FUN_00011090();
 
-int FUN_0001cf14(int param_1,undefined4 *param_2,code *param_3)
+int FUN_0001cf14(int param_1,u32 *param_2,code *param_3)
 {
   int iVar1;
-  undefined4 uVar2;
+  u32 uVar2;
   
   uVar2 = *param_2;
   iVar1 = param_2[1];

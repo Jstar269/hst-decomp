@@ -1,47 +1,33 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00201724 end=0x00201810 symbol=FUN_00201724 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: virtual slot-1 calls (`lw t9,12(t9)`) as a polymorphic member call s1(1) on all three objects (the first call's a1 = 1 is shared with the constant stored to +0x710, Ghidra drops that argument), float stores of -240.0f/240.0f into a typed Sub60 field, DAT_0034a13c as a byte-addressed table pointer; exact match verified; names and types await human review. */
-struct Virt { virtual void s0(); virtual void s1(int); };
-struct Sub60 { char pad[0x60]; float f60; };
-struct Obj {
-    char pad0[0xc];
-    Virt *a;
-    Sub60 *o10;
-    Sub60 *o14;
-    Sub60 *o18;
-    Sub60 *o1c;
-    Sub60 *o20;
-    Virt *b24;
-    char pad28[0x708 - 0x28];
-    Virt *b708;
-    int pad70c;
-    int f710;
-    int f714;
-};
-struct Tab { char pad[0xcd0]; };
-extern Tab *DAT_0034a13c;
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: virtual slot-1 calls (`lw t9,12(t9)`) as a polymorphic member call s1(1) on all three objects (the first call's a1 = 1 is shared with the constant stored to +0x710, Ghidra drops that argument), float stores of -240.0f/240.0f into a typed Sub60 field, DAT_0034a13c as a byte-addressed table pointer; readability pass; exact match verified; names and types await human review. */
+#include "hst/menu_obj.h"
+#include "hst/game.h"
+
 extern "C" {
-void FUN_00102c54(Sub60 *);
-void FUN_00200bcc(Obj *, char *, char *);
-void FUN_00201810(Obj *);
+extern Game *DAT_0034a13c;
+void FUN_00102c54(MenuSub60 *);
+void FUN_00200bcc(MenuObj *, char *, char *);
+void FUN_00201810(MenuObj *);
 }
 
-extern "C" void FUN_00201724(Obj *o)
+/* Starts the menu: state 1, all three widgets on, the five sub-objects set to their start offsets (one -240, four +240). */
+extern "C" void FUN_00201724(MenuObj *self)
 {
-    o->f710 = 1;
-    o->f714 = 0;
-    o->a->s1(1);
-    o->b24->s1(1);
-    o->b708->s1(1);
-    o->o20->f60 = -240.0f;
-    FUN_00102c54(o->o20);
-    o->o10->f60 = 240.0f;
-    FUN_00102c54(o->o10);
-    o->o14->f60 = 240.0f;
-    FUN_00102c54(o->o14);
-    o->o18->f60 = 240.0f;
-    FUN_00102c54(o->o18);
-    o->o1c->f60 = 240.0f;
-    FUN_00102c54(o->o1c);
-    FUN_00200bcc(o, (char *)DAT_0034a13c + 0xcd0, (char *)DAT_0034a13c + 0xf90);
-    FUN_00201810(o);
+    self->state = MENU_STATE_SLIDE_IN;
+    self->timer = 0;
+    self->w0c->v1(1);
+    self->w24->v1(1);
+    self->w708->v1(1);
+    self->sub20->unk60 = -240.0f;
+    FUN_00102c54(self->sub20);
+    self->sub10->unk60 = 240.0f;
+    FUN_00102c54(self->sub10);
+    self->sub14->unk60 = 240.0f;
+    FUN_00102c54(self->sub14);
+    self->sub18->unk60 = 240.0f;
+    FUN_00102c54(self->sub18);
+    self->sub1c->unk60 = 240.0f;
+    FUN_00102c54(self->sub1c);
+    FUN_00200bcc(self, DAT_0034a13c->unkcd0, DAT_0034a13c->unkf90);
+    FUN_00201810(self);
 }

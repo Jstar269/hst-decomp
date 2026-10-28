@@ -3,37 +3,22 @@
    instead of 0 (`param_1[0xf] = iVar1; uVar2 = iVar1;`), which keeps the zero already live in v0 so
    MWCC needs no `move v0,zero` and can share the store in the beqzl delay slot; the two loop
    counters are declared iVar3 before iVar1; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_00309c60;
-extern undefined4 DAT_0034a7e0;
-extern undefined * DAT_0034a7e4;
+extern u8 DAT_00309c60;
+extern u32 DAT_0034a7e0;
+extern u8 * DAT_0034a7e4;
 extern int FUN_00000a90();
 extern int FUN_00000bcc();
-extern undefined4 * FUN_0001f06c();
+extern u32 * FUN_0001f06c();
 extern void FUN_0001f1fc();
 extern void FUN_0001f21c();
-extern undefined4 * FUN_0027b8cc();
+extern u32 * FUN_0027b8cc();
 
-undefined4 * FUN_0027d17c(undefined4 *param_1)
+u32 * FUN_0027d17c(u32 *param_1)
 {
   int iVar3;
-  undefined4 uVar2;
+  u32 uVar2;
   int iVar1;
   
   FUN_0001f06c();
@@ -45,22 +30,22 @@ undefined4 * FUN_0027d17c(undefined4 *param_1)
   iVar1 = 0;
   do {
     iVar3 = iVar3 + 1;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 4) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 8) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0xc) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x10) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x14) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x18) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x1c) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x20) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x24) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x28) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x2c) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x30) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x34) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x38) = 0;
-    *(undefined4 *)(DAT_0034a7e4 + iVar1 + 0x3c) = 1;
+    *(u32 *)(DAT_0034a7e4 + iVar1) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 4) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 8) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0xc) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x10) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x14) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x18) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x1c) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x20) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x24) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x28) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x2c) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x30) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x34) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x38) = 0;
+    *(u32 *)(DAT_0034a7e4 + iVar1 + 0x3c) = 1;
     iVar1 = iVar1 + 0x40;
   } while (iVar3 < 0x80);
   param_1[0x10] = 0;

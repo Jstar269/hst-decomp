@@ -1,6 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fc718 end=0x001fc8bc symbol=FUN_001fc718 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char byte;
 
 struct Node {
     virtual void v0();

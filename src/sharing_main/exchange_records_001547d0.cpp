@@ -1,21 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001547d0 end=0x001548b8 symbol=FUN_001547d0 lang=c++ */
 /* Clone of src/eboot/exchange_records_00148ee8.cpp (hstclone.py tag u2r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: passed empty tag objects by value to both calls and retained address-named callees; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 struct EmptyTag {};
 extern "C" void FUN_001548b8(int *, int, int, EmptyTag);

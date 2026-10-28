@@ -1,10 +1,9 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001b7400 end=0x001b7540 symbol=FUN_001b7400 lang=c99 */
 /* Clone of src/eboot/set_mode_flag_calls_001a9e34.c (hstclone.py tag c20s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: Ghidra's goto structure rewritten as nested if/else (A != 0 && B == 0 outer, C == 0 && D != 0 inner, three call-pair copies), byte flags unsigned char; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_003e1e04;
+extern u32 DAT_003e1e04;
 extern void FUN_00105470();
 extern void FUN_00108f54();
 extern void FUN_001118ac();
@@ -18,19 +17,19 @@ extern void FUN_001b7a1c();
 extern void FUN_001b7b24();
 extern void FUN_001b7d3c();
 
-void FUN_001b7400(undefined4 *param_1)
+void FUN_001b7400(u32 *param_1)
 {
   int iVar1;
-  undefined4 *puVar3;
-  undefined4 *puVar4;
+  u32 *puVar3;
+  u32 *puVar4;
   
   FUN_001aa91c();
   FUN_001118ac(param_1[0xff],0,2);
   FUN_00108f54(*param_1,0);
   puVar4 = param_1 + 0x17;
   puVar3 = param_1 + 0x1c;
-  if (*(uchar *)(FUN_001aa91c() + 0x2a4) != 0 && *(uchar *)(FUN_001aa91c() + 0x4d) == 0) {
-    if (*(uchar *)(DAT_003e1e04 + 0x178) == 0 && *(uchar *)(FUN_001aa91c() + 0x2b8) != 0) {
+  if (*(u8 *)(FUN_001aa91c() + 0x2a4) != 0 && *(u8 *)(FUN_001aa91c() + 0x4d) == 0) {
+    if (*(u8 *)(DAT_003e1e04 + 0x178) == 0 && *(u8 *)(FUN_001aa91c() + 0x2b8) != 0) {
       FUN_00105470(*puVar4,1);
       FUN_00105470(*puVar3,1);
     }
@@ -51,5 +50,4 @@ void FUN_001b7400(undefined4 *param_1)
   FUN_001b7870(param_1);
   FUN_001b7a1c(param_1);
   FUN_001b7d3c(param_1);
-  return;
 }

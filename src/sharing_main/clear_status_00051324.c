@@ -1,11 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00051324 end=0x00051394 symbol=FUN_00051324 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag sh2, variant v0) corrected by hand: typed struct member offsets and assert argument propagation; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003767fc;
-extern undefined DAT_003763c8;
-extern undefined DAT_003ba4b0;
+extern u8 DAT_003767fc;
+extern u8 DAT_003763c8;
+extern u8 DAT_003ba4b0;
 extern int FUN_00034234(void);
 extern int FUN_0003cab0(int, int);
 extern void FUN_0004f864(void *, int, void *, int, void *);

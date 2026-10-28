@@ -7,7 +7,7 @@
    Matching idioms: the four float arguments must be declared BEFORE the remaining int arguments so that
    the prologue copies the float parameters between the int ones; the two leading pointer arguments are
    copied into their saved registers only in front of the first call. */
-typedef int undefined4;
+#include "hst/types.h"
 typedef float f32;
 
 extern int FUN_001c04cc(void *a, void *b);
@@ -16,7 +16,7 @@ extern f32 FUN_001c0650(void *a, void *b, int c, int d);
 extern void FUN_00063960(int a, int b, int c);
 extern void FUN_00063980(int a, f32 b);
 
-undefined4 FUN_001c02d4(void *self, void *st, int id,
+s32 FUN_001c02d4(void *self, void *st, int id,
                        f32 f1, f32 f2, f32 f3, f32 f4, f32 *out, int x5, int x6)
 {
     f32 v;

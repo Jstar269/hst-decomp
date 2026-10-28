@@ -340,8 +340,8 @@ class Wiring(GateCase):
             (lane / d).mkdir(parents=True)
         (lane / "docs" / "MWCC-NOTES.md").write_text("# notes\n", encoding="utf-8")
         new, big = (REAL / NEW).read_text(encoding="utf-8"), (REAL / NEW_BIG).read_text(encoding="utf-8")
-        worse = new.replace("  return;", "  *(volatile int *)0x40 = 1;\n  *(volatile int *)0x44 = 2;")
-        better = new.replace("  return;", "  *(volatile int *)0x40 = 1;")
+        worse = new.replace("{\n}", "{\n  *(volatile int *)0x40 = 1;\n  *(volatile int *)0x44 = 2;\n}")
+        better = new.replace("{\n}", "{\n  *(volatile int *)0x40 = 1;\n}")
         self.lane_wip(lane, "near_00000008.c", worse, better)                     # the lane improved it: copied
         self.lane_wip(lane, "near_001550c0.cpp", big, big.replace("return 0;", "return 1;"))   # the lane made it worse
         self.sb.config(ext_root=str(self.dir / "ext"))
@@ -575,7 +575,7 @@ class ToolchainMutations(GateCase):
         # ... and a new non-matching source is refused, not promoted
         self.sb.edit(MAT4, "s->trans[1]);", "s->angle);")
         shutil.copyfile(REAL / NEW, self.dir / NEW)
-        self.sb.edit(NEW, "  return;", "  *(volatile int *)0x40 = 1;")
+        self.sb.edit(NEW, "{\n}", "{\n  *(volatile int *)0x40 = 1;\n}")
         r = self.sb.promote(NEW)
         self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
         self.assertRegex(r.stdout, f"not promoted: {NEW}: .*(independent comparison|longer than the claimed)")
@@ -741,7 +741,7 @@ class LedgerMutations(GateCase):
         # a forger writes a proof for a source that does not match, with every digest right: `verify --since HEAD`
         # (the push procedure runs it) recompiles it and refuses
         shutil.copyfile(REAL / NEW, self.dir / NEW)
-        self.sb.edit(NEW, "  return;", "  *(volatile int *)0x40 = 1;")     # does not match retail
+        self.sb.edit(NEW, "{\n}", "{\n  *(volatile int *)0x40 = 1;\n}")     # does not match retail
         code = f"""
 import json, hstproof as P
 led = P.load_ledger()

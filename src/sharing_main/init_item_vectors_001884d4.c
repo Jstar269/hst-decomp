@@ -1,7 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001884d4 end=0x001885a8 symbol=FUN_001884d4 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
-typedef unsigned int uint;
+#include "hst/types.h"
 
 typedef struct {
     float x, y, z, w;
@@ -10,7 +10,7 @@ typedef struct {
 typedef struct {
     char pad[8];
     void **items;
-    uint count;
+    u32 count;
     char pad2[0x20 - 0x10];
     Vec4 v;
 } Obj;
@@ -27,7 +27,7 @@ void FUN_001884d4(Obj *self)
     self->v.z = 0.0f;
     self->v.w = 1.0f;
     FUN_0018a544(0.0f);
-    for (uint i = 0; i < self->count; i++) {
+    for (u32 i = 0; i < self->count; i++) {
         Vec4 a;
         a.y = -1.0f;
         a.x = 0.0f;

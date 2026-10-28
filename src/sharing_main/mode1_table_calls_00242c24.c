@@ -1,16 +1,16 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00242c24 end=0x00242d08 symbol=FUN_00242c24 lang=c99 */
 /* Clone of src/eboot/mode1_table_calls_00232b24.c (hstclone.py tag s10170049g1r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: typed object struct with the two pointer tables, the goto/shared mode re-read written as two successive mode tests, flag bytes unsigned, and the callee FUN_000f3588 declared with its integer and float parameters interleaved as (obj, rect, f, f, f, int, int, f, f) (this declared order, one of ten of the 126 float placements that schedule like retail, fixes the argument setup order); exact match verified; names and types await human review. */
-typedef unsigned int uint;
-extern void FUN_000f3588(void *, uint *, float, float, float, int, int, float, float);
+#include "hst/types.h"
+extern void FUN_000f3588(void *, u32 *, float, float, float, int, int, float, float);
 extern void FUN_00108aec(void *);
 extern int DAT_0039c5cc[];
 
 typedef struct Obj {
   char pad0[0xc0];
-  uint *fc0;
+  u32 *fc0;
   char pad1[0x168 - 0xc4];
-  uint *f168;
+  u32 *f168;
   void *tabB[15];
   void *tabA[12];
   unsigned char f1d8;

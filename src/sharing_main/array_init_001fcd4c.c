@@ -2,12 +2,12 @@
 /* Clone of src/eboot/array_init_001ee950.c (hstclone.py tag c22rt2s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py candidate carried by the wip near miss of lane u6cr1-2) corrected by hand: the guard reads the LAST stored field (+0x30), which MWCC store-forwards as `move v0,zero` instead of folding or reloading +0x28; the object is a char * with a Vec view (matching idiom: with a struct-pointer parameter the schedule differs by 6 words); exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 typedef struct Vec {
-  uint first;
-  uint last;
-  uint cap;
+  u32 first;
+  u32 last;
+  u32 cap;
 } Vec;
 
 extern void FUN_000c78a8(Vec *, int);

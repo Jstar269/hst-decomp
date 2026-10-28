@@ -1,34 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001d6ab0 end=0x001d6bb0 symbol=FUN_001d6ab0 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed the first four copied globals and destination fields as float; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern float DAT_002bc410;
 extern float DAT_002bc414;
 extern float DAT_002bc418;
 extern float DAT_002bc41c;
-extern undefined4 DAT_003313c4;
+extern u32 DAT_003313c4;
 extern int FUN_0005b670();
 extern int FUN_0005ba00();
 extern int FUN_0005ba78();
 
-undefined4 * FUN_001d6ab0(undefined4 *param_1)
+u32 * FUN_001d6ab0(u32 *param_1)
 {
-  undefined1 auStack_2c0 [704];
+  u8 auStack_2c0 [704];
   
   *(float *)param_1 = DAT_002bc410;
   *(float *)(param_1 + 1) = DAT_002bc414;

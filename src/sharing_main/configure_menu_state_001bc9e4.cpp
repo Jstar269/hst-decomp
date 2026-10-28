@@ -1,25 +1,11 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001bc9e4 end=0x001bcad8 symbol=FUN_001bc9e4 lang=c++ */
 /* Clone of src/eboot/configure_menu_state_001af30c.cpp (hstclone.py tag c20s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" void FUN_00105470(...);
 extern "C" void FUN_001118ac(...);
-extern "C" undefined4 FUN_001aa91c();
+extern "C" u32 FUN_001aa91c();
 extern "C" void FUN_001ba298(...);
 extern "C" void FUN_001ba5cc(...);
 extern "C" void FUN_001ba9b8(...);
@@ -34,31 +20,31 @@ static inline int &EntryValue(int *p)
 extern "C" void FUN_001bc9e4(int param_1)
 {
   int iVar7;
-  uint uVar6;
+  u32 uVar6;
   int iVar5;
   int iVar1;
-  undefined4 *puVar2;
-  uint uVar3;
-  uint uVar4;
+  u32 *puVar2;
+  u32 uVar3;
+  u32 uVar4;
   
   iVar7 = *(int *)(param_1 + 0xc);
-  FUN_001118ac(*(undefined4 *)(iVar7 + 0x914),9,0xe);
+  FUN_001118ac(*(u32 *)(iVar7 + 0x914),9,0xe);
   iVar1 = FUN_001aa91c();
-  uVar4 = *(uint *)(iVar1 + 0x2dc);
+  uVar4 = *(u32 *)(iVar1 + 0x2dc);
   iVar1 = FUN_001aa91c() + 0x360;
   uVar6 = 0;
   if (*(int *)(iVar1 + 4) != 0) {
     iVar5 = 0;
     do {
-      puVar2 = (undefined4 *)(iVar7 + (iVar5 + 0x7bc));
+      puVar2 = (u32 *)(iVar7 + (iVar5 + 0x7bc));
       int &item = EntryValue((int *)puVar2);
       if (uVar4 == uVar6) {
         FUN_00105470(item,0);
-        uVar3 = *(uint *)(iVar1 + 4);
+        uVar3 = *(u32 *)(iVar1 + 4);
       }
       else {
         FUN_00105470(item,1);
-        uVar3 = *(uint *)(iVar1 + 4);
+        uVar3 = *(u32 *)(iVar1 + 4);
       }
       uVar6 = uVar6 + 1;
       iVar5 = iVar5 + 0x14;
@@ -69,5 +55,4 @@ extern "C" void FUN_001bc9e4(int param_1)
   FUN_001ba9b8(iVar7,0);
   FUN_001bac6c(iVar7,0);
   FUN_001baf04(iVar7,0);
-  return;
 }

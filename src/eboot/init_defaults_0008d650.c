@@ -1,30 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0008d650 end=0x0008d6cc symbol=FUN_0008d650 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/entry_records.h"
+
 extern void FUN_000114c0(void *, int, int);
-typedef struct Header {
-  char pad[0x20];
-  unsigned short first;
-  unsigned short second;
-} Header;
-void *FUN_0008d650(void *param_1)
+
+/* Clears a Rec200-sized record (0x9c bytes) and sets the default ids and "-1" strings. */
+Rec200 *FUN_0008d650(Rec200 *rec)
 {
-  Header *h = (Header *)param_1;
-  short *p = (short *)param_1;
-  FUN_000114c0(param_1, 0, 0x9c);
-  h->second = 0xffff;
-  h->first = 0xffff;
-  p[0] = -1;
-  p[1] = -1;
-  p[2] = -1;
-  p[3] = -1;
-  p[4] = -1;
-  p[5] = -1;
-  p[0x3d] = -1;
-  *(unsigned char *)((char *)param_1 + 0x54) = 45;
-  *(unsigned char *)((char *)param_1 + 0x55) = 49;
-  *(unsigned char *)((char *)param_1 + 0x56) = 0;
-  *(unsigned char *)((char *)param_1 + 0x68) = 45;
-  *(unsigned char *)((char *)param_1 + 0x69) = 49;
-  *(unsigned char *)((char *)param_1 + 0x6a) = 0;
-  return param_1;
+  s16 *ids = rec->ids;
+  FUN_000114c0(rec, 0, 0x9c);
+  rec->unk22 = 0xffff;
+  rec->unk20 = 0xffff;
+  ids[0] = REC_ID_NONE;
+  ids[1] = REC_ID_NONE;
+  ids[2] = REC_ID_NONE;
+  ids[3] = REC_ID_NONE;
+  ids[4] = REC_ID_NONE;
+  ids[5] = REC_ID_NONE;
+  rec->unk7a = REC_ID_NONE;
+  rec->str54[0] = '-';
+  rec->str54[1] = '1';
+  rec->str54[2] = 0;
+  rec->str68[0] = '-';
+  rec->str68[1] = '1';
+  rec->str68[2] = 0;
+  return rec;
 }

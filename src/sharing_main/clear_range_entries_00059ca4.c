@@ -1,10 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00059ca4 end=0x00059d68 symbol=FUN_00059ca4 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
     char pad[0xec];
-    uchar flag_ec;
+    u8 flag_ec;
     char pad_158[0x158 - 0xed];
     int start_idx;
     int end_idx;

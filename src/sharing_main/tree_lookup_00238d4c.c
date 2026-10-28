@@ -2,7 +2,7 @@
 /* Clone of src/eboot/tree_lookup_002297d8.c (hstclone.py tag u6fr1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reconstructed sentinel ternaries and local array dimensions for 48-byte frame; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern void FUN_00238ddc(void *, const void *, const int *);
 extern void FUN_00238e5c(void *, const void *, const int *);
@@ -12,7 +12,7 @@ struct Node {
     int value;
 };
 
-int FUN_00238d4c(char *param_1, int param_2, uint param_3)
+int FUN_00238d4c(char *param_1, int param_2, u32 param_3)
 {
     int key1 = param_2;
     int key2[2];

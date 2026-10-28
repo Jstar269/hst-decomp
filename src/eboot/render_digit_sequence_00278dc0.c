@@ -1,44 +1,29 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00278dc0 end=0x00278f7c symbol=FUN_00278dc0 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode corrected by hand: used a signed divisor and positive loop bound to reproduce retail digit extraction; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern char DAT_002fe59c[];
 extern void FUN_000143b0();
 extern void FUN_000ffb3c();
 extern int FUN_001026b8();
 
-void FUN_00278dc0(int param_1,int param_2,uchar param_3)
+void FUN_00278dc0(int param_1,int param_2,u8 param_3)
 {
   bool bVar1;
-  undefined4 uVar2;
+  u32 uVar2;
   int iVar3;
   int iVar4;
   int divisor;
   int iVar6;
-  undefined1 auStack_40 [64];
-  undefined1 auStack_80 [64];
+  u8 auStack_40 [64];
+  u8 auStack_80 [64];
   
   if (param_3 == '\0') {
     iVar4 = 0;
     do {
       FUN_000143b0(auStack_40,DAT_002fe59c,iVar4);
-      uVar2 = FUN_001026b8(*(undefined4 *)(param_1 + 0x488),auStack_40);
+      uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_40);
       FUN_000ffb3c(uVar2,1);
       iVar4 = iVar4 + 1;
     } while (iVar4 < 7);
@@ -54,21 +39,21 @@ void FUN_00278dc0(int param_1,int param_2,uchar param_3)
       }
       if (bVar1) {
         FUN_000143b0(auStack_80,DAT_002fe59c,iVar4);
-        iVar3 = FUN_001026b8(*(undefined4 *)(param_1 + 0x488),auStack_80);
+        iVar3 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
         *(int *)(iVar3 + 0x24) = *(int *)(iVar3 + 0x28) + iVar6;
-        uVar2 = FUN_001026b8(*(undefined4 *)(param_1 + 0x488),auStack_80);
+        uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
         FUN_000ffb3c(uVar2,0);
       }
       else if (divisor == 1) {
         FUN_000143b0(auStack_80,DAT_002fe59c,iVar4);
-        iVar3 = FUN_001026b8(*(undefined4 *)(param_1 + 0x488),auStack_80);
-        *(undefined4 *)(iVar3 + 0x24) = *(undefined4 *)(iVar3 + 0x28);
-        uVar2 = FUN_001026b8(*(undefined4 *)(param_1 + 0x488),auStack_80);
+        iVar3 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
+        *(u32 *)(iVar3 + 0x24) = *(u32 *)(iVar3 + 0x28);
+        uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
         FUN_000ffb3c(uVar2,0);
       }
       else {
         FUN_000143b0(auStack_80,DAT_002fe59c,iVar4);
-        uVar2 = FUN_001026b8(*(undefined4 *)(param_1 + 0x488),auStack_80);
+        uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
         FUN_000ffb3c(uVar2,1);
       }
       param_2 = param_2 - iVar6 * divisor;
@@ -76,5 +61,4 @@ void FUN_00278dc0(int param_1,int param_2,uchar param_3)
       iVar4 = iVar4 + 1;
     } while (divisor > 0);
   }
-  return;
 }

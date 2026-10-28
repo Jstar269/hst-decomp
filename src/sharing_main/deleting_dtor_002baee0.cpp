@@ -1,29 +1,17 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x002baee0 end=0x002bb0b8 symbol=FUN_002baee0 lang=c++ */
 /* Clone of src/eboot/deleting_dtor_002ab724.cpp (hstclone.py tag u5fr4s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined DAT_003b31c8;
-extern undefined4 DAT_003ea914;
-extern undefined4 DAT_003eaad8;
+extern u8 DAT_003b31c8;
+extern u32 DAT_003ea914;
+extern u32 DAT_003eaad8;
 extern void FUN_00000a00(...);
 extern int FUN_00004138(...);
-extern undefined4 * FUN_0001ed28(...);
-extern uint * FUN_000463a0(...);
-extern int FUN_0019d040(undefined4);
+extern u32 * FUN_0001ed28(...);
+extern u32 * FUN_000463a0(...);
+extern int FUN_0019d040(u32);
 extern int FUN_0019d04c(...);
 extern void FUN_001c170c(...);
 extern void FUN_001c20b8(...);
@@ -34,13 +22,13 @@ struct VC_2 { virtual ~VC_2(); };
 struct VC_3 { virtual ~VC_3(); };
 struct VC_4 { virtual ~VC_4(); };
 
-extern "C" undefined4 * FUN_002baee0(undefined4 *param_1,short param_2)
+extern "C" u32 * FUN_002baee0(u32 *param_1,short param_2)
 {
   int iVar1;
-  undefined4 uVar2;
+  u32 uVar2;
   int *piVar3;
   
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_003b31c8);
     FUN_001c20b8(&DAT_003eaad8);
     FUN_001c170c(&DAT_003eaad8,4);
@@ -68,8 +56,8 @@ extern "C" undefined4 * FUN_002baee0(undefined4 *param_1,short param_2)
       iVar1 = FUN_0019d040(DAT_003ea914);
       uVar2 = FUN_0019d04c(DAT_003ea914);
       if (iVar1 != 0) {
-        *(undefined4 *)(*(int *)(iVar1 + 0x70) + 0x24) = 0x3f;
-        *(undefined4 *)(*(int *)(iVar1 + 0x70) + 0x28) = uVar2;
+        *(u32 *)(*(int *)(iVar1 + 0x70) + 0x24) = 0x3f;
+        *(u32 *)(*(int *)(iVar1 + 0x70) + 0x28) = uVar2;
       }
     }
     piVar3 = (int *)param_1[0x23];

@@ -1,18 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0012dd1c end=0x0012e590 symbol=FUN_0012dd1c lang=c++ */
 /* Hand-written reconstruction (port of src/eboot/FUN_00122b48.cpp, its twin: addresses substituted by try/twins-20261026/port.py; no other change); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 struct Sub48 {
   char pad0[0x50];
@@ -62,15 +50,15 @@ struct TableEntry {
 };
 
 extern "C" {
-extern undefined4 DAT_003da704;
-extern undefined * DAT_003e19f0;
+extern u32 DAT_003da704;
+extern u8 * DAT_003e19f0;
 extern TableEntry DAT_003e48c4[];
-extern undefined * DAT_003e95c4;
+extern u8 * DAT_003e95c4;
 extern void FUN_0012f448(...);
 extern void FUN_0012f5f0(...);
 extern void FUN_0012f7e4(...);
 extern int FUN_001303e0(...);
-extern undefined4 FUN_001303ec(...);
+extern u32 FUN_001303ec(...);
 extern float FUN_001304a4(...);
 extern int FUN_001304d0(...);
 extern void FUN_00130984(...);
@@ -79,7 +67,7 @@ extern void FUN_00131004(...);
 extern void FUN_00131270(...);
 extern float FUN_0013c0c8(...);
 extern void FUN_0013c714(...);
-extern undefined1 * FUN_0013d6dc(...);
+extern u8 * FUN_0013d6dc(...);
 extern void FUN_0017682c(...);
 extern void FUN_002252e0(...);
 }
@@ -236,7 +224,7 @@ extern "C" void FUN_0012dd1c(Obj *param_1)
     FUN_0017682c(FUN_001303ec(param_1), param_1->f48->f54 > 0);
     int uVar2 = FUN_001303ec(param_1);
     int iVar3 = FUN_001303ec(param_1);
-    FUN_00131270(uVar2, **(undefined4 **)(iVar3 + 0x90));
+    FUN_00131270(uVar2, **(u32 **)(iVar3 + 0x90));
     VC_0 *piVar4 = (VC_0 *)FUN_001303ec(param_1);
     piVar4->m(DAT_003da704);
   }

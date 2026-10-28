@@ -1,22 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x002b0194 end=0x002b0200 symbol=FUN_002b0194 lang=c99 */
 /* Clone of src/eboot/FUN_002a0d88_002a0d88.c (hstclone.py tag u4r4s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: kept the update flag as int and narrowed it after the float stores; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern void FUN_00113a50();
 
@@ -38,5 +23,4 @@ void FUN_002b0194(float param_1,float param_2,int param_3,int param_4)
   if (bVar2) {
     FUN_00113a50();
   }
-  return;
 }

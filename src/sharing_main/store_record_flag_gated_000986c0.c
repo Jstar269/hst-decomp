@@ -1,8 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000986c0 end=0x000987e4 symbol=FUN_000986c0 lang=c99 */
 /* Clone of src/eboot/store_record_flag_gated_00096588.c (hstclone.py tag c20s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a3) corrected by hand: gate flag as int (DAT != 0, then (byte != 0) ^ 1), unsigned char flag globals, the 0x39-byte record copied as typed struct (two Vec4 members assigned whole, then scalar members one by one); exact match verified; names and types await human review. */
-typedef unsigned char uchar;
-typedef int undefined4;
+#include "hst/types.h"
 typedef struct { float x, y, z, w; } Vec4;
 typedef struct {
   Vec4 a;
@@ -14,9 +13,9 @@ typedef struct {
   int k;
 } Rec;
 
-extern uchar DAT_003e19f8;
+extern u8 DAT_003e19f8;
 extern char * DAT_003e1e30;
-extern undefined4 FUN_00098564();
+extern s32 FUN_00098564();
 extern void FUN_00098af8();
 extern int FUN_000c8538();
 
@@ -28,7 +27,7 @@ void FUN_000986c0(int param_1, Rec *s)
 
   ok = DAT_003e19f8 != 0;
   if (ok) {
-    ok = (*(uchar *)(param_1 + 0x1b4) != 0) ^ 1;
+    ok = (*(u8 *)(param_1 + 0x1b4) != 0) ^ 1;
   }
   if (((ok) && (DAT_003e1e30 != 0)) && (iVar2 = FUN_00098564(param_1,0), iVar2 != 0)) {
     iVar2 = FUN_000c8538(DAT_003e1e30,*(int *)(param_1 + 0x148));
@@ -47,5 +46,4 @@ void FUN_000986c0(int param_1, Rec *s)
     d->k = *(int *)(DAT_003e1e30 + 0x780);
     FUN_00098af8(iVar2);
   }
-  return;
 }

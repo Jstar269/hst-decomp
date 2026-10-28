@@ -1,20 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000f0b64 end=0x000f0d84 symbol=FUN_000f0b64 lang=c99 data=0x002d7454 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 3 strings, 0x002d7454-0x002d7480) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 typedef struct { short pad[2]; short x, y, x2, y2; } Rect;
 extern void FUN_00102e38(void);
@@ -51,7 +37,7 @@ int FUN_000f0b64(int param_1)
   int *tbl;
 
   FUN_00102e38();
-  *(undefined4 *)param_1 = (undefined4)&DAT_00307894;
+  *(u32 *)param_1 = (u32)&DAT_00307894;
   FUN_00104118(param_1, (char *)&DAT_002d7584, 0);
   FUN_00103540(param_1, DAT_002d6c9c);
   FUN_001037c8(param_1, 0xffffff05);
@@ -60,7 +46,7 @@ int FUN_000f0b64(int param_1)
   off = 0;
   do {
     obj = FUN_001039d8(param_1, *name, 0);
-    *(undefined4 *)(param_1 + off + 0x58) = obj;
+    *(u32 *)(param_1 + off + 0x58) = obj;
     i = i + 1;
     name = name + 1;
     off = off + 4;
@@ -69,11 +55,11 @@ int FUN_000f0b64(int param_1)
   tbl = DAT_002d74f8;
   off = 0;
   do {
-    obj = FUN_001026b8(*(undefined4 *)(param_1 + tbl[0] * 4 + 0x58), tbl[1]);
-    *(undefined4 *)(param_1 + off + 0x64) = obj;
+    obj = FUN_001026b8(*(u32 *)(param_1 + tbl[0] * 4 + 0x58), tbl[1]);
+    *(u32 *)(param_1 + off + 0x64) = obj;
     j = j + 1;
     off = off + 4;
-    tbl[2] = *(undefined4 *)(obj + 0x24);
+    tbl[2] = *(u32 *)(obj + 0x24);
     tbl = tbl + 3;
   } while (j < 0xb);
   for (k = 0; k < 0xb; k++) {
@@ -95,11 +81,11 @@ int FUN_000f0b64(int param_1)
   }
   FUN_000f1090(param_1);
   FUN_000f0d84(param_1);
-  *(undefined4 *)(param_1 + 0x90) = 0x3f800000;
-  *(undefined1 *)(param_1 + 0x94) = 0;
-  *(undefined4 *)(param_1 + 0x98) = 0;
-  *(undefined4 *)(param_1 + 0x9c) = 0;
-  *(undefined1 *)(param_1 + 0xa0) = 0;
+  *(u32 *)(param_1 + 0x90) = 0x3f800000;
+  *(u8 *)(param_1 + 0x94) = 0;
+  *(u32 *)(param_1 + 0x98) = 0;
+  *(u32 *)(param_1 + 0x9c) = 0;
+  *(u8 *)(param_1 + 0xa0) = 0;
   return param_1;
 }
 

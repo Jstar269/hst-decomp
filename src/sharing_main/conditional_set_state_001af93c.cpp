@@ -1,20 +1,20 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001af93c end=0x001afa1c symbol=FUN_001af93c lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag v0c) corrected by hand: typed struct fields, unsigned char flags, flag test folded into the first if, ok-branch first; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern void *FUN_0020d1e0(int, int, int);
-extern void FUN_0011e940(undefined4, int, void *, int, int);
+extern void FUN_0011e940(u32, int, void *, int, int);
 extern void FUN_001bc52c(void *, int);
 extern char *FUN_0020d694();
-extern undefined4 DAT_003ea8ec;
-extern undefined4 DAT_003f39a8;
+extern u32 DAT_003ea8ec;
+extern u32 DAT_003f39a8;
 }
 
 struct Global_003e1e04 { char pad[0x178]; unsigned char f178; };
 extern "C" Global_003e1e04 *DAT_003e1e04;
 
-struct Info_0020d694 { char pad[0x3ac]; undefined4 f3ac; char pad3b0[8]; int f3b8; };
+struct Info_0020d694 { char pad[0x3ac]; u32 f3ac; char pad3b0[8]; int f3b8; };
 
 struct Obj_001af93c {
   char pad00[0x44];

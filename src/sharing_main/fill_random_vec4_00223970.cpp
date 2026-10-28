@@ -1,10 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00223970 end=0x00223cd8 symbol=FUN_00223970 lang=c++ */
 /* Clone of src/eboot/fill_random_vec4_00214ae4.cpp (hstclone.py tag s10170158a3r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed structs in C++, float compares with the variable on the left, the two side flags as unsigned char, swap variables c1/c2 copied before the four position calls (called in the order other, self, p2, p1), second table slot read as `*(Player **)((char *)pl + (u + 2) * 4)` (unfolded index), flag-set arm first, `Max(const float &, const float &)` returning by value for the double global load, `scale` / `z0` / `x0` declared in that order for the FPR numbering; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 struct Player {
   char pad0[0x144];
-  uint f144;
+  u32 f144;
   int f148;
   char pad1[0x580 - 0x14c];
   float f580;
@@ -29,7 +29,7 @@ extern float DAT_00397d50;
 extern float DAT_00397d54;
 extern Game *DAT_003e19f0;
 extern Cfg *DAT_003e1e84;
-extern uint FUN_0001342c(void);
+extern u32 FUN_0001342c(void);
 extern float *FUN_0009575c(int);
 extern A124 *FUN_002248ac(Player *);
 extern A124 *FUN_0022492c(Player *);
@@ -49,7 +49,7 @@ extern "C" void FUN_00223970(float *out, Player *self)
   float z0;
   float x0;
   int idx;
-  uint u;
+  u32 u;
   unsigned char a;
   unsigned char b;
   idx = (self->f148 + 2) % 4;

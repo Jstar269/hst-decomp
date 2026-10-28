@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00150c1c end=0x00150cdc symbol=FUN_00150c1c lang=c99 data=0x002dc444 */
 /* Clone of src/sharing_main/update_status_code_0015cc54.c (hstclone.py tag u4r2e): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc444-0x002dc45a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
     char pad[8];
@@ -13,7 +13,7 @@ typedef struct {
     int f34;
     int f38;
     char pad2[0x5c - 0x3c];
-    uchar f5c;
+    u8 f5c;
 } Sub;
 
 typedef struct {
@@ -22,7 +22,7 @@ typedef struct {
     Sub *sub;
 } Param2;
 
-extern uchar DAT_003402f0;
+extern u8 DAT_003402f0;
 extern int *FUN_0014c384(void *target, int f8);
 extern void FUN_0014d044(Param2 *param_2);
 extern void FUN_0014fd94(char *buf, int f8);

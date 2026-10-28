@@ -1,10 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0010ba20 end=0x0010bc70 symbol=FUN_0010ba20 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. matching idiom: the two sound-mask objects are volatile (unused second word kept in memory) and the inline helper takes a plain struct pointer. */
-typedef unsigned short ushort;
+#include "hst/types.h"
 
 struct Item {
     char pad0[0xe];
-    ushort f0e;             /* 0x0e */
+    u16 f0e;             /* 0x0e */
 };
 
 struct Self {

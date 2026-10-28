@@ -1,33 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00137840 end=0x0013788c symbol=FUN_00137840 lang=c99 data=0x002db990 */
 /* CourtMgr_LoadAreaClip: data/court/<name>/setting/cNN_areaclip.csv; see docs/DATA-TABLES.md Data: its string literals (1 strings, 0x002db990-0x002db9b9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_003402a4;
+extern u32 DAT_003402a4;
 extern void FUN_000143b0();
 extern void FUN_001415e8();
 
 void FUN_00137840(int param_1)
 {
-  undefined1 auStack_100 [256];
+  u8 auStack_100 [256];
   
   FUN_000143b0(auStack_100,"data/court/%s/setting/c%02d_areaclip.csv",DAT_003402a4,
-               *(undefined4 *)(param_1 + 0x1364));
+               *(u32 *)(param_1 + 0x1364));
   FUN_001415e8(param_1 + 0x40,0,auStack_100);
-  return;
 }

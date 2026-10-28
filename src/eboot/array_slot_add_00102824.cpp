@@ -1,15 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00102824 end=0x00102958 symbol=FUN_00102824 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag from inputs/generated/FUN_00102824.c) corrected by hand: C++ with trailing unused empty False parameter; loop-continue flag as int; exact match verified; names and types await human review. */
 // matching idioms: trailing unused empty `False` by-value parameter (retail frame is 16 bytes larger); `more = (p == end) ^ 1` flag instead of `!(p == end)` (C++ bool would add andi); declare `i` before `src` for the s-register order.
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
-extern "C" undefined1 DAT_0033b394;
-extern "C" undefined1 DAT_0033a6e0;
+extern "C" u8 DAT_0033b394;
+extern "C" u8 DAT_0033a6e0;
 extern "C" int DAT_0033b45c;
-extern "C" undefined1 DAT_002d8a28;
+extern "C" u8 DAT_002d8a28;
 extern "C" void FUN_000114c0(void *, int, int);
 extern "C" void FUN_000149a8(void *, void *);
-extern "C" void FUN_00014788(void *, undefined1 *);
+extern "C" void FUN_00014788(void *, u8 *);
 
 struct False {};
 extern "C" void FUN_00102824(int *param_1, False)

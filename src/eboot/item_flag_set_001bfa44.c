@@ -1,10 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001bfa44 end=0x001bfbe8 symbol=FUN_001bfa44 lang=c99 data=0x002ea004 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002ea004-0x002ea010) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
-extern undefined1 DAT_002e9fec;
-extern undefined1 DAT_002e9ff4;
-extern undefined1 DAT_002e9ffc;
+extern u8 DAT_002e9fec;
+extern u8 DAT_002e9ff4;
+extern u8 DAT_002e9ffc;
 extern int DAT_0034174c;
 extern int FUN_0000d62c(int);
 extern int FUN_00014d64(int, void *);

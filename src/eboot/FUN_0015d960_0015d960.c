@@ -1,29 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0015d960 end=0x0015dbbc symbol=FUN_0015d960 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_002dcc1c;
-extern undefined * DAT_00331b84;
-extern undefined * DAT_003403f8;
-extern undefined4 DAT_003415d4;
-extern undefined DAT_0034a678;
-extern undefined * DAT_0034a820;
-extern undefined DAT_0034179c;
+extern u32 DAT_002dcc1c;
+extern u8 * DAT_00331b84;
+extern u8 * DAT_003403f8;
+extern u32 DAT_003415d4;
+extern u8 DAT_0034a678;
+extern u8 * DAT_0034a820;
+extern u8 DAT_0034179c;
 extern void FUN_00047864();
 extern void FUN_0006391c(float, void *, int);
 extern void FUN_0015a118();
@@ -68,7 +53,7 @@ void FUN_0015d960(Object *param_1)
         FUN_0006391c(65534.0f,DAT_00331b84,0xf);
       }
       FUN_001b3ea4(0.5f,&DAT_0034179c);
-      *(undefined4 *)(DAT_003403f8 + 0x14) = 4;
+      *(u32 *)(DAT_003403f8 + 0x14) = 4;
       break;
     }
   }
@@ -78,11 +63,11 @@ void FUN_0015d960(Object *param_1)
     if (iVar1 + -1 <= 0) {
       switch (param_1->state) {
       case 4:
-        *(undefined4 *)(DAT_003403f8 + 0x14) = 8;
+        *(u32 *)(DAT_003403f8 + 0x14) = 8;
         FUN_00234158(&DAT_0034a678,DAT_002dcc1c);
         iVar1 = (int)(DAT_00331b84);
-        *(undefined4 *)(DAT_00331b84 + 0xc) = 0;
-        *(undefined1 *)(iVar1 + 0x52) = 0;
+        *(u32 *)(DAT_00331b84 + 0xc) = 0;
+        *(u8 *)(iVar1 + 0x52) = 0;
         break;
       }
     }
@@ -92,16 +77,15 @@ void FUN_0015d960(Object *param_1)
   }
   if (*(int *)(DAT_003403f8 + 0x14) == 5) {
     FUN_001905b8(DAT_003415d4,3);
-    *(undefined4 *)(DAT_003403f8 + 0x14) = 3;
+    *(u32 *)(DAT_003403f8 + 0x14) = 3;
   }
   if (*(int *)(DAT_003403f8 + 0x14) == 4) {
     if (param_1->flag != 0) {
       if (*(float *)(DAT_0034a820 + 8) == 0.0f) {
-        *(undefined4 *)(DAT_003403f8 + 0x14) = 5;
+        *(u32 *)(DAT_003403f8 + 0x14) = 5;
       }
     } else if (*(float *)(DAT_00331b84 + 0xc) == 0.0f) {
-      *(undefined4 *)(DAT_003403f8 + 0x14) = 5;
+      *(u32 *)(DAT_003403f8 + 0x14) = 5;
     }
   }
-  return;
 }

@@ -1,33 +1,18 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00234e6c end=0x00234f04 symbol=FUN_00234e6c lang=c99 */
 /* Clone of src/eboot/FUN_002258f8.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003b28d4;
-extern undefined4 DAT_003f3610;
-extern undefined4 DAT_003f3b50;
+extern u8 DAT_003b28d4;
+extern u32 DAT_003f3610;
+extern u32 DAT_003f3b50;
 extern void FUN_00000a00();
-extern undefined4 * FUN_0001ed28();
+extern u32 * FUN_0001ed28();
 extern int * FUN_002347fc();
 extern void FUN_002a32e8();
 
-undefined4 * FUN_00234e6c(undefined4 *param_1,short param_2)
+u32 * FUN_00234e6c(u32 *param_1,short param_2)
 {
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_003b28d4);
     DAT_003f3610 = 0;
     if ((int *)param_1[0xf] != (int *)0x0) {

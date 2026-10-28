@@ -8,12 +8,12 @@
    word at +8 of the (still null) item, the result variable is assigned the item pointer before the
    +8 test (so the test's other arm is empty and the branch to the shared tail is branch-likely).
    Names provisional. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern "C" void *FUN_00000bcc(unsigned);
-extern "C" void *FUN_0005e454(void *, int, int, uint, uint, uint, uint, uint);
+extern "C" void *FUN_0005e454(void *, int, int, u32, u32, u32, u32, u32);
 extern "C" void FUN_0005e634(void *, int);
-extern "C" void FUN_0005fb08(void *, uint, void *);
+extern "C" void FUN_0005fb08(void *, u32, void *);
 
 typedef struct {
   char pad0[8];
@@ -25,10 +25,10 @@ typedef struct {
   char pad0[0x8c];
   int f8c;
   char pad90[0x24];
-  uint *fB4;
+  u32 *fB4;
 } Self;
 
-extern "C" void FUN_0005fa04(Self *self, uint idx, int p3, uint p4, uint p5, uint p6, uint p7, uint p8)
+extern "C" void FUN_0005fa04(Self *self, u32 idx, int p3, u32 p4, u32 p5, u32 p6, u32 p7, u32 p8)
 {
   void *r = 0;
   if (p3 != 0) {

@@ -11,6 +11,10 @@ static void FUN_002a9808(...)
 {
 }
 
+#define FLAG_DISCONNECTED 4 /* set in the flag word once the disconnect finished */
+#define POLL_USEC 1000000
+
+/* Requests an ad-hoc disconnect and waits until the handler reports it; returns 0 or the error. */
 int FUN_002a9ab4(void)
 {
     int r;
@@ -24,10 +28,10 @@ int FUN_002a9ab4(void)
         return r;
     }
     for (;;) {
-        if (DAT_003f4660 & 4)
+        if (DAT_003f4660 & FLAG_DISCONNECTED)
             break;
-        FUN_002c7628(1000000);
+        FUN_002c7628(POLL_USEC);
     }
-    DAT_003f4660 &= ~4;
+    DAT_003f4660 &= ~FLAG_DISCONNECTED;
     return 0;
 }

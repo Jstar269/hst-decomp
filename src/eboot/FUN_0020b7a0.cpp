@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0020b7a0 end=0x0020be58 symbol=FUN_0020b7a0 lang=c++ data=0x002ef8b8 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002ef8b8-0x002ef8d1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 struct Cfg {
   char pad0[0x45];
@@ -54,7 +54,7 @@ extern float DAT_002ef8b4;
 extern Cfg *DAT_00338b44;
 
 extern float FUN_0000ce3c(float, float);
-extern uint FUN_0001342c(void);
+extern u32 FUN_0001342c(void);
 extern bool FUN_000a8494(Self *, float *);
 extern int FUN_002068e8(Self *, int, int);
 extern void FUN_0020b600(const char *, ...);
@@ -195,7 +195,7 @@ extern "C" int FUN_0020b7a0(Self *param_3, int param_4, int param_5, float param
     }
   }
   if (param_2 == 0.0f) {
-    uint u = FUN_0001342c();
+    u32 u = FUN_0001342c();
     param_2 = FUN_0000ce3c(4.656613e-10f * (float)(int)(u & 0xfffff800), fVar12);
   }
   return (int)(fVar10 + param_2 * (fVar11 - fVar10));

@@ -1,45 +1,45 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00225090 end=0x00225288 symbol=FUN_00225090 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
-extern uint FUN_00000bcc();
-extern uint FUN_0018a5a8();
-extern uint FUN_0021aa34();
-extern uint FUN_0021aec0();
-extern uint FUN_0021b328();
-extern uint FUN_0021b478();
-extern uint FUN_0021bb04();
-extern uint FUN_0021f5c4();
-extern uint FUN_0022060c();
-extern uint FUN_002226b4();
-extern uint FUN_002239ec();
-extern uint FUN_00224468();
-extern uint FUN_00224a28();
+extern u32 FUN_00000bcc();
+extern u32 FUN_0018a5a8();
+extern u32 FUN_0021aa34();
+extern u32 FUN_0021aec0();
+extern u32 FUN_0021b328();
+extern u32 FUN_0021b478();
+extern u32 FUN_0021bb04();
+extern u32 FUN_0021f5c4();
+extern u32 FUN_0022060c();
+extern u32 FUN_002226b4();
+extern u32 FUN_002239ec();
+extern u32 FUN_00224468();
+extern u32 FUN_00224a28();
 extern void FUN_00291b8c();
-extern void FUN_002931f0(float, uint, int);
-extern uint FUN_002933fc();
+extern void FUN_002931f0(float, u32, int);
+extern u32 FUN_002933fc();
 
-extern uint DAT_0034a820;
+extern u32 DAT_0034a820;
 
 typedef struct {
-    uint f0;
-    uint f1;
-    uint f2;
-    uint f3;
-    uint f4;
-    uint f5;
-    uint f6;
-    uint f7;
-    uint f8;
-    uint f9;
-    uint f10;
-    uint f11;
-    uint f12;
+    u32 f0;
+    u32 f1;
+    u32 f2;
+    u32 f3;
+    u32 f4;
+    u32 f5;
+    u32 f6;
+    u32 f7;
+    u32 f8;
+    u32 f9;
+    u32 f10;
+    u32 f11;
+    u32 f12;
 } Obj;
 
 Obj *FUN_00225090(Obj *p)
 {
-    uint m;
+    u32 m;
 
     p->f0 = 0;
     p->f1 = 0;

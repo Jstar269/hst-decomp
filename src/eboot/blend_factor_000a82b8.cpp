@@ -2,7 +2,6 @@
 /* Clone of src/sharing_main/blend_factor_000aacac.cpp (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* matching idiom: w2/w1 declared at the top (in that order) to get retail's f21/f22 for the two scaled values; the division is duplicated into both sign branches; fabsf is the abs.s intrinsic; Min is an inline const-reference helper. */
-typedef int undefined4;
 
 extern "C" {
 extern float DAT_002d46ac;

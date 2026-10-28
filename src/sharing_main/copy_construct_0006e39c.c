@@ -1,6 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0006e39c end=0x0006e418 symbol=FUN_0006e39c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct { int pad[3]; } Blob12;
 typedef struct { int pad[4]; } Blob16;
@@ -10,7 +10,7 @@ typedef struct {
   Blob12 m0;
   Blob16 m1;
   float f;
-  uchar g;
+  u8 g;
 } Body;
 typedef struct {
   int a;

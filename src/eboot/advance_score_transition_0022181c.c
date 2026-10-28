@@ -1,29 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0022181c end=0x00221a98 symbol=FUN_0022181c lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode corrected by hand: typed float globals, preserved the shared input load, and matched the state/limit branch layout; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined * DAT_002cfc8c;
+extern u8 * DAT_002cfc8c;
 extern int DAT_002eff90;
 extern int DAT_002eff94;
 extern float DAT_002f0d94;
 extern float DAT_002f0d98;
-extern undefined DAT_0034179c;
+extern u8 DAT_0034179c;
 extern float DAT_0034a250;
 extern float DAT_0034a254;
 extern float FUN_0000bd2c(float param_1);
@@ -76,8 +61,8 @@ void FUN_0022181c(int param_1)
     FUN_000ffb3c(*(int *)(param_1 + 0x6c),0);
     if (((int)*(char *)(DAT_002cfc8c + 0x8b) << 0x1c) >> 0x1e == 0) {
       FUN_001b1c44((int *)&DAT_0034179c,3);
-      *(undefined1 *)(param_1 + 0x74) = 0;
-      *(undefined4 *)(param_1 + 0x5c) = 100;
+      *(u8 *)(param_1 + 0x74) = 0;
+      *(u32 *)(param_1 + 0x5c) = 100;
     }
   } else {
     FUN_000ffb3c(*(int *)(param_1 + 0x68),1);
@@ -86,10 +71,9 @@ void FUN_0022181c(int param_1)
   }
   if (!(*(int *)(param_1 + 0x5c) < DAT_002eff94)) {
     FUN_00103628(param_1,1);
-    *(undefined1 *)(param_1 + 0x54) = 1;
-    *(undefined4 *)(param_1 + 0x5c) = 0xffffffff;
+    *(u8 *)(param_1 + 0x54) = 1;
+    *(u32 *)(param_1 + 0x5c) = 0xffffffff;
   }
 LAB_00221a6c:
   FUN_00103128(param_1);
-  return;
 }

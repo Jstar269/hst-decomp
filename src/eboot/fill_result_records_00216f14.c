@@ -1,11 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00216f14 end=0x00216fb0 symbol=FUN_00216f14 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
-extern int *FUN_001026b8(int, uchar *);
-void FUN_00216f14(int *out, int *table, uchar *indices, int count)
+#include "hst/types.h"
+extern int *FUN_001026b8(int, u8 *);
+void FUN_00216f14(int *out, int *table, u8 *indices, int count)
 {
   int i = 0;
-  uchar *input;
+  u8 *input;
   int *cursor;
   if (count <= 0) return;
   input = indices;

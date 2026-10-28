@@ -1,13 +1,13 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0017bf54 end=0x0017bfe0 symbol=FUN_0017bf54 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct Obj Obj;
 typedef void *(*GetFn)(int);
 
 struct Obj {
     char pad[0x46];
-    uchar flag;
+    u8 flag;
     char pad1;
     int mode;
     char pad2[0x8c - 0x4c];

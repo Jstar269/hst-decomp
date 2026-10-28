@@ -1,23 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0020d090 end=0x0020d144 symbol=FUN_0020d090 lang=c99 */
 /* Clone of src/eboot/FUN_001fe8c0_001fe8c0.c (hstclone.py tag u5cr1s): addresses substituted; exact match verified; names and types await human review. */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed the mixed word, byte, and float record members and grouped the two-float tail; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
-
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed the mixed word, u8, and float record members and grouped the two-float tail; exact match verified; names and types await human review. */
 
 typedef struct { float f[4]; } Float4;
 typedef struct { float f[2]; } Float2;

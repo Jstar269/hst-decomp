@@ -1,8 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00088a44 end=0x00089648 symbol=FUN_00088a44 lang=c++ rodata=0x002be804 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-struct Task;
-struct Obj;
+#include "hst/scene.h"
+
+enum {
+    NUM_AI_PARAM_FILES = 3,  /* AI_Param_1..3.csv */
+    TIMER_STATE4 = 300,      /* timer preset when entering state 4 */
+    TIMER_STATE8 = 450,      /* timer preset when entering state 8 */
+    WAIT_USEC = 1000000      /* poll interval of the load wait loop */
+};
 
 struct Court { char pad0[0x1364]; int ncourts; };
 struct BallBase { char pad0[0x1e0]; };
@@ -16,37 +22,6 @@ struct Hud { char pad0[0xc]; int count; char pad10[0x52 - 0x10]; unsigned char s
 struct Stats { char pad0[0x1c]; int value; };
 struct Score { char pad0[0x1e0]; int value; };
 
-struct Scene {
-    char pad0[0x3c];
-    int state;
-    int next;
-    int m44;
-    int m48;
-    unsigned char m4c;
-    int m50;
-    int m54;
-    unsigned char busy;
-    char pad59;
-    unsigned char m5a;
-    unsigned char m5b;
-    int side;
-    int m60;
-    int m64;
-    unsigned char m68;
-    int timer;
-    Obj *players[4];
-    Obj *fuki;
-    Obj *fukiAnim;
-    Ball *ball;
-    Obj *m8c;
-    Obj *effect;
-    Obj *inpane;
-    Obj *banner;
-    Obj *m9c;
-    Score *score;
-    Obj *ma4;
-    Obj *sound;
-};
 
 extern Hud *DAT_00331b84;
 extern Obj *DAT_00338714;
@@ -176,7 +151,7 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         FUN_0001f558(self, 7, 0, 0);
         break;
     case 4:
-        self->m68 = 0;
+        self->unk68 = 0;
         FUN_0001f558(self, 9, 0, 0);
         break;
     case 5:
@@ -192,7 +167,7 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         Hud *hud = DAT_00331b84;
         hud->count = 0;
         hud->shown = 0;
-        self->m68 = 0;
+        self->unk68 = 0;
         FUN_0001f558(self, 17, 0, 0);
         break;
     }
@@ -202,19 +177,19 @@ extern "C" void FUN_00088a44(Scene *self, int force)
     }
 
     self->state = self->next;
-    self->m44 = 0;
-    self->m48 = 0;
-    self->m4c = 0;
-    self->m50 = 0;
-    if (self->m64 != self->m60)
+    self->unk44 = 0;
+    self->unk48 = 0;
+    self->unk4c = 0;
+    self->unk50 = 0;
+    if (self->unk64 != self->unk60)
         self->side ^= 1;
-    self->m64 = self->m60;
-    self->m54 = 0;
+    self->unk64 = self->unk60;
+    self->unk54 = 0;
 
     switch (self->state) {
     case 0: {
         Obj *o;
-        Obj *saved;
+        Obj *deferred;      /* constructed early, attached to the scene after the players */
         Court *court;
         int i;
         char buf[64];
@@ -235,7 +210,7 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         DAT_0034a6b0 = (Obj *)FUN_000008d8(FUN_00000a90(0x34), (void *)FUN_00235d50, (void *)FUN_000886c0, 0x24, 1);
         FUN_00235da4(DAT_0034a6b0);
         DAT_0034a6a8 = (char *)FUN_000008d8(FUN_00000a90(0x70), (void *)FUN_002347c4, (void *)FUN_00234800, 0x20, 3);
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < NUM_AI_PARAM_FILES; i++) {
             FUN_000143b0(buf, DAT_002d2264, i + 1);
             FUN_00234898(DAT_0034a6a8 + i * 0x20, buf);
         }
@@ -258,9 +233,9 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         DAT_00338ab0 = o;
         FUN_000b3cf4(o);
 
-        saved = (Obj *)operator new(0x9a0);
-        if (saved)
-            saved = FUN_002b4d9c(saved);
+        deferred = (Obj *)operator new(0x9a0);
+        if (deferred)
+            deferred = FUN_002b4d9c(deferred);
 
         o = (Obj *)operator new(0x30);
         if (o)
@@ -275,7 +250,7 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         o = (Obj *)operator new(0x530);
         if (o)
             o = FUN_00116ecc(o);
-        self->m9c = o;
+        self->unk9c = o;
         FUN_0001f21c(self, o);
         o = (Obj *)operator new(0x10c);
         if (o)
@@ -331,11 +306,11 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         }
         FUN_00000028();
 
-        FUN_0001f21c(self, saved);
+        FUN_0001f21c(self, deferred);
         o = (Obj *)operator new(0x140);
         if (o)
             o = FUN_0012f41c(o);
-        self->m8c = o;
+        self->unk8c = o;
         FUN_0001f21c(self, o);
         {
             Score *s = (Score *)operator new(0x81d0);
@@ -344,14 +319,14 @@ extern "C" void FUN_00088a44(Scene *self, int force)
             self->score = s;
             FUN_0001f21c(self, s);
         }
-        if (self->ma4) {
-            FUN_002ade80(self->ma4, 1);
-            self->ma4 = 0;
+        if (self->unka4) {
+            FUN_002ade80(self->unka4, 1);
+            self->unka4 = 0;
         }
         o = (Obj *)operator new(4);
         if (o)
             o = FUN_002ade6c(o);
-        self->ma4 = o;
+        self->unka4 = o;
 
         FUN_00000020(DAT_002d23a4);
         o = (Obj *)operator new(0x300);
@@ -395,11 +370,11 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         FUN_001b62fc(self->sound);
         FUN_000db788(DAT_00338b44);
         FUN_000fb02c(DAT_00338c20);
-        self->m5a = 0;
-        self->m5b = 0;
+        self->unk5a = 0;
+        self->unk5b = 0;
         FUN_00088a44(self, 0);
         while (!FUN_00049094(0))
-            FUN_002b7958(1000000);
+            FUN_002b7958(WAIT_USEC);
         break;
     }
     case 1:
@@ -414,8 +389,8 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         break;
     case 4:
         if (DAT_003386b8) {
-            self->timer = 300;
-            self->m68 = 0;
+            self->timer = TIMER_STATE4;
+            self->unk68 = 0;
         }
         FUN_0001f558(self, 8, 0, 0);
         break;
@@ -430,12 +405,12 @@ extern "C" void FUN_00088a44(Scene *self, int force)
             DAT_00340284->remote->ready = 0;
         FUN_0001f558(self, 14, 0, 0);
         if (self->busy)
-            FUN_00117c24(self->m9c);
+            FUN_00117c24(self->unk9c);
         break;
     case 8:
         if (DAT_003386b8) {
-            self->timer = 450;
-            self->m68 = 1;
+            self->timer = TIMER_STATE8;
+            self->unk68 = 1;
         }
         FUN_0001f558(self, 16, 0, 0);
         break;
@@ -456,11 +431,11 @@ extern "C" void FUN_00088a44(Scene *self, int force)
         FUN_001b62fc(self->sound);
         FUN_000db788(DAT_00338b44);
         FUN_000fb02c(DAT_00338c20);
-        self->m5a = 0;
-        self->m5b = 0;
+        self->unk5a = 0;
+        self->unk5b = 0;
         FUN_00088a44(self, 0);
         while (!FUN_00049094(0))
-            FUN_002b7958(1000000);
+            FUN_002b7958(WAIT_USEC);
         break;
     }
     self->busy = 0;

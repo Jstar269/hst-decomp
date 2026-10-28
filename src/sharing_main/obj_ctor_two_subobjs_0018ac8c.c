@@ -1,29 +1,14 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0018ac8c end=0x0018ad48 symbol=FUN_0018ac8c lang=c99 */
 /* Clone of src/eboot/obj_ctor_two_subobjs_0017e598.c (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag gen-a1/v0c) corrected by hand: typed struct with float globals/fields (lwc1/swc1); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern float DAT_002d2570;
 extern float DAT_002d2574;
 extern float DAT_002d2578;
 extern float DAT_002d257c;
-extern undefined DAT_003b23a0;
-extern undefined * DAT_003da704;
+extern u8 DAT_003b23a0;
+extern u8 * DAT_003da704;
 extern int FUN_0005c2f8();
 extern int FUN_0005c688();
 extern int FUN_0005c700();
@@ -39,7 +24,7 @@ typedef struct O {
 O * FUN_0018ac8c(O *param_1)
 {
   int iVar1;
-  undefined1 auStack_2c0 [704];
+  u8 auStack_2c0 [704];
   
   param_1->vt = (unsigned int)(&DAT_003b23a0);
   FUN_0005c2f8(param_1->o1);
@@ -51,10 +36,10 @@ O * FUN_0018ac8c(O *param_1)
   FUN_0005c2f8(auStack_2c0);
   FUN_0005c700(DAT_003da704,auStack_2c0);
   iVar1 = (int)(DAT_003da704);
-  *(undefined4 *)(DAT_003da704 + 0x1e0) = 0;
-  *(undefined4 *)(iVar1 + 0x1e4) = 0;
-  *(undefined4 *)(iVar1 + 0x1e8) = 0xbf800000;
-  *(undefined4 *)(iVar1 + 0x1ec) = 0;
+  *(u32 *)(DAT_003da704 + 0x1e0) = 0;
+  *(u32 *)(iVar1 + 0x1e4) = 0;
+  *(u32 *)(iVar1 + 0x1e8) = 0xbf800000;
+  *(u32 *)(iVar1 + 0x1ec) = 0;
   param_1->f2d0 = 1.0f;
   param_1->c2d4 = 0;
   FUN_0005c688(auStack_2c0,0xffffffff);

@@ -1,21 +1,20 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001b93f4 end=0x001b9500 symbol=FUN_001b93f4 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned char uchar;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 void *FUN_001aa91c(void);
-void FUN_001b8e10(undefined4, int, int);
-void FUN_001b7f74(undefined4, int, int);
+void FUN_001b8e10(u32, int, int);
+void FUN_001b7f74(u32, int, int);
 }
 
-extern "C" void FUN_001b93f4(undefined4 param_1, int param_2)
+extern "C" void FUN_001b93f4(u32 param_1, int param_2)
 {
   int uVar3;
-  uchar val;
+  u8 val;
 
-  val = *(uchar *)((int)FUN_001aa91c() + 0x11c);
+  val = *(u8 *)((int)FUN_001aa91c() + 0x11c);
   switch (val) {
   case 0:
   case 4:

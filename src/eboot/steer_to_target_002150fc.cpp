@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002150fc end=0x00215630 symbol=FUN_002150fc lang=c++ */
 /* Clone of src/sharing_main/steer_to_target_00223f88.cpp (hstclone.py tag c072920): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 struct Vec4 {
     float x, y, z, w;
@@ -37,7 +37,7 @@ inline Vec4 &operator+=(Vec4 &a, const Vec4 &b)
 
 struct Player {
     char pad0[0x144];
-    uint f144;
+    u32 f144;
     int f148;
     char pad1[0x580 - 0x14c];
     Vec4 pos;
@@ -59,7 +59,7 @@ struct Match {
     char pad0[0x1d4];
     int f1d4;
     char pad1[0x230 - 0x1d8];
-    uint f230;
+    u32 f230;
 };
 
 struct Game {
@@ -126,7 +126,7 @@ extern "C" void FUN_002150fc(Player *self, Out *out)
                     float *f1p;
                     float *f0p;
                     float *f3p;
-                    uint u = self->f144 ^ 1;
+                    u32 u = self->f144 ^ 1;
                     p1 = DAT_003386b0->GetPlayer(u);
                     p2 = DAT_003386b0->GetPlayer(u + 2);
                     f0p = FUN_00093838(other->f5bc);
@@ -154,7 +154,7 @@ extern "C" void FUN_002150fc(Player *self, Out *out)
                 Player *c;
                 float sign;
                 if (F45Clear()) {
-                    uint u = self->f144 ^ 1;
+                    u32 u = self->f144 ^ 1;
                     Player *p2;
                     c = DAT_003386b0->GetPlayer(u);
                     p2 = DAT_003386b0->GetPlayer(u + 2);

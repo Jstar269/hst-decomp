@@ -1,8 +1,8 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001c192c end=0x001c1978 symbol=FUN_001c192c lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag sh2/v0) corrected by hand: range test rewritten as a switch with a result local, and the negative-index fallback as a ternary; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-undefined4 FUN_001c192c(int *param_1)
+u32 FUN_001c192c(int *param_1)
 {
   int iVar1;
   int r;

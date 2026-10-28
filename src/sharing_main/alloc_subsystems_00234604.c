@@ -1,46 +1,46 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00234604 end=0x002347fc symbol=FUN_00234604 lang=c99 */
 /* Clone of src/eboot/alloc_subsystems_00225090.c (hstclone.py tag s10181937g8r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
-extern uint FUN_00000bcc();
-extern uint FUN_00196cf4();
-extern uint FUN_00229fa8();
-extern uint FUN_0022a434();
-extern uint FUN_0022a89c();
-extern uint FUN_0022a9ec();
-extern uint FUN_0022b078();
-extern uint FUN_0022eb38();
-extern uint FUN_0022fb80();
-extern uint FUN_00231c28();
-extern uint FUN_00232f60();
-extern uint FUN_002339dc();
-extern uint FUN_00233f9c();
+extern u32 FUN_00000bcc();
+extern u32 FUN_00196cf4();
+extern u32 FUN_00229fa8();
+extern u32 FUN_0022a434();
+extern u32 FUN_0022a89c();
+extern u32 FUN_0022a9ec();
+extern u32 FUN_0022b078();
+extern u32 FUN_0022eb38();
+extern u32 FUN_0022fb80();
+extern u32 FUN_00231c28();
+extern u32 FUN_00232f60();
+extern u32 FUN_002339dc();
+extern u32 FUN_00233f9c();
 extern void FUN_002a3198();
-extern void FUN_002a47fc(float, uint, int);
-extern uint FUN_002a4a08();
+extern void FUN_002a47fc(float, u32, int);
+extern u32 FUN_002a4a08();
 
-extern uint DAT_003f3b50;
+extern u32 DAT_003f3b50;
 
 typedef struct {
-    uint f0;
-    uint f1;
-    uint f2;
-    uint f3;
-    uint f4;
-    uint f5;
-    uint f6;
-    uint f7;
-    uint f8;
-    uint f9;
-    uint f10;
-    uint f11;
-    uint f12;
+    u32 f0;
+    u32 f1;
+    u32 f2;
+    u32 f3;
+    u32 f4;
+    u32 f5;
+    u32 f6;
+    u32 f7;
+    u32 f8;
+    u32 f9;
+    u32 f10;
+    u32 f11;
+    u32 f12;
 } Obj;
 
 Obj *FUN_00234604(Obj *p)
 {
-    uint m;
+    u32 m;
 
     p->f0 = 0;
     p->f1 = 0;

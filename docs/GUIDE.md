@@ -13,7 +13,7 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
   await human review" until a person has reviewed the source.
   <!-- hstprogress:begin guide-source-kinds -->
 - Of the 12,331 sources (measured 2026-10-28), 7,015 are address-substituted **clones** of another matched source
-  (retail contains the same code many times), 2,129 are mechanical translations of Ghidra pseudocode, 780 are such
+  (retail contains the same code many times), 2,062 are mechanical translations of Ghidra pseudocode, 847 are such
   translations corrected by hand, 2,152 are hand-written, 136 are instances of container templates, and 85 are newlib
   library functions translated from newlib sources (37 more are clones of them, counted among the clones), and 34 have
   no known note kind.
@@ -177,7 +177,7 @@ link, the sources left out and why.
 | `wip/` | Near misses (within a few words of exact) with comments on what differs. Not built by `--all`, not verified. |
 | `data/` | `modules.json` (each module's description, SHA-256 and load segment) and `functions-<module>.txt` (its reviewed function boundaries). `tools/hstbootstrap.py` reads both. `blocked_functions.json` lists, by address only, the reviewed functions that a documented search found unmatchable with the available toolchain; `tools/hstattempts.py` and `tools/hstqueue.py` read it. |
 | `symbols/` | `symbols/<module>.txt`: `name = 0xaddr;` maps for names that are not address-named (C++ runtime, vtables, library functions). Append-only in practice. |
-| `include/` | Project-authored headers: `stddef.h`, `stdint.h` (the only headers the MWCC sources see, via `MWCIncludes`) and `stdarg.h`, `float.h`, `limits.h`, which stand in for the compiler's own headers when `hstnewlib.py` preprocesses newlib sources (`-nostdinc`). |
+| `include/` | Project-authored headers: `hst/` (shared types and structs of the game sources), `stddef.h`, `stdint.h` (the only C library headers the MWCC sources see, via `MWCIncludes`) and `stdarg.h`, `float.h`, `limits.h`, which stand in for the compiler's own headers when `hstnewlib.py` preprocesses newlib sources (`-nostdinc`). |
 | `tools/` | The matcher and the other tools, below. |
 | `toolchain/drivers/` | `mwcc_wibo_link.py`, the build driver the private campaign pins (compile with wibo, link at the retail address, extract `.text`), and its tests. |
 | `ghidra/` | The headless pseudocode export (`HstCommitDecompile.java`, `run_commit_decompile.ps1`) and the reviewed function boundaries of the two large modules. |
@@ -236,6 +236,13 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 
 `python tools/hstlint.py` rejects a missing or unknown note kind.
 
+**Shared headers.** `include/hst/types.h` gives the fixed-width names (`u8`..`u64`, `s8`..`s64`; `bool`, `true`,
+`false` in C) that replace Ghidra's per-file typedef block (`undefined4`, `uint`, ...). Structs that several sources
+use live in `include/hst/<topic>.h` (include guard `HST_<TOPIC>_H`); unknown fields are named by offset (`unk14`).
+A header is part of the toolchain lock, so a changed header reverifies every source that includes it.
+`python tools/hstread.py rank` lists the sources that read least like real source (address names, Ghidra locals,
+raw offset casts).
+
 ## Tools
 
 | Tool | Purpose |
@@ -251,6 +258,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
 | `hstobjdiff.py` | Generate an [objdiff](https://github.com/encounter/objdiff) project (`objdiff.json`, objects under `build/objdiff/`) for per-function diffs against retail and a progress report; `check` verifies it against `hstmatch.py` and `hstcov.py` (see `docs/OBJDIFF.md`). |
 | `hstgate.py` | The fake-match gate (`docs/COMPLETION.md`, gate 2): refuses a source with `asm`/`__asm__` that emits instructions, assembler data directives, `#pragma asm`, hand-steered `.text` data or a non-header `#include`; a `register T x asm("$N")` binding, an empty barrier and VFPU-only inline asm under the project rule (header `asm=vfpu`, an `Original inline VFPU asm:` reason line, VFPU instructions only; owner decision 2026-10-27) are allowed and tagged as idioms. `hstmatch.py`, `hstlint.py` and `hstlane.py harvest` all call it. |
 | `hstlint.py` | Quality report over `src/` (note kinds, matching idioms, conflicting declarations). |
+| `hstread.py` | Readability work: `rank` (least readable sources and address pages), `tidy` (Ghidra typedef block to `hst/types.h`), `twins` and `harvest` (port a readability edit to the source's twins; copy a lane's edits back). |
 | `hstgen.py` | Translate Ghidra pseudocode into candidate C/C++ variants and install the exact ones. |
 | `hstcat.py` | Classify why generated candidates mismatched (frame, register allocation, ...). |
 | `hstperm.py` | Random-mutation search that turns near-miss candidates into exact ones. |

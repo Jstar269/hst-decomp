@@ -1,40 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001afcd4 end=0x001afd70 symbol=FUN_001afcd4 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: the do-while rewritten as a for loop with an inclusive bound (i <= 0x179); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: the do-while rewritten as a for loop with an inclusive bound (i <= 0x179); readability pass; exact match verified; names and types await human review. */
+#include "hst/types.h"
+#include "hst/slot_table.h"
 
-extern undefined DAT_002e58e4;
-extern undefined DAT_002e58ec;
-extern undefined DAT_002e58f4;
-extern undefined DAT_002e5908;
-extern void FUN_001b04d0();
-extern void FUN_001b08a0();
+extern u8 DAT_002e58e4;
+extern u8 DAT_002e58ec;
+extern u8 DAT_002e58f4;
+extern u8 DAT_002e5908;
+extern void FUN_001b04d0(SlotTable *, int);
+extern void FUN_001b08a0(SlotTable *, u8 *, int);
 
-void FUN_001afcd4(int param_1)
+/* Slot ids released together (inclusive range). */
+enum { SLOT_RANGE_FIRST = 0x16a, SLOT_RANGE_LAST = 0x179 };
+
+void FUN_001afcd4(SlotTable *self)
 {
-  int iVar1;
+  int slot;
   
-  for (iVar1 = 0x16a; iVar1 <= 0x179; iVar1++) {
-    FUN_001b04d0(param_1,iVar1);
+  for (slot = SLOT_RANGE_FIRST; slot <= SLOT_RANGE_LAST; slot++) {
+    FUN_001b04d0(self,slot);
   }
-  *(undefined4 *)(param_1 + 0x788) = 0;
-  FUN_001b08a0(param_1,&DAT_002e5908,4);
-  FUN_001b08a0(param_1,&DAT_002e58f4,5);
-  FUN_001b08a0(param_1,&DAT_002e58ec,2);
-  FUN_001b08a0(param_1,&DAT_002e58e4,2);
-  return;
+  self->unk788 = 0;
+  FUN_001b08a0(self,&DAT_002e5908,4);
+  FUN_001b08a0(self,&DAT_002e58f4,5);
+  FUN_001b08a0(self,&DAT_002e58ec,2);
+  FUN_001b08a0(self,&DAT_002e58e4,2);
 }

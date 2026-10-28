@@ -1,18 +1,5 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000429c8 end=0x00042ab8 symbol=FUN_000429c8 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag v16) corrected by hand: modeled the state offsets and virtual cleanup slot; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code();
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 struct Obj {
   virtual void cleanup(int);
@@ -60,5 +47,4 @@ extern "C" void FUN_000429c8(int param_1)
   }
   self->field19084 = 0;
   self->field190a0 = 0;
-  return;
 }

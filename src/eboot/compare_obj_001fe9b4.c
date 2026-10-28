@@ -1,9 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fe9b4 end=0x001fea10 symbol=FUN_001fe9b4 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: simplified return branching; exact match verified; names and types await human review. */
 
-typedef unsigned char bool;
-#define true 1
-#define false 0
+#include "hst/types.h"
 
 int FUN_001fe9b4(int *param_1, int *param_2)
 {

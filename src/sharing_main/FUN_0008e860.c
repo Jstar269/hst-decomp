@@ -1,26 +1,18 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0008e860 end=0x0008e894 symbol=FUN_0008e860 lang=c99 */
 /* Clone of src/eboot/FUN_0008d114.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern uint * FUN_000114c0();
+extern void FUN_000114c0(void *, int, int);
 
-void FUN_0008e860(int param_1)
+typedef struct Rec1c {
+  char pad00[8];
+  u32 unk08; /* 0x08, initial 1 */
+  char pad0c[0x10];
+} Rec1c;
+
+/* Clears a Rec1c and sets its word at 0x08 to 1. */
+void FUN_0008e860(Rec1c *rec)
 {
-  FUN_000114c0(param_1,0,0x1c);
-  *(undefined4 *)(param_1 + 8) = 1;
-  return;
+  FUN_000114c0(rec, 0, sizeof(Rec1c));
+  rec->unk08 = 1;
 }

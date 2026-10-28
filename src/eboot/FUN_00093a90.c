@@ -1,7 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00093a90 end=0x00093b00 symbol=FUN_00093a90 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: float[16] out-buffer (frame 80), the two callee arguments Ghidra dropped typed FUN_00055240(void*, int f64, int f20) and passed both fields, zero tail merged into one block by the && form; exact match verified; names and types await human review. */
-typedef unsigned char undefined1;
-typedef unsigned int undefined4;
 
 extern void FUN_00055240(void *, int, int);
 

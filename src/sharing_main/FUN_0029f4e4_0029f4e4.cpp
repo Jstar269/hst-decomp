@@ -1,24 +1,12 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0029f4e4 end=0x0029f6dc symbol=FUN_0029f4e4 lang=c++ */
 /* Clone of src/eboot/FUN_0028dd1c_0028dd1c.cpp (hstclone.py tag u4r4s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag gen-a5/v17) corrected by hand: typed the four source fields as signed short to select halfword loads; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined DAT_003a7e8c;
-extern undefined DAT_003a7e98;
-extern undefined DAT_003b304c;
+extern u8 DAT_003a7e8c;
+extern u8 DAT_003a7e98;
+extern u8 DAT_003b304c;
 extern char DAT_003a7e90[];
 extern char DAT_003a7e9c[];
 extern char DAT_003a7ea8[];
@@ -33,7 +21,7 @@ extern char DAT_003a7f10[];
 extern void FUN_00105470(...);
 extern int FUN_00108124(...);
 extern int FUN_00109304(...);
-extern undefined4 * FUN_00268090(...);
+extern u32 * FUN_00268090(...);
 extern void FUN_0029134c(...);
 }
 struct VC_0 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void m(int); };
@@ -42,20 +30,20 @@ struct VC_2 { virtual void d0(); virtual void d1(); virtual void d2(); virtual v
 
 extern "C" int * FUN_0029f4e4(int *param_1)
 {
-  undefined4 uVar1;
+  u32 uVar1;
   int iVar2;
   int *piVar3;
   
   FUN_00268090();
   *param_1 = (int)&DAT_003b304c;
   param_1[0x61b] = 0;
-  *(undefined2 *)(param_1 + 0x61c) = 0;
+  *(u16 *)(param_1 + 0x61c) = 0;
   param_1[0x61d] = 0;
-  *(undefined1 *)(param_1 + 0x61e) = 0;
+  *(u8 *)(param_1 + 0x61e) = 0;
   param_1[0x61f] = 0;
-  *(undefined2 *)(param_1 + 0x620) = 0;
+  *(u16 *)(param_1 + 0x620) = 0;
   param_1[0x621] = 0;
-  *(undefined1 *)(param_1 + 0x622) = 0;
+  *(u8 *)(param_1 + 0x622) = 0;
   uVar1 = FUN_00109304(param_1,&DAT_003a7e8c,0);
   iVar2 = FUN_00108124(uVar1,DAT_003a7e90);
   param_1[0x617] = iVar2;
@@ -85,10 +73,10 @@ extern "C" int * FUN_0029f4e4(int *param_1)
   param_1[0x6e9] = iVar2;
   iVar2 = FUN_00108124(param_1[0x194],DAT_003a7f04);
   param_1[0x6ea] = iVar2;
-  *(undefined2 *)(param_1 + 0x6eb) = *(short *)(param_1[0x6e7] + 4);
-  *(undefined2 *)((int)param_1 + 0x1bae) = *(short *)(param_1[0x6e8] + 4);
-  *(undefined2 *)(param_1 + 0x6ec) = *(short *)(param_1[0x6e9] + 4);
-  *(undefined2 *)((int)param_1 + 0x1bb2) = *(short *)(param_1[0x6ea] + 4);
+  *(u16 *)(param_1 + 0x6eb) = *(short *)(param_1[0x6e7] + 4);
+  *(u16 *)((int)param_1 + 0x1bae) = *(short *)(param_1[0x6e8] + 4);
+  *(u16 *)(param_1 + 0x6ec) = *(short *)(param_1[0x6e9] + 4);
+  *(u16 *)((int)param_1 + 0x1bb2) = *(short *)(param_1[0x6ea] + 4);
   iVar2 = FUN_00108124(param_1[0x194],DAT_003a7f10);
   param_1[0x6ed] = iVar2;
   FUN_00105470(param_1[0x1aa],1);

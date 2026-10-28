@@ -1,7 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011acfc end=0x0011ae7c symbol=FUN_0011acfc lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 extern char DAT_0033b480;
 extern int DAT_002d9ba4;
@@ -16,11 +15,11 @@ typedef struct {
 } Entry;
 
 typedef struct {
-  uint count;
+  u32 count;
   int pad;
-  uint a;
+  u32 a;
   Entry **rows;
-  uint b;
+  u32 b;
   int flag;
 } Slot;
 

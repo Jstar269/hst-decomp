@@ -1,6 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001c3fbc end=0x001c40a0 symbol=FUN_001c3fbc lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: deferred local_c assignment to call site and used symbol &DAT_003eaad8; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 extern char DAT_003eaad8;
 extern void FUN_001c20b8(void *p);
@@ -20,20 +20,20 @@ void FUN_001c3fbc(char *param_1)
   *(int *)(param_1 + 0x54) = -1;
   *(int *)(param_1 + 0x58) = -1;
   **(int **)(param_1 + 0x5c) = -1;
-  **(uchar **)(param_1 + 0x60) = 0;
+  **(u8 **)(param_1 + 0x60) = 0;
   *(int *)(*(int *)(param_1 + 0x5c) + 4) = -1;
-  *(uchar *)(*(int *)(param_1 + 0x60) + 1) = 0;
+  *(u8 *)(*(int *)(param_1 + 0x60) + 1) = 0;
   *(int *)(*(int *)(param_1 + 0x5c) + 8) = -1;
-  *(uchar *)(*(int *)(param_1 + 0x60) + 2) = 0;
+  *(u8 *)(*(int *)(param_1 + 0x60) + 2) = 0;
   *(int *)(*(int *)(param_1 + 0x5c) + 0xc) = -1;
-  *(uchar *)(*(int *)(param_1 + 0x60) + 3) = 0;
+  *(u8 *)(*(int *)(param_1 + 0x60) + 3) = 0;
   *(int *)(param_1 + 100) = -1;
   *(int *)(param_1 + 0x68) = -1;
   *(int *)(param_1 + 0x6c) = 0;
-  *(uchar *)(param_1 + 0x70) = 0;
-  *(uchar *)(param_1 + 0x78) = 1;
-  *(uchar *)(param_1 + 0x79) = 1;
-  *(uchar *)(param_1 + 0x7a) = 1;
+  *(u8 *)(param_1 + 0x70) = 0;
+  *(u8 *)(param_1 + 0x78) = 1;
+  *(u8 *)(param_1 + 0x79) = 1;
+  *(u8 *)(param_1 + 0x7a) = 1;
   *(int *)(param_1 + 0x80) = 0;
   *(int *)(param_1 + 0x7c) = 0;
   *(int *)(param_1 + 0x84) = 0;

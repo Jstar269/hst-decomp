@@ -1,15 +1,15 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00133ffc end=0x001340b0 symbol=FUN_00133ffc lang=c99 */
 /* Clone of src/eboot/FUN_00128d8c.c (hstclone.py tag s10171846c1r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: typed float vectors and arranged the copy and previous-value store to match the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined1;
+#include "hst/types.h"
 typedef struct { float x, y, z, w; } Vec4;
 typedef struct {
-  undefined1 pad0[0x1b0];
+  u8 pad0[0x1b0];
   Vec4 current;
-  undefined1 pad1[0x10];
+  u8 pad1[0x10];
   Vec4 next;
   unsigned char active;
-  undefined1 pad2[3];
+  u8 pad2[3];
   float angle;
   float previous;
 } Obj;

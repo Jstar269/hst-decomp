@@ -1,12 +1,12 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00225f18 end=0x00225fb4 symbol=FUN_00225f18 lang=c99 */
 /* Clone of src/eboot/fill_result_records_00216f14.c (hstclone.py tag u5cr3s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
-extern int *FUN_00108124(int, uchar *);
-void FUN_00225f18(int *out, int *table, uchar *indices, int count)
+#include "hst/types.h"
+extern int *FUN_00108124(int, u8 *);
+void FUN_00225f18(int *out, int *table, u8 *indices, int count)
 {
   int i = 0;
-  uchar *input;
+  u8 *input;
   int *cursor;
   if (count <= 0) return;
   input = indices;

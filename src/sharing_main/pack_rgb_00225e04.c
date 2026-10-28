@@ -2,9 +2,9 @@
 /* Clone of src/eboot/pack_rgb_00216e00.c (hstclone.py tag u5fr1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: RGB local declaration order and nested packing ORs; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
-uint FUN_00225e04(uint *param_1)
+u32 FUN_00225e04(u32 *param_1)
 {
     int r;
     int b;

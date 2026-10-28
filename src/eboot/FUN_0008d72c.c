@@ -1,40 +1,36 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0008d72c end=0x0008d7b0 symbol=FUN_0008d72c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/types.h"
 
-extern void FUN_00000a00();
-extern int FUN_000d7e30();
+extern void FUN_00000a00(void *);
+extern int FUN_000d7e30(void *, int);
 
-int FUN_0008d72c(int param_1,short param_2)
+/* Three 0x120-byte sub-objects, each with the base destructor FUN_000d7e30. */
+typedef struct Sub120 {
+  char pad[0x120];
+} Sub120;
+
+typedef struct TripleHolder {
+  char pad00[0x40];
+  Sub120 sub[3]; /* 0x40 */
+} TripleHolder;
+
+/* Deleting destructor: destroys the three sub-objects in reverse order, frees the object when flags > 0. */
+TripleHolder *FUN_0008d72c(TripleHolder *self, short flags)
 {
-  if (param_1 != 0) {
-    if (param_1 + 0x280 != 0) {
-      FUN_000d7e30(param_1 + 0x280,0xffffffff);
+  if (self != 0) {
+    if (&self->sub[2] != 0) {
+      FUN_000d7e30(&self->sub[2], -1);
     }
-    if (param_1 + 0x160 != 0) {
-      FUN_000d7e30(param_1 + 0x160,0xffffffff);
+    if (&self->sub[1] != 0) {
+      FUN_000d7e30(&self->sub[1], -1);
     }
-    if (param_1 + 0x40 != 0) {
-      FUN_000d7e30(param_1 + 0x40,0xffffffff);
+    if (&self->sub[0] != 0) {
+      FUN_000d7e30(&self->sub[0], -1);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

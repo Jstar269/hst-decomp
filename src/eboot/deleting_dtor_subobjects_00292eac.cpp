@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00292eac end=0x00292fa0 symbol=FUN_00292eac lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: declared loop counter before walking pointer to fix s2/s3 register allocation; exact match verified; names and types await human review. */
 
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern char DAT_00309dcc;
@@ -13,16 +13,16 @@ extern int FUN_0005ba00(int, int);
 struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
 
-extern "C" undefined4 * FUN_00292eac(undefined4 *param_1, short param_2)
+extern "C" u32 * FUN_00292eac(u32 *param_1, short param_2)
 {
   int i;
-  undefined4 *puVar3;
+  u32 *puVar3;
   int *piVar1;
   int obj4;
   
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_00309dcc);
-    if (param_1 != (undefined4 *)0x0) {
+    if (param_1 != (u32 *)0x0) {
       *param_1 = (unsigned int)(&DAT_00309ddc);
       piVar1 = (int *)param_1[3];
       if (piVar1 != (int *)0x0) {

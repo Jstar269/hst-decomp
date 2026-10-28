@@ -2,11 +2,11 @@
 /* Clone of src/sharing_main/init_records_00100110.c (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed structs, rolled 16-iteration record init (opt_unroll_loops off, pointer walked by 0x40; same recipe as init_state_records_000fffc0.cpp), the f4e8 == 1 flag hoisted before the loop, float product kept in one local, unsigned char gate ok = (b != 0) ^ 1, index as nested ternary (flag != 0 ? (p == 0 ? 0 : p->f198) : 0); matching idiom: the two arms of the final compare repeat the same `if (ok)` store block, the object pointer is loaded before the ok test; exact match verified; names and types await human review. */
 #pragma opt_unroll_loops off
-typedef unsigned char uchar;
+#include "hst/types.h"
 typedef struct { float x, y, z, w; } Vec4;
 
 typedef struct {
-  uchar f0;
+  u8 f0;
   int f4, f8, fc, f10, f14;
   char pad18[8];
   int f20, f24, f28;
@@ -21,8 +21,8 @@ typedef struct {
 } Obj88;
 
 typedef struct {
-  uchar b0;
-  uchar b1;
+  u8 b0;
+  u8 b1;
 } Flags;
 
 typedef struct {
@@ -61,7 +61,7 @@ typedef struct {
 
 typedef struct {
   char pad0[0x45];
-  uchar b45;
+  u8 b45;
 } Sys;
 
 typedef struct {
@@ -70,7 +70,7 @@ typedef struct {
 } Out;
 
 extern Mgr *DAT_003386b0;
-extern uchar DAT_003386b8;
+extern u8 DAT_003386b8;
 extern Cur *DAT_00338ac4;
 extern Sys *DAT_00338b44;
 extern Out *DAT_00340284;
@@ -85,7 +85,7 @@ void FUN_000fa9d4(Self *self, int param_2, int param_3)
   char *p;
   Vec4 v;
   float scaled;
-  uchar ok;
+  u8 ok;
   int idx;
 
   mode1 = DAT_003386b0->players[param_3]->f4e8 == 1;

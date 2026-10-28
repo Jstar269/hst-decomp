@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00140acc end=0x00140d58 symbol=FUN_00140acc lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern void *DAT_003313c4;
 extern void *DAT_003386cc;
@@ -9,9 +9,9 @@ extern void *DAT_00338714;
 
 extern void FUN_0005c780(void *, void *);
 extern void FUN_0005c854(void *, int, void *, void *);
-extern void FUN_0005c900(void *, uint);
-extern void FUN_0005c954(void *, uint, void *);
-extern void FUN_0005c998(void *, uint, void *);
+extern void FUN_0005c900(void *, u32);
+extern void FUN_0005c954(void *, u32, void *);
+extern void FUN_0005c998(void *, u32, void *);
 extern void FUN_0005ce18(void *, float, float, float, float);
 extern void FUN_0005ce2c(void *, float, float, float);
 
@@ -53,24 +53,24 @@ void FUN_00140acc(char *param_1)
     }
 
     FUN_0005c900(DAT_003313c4, (int)*(int *)(param_1 + 0xd14));
-    uint uVar1 = 0;
+    u32 uVar1 = 0;
     if (*(int *)(param_1 + 0xd14) != 0) {
         do {
             FUN_0005c954(DAT_003313c4, uVar1, (char *)*(int *)(param_1 + 0xd10) + (uVar1 << 5));
             FUN_0005c998(DAT_003313c4, uVar1, (char *)*(int *)(param_1 + 0xd10) + (uVar1 << 5) + 0x10);
             uVar1 = uVar1 + 1;
-        } while (uVar1 < *(uint *)(param_1 + 0xd14));
+        } while (uVar1 < *(u32 *)(param_1 + 0xd14));
     }
 
     if (DAT_00338714 != 0) {
-        FUN_0005c900(DAT_00338714, *(uint *)(param_1 + 0xd14));
-        uint uVar2 = 0;
+        FUN_0005c900(DAT_00338714, *(u32 *)(param_1 + 0xd14));
+        u32 uVar2 = 0;
         if (*(int *)(param_1 + 0xd14) != 0) {
             do {
                 FUN_0005c954(DAT_00338714, uVar2, (char *)*(int *)(param_1 + 0xd10) + (uVar2 << 5));
                 FUN_0005c998(DAT_00338714, uVar2, (char *)*(int *)(param_1 + 0xd10) + (uVar2 << 5) + 0x10);
                 uVar2 = uVar2 + 1;
-            } while (uVar2 < *(uint *)(param_1 + 0xd14));
+            } while (uVar2 < *(u32 *)(param_1 + 0xd14));
         }
     }
 

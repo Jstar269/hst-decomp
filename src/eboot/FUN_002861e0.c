@@ -1,36 +1,21 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002861e0 end=0x002862a8 symbol=FUN_002861e0 lang=c99 */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_002c0e18;
-extern undefined DAT_002c0e1c;
-extern undefined DAT_002c0e20;
-extern undefined4 DAT_003415ac;
+extern u8 DAT_002c0e18;
+extern u8 DAT_002c0e1c;
+extern u8 DAT_002c0e20;
+extern u32 DAT_003415ac;
 extern void FUN_00114168();
-extern undefined1 * FUN_0018c9f4();
+extern u8 * FUN_0018c9f4();
 
 void FUN_002861e0(int param_1)
 {
   int iVar1;
-  undefined *puVar2;
+  u8 *puVar2;
   
-  *(undefined1 *)(param_1 + 0xc5) = 1;
-  if (((*(ushort *)(**(int **)(*(int *)(DAT_003415ac + 0x54) + 0x10) + 0xe) & 3) != 0) ||
+  *(u8 *)(param_1 + 0xc5) = 1;
+  if (((*(u16 *)(**(int **)(*(int *)(DAT_003415ac + 0x54) + 0x10) + 0xe) & 3) != 0) ||
      (*(int *)(DAT_003415ac + 0x68) != 6)) {
     iVar1 = (int)(FUN_0018c9f4(0x11));
     if (*(int *)(iVar1 + 4) == 0) {
@@ -43,9 +28,8 @@ void FUN_002861e0(int param_1)
       puVar2 = &DAT_002c0e18;
     }
     else {
-      puVar2 = *(undefined **)(*(int *)(*(int *)(iVar1 + 0xc) + 0xc0) + 0x40);
+      puVar2 = *(u8 **)(*(int *)(*(int *)(iVar1 + 0xc) + 0xc0) + 0x40);
     }
     FUN_00114168(DAT_003415ac,6,puVar2,0,0);
   }
-  return;
 }

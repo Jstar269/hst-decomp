@@ -1,9 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00062ee8 end=0x00062f68 symbol=FUN_00062ee8 lang=c99 */
 /* Clone of src/sharing_main/repeat_call_loop_00063dac.c (hstclone.py tag c034920): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_00331b80;
+extern u32 DAT_00331b80;
 extern void FUN_00062150(float);
 extern void FUN_002b7a78();
 

@@ -12,6 +12,24 @@
   },
   "include": {
    "include/float.h": "5fc5cf773ccc45dd77c3b97eb74ad6d63b83448d50c32126bbf723f84a63f7d5",
+   "include/hst/adhoc_menu.h": "8cb544b8ceb8f7b1f1f1440326e46fd0d7ab2ba909a31aa5a8e8c9e1fecf2bbd",
+   "include/hst/ball.h": "72a9c6a2af149ee594a405e4a8143ac0a3290653196cf316cedb1f2d7af103c5",
+   "include/hst/entry_records.h": "d35cecf637a0eaaaba03273492cacf5a4c9e3dc82c0577bef2d76e7360fad0b5",
+   "include/hst/game.h": "165807a3e5bf60fdff2d6305f2421f82b87473e4b7a58e904975575bbdcc3992",
+   "include/hst/game_state.h": "406f89cfca4207f966b9b13cab903d92ec3a3b3e958acf70a950e3dcba8e94a9",
+   "include/hst/holder.h": "de3538739503ddbf1a18272e577dc393713e8dbd613cfd1a6f0239e6619aae23",
+   "include/hst/match_players.h": "8dd43edfd2e728c4a29e3229daf8cd6619a2adaed1f6f34b09ed5a2918d354e6",
+   "include/hst/menu_obj.h": "0fed08a586f08f39a8944509b86048dd9635d9c9ec19f94928d0879e8d93da4c",
+   "include/hst/menu_rec.h": "964b1f6a1ca3b8dec483922e4325a92fd10cdd9a8095c339d6ebcee74012ed3a",
+   "include/hst/menu_state.h": "51f449f8497c128e76c33ed6b41c4f6c7b52762d3f96d5483874490dd294362c",
+   "include/hst/net_adhoc.h": "f956beaf320c79a8a73caa1092108905f4191e6672e4179c79197f0cc8467753",
+   "include/hst/net_slots.h": "3e58d62a2959b9417ac748b51e78fae13438f5209bca28dbafb23cd08042e29a",
+   "include/hst/result_screen.h": "489f9d72ff8a4a9791c9e129de1b55c415bdaf2c2d235125b2ebeed84395b1ce",
+   "include/hst/scene.h": "a1aaa2103951db8e3e6fb5719ad07b696ea1b660110e5dc1dc1fa8662a93d419",
+   "include/hst/slot_table.h": "87ee81442df02ec87458c0951c2c2c39ae29e31d6fec1063afa1d026dc764a2d",
+   "include/hst/stream_cursor.h": "b4164a402b4bc7188f73ee4210c81c454fdb74e02d6571132277d69ae09747f1",
+   "include/hst/types.h": "275ade42724aff82ffaa42a8f0e1460a8a504df4d949f83cab3f9f93b5d01f38",
+   "include/hst/vtable_obj.h": "5eaeb5e37d14a2b5b520f1f59097b40aabddc86badd6df29620b7816fd591870",
    "include/limits.h": "277bfb559313f85a34e5a918376ac3a89f737ca2aac2fb892b0213b2ae13a3a9",
    "include/stdarg.h": "459517cb5857e98ca051d1593825d5af0a1fec5272e89e3c1e08317ba9165a7d",
    "include/stddef.h": "98e8641c368a40d14d716dc3c6fec216498e913381a1774cc4ae596e3dac9365",
@@ -843,7 +861,7 @@
    }
   }
  },
- "core_digest": "b4157f619728fc713c0f9ac8601b040fb968f2540f97385cd74be2cf674dbfba",
+ "core_digest": "f9a547748394ea59f7b63f268c9a868e06031792482a879365d4c7a3d4dc69f3",
  "history": [
   {
    "digest": "9493e6106636aff84e57adce4cf0c985983ac492b1ed6d40292a0f87ce79ae7e",
@@ -942,6 +960,37 @@
    "scope": "full",
    "to": "b4157f619728fc713c0f9ac8601b040fb968f2540f97385cd74be2cf674dbfba",
    "utc": "2026-10-27T17:42:16Z"
+  },
+  {
+   "changes": [
+    "include/hst/adhoc_menu.h added",
+    "include/hst/ball.h added",
+    "include/hst/entry_records.h added",
+    "include/hst/game.h added",
+    "include/hst/game_state.h added",
+    "include/hst/holder.h added",
+    "include/hst/match_players.h added",
+    "include/hst/menu_obj.h added",
+    "include/hst/menu_rec.h added",
+    "include/hst/menu_state.h added",
+    "include/hst/net_adhoc.h added",
+    "include/hst/net_slots.h added",
+    "include/hst/result_screen.h added",
+    "include/hst/scene.h added",
+    "include/hst/slot_table.h added",
+    "include/hst/stream_cursor.h added",
+    "include/hst/types.h added",
+    "include/hst/vtable_obj.h added"
+   ],
+   "event": "migrate-toolchain",
+   "from": "b4157f619728fc713c0f9ac8601b040fb968f2540f97385cd74be2cf674dbfba",
+   "journal_seq": 203,
+   "reason": "include/hst/: shared readability headers (types.h and struct headers from the readability pass); no source includes them yet",
+   "reverified": 0,
+   "run": "20261028T174959Z-27aa76",
+   "scope": "include",
+   "to": "f9a547748394ea59f7b63f268c9a868e06031792482a879365d4c7a3d4dc69f3",
+   "utc": "2026-10-28T17:50:20Z"
   }
  ],
  "schema": "hst-decomp.toolchain-manifest.v1",

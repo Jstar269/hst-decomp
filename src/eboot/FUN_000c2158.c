@@ -1,9 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c2158 end=0x000c24a8 symbol=FUN_000c2158 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
-extern undefined4 DAT_00307424;
+extern u32 DAT_00307424;
 extern float DAT_002bc410;
 extern float DAT_002bc414;
 extern float DAT_002bc418;
@@ -21,9 +20,9 @@ extern float DAT_002bc444;
 extern float DAT_002bc448;
 extern float DAT_002bc44c;
 
-undefined4 *FUN_000c2158(undefined4 *param_1)
+u32 *FUN_000c2158(u32 *param_1)
 {
-  *param_1 = (undefined4)&DAT_00307424;
+  *param_1 = (u32)&DAT_00307424;
   param_1[1] = 3;
   param_1[0x4] = 0;
   param_1[0x5] = 0;
@@ -94,7 +93,7 @@ undefined4 *FUN_000c2158(undefined4 *param_1)
   param_1[0x5d] = 0;
   param_1[0x5f] = 0;
   param_1[0x60] = 0;
-  *(undefined1 *)(param_1 + 0x74) = 0;
+  *(u8 *)(param_1 + 0x74) = 0;
   param_1[0x75] = 0;
   param_1[0x44] = 0x3d05f06f;
   param_1[0x45] = 0x3d656042;

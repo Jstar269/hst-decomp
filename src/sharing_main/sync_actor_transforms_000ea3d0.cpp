@@ -1,22 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000ea3d0 end=0x000ea55c symbol=FUN_000ea3d0 lang=c++ */
 /* Clone of src/eboot/sync_actor_transforms_000e57bc.cpp (hstclone.py tag c20s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a7/v20) corrected by hand: typed the copied transform fields and count member; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined * DAT_003e19f0;
+extern u8 * DAT_003e19f0;
 }
 struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
@@ -67,17 +55,16 @@ extern "C" void FUN_000ea3d0(char *param_1)
       piVar2 = *(int **)(param_1 + 0x40);
       if (piVar2 != (int *)0x0) {
         delete ((VC_0 *)(piVar2));
-        *(undefined4 *)(param_1 + 0x40) = 0;
+        *(u32 *)(param_1 + 0x40) = 0;
       }
       piVar2 = *(int **)(param_1 + 0x44);
       if (piVar2 != (int *)0x0) {
         delete ((VC_1 *)(piVar2));
-        *(undefined4 *)(param_1 + 0x44) = 0;
+        *(u32 *)(param_1 + 0x44) = 0;
       }
     }
   }
   if (*(int *)(*(int *)(DAT_003e19f0 + 0x88) + 4) == 1) {
     *(int *)(param_1 + 0x80) = *(int *)(param_1 + 0x80) + 1;
   }
-  return;
 }

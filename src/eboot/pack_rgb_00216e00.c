@@ -1,9 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00216e00 end=0x00216e70 symbol=FUN_00216e00 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: RGB local declaration order and nested packing ORs; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
-uint FUN_00216e00(uint *param_1)
+u32 FUN_00216e00(u32 *param_1)
 {
     int r;
     int b;

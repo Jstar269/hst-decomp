@@ -1,8 +1,8 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00063dac end=0x00063e2c symbol=FUN_00063dac lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_003daec0;
+extern u32 DAT_003daec0;
 extern void FUN_00062fd4(float);
 extern void FUN_002c7818();
 

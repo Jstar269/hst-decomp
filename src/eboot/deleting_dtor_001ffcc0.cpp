@@ -1,18 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ffcc0 end=0x001ffdbc symbol=FUN_001ffcc0 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: the global tested before FUN_000009e4 is that call's argument (Ghidra dropped it, so retail loads it into a0); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern void *DAT_0034a144;
@@ -34,7 +22,7 @@ extern "C" int FUN_001ffcc0(int param_1,short param_2)
     piVar1 = *(int **)(param_1 + 4);
     if (piVar1 != (int *)0x0) {
       delete ((VC_0 *)(piVar1));
-      *(undefined4 *)(param_1 + 4) = 0;
+      *(u32 *)(param_1 + 4) = 0;
     }
     FUN_002175d4(param_1 + 0xb78,0xffffffff);
     FUN_002175d4(param_1 + 0xaec,0xffffffff);

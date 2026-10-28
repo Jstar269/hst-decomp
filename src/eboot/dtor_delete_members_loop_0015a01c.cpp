@@ -1,35 +1,23 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0015a01c end=0x0015a118 symbol=FUN_0015a01c lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: loop index declared before the walking pointer (swaps the s-register pair); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined DAT_00309070;
-extern undefined4 DAT_003403f8;
+extern u8 DAT_00309070;
+extern u32 DAT_003403f8;
 extern void FUN_00000a00(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
 struct VC_2 { virtual ~VC_2(); };
 
-extern "C" undefined4 * FUN_0015a01c(undefined4 *param_1,short param_2)
+extern "C" u32 * FUN_0015a01c(u32 *param_1,short param_2)
 {
   int *piVar1;
   int iVar3;
-  undefined4 *puVar2;
+  u32 *puVar2;
   
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_00309070);
     DAT_003403f8 = 0;
     piVar1 = (int *)param_1[9];

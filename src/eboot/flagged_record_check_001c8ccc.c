@@ -1,46 +1,31 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c8ccc end=0x001c8dc8 symbol=FUN_001c8ccc lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: one result variable that the loop sets to 0 and leaves with `break`, no else branch (earlier early `return 0` and `else { r = 0; }` forms moved the joins); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined * DAT_0033b574;
+extern u8 * DAT_0033b574;
 extern int FUN_0014c344();
 extern int FUN_001930c4();
-extern undefined4 FUN_0019319c();
+extern u32 FUN_0019319c();
 extern int FUN_0022ada4();
 
-undefined4 FUN_001c8ccc(void)
+u32 FUN_001c8ccc(void)
 {
   bool bVar1;
   int *piVar2;
   int iVar3;
-  undefined4 uVar4;
+  u32 uVar4;
   int iVar5;
   
   uVar4 = 0;
   bVar1 = false;
   if ((DAT_0033b574 != 0) &&
-     (piVar2 = (int *)FUN_0014c344(*(undefined4 *)(DAT_0033b574 + 0x1324),0xbe), *piVar2 >= 2)) {
+     (piVar2 = (int *)FUN_0014c344(*(u32 *)(DAT_0033b574 + 0x1324),0xbe), *piVar2 >= 2)) {
     bVar1 = true;
   }
   if (bVar1) {
     bVar1 = false;
     if ((DAT_0033b574 != 0) &&
-       (piVar2 = (int *)FUN_0014c344(*(undefined4 *)(DAT_0033b574 + 0x1324),0xbf), *piVar2 != 0)) {
+       (piVar2 = (int *)FUN_0014c344(*(u32 *)(DAT_0033b574 + 0x1324),0xbf), *piVar2 != 0)) {
       bVar1 = true;
     }
     if (!bVar1) {

@@ -1,35 +1,20 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001380b8 end=0x0013813c symbol=FUN_001380b8 lang=c99 */
 /* Clone of src/eboot/FUN_0012cc4c.c (hstclone.py tag x14): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003b13d4;
-extern undefined DAT_003b13f0;
-extern undefined4 DAT_003da704;
-extern undefined4 DAT_003e48b4;
+extern u8 DAT_003b13d4;
+extern u8 DAT_003b13f0;
+extern u32 DAT_003da704;
+extern u32 DAT_003e48b4;
 extern int FUN_0005c2f8();
 extern int FUN_0005c688();
 extern int FUN_0005c700();
-extern undefined4 * FUN_0014b1a4();
-extern undefined4 * FUN_00297ebc();
+extern u32 * FUN_0014b1a4();
+extern u32 * FUN_00297ebc();
 
-undefined4 * FUN_001380b8(undefined4 *param_1)
+u32 * FUN_001380b8(u32 *param_1)
 {
-  undefined1 auStack_2c0 [704];
+  u8 auStack_2c0 [704];
   
   FUN_0014b1a4();
   FUN_00297ebc(param_1 + 0x4c8);

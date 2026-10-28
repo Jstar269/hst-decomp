@@ -1,8 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ec3b8 end=0x001ec418 symbol=FUN_001ec3b8 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reconstructed merged-store null-checked constructor calls for both allocated objects; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
-extern void *FUN_00000bcc(uint size);
+extern void *FUN_00000bcc(u32 size);
 extern void *FUN_001eb784(void *);
 extern void *FUN_001eab84(void *);
 

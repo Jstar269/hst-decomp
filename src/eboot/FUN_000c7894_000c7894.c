@@ -1,9 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c7894 end=0x000c7928 symbol=FUN_000c7894 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
+#include "hst/types.h"
 
 extern int DAT_003386cc;
-extern undefined DAT_00338b04;
+extern u8 DAT_00338b04;
 extern void FUN_0005c780(int, float *);
 extern void FUN_0005c810(int, int, float *);
 

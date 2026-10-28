@@ -1,14 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0020f540 end=0x0020f83c symbol=FUN_0020f540 lang=c99 rodata=0x002c953c */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern uint FUN_0001342c();
+extern u32 FUN_0001342c();
 
-undefined4 FUN_0020f540(undefined4 param_1, undefined4 param_2, uint param_3)
+u32 FUN_0020f540(u32 param_1, u32 param_2, u32 param_3)
 {
-  undefined4 uVar1;
-  uint uVar2;
+  u32 uVar1;
+  u32 uVar2;
 
   uVar1 = 3;
   switch (param_2) {

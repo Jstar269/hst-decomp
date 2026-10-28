@@ -7,7 +7,6 @@
 /* matching idiom: the tested field is the first argument of the call that follows (MWCC keeps it in a0),
    the item pointer is tested twice before the deleting destructor, and the map/list members are guarded
    by nested null checks on their own addresses (four and three levels). */
-typedef unsigned int uint;
 
 struct Obj;
 typedef struct NodeA NodeA;

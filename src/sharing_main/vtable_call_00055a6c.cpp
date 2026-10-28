@@ -1,22 +1,8 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00055a6c end=0x00055ad0 symbol=FUN_00055a6c lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: modeled the indirect dispatch as a typed virtual call and retained C linkage for the delete helper; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003b02a0;
+extern u8 DAT_003b02a0;
 extern "C" void FUN_00000a00(int *);
 
 struct VC_00055a6c {

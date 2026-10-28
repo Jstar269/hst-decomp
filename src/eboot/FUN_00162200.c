@@ -1,25 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00162200 end=0x001622d8 symbol=FUN_00162200 lang=c99 */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag t0), refined by hstperm.py random mutation from try/gen-s256b/v0/FUN_00162200.c; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_00341508;
-extern undefined4 DAT_0034150c;
-extern undefined4 DAT_00341510;
+extern u32 DAT_00341508;
+extern u32 DAT_0034150c;
+extern u32 DAT_00341510;
 extern void FUN_000006e8();
 extern void FUN_00000a00();
 extern int * FUN_00165724();

@@ -1,26 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0014b19c end=0x0014b1a4 symbol=FUN_0014b19c lang=c99 */
 /* Clone of src/eboot/FUN_0013fb50.c (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 * FUN_0013da04(undefined4 *param_1,short param_2);
+extern u32 * FUN_0013da04(u32 *param_1,short param_2);
 
 void FUN_0014b19c(int param_1,short param_2)
 {
-  FUN_0013da04((undefined4 *)((undefined4 *)(param_1 + -0x40)),(short)(param_2));
-  return;
+  FUN_0013da04((u32 *)((u32 *)(param_1 + -0x40)),(short)(param_2));
 }

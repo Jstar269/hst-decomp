@@ -1,11 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00058fc0 end=0x00059084 symbol=FUN_00058fc0 lang=c99 */
 /* Clone of src/sharing_main/clear_range_entries_00059ca4.c (hstclone.py tag u4r2e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
     char pad[0xec];
-    uchar flag_ec;
+    u8 flag_ec;
     char pad_158[0x158 - 0xed];
     int start_idx;
     int end_idx;

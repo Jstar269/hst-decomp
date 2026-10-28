@@ -1,19 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0026feec end=0x0026ffec symbol=FUN_0026feec lang=c++ */
 /* Clone of src/eboot/FUN_0025f0c4.cpp (hstclone.py tag u5fr3s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: inverted if/else on DAT_003eaaf6, structured bool condition with xori, typed Obj fields; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern unsigned char DAT_003eaaf6;

@@ -1,8 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0008cea4 end=0x0008d07c symbol=FUN_0008cea4 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned char uchar;
-
 extern "C" {
 extern int *DAT_003415a8;
 extern char s_tADH_SeqInfo__Init___002beaa8[];

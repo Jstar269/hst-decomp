@@ -1,22 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0018a1ac end=0x0018a244 symbol=FUN_0018a1ac lang=c99 */
 /* Clone of src/eboot/FUN_0017dab8.c (hstclone.py tag c24): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag s256a, variant v0) corrected by hand: if/else order inverted and the float product regrouped to the retail evaluation order; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 extern int FUN_00177ea4();
 extern int FUN_00212c68();

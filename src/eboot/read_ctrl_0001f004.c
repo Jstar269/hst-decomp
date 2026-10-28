@@ -1,29 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0001f004 end=0x0001f06c symbol=FUN_0001f004 lang=c99 */
 /* Clone of src/sharing_main/read_ctrl_0001ebdc.c (hstclone.py tag u4r2e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned short ushort;
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
-    uint timeStamp;
+    u32 timeStamp;
     union {
-        uint buttons;
-        ushort buttons_u16[2];
+        u32 buttons;
+        u16 buttons_u16[2];
     };
     union {
         struct {
-            uchar lx;
-            uchar ly;
+            u8 lx;
+            u8 ly;
         };
-        ushort analog;
+        u16 analog;
     };
-    uchar rsrv[6];
+    u8 rsrv[6];
 } SceCtrlData;
 
 extern int FUN_002b7a90(SceCtrlData *pad, int n);
 
-int FUN_0001f004(ushort *param_1)
+int FUN_0001f004(u16 *param_1)
 {
     SceCtrlData pad;
     if (FUN_002b7a90(&pad, 1)) {

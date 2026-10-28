@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00285c14 end=0x00285c78 symbol=FUN_00285c14 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: inverted if/else branch order; exact match verified; names and types await human review. */
 
-typedef unsigned char bool;
+#include "hst/types.h"
 extern void *DAT_00338ac4;
 extern bool FUN_000bae98(void *, void *, int, void *);
 extern bool FUN_000bafd0(void *, void *, int, void *);

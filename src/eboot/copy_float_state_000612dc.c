@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000612dc end=0x000613ec symbol=FUN_000612dc lang=c99 */
 /* Clone of src/sharing_main/copy_float_state_00062160.c (hstclone.py tag u3r2e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 typedef struct { float x,y,z,w; } Vec4_000612dc;
 typedef struct {
   char pad00[0x10];
@@ -38,10 +38,10 @@ void FUN_000612dc(Dest_000612dc *dst,Src_000612dc *src)
   dst->f20.z = src->f1f0.z;
   dst->f20.w = src->f1f0.w;
   FUN_00022518(&dst->f30,&dst->f30);
-  ((uint *)&dst->f30)[3] = 0;
+  ((u32 *)&dst->f30)[3] = 0;
   FUN_000224f8(&dst->f10,&dst->f20,&dst->f30);
   FUN_00022518(&dst->f10,&dst->f10);
-  ((uint *)&dst->f10)[3] = 0;
+  ((u32 *)&dst->f10)[3] = 0;
   FUN_000224f8(&dst->f20,&dst->f30,&dst->f10);
   dst->f40.x = dst->f40.x;
   dst->f40.y = dst->f40.y;

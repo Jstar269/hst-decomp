@@ -1,12 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00050a10 end=0x00050a80 symbol=FUN_00050a10 lang=c99 */
 /* Clone of src/sharing_main/clear_status_00051324.c (hstclone.py tag u5fr2e): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag sh2, variant v0) corrected by hand: typed struct member offsets and assert argument propagation; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_002d0d40;
-extern undefined DAT_002d0a6c;
-extern undefined DAT_00311170;
+extern u8 DAT_002d0d40;
+extern u8 DAT_002d0a6c;
+extern u8 DAT_00311170;
 extern int FUN_0003420c(void);
 extern int FUN_0003ca88(int, int);
 extern void FUN_0004f010(void *, int, void *, int, void *);

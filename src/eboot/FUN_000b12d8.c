@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000b12d8 end=0x000b13c4 symbol=FUN_000b12d8 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-extern undefined *DAT_003386b0;
+#include "hst/types.h"
+extern u8 *DAT_003386b0;
 extern unsigned char *DAT_00338b44;
 extern void FUN_00090144(void *, float *, float *, float, float, int *, int);
 extern void FUN_000c8708(void *, int);

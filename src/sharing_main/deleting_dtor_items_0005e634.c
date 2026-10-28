@@ -5,7 +5,7 @@
    FUN_0005dc04(elem, 1), the member at +0 is destroyed through FUN_000104e0, the vector-like member
    at +4 through FUN_0005eac0 (behind a doubled null test on its address, as in destroy_buffers_0005dc04.c),
    and a positive flag deletes the object. Names provisional. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern void FUN_00000a00(void *);
 extern void FUN_000104e0(void *);
@@ -15,14 +15,14 @@ extern void FUN_0005eac0(void *, int);
 typedef struct {
   void *f0;
   void **items;
-  uint count;
+  u32 count;
 } Obj;
 
 #pragma opt_strength_reduction off
 Obj *FUN_0005e634(Obj *self, short flag)
 {
   char *p;
-  uint i;
+  u32 i;
   if (self != 0) {
     for (i = 0; i < self->count; i++) {
       FUN_0005dc04(self->items[i], 1);

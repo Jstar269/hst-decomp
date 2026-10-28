@@ -1,8 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00218814 end=0x00218a24 symbol=FUN_00218814 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
-void FUN_00218814(int *param_1, uint *param_2, uint param_3)
+void FUN_00218814(int *param_1, u32 *param_2, u32 param_3)
 {
   if (param_3 == 0xcc) {
     *param_1 = 0;

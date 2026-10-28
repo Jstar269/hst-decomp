@@ -2,9 +2,7 @@
 /* Clone of src/eboot/compare_obj_001fe9b4.c (hstclone.py tag u5fr1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: simplified return branching; exact match verified; names and types await human review. */
 
-typedef unsigned char bool;
-#define true 1
-#define false 0
+#include "hst/types.h"
 
 int FUN_0020d184(int *param_1, int *param_2)
 {

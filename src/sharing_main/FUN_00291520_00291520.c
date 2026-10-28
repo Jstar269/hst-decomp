@@ -1,34 +1,19 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00291520 end=0x00291588 symbol=FUN_00291520 lang=c99 */
 /* Clone of src/eboot/FUN_002800ac_002800ac.c (hstclone.py tag u5cr1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1/v0c) corrected by hand: reused and stored the allocation result on both null and initialized paths; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003a7728;
-extern undefined4 DAT_003f3b20;
+extern u8 DAT_003a7728;
+extern u32 DAT_003f3b20;
 extern char DAT_003a76e8[];
 extern int FUN_00000bcc();
 extern int * FUN_00065884();
-extern undefined4 FUN_00065ab8();
+extern u32 FUN_00065ab8();
 
-undefined4 * FUN_00291520(undefined4 *param_1)
+u32 * FUN_00291520(u32 *param_1)
 {
   int iVar1;
-  undefined4 uVar2;
+  u32 uVar2;
   
   *param_1 = 0;
   DAT_003f3b20 = (unsigned int)(param_1);
@@ -40,5 +25,4 @@ undefined4 * FUN_00291520(undefined4 *param_1)
   FUN_00065ab8(iVar1,DAT_003a76e8 + 0x10,1,&DAT_003a7728);
   return param_1;
 }
-
 

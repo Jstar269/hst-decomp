@@ -1,39 +1,24 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000c3e58 end=0x000c3fcc symbol=FUN_000c3e58 lang=c99 */
 /* Clone of src/eboot/cleanup_resource_table_000c07b8.c (hstclone.py tag km3): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idiom: pass each tested field pointer to FUN_000009e4 and keep the loop index separate from its scaled offset. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern char DAT_003b06d4;
 extern unsigned char DAT_003e1e0c;
 extern void FUN_000009e4(void *);
 extern void FUN_00000a00(void *);
-extern undefined4 * FUN_0001ed28(void *, int);
+extern u32 * FUN_0001ed28(void *, int);
 extern void FUN_000c5140(void *, int);
 
 #pragma opt_strength_reduction off
 
-undefined4 * FUN_000c3e58(undefined4 *param_1,short param_2)
+u32 * FUN_000c3e58(u32 *param_1,short param_2)
 {
   int iVar1;
-  uint index;
+  u32 index;
   int offset;
   
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_003b06d4);
     DAT_003e1e0c = 0;
     index = 0;
@@ -70,10 +55,10 @@ undefined4 * FUN_000c3e58(undefined4 *param_1,short param_2)
       FUN_000009e4((void *)iVar1);
       param_1[0x1db] = 0;
     }
-    if ((param_1 + 0x1df) != (undefined4 *)0x0 && (param_1 + 0x1df) != (undefined4 *)0x0) {
+    if ((param_1 + 0x1df) != (u32 *)0x0 && (param_1 + 0x1df) != (u32 *)0x0) {
       FUN_000c5140(param_1 + 0x1df,0);
     }
-    if ((param_1 + 0x1dc) != (undefined4 *)0x0 && (param_1 + 0x1dc) != (undefined4 *)0x0) {
+    if ((param_1 + 0x1dc) != (u32 *)0x0 && (param_1 + 0x1dc) != (u32 *)0x0) {
       FUN_000c5140(param_1 + 0x1dc,0);
     }
     FUN_0001ed28(param_1,0);

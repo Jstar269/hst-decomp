@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011a820 end=0x0011a95c symbol=FUN_0011a820 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: the flag/goto web is an inline early-return predicate RowsOk (guarded do/while over 0x34-byte rows, ternary 0.0f fallback) inside a for(;;) with break, flags are unsigned char, the callee 0xfb590 takes the tested global as its dropped argument; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
-typedef unsigned char uchar;
+#include "hst/types.h"
 typedef struct S8 { char pad[8]; float f8; } S8;
 typedef struct Ref { S8 *s; } Ref;
 typedef struct RowV { char pad[0xf4]; Ref *ref; char pad2[0xc]; float f10; } RowV;
@@ -12,15 +12,15 @@ typedef struct Item {
 } Item;
 typedef struct Obj {
   char pad0[0x44];
-  uchar f44;
+  u8 f44;
   char pad1[3];
   Item *items[27];
-  uchar active[27];
+  u8 active[27];
 } Obj;
 extern int DAT_00338c20;
 extern int FUN_000fb590(int);
 
-static inline uchar RowsOk(Item *it)
+static inline u8 RowsOk(Item *it)
 {
   int j = it->cur;
   int end = it->end;
@@ -36,10 +36,10 @@ static inline uchar RowsOk(Item *it)
   return 1;
 }
 
-uchar FUN_0011a820(Obj *o)
+u8 FUN_0011a820(Obj *o)
 {
-  uchar a = 0;
-  uchar b;
+  u8 a = 0;
+  u8 b;
   if (o->f44 != 0) {
     int r;
     int i = 0;

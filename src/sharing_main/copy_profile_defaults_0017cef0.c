@@ -1,7 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0017cef0 end=0x0017d068 symbol=FUN_0017cef0 lang=c99 */
 /* Hand-written reconstruction (port of src/eboot/copy_profile_defaults_00170c24.c, its twin: addresses substituted by try/twins-20261026/port.py; no other change); exact match verified; names and types await human review. */
-typedef unsigned char undefined1;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 typedef int code();
 typedef struct Vec4 { float x, y, z, w; } Vec4;
 typedef struct BytePair { unsigned char first, second; } BytePair;
@@ -33,12 +32,12 @@ extern void FUN_00099c98();
 extern void FUN_001cf8c4();
 void FUN_0017cef0(int param_1, int param_2)
 {
-  undefined4 uVar4;
-  undefined4 uVar5;
+  u32 uVar4;
+  u32 uVar5;
   uVar4 = (**(code **)(param_1 + 0x540))();
   uVar5 = (**(code **)(param_1 + 0x540))();
   uVar5 = (**(code **)(param_1 + 1000))(uVar5);
-  FUN_001cf8c4(0, uVar4, uVar5, 0, *(undefined4 *)(param_1 + 0x8c), 0);
+  FUN_001cf8c4(0, uVar4, uVar5, 0, *(u32 *)(param_1 + 0x8c), 0);
   if (DAT_003e1a08 != 0) {
     int iVar6 = (int)DAT_003e1a08->child;
     DataRecord *dst = (DataRecord *)(iVar6 + 0x528);

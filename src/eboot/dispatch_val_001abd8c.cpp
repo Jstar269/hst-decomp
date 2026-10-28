@@ -2,21 +2,20 @@
 /* Clone of src/sharing_main/dispatch_val_001b93f4.cpp (hstclone.py tag u4r2e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned char uchar;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 void *FUN_0019d474(void);
-void FUN_001ab7e0(undefined4, int, int);
-void FUN_001aa9a8(undefined4, int, int);
+void FUN_001ab7e0(u32, int, int);
+void FUN_001aa9a8(u32, int, int);
 }
 
-extern "C" void FUN_001abd8c(undefined4 param_1, int param_2)
+extern "C" void FUN_001abd8c(u32 param_1, int param_2)
 {
   int uVar3;
-  uchar val;
+  u8 val;
 
-  val = *(uchar *)((int)FUN_0019d474() + 0x11c);
+  val = *(u8 *)((int)FUN_0019d474() + 0x11c);
   switch (val) {
   case 0:
   case 4:

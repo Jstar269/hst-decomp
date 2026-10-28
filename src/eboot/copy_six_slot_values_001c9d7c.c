@@ -1,6 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c9d7c end=0x001c9dec symbol=FUN_001c9d7c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
 
 extern char *DAT_0034a118;
 extern char DAT_0034a678;

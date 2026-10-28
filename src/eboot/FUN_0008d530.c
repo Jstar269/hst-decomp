@@ -1,54 +1,41 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0008d530 end=0x0008d640 symbol=FUN_0008d530 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s512a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/entry_records.h"
 
-extern uint * FUN_000114c0();
-extern void FUN_0008d640();
-extern undefined2 * FUN_0008d650();
-extern void FUN_000d7e70();
+extern void FUN_000114c0(void *, int, int);
+extern void FUN_0008d640(void *, int, int);
+extern void FUN_0008d650(void *);
+extern void FUN_000d7e70(void *);
 
-int FUN_0008d530(int param_1)
+/* Entry constructor (array-constructed by the table constructor). */
+Entry *FUN_0008d530(Entry *entry)
 {
-  FUN_0008d650();
-  FUN_000114c0(param_1,0,200);
-  FUN_0008d640(param_1,0,0);
-  FUN_0008d640(param_1,1,0);
-  FUN_0008d640(param_1,2,0);
-  FUN_0008d640(param_1,3,0);
-  FUN_0008d640(param_1,4,0);
-  FUN_0008d640(param_1,5,0);
-  FUN_000d7e70(param_1);
-  *(undefined1 *)(param_1 + 200) = 0;
-  *(undefined4 *)(param_1 + 0xec) = 0x40a00000;
-  *(undefined1 *)(param_1 + 0xf0) = 10;
-  *(undefined1 *)(param_1 + 0xf1) = 0;
-  *(undefined1 *)(param_1 + 0xc9) = 0xe3;
-  *(undefined1 *)(param_1 + 0xca) = 0x81;
-  *(undefined1 *)(param_1 + 0xcb) = 0xbf;
-  *(undefined1 *)(param_1 + 0xcc) = 0xe3;
-  *(undefined1 *)(param_1 + 0xcd) = 0x82;
-  *(undefined1 *)(param_1 + 0xce) = 0x93;
-  *(undefined1 *)(param_1 + 0xcf) = 0xe3;
-  *(undefined1 *)(param_1 + 0xd0) = 0x83;
-  *(undefined1 *)(param_1 + 0xd1) = 0x86;
-  *(undefined1 *)(param_1 + 0xd2) = 0xe3;
-  *(undefined1 *)(param_1 + 0xd3) = 0x83;
-  *(undefined1 *)(param_1 + 0xd4) = 0x8b;
-  *(undefined1 *)(param_1 + 0xd5) = 0x50;
-  return param_1;
+  FUN_0008d650(entry);
+  FUN_000114c0(entry, 0, sizeof(Rec200));
+  FUN_0008d640(entry, 0, 0);
+  FUN_0008d640(entry, 1, 0);
+  FUN_0008d640(entry, 2, 0);
+  FUN_0008d640(entry, 3, 0);
+  FUN_0008d640(entry, 4, 0);
+  FUN_0008d640(entry, 5, 0);
+  FUN_000d7e70(entry);
+  entry->unkc8 = 0;
+  entry->unkec = 5.0f;
+  entry->unkf0 = 10;
+  entry->unkf1 = 0;
+  /* default UTF-8 string, five characters (four 3-byte kana, then 'P') */
+  entry->strc9[0] = 0xe3;
+  entry->strc9[1] = 0x81;
+  entry->strc9[2] = 0xbf;
+  entry->strc9[3] = 0xe3;
+  entry->strc9[4] = 0x82;
+  entry->strc9[5] = 0x93;
+  entry->strc9[6] = 0xe3;
+  entry->strc9[7] = 0x83;
+  entry->strc9[8] = 0x86;
+  entry->strc9[9] = 0xe3;
+  entry->strc9[10] = 0x83;
+  entry->strc9[11] = 0x8b;
+  entry->strc9[12] = 0x50;
+  return entry;
 }

@@ -1,8 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001269c4 end=0x00126b40 symbol=FUN_001269c4 lang=c99 */
 /* Clone of src/eboot/FUN_0011b7f0.c (hstclone.py tag ds1018ar1s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 extern char DAT_003e47c8;
 
@@ -16,11 +15,11 @@ typedef struct {
 } Entry;
 
 typedef struct {
-  uint count;
+  u32 count;
   int pad;
-  uint a;
+  u32 a;
   Entry **rows;
-  uint b;
+  u32 b;
   int flag;
 } Slot;
 

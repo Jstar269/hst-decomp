@@ -1,18 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00063dc8 end=0x00063e44 symbol=FUN_00063dc8 lang=c99 */
 /* Clone of src/sharing_main/FUN_00064c8c_00064c8c.c (hstclone.py tag u5cr2e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 typedef struct State {
   void *handle;
   float argument;
-  uint scale_bits;
-  uint limit_bits;
-  uint field10;
-  uint field14;
-  uint factor_bits;
-  uint factor_copy_bits;
+  u32 scale_bits;
+  u32 limit_bits;
+  u32 field10;
+  u32 field14;
+  u32 factor_bits;
+  u32 factor_copy_bits;
 } State;
-extern void *FUN_00000bcc(uint size);
+extern void *FUN_00000bcc(u32 size);
 extern void *FUN_00050fc0(void *object);
 extern void FUN_000513fc(void *object, int flag);
 State *FUN_00063dc8(State *self, float argument)

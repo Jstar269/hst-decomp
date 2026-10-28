@@ -1,22 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0022039c end=0x002205e4 symbol=FUN_0022039c lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode corrected by hand: typed float globals, hoisted the shared source float, and matched the color conversion and completion branches; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern int DAT_002eff94;
 extern float DAT_002f0b4c;
@@ -28,7 +13,7 @@ extern float FUN_000ede98(float param_1,float param_2,float param_3,float param_
 extern void FUN_00103128(int);
 extern void FUN_00103480(int);
 extern void FUN_00103628(int, int);
-extern void FUN_0027fc70(uint *, uint *, int);
+extern void FUN_0027fc70(u32 *, u32 *, int);
 
 void FUN_0022039c(int param_1)
 {
@@ -61,13 +46,13 @@ void FUN_0022039c(int param_1)
     *(float *)(*(int *)(param_1 + 0x60) + 0x78) = fVar4;
     FUN_00103480(param_1);
     if (*(int *)(param_1 + 0x5c) < 0x5a) {
-      FUN_0027fc70((uint *)(param_1 + 0x70),*(uint **)(param_1 + 0x68),1);
+      FUN_0027fc70((u32 *)(param_1 + 0x70),*(u32 **)(param_1 + 0x68),1);
       iVar1 = *(int *)(param_1 + 0x5c);
     }
     else {
       float scaled = fVar4 * 255.0f;
       int component;
-      uint *colorp = *(uint **)(param_1 + 0x68);
+      u32 *colorp = *(u32 **)(param_1 + 0x68);
       if (2.1474836e+09f <= scaled) goto LAB_00220540;
       component = (int)scaled;
       goto LAB_00220554;
@@ -75,8 +60,8 @@ LAB_00220540:
       scaled = scaled - 2.1474836e+09f;
       component = (int)scaled | -32768;
 LAB_00220554:;
-      uint high = (uint)(component & 0xff) << 0x18;
-      uint old = *(volatile uint *)colorp;
+      u32 high = (u32)(component & 0xff) << 0x18;
+      u32 old = *(volatile u32 *)colorp;
       *colorp = (old & 0xffffff) | high;
       iVar1 = *(int *)(param_1 + 0x5c);
     }
@@ -85,10 +70,9 @@ LAB_00220554:;
     }
     if (!(*(int *)(param_1 + 0x5c) < DAT_002eff94)) {
       FUN_00103628(param_1,1);
-      *(undefined1 *)(param_1 + 0x54) = 1;
-      *(undefined4 *)(param_1 + 0x5c) = 0xffffffff;
+      *(u8 *)(param_1 + 0x54) = 1;
+      *(u32 *)(param_1 + 0x5c) = 0xffffffff;
     }
 LAB_002205bc:
   FUN_00103128(param_1);
-  return;
 }

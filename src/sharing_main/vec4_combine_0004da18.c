@@ -1,21 +1,5 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0004da18 end=0x0004db54 symbol=FUN_0004da18 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed the Vec4 locals (slots follow declaration order), restored the dropped float scale argument of FUN_000224c0, rewrote the component loop with walking src/dst pointers; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 typedef struct Vec4 { float x, y, z, w; } Vec4;
 typedef struct Pair { Vec4 a; Vec4 b; } Pair;

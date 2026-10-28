@@ -1,50 +1,35 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002815c4 end=0x002817e0 symbol=FUN_002815c4 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag gen-a1/v0c) corrected by hand: matching idiom: signed-char constants for high-bit byte fields; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_002c0e18;
-extern undefined DAT_002c0e1c;
-extern undefined DAT_002c0e20;
+extern u8 DAT_002c0e18;
+extern u8 DAT_002c0e1c;
+extern u8 DAT_002c0e20;
 extern void FUN_000133f4();
-extern uint FUN_0001342c();
-extern uint * FUN_000149a8();
-extern undefined1 * FUN_0018c9f4();
+extern u32 FUN_0001342c();
+extern u32 * FUN_000149a8();
+extern u8 * FUN_0018c9f4();
 extern int FUN_002b78f8();
 
 void FUN_002815c4(int param_1)
 {
   int iVar1;
-  undefined4 uVar2;
-  undefined *puVar3;
+  u32 uVar2;
+  u8 *puVar3;
   
-  *(undefined1 *)(param_1 + 0x710) = 0;
-  *(undefined1 *)(param_1 + 0x713) = 0;
-  *(undefined1 *)(param_1 + 0x711) = 0;
-  *(undefined1 *)(param_1 + 0x735) = 0;
-  *(undefined1 *)(param_1 + 0x736) = 0;
-  *(undefined1 *)(param_1 + 0x737) = 0;
-  *(undefined1 *)(param_1 + 0x738) = 0;
-  *(undefined4 *)(param_1 + 0x73c) = 0xffffffff;
-  *(undefined4 *)(param_1 + 0x740) = 0xffffffff;
-  *(undefined4 *)(param_1 + 0x744) = 0x40a00000;
-  *(undefined1 *)(param_1 + 0x748) = 10;
-  *(undefined1 *)(param_1 + 0x749) = 0;
-  *(undefined4 *)(param_1 + 0x74c) = 0;
+  *(u8 *)(param_1 + 0x710) = 0;
+  *(u8 *)(param_1 + 0x713) = 0;
+  *(u8 *)(param_1 + 0x711) = 0;
+  *(u8 *)(param_1 + 0x735) = 0;
+  *(u8 *)(param_1 + 0x736) = 0;
+  *(u8 *)(param_1 + 0x737) = 0;
+  *(u8 *)(param_1 + 0x738) = 0;
+  *(u32 *)(param_1 + 0x73c) = 0xffffffff;
+  *(u32 *)(param_1 + 0x740) = 0xffffffff;
+  *(u32 *)(param_1 + 0x744) = 0x40a00000;
+  *(u8 *)(param_1 + 0x748) = 10;
+  *(u8 *)(param_1 + 0x749) = 0;
+  *(u32 *)(param_1 + 0x74c) = 0;
   *(signed char *)(param_1 + 0x714) = (signed char)0xe3;
   *(signed char *)(param_1 + 0x715) = (signed char)0x81;
   *(signed char *)(param_1 + 0x716) = (signed char)0xbf;
@@ -57,20 +42,20 @@ void FUN_002815c4(int param_1)
   *(signed char *)(param_1 + 0x71d) = (signed char)0xe3;
   *(signed char *)(param_1 + 0x71e) = (signed char)0x83;
   *(signed char *)(param_1 + 0x71f) = (signed char)0x8b;
-  *(undefined1 *)(param_1 + 0x720) = 0x50;
-  *(undefined1 *)(param_1 + 0x830) = 0;
-  *(undefined1 *)(param_1 + 0x833) = 0;
-  *(undefined1 *)(param_1 + 0x831) = 0;
-  *(undefined1 *)(param_1 + 0x855) = 0;
-  *(undefined1 *)(param_1 + 0x856) = 0;
-  *(undefined1 *)(param_1 + 0x857) = 0;
-  *(undefined1 *)(param_1 + 0x858) = 0;
-  *(undefined4 *)(param_1 + 0x85c) = 0xffffffff;
-  *(undefined4 *)(param_1 + 0x860) = 0xffffffff;
-  *(undefined4 *)(param_1 + 0x864) = 0x40a00000;
-  *(undefined1 *)(param_1 + 0x868) = 10;
-  *(undefined1 *)(param_1 + 0x869) = 0;
-  *(undefined4 *)(param_1 + 0x86c) = 0;
+  *(u8 *)(param_1 + 0x720) = 0x50;
+  *(u8 *)(param_1 + 0x830) = 0;
+  *(u8 *)(param_1 + 0x833) = 0;
+  *(u8 *)(param_1 + 0x831) = 0;
+  *(u8 *)(param_1 + 0x855) = 0;
+  *(u8 *)(param_1 + 0x856) = 0;
+  *(u8 *)(param_1 + 0x857) = 0;
+  *(u8 *)(param_1 + 0x858) = 0;
+  *(u32 *)(param_1 + 0x85c) = 0xffffffff;
+  *(u32 *)(param_1 + 0x860) = 0xffffffff;
+  *(u32 *)(param_1 + 0x864) = 0x40a00000;
+  *(u8 *)(param_1 + 0x868) = 10;
+  *(u8 *)(param_1 + 0x869) = 0;
+  *(u32 *)(param_1 + 0x86c) = 0;
   *(signed char *)(param_1 + 0x834) = (signed char)0xe3;
   *(signed char *)(param_1 + 0x835) = (signed char)0x81;
   *(signed char *)(param_1 + 0x836) = (signed char)0xbf;
@@ -83,11 +68,11 @@ void FUN_002815c4(int param_1)
   *(signed char *)(param_1 + 0x83d) = (signed char)0xe3;
   *(signed char *)(param_1 + 0x83e) = (signed char)0x83;
   *(signed char *)(param_1 + 0x83f) = (signed char)0x8b;
-  *(undefined1 *)(param_1 + 0x840) = 0x50;
-  *(undefined1 *)(param_1 + 0x735) = 1;
-  *(undefined1 *)(param_1 + 0x855) = 1;
-  *(undefined1 *)(param_1 + 0x710) = 1;
-  *(undefined1 *)(param_1 + 0x830) = 1;
+  *(u8 *)(param_1 + 0x840) = 0x50;
+  *(u8 *)(param_1 + 0x735) = 1;
+  *(u8 *)(param_1 + 0x855) = 1;
+  *(u8 *)(param_1 + 0x710) = 1;
+  *(u8 *)(param_1 + 0x830) = 1;
   iVar1 = (int)(FUN_0018c9f4(0x13));
   if (*(int *)(iVar1 + 4) == 0) {
     puVar3 = &DAT_002c0e20;
@@ -99,7 +84,7 @@ void FUN_002815c4(int param_1)
     puVar3 = &DAT_002c0e18;
   }
   else {
-    puVar3 = *(undefined **)(**(int **)(iVar1 + 0xc) + 0xc);
+    puVar3 = *(u8 **)(**(int **)(iVar1 + 0xc) + 0xc);
   }
   FUN_000149a8(param_1 + 0x714,puVar3);
   if (*(int *)(iVar1 + 4) == 0) {
@@ -112,14 +97,13 @@ void FUN_002815c4(int param_1)
     puVar3 = &DAT_002c0e18;
   }
   else {
-    puVar3 = *(undefined **)(**(int **)(iVar1 + 0xc) + 0xc);
+    puVar3 = *(u8 **)(**(int **)(iVar1 + 0xc) + 0xc);
   }
   FUN_000149a8(param_1 + 0x834,puVar3);
   uVar2 = FUN_002b78f8();
   FUN_000133f4(uVar2);
   uVar2 = FUN_0001342c();
-  *(undefined4 *)(param_1 + 0x74c) = uVar2;
+  *(u32 *)(param_1 + 0x74c) = uVar2;
   uVar2 = FUN_0001342c();
-  *(undefined4 *)(param_1 + 0x86c) = uVar2;
-  return;
+  *(u32 *)(param_1 + 0x86c) = uVar2;
 }

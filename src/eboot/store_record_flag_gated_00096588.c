@@ -1,7 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00096588 end=0x000966ac symbol=FUN_00096588 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a3) corrected by hand: gate flag as int (DAT != 0, then (byte != 0) ^ 1), unsigned char flag globals, the 0x39-byte record copied as typed struct (two Vec4 members assigned whole, then scalar members one by one); exact match verified; names and types await human review. */
-typedef unsigned char uchar;
-typedef int undefined4;
+#include "hst/types.h"
 typedef struct { float x, y, z, w; } Vec4;
 typedef struct {
   Vec4 a;
@@ -13,9 +12,9 @@ typedef struct {
   int k;
 } Rec;
 
-extern uchar DAT_003386b8;
+extern u8 DAT_003386b8;
 extern char * DAT_00338af0;
-extern undefined4 FUN_0009642c();
+extern s32 FUN_0009642c();
 extern void FUN_000969c0();
 extern int FUN_000c4ba0();
 
@@ -27,7 +26,7 @@ void FUN_00096588(int param_1, Rec *s)
 
   ok = DAT_003386b8 != 0;
   if (ok) {
-    ok = (*(uchar *)(param_1 + 0x1b4) != 0) ^ 1;
+    ok = (*(u8 *)(param_1 + 0x1b4) != 0) ^ 1;
   }
   if (((ok) && (DAT_00338af0 != 0)) && (iVar2 = FUN_0009642c(param_1,0), iVar2 != 0)) {
     iVar2 = FUN_000c4ba0(DAT_00338af0,*(int *)(param_1 + 0x148));
@@ -46,5 +45,4 @@ void FUN_00096588(int param_1, Rec *s)
     d->k = *(int *)(DAT_00338af0 + 0x780);
     FUN_000969c0(iVar2);
   }
-  return;
 }

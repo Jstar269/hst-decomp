@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002875f8 end=0x002876a0 symbol=FUN_002875f8 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: 24-byte record struct, !(0 < param_3) condition, and exact local declaration order; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern int DAT_0034a2e0;
 extern void FUN_00225b00(int, int, int, int, int);
@@ -16,7 +16,7 @@ struct Rec {
   int f14;
 };
 
-void FUN_002875f8(int param_1, int param_2, uint param_3, int param_4)
+void FUN_002875f8(int param_1, int param_2, u32 param_3, int param_4)
 {
   int local_4;
   struct Rec rec;

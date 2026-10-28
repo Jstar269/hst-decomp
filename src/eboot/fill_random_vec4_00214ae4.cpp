@@ -1,9 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00214ae4 end=0x00214e4c symbol=FUN_00214ae4 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed structs in C++, float compares with the variable on the left, the two side flags as unsigned char, swap variables c1/c2 copied before the four position calls (called in the order other, self, p2, p1), second table slot read as `*(Player **)((char *)pl + (u + 2) * 4)` (unfolded index), flag-set arm first, `Max(const float &, const float &)` returning by value for the double global load, `scale` / `z0` / `x0` declared in that order for the FPR numbering; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 struct Player {
   char pad0[0x144];
-  uint f144;
+  u32 f144;
   int f148;
   char pad1[0x580 - 0x14c];
   float f580;
@@ -28,7 +28,7 @@ extern float DAT_002efacc;
 extern float DAT_002efad0;
 extern Game *DAT_003386b0;
 extern Cfg *DAT_00338b44;
-extern uint FUN_0001342c(void);
+extern u32 FUN_0001342c(void);
 extern float *FUN_00093838(int);
 extern A124 *FUN_00215a20(Player *);
 extern A124 *FUN_00215a58(Player *);
@@ -48,7 +48,7 @@ extern "C" void FUN_00214ae4(float *out, Player *self)
   float z0;
   float x0;
   int idx;
-  uint u;
+  u32 u;
   unsigned char a;
   unsigned char b;
   idx = (self->f148 + 2) % 4;

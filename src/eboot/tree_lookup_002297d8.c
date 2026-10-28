@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002297d8 end=0x00229868 symbol=FUN_002297d8 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reconstructed sentinel ternaries and local array dimensions for 48-byte frame; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern void FUN_00229868(void *, const void *, const int *);
 extern void FUN_002298e8(void *, const void *, const int *);
@@ -11,7 +11,7 @@ struct Node {
     int value;
 };
 
-int FUN_002297d8(char *param_1, int param_2, uint param_3)
+int FUN_002297d8(char *param_1, int param_2, u32 param_3)
 {
     int key1 = param_2;
     int key2[2];

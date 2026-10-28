@@ -1,9 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001813a0 end=0x001814bc symbol=FUN_001813a0 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 typedef struct { char pad[4]; short x0; short x1; short y0; short y1; } Rect;
 typedef struct { char pad[0x2474]; Rect *rect; } Object;
-typedef struct { char pad[0x1d0]; uint fields[0x11]; } Render;
+typedef struct { char pad[0x1d0]; u32 fields[0x11]; } Render;
 extern void *DAT_003313c4;
 extern void *DAT_00341518;
 extern void FUN_0005bbd4(void *, float, float, float, float, float, float);

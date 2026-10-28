@@ -2,7 +2,7 @@
 /* Clone of src/eboot/FUN_00285c14.c (hstclone.py tag u5fr3s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: inverted if/else branch order; exact match verified; names and types await human review. */
 
-typedef unsigned char bool;
+#include "hst/types.h"
 extern void *DAT_003e1e04;
 extern bool FUN_000be288(void *, void *, int, void *);
 extern bool FUN_000be418(void *, void *, int, void *);

@@ -1,29 +1,14 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000e5aec end=0x000e5b78 symbol=FUN_000e5aec lang=c99 */
 /* Clone of src/eboot/FUN_000e1584.c (hstclone.py tag c32): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_0037d870;
-extern undefined DAT_003b0978;
-extern undefined4 * FUN_0001ec44();
+extern u8 DAT_0037d870;
+extern u8 DAT_003b0978;
+extern u32 * FUN_0001ec44();
 extern void FUN_000e5bdc();
 extern void FUN_000e5d60();
 
-undefined4 * FUN_000e5aec(undefined4 *param_1,undefined4 param_2,undefined4 param_3,int param_4)
+u32 * FUN_000e5aec(u32 *param_1,u32 param_2,u32 param_3,int param_4)
 {
   FUN_0001ec44(param_1);
   *param_1 = (unsigned int)(&DAT_003b0978);

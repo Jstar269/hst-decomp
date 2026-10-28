@@ -1,33 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00100a1c end=0x00100b24 symbol=FUN_00100a1c lang=c99 data=0x002d8a84 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: if/else order restored (param_4 != 0 first, then the empty-string test, null case last); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002d8a84-0x002d8a9b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_002d8a54;
-extern uint * FUN_00014788();
-extern uint * FUN_000149a8();
+extern u8 DAT_002d8a54;
+extern u32 * FUN_00014788();
+extern u32 * FUN_000149a8();
 extern int FUN_00014a58();
 extern void FUN_001006dc();
 
-void FUN_00100a1c(int param_1,char *param_2,undefined4 param_3,char *param_4,undefined4 param_5)
+void FUN_00100a1c(int param_1,char *param_2,u32 param_3,char *param_4,u32 param_5)
 {
   int iVar1;
-  undefined1 auStack_100 [256];
-  undefined1 auStack_200 [256];
+  u8 auStack_100 [256];
+  u8 auStack_200 [256];
   
   iVar1 = FUN_00014a58(param_3,&DAT_002d8a54,4);
   if (iVar1 == 0) {
@@ -49,5 +34,4 @@ void FUN_00100a1c(int param_1,char *param_2,undefined4 param_3,char *param_4,und
     FUN_001006dc(param_1,auStack_100,0,param_5);
   }
   FUN_000149a8(param_1 + 0x59,param_3);
-  return;
 }

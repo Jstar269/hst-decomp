@@ -5,7 +5,7 @@ typedef struct { char pad[0x1b4]; int f1b4; } Inner;
 typedef struct { char pad[0x50]; Inner *f50; } Ctx;
 typedef struct { char pad[8]; int f8; } Obj;
 typedef struct { int f0; int f4; int f8; int *fc; } Arg;
-typedef unsigned char bool;
+#include "hst/types.h"
 extern unsigned char DAT_003e9630;
 extern Ctx *DAT_003f3450;
 extern unsigned int *FUN_00157e10(int a, int b);

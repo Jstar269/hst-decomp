@@ -1,11 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00130304 end=0x00130654 symbol=FUN_00130304 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen mechanical draft) corrected by hand: flipped the strcmp-equality chain to the positive if/else-if form, an accumulator per digit field, and the loop increment order; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
-typedef unsigned char undefined;
+#include "hst/types.h"
 
-extern undefined DAT_002db130;
-extern undefined DAT_002db134;
+extern u8 DAT_002db130;
+extern u8 DAT_002db134;
 extern char DAT_002db01c[];
 extern char DAT_002db100[];
 extern char DAT_002db10c[];
@@ -20,12 +19,12 @@ extern char DAT_002db174[];
 extern char DAT_002db180[];
 extern char *FUN_00014d64();
 
-undefined4 FUN_00130304(undefined4 param_1, int param_2, unsigned int *param_3)
+u32 FUN_00130304(u32 param_1, int param_2, unsigned int *param_3)
 {
   char *iVar1;
   char *pcVar2;
   int n;
-  undefined4 uVar3;
+  u32 uVar3;
 
   uVar3 = 0;
   if (param_2 == 0) {

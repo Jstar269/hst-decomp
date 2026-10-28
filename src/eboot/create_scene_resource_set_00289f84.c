@@ -1,39 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00289f84 end=0x0028a230 symbol=FUN_00289f84 lang=c99 data=0x002fec24 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (8 strings, 0x002fec24-0x002fed41) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode corrected by hand: allocation failure labels, cleanup returns, and final string selection were matched to retail; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern void FUN_00000a00();
 extern int FUN_00000bcc();
 extern void FUN_000143b0();
 extern int FUN_00053670();
 extern int FUN_00053718();
-extern undefined4 FUN_00055df8();
+extern u32 FUN_00055df8();
 
-int * FUN_00289f84(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4)
+int * FUN_00289f84(u32 param_1,u32 param_2,u32 param_3,u32 param_4)
 {
   int *piVar1;
   int iVar2;
-  undefined1 auStack_100 [256];
-  undefined1 auStack_200 [256];
-  undefined1 auStack_300 [256];
-  undefined1 auStack_400 [256];
-  undefined1 auStack_500 [256];
+  u8 auStack_100 [256];
+  u8 auStack_200 [256];
+  u8 auStack_300 [256];
+  u8 auStack_400 [256];
+  u8 auStack_500 [256];
   
   piVar1 = (int *)FUN_00000bcc(0x10);
   if (piVar1 != (int *)0x0) {

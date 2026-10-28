@@ -1,39 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002019fc end=0x00201a44 symbol=FUN_002019fc lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/match_players.h"
 
-
-undefined1 * FUN_002019fc(undefined1 *param_1)
+/* Resets the setup object: clears the fields and sets the two float slots to 1.0f. */
+MatchPlayers *FUN_002019fc(MatchPlayers *self)
 {
-  param_1[1] = 0;
-  *(undefined4 *)(param_1 + 4) = 0;
-  *param_1 = 0;
-  *(undefined4 *)(param_1 + 8) = 0;
-  *(undefined4 *)(param_1 + 0x20) = 0;
-  param_1[0x28] = 0;
-  *(undefined4 *)(param_1 + 0x2c) = 0x3f800000;
-  *(undefined4 *)(param_1 + 0x34) = 0;
-  param_1[0x3c] = 0;
-  *(undefined4 *)(param_1 + 0xc) = 0;
-  *(undefined4 *)(param_1 + 0x24) = 0;
-  param_1[0x29] = 0;
-  *(undefined4 *)(param_1 + 0x30) = 0x3f800000;
-  *(undefined4 *)(param_1 + 0x38) = 0;
-  param_1[0x3d] = 0;
-  return param_1;
+  self->kind = 0;
+  self->count = 0;
+  self->unk00 = 0;
+  self->p1 = 0;
+  self->saved20[0] = 0;
+  self->saved28[0] = 0;
+  self->saved2c[0] = 1.0f;
+  self->saved34[0] = 0.0f;
+  self->saved3c[0] = 0;
+  self->p2 = 0;
+  self->saved20[1] = 0;
+  self->saved28[1] = 0;
+  self->saved2c[1] = 1.0f;
+  self->saved34[1] = 0.0f;
+  self->saved3c[1] = 0;
+  return self;
 }

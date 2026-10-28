@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0015a304 end=0x0015a3cc symbol=FUN_0015a304 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: byte flag unsigned char (lbu), the two indirect calls written as C++ virtual calls (slot 3), loop index declared before the walking pointer for the s-registers; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 extern "C" void FUN_0015a3cc(...);
 
@@ -17,7 +17,7 @@ extern "C" void FUN_0015a304(int param_1)
   int iVar3;
   int iVar2;
   
-  if ((*(uchar *)(param_1 + 0x1c) == '\0') ||
+  if ((*(u8 *)(param_1 + 0x1c) == '\0') ||
      (((*(int *)(param_1 + 0x18) == 0 && (*(int *)(param_1 + 0x14) != 8)) &&
       (*(int *)(param_1 + 0x14) != 3)))) {
     if (*(VC_0 **)(param_1 + 0x24) != (VC_0 *)0x0) {
@@ -37,5 +37,4 @@ extern "C" void FUN_0015a304(int param_1)
       iVar2 = iVar2 + 4;
     } while (iVar3 < 3);
   }
-  return;
 }

@@ -1,32 +1,17 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0027dc40 end=0x0027de54 symbol=FUN_0027dc40 lang=c99 */
 /* Clone of src/eboot/FUN_0026cc00.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003b2ec4;
-extern undefined DAT_003b2ee0;
-extern undefined4 * FUN_0001ec44();
+extern u8 DAT_003b2ec4;
+extern u8 DAT_003b2ee0;
+extern u32 * FUN_0001ec44();
 extern int FUN_0005c2f8();
-extern undefined4 * FUN_0010873c();
-extern undefined4 FUN_0027e264();
-extern undefined4 * FUN_0028b7b8();
-extern undefined4 FUN_002a5040();
+extern u32 * FUN_0010873c();
+extern u32 FUN_0027e264();
+extern u32 * FUN_0028b7b8();
+extern u32 FUN_002a5040();
 
-undefined4 * FUN_0027dc40(undefined4 *param_1)
+u32 * FUN_0027dc40(u32 *param_1)
 {
   FUN_0001ec44();
   FUN_0010873c(param_1 + 0xf);
@@ -55,34 +40,34 @@ undefined4 * FUN_0027dc40(undefined4 *param_1)
   param_1[0x38] = 0;
   FUN_0028b7b8(param_1 + 0x39);
   param_1[0x3c] = 0;
-  *(undefined1 *)(param_1 + 0x3e) = 0;
+  *(u8 *)(param_1 + 0x3e) = 0;
   param_1[0x41] = 0;
   param_1[0x43] = 0;
-  *(undefined1 *)(param_1 + 0x44) = 0;
+  *(u8 *)(param_1 + 0x44) = 0;
   param_1[0x45] = 0;
   FUN_0005c2f8(param_1 + 100);
   param_1[0x114] = 0;
-  *(undefined1 *)(param_1 + 0x115) = 1;
+  *(u8 *)(param_1 + 0x115) = 1;
   param_1[0x116] = 0;
   param_1[0x117] = 0;
   param_1[0x11d] = 0;
-  *(undefined1 *)(param_1 + 0x230) = 0;
-  *(undefined1 *)((int)param_1 + 0x8c1) = 0;
-  *(undefined1 *)((int)param_1 + 0x8c2) = 0;
-  *(undefined1 *)((int)param_1 + 0x8c3) = 0;
-  *(undefined1 *)(param_1 + 0x231) = 0;
-  *(undefined1 *)((int)param_1 + 0x8c5) = 0;
+  *(u8 *)(param_1 + 0x230) = 0;
+  *(u8 *)((int)param_1 + 0x8c1) = 0;
+  *(u8 *)((int)param_1 + 0x8c2) = 0;
+  *(u8 *)((int)param_1 + 0x8c3) = 0;
+  *(u8 *)(param_1 + 0x231) = 0;
+  *(u8 *)((int)param_1 + 0x8c5) = 0;
   param_1[0x232] = 0;
-  *(undefined1 *)(param_1 + 0x233) = 0;
-  *(undefined1 *)((int)param_1 + 0x8cd) = 0;
-  *(undefined1 *)((int)param_1 + 0x8ce) = 0;
+  *(u8 *)(param_1 + 0x233) = 0;
+  *(u8 *)((int)param_1 + 0x8cd) = 0;
+  *(u8 *)((int)param_1 + 0x8ce) = 0;
   param_1[0x234] = 0;
   param_1[0x235] = 0;
   FUN_002a5040(param_1 + 0x248);
   param_1[0x260] = 0xffffffff;
-  *(undefined1 *)(param_1 + 0x261) = 0;
-  *(undefined1 *)((int)param_1 + 0x985) = 0;
-  *(undefined1 *)((int)param_1 + 0x986) = 0;
+  *(u8 *)(param_1 + 0x261) = 0;
+  *(u8 *)((int)param_1 + 0x985) = 0;
+  *(u8 *)((int)param_1 + 0x986) = 0;
   param_1[0x266] = 6;
   param_1[0x267] = 0;
   param_1[0x268] = 0;
@@ -91,11 +76,11 @@ undefined4 * FUN_0027dc40(undefined4 *param_1)
   param_1[0x26b] = 0;
   param_1[0x282] = 0;
   param_1[0x284] = 0;
-  *(undefined1 *)(param_1 + 0x285) = 0;
-  *(undefined1 *)(param_1 + 0x290) = 0;
-  *(undefined1 *)((int)param_1 + 0xa41) = 0;
-  *(undefined1 *)((int)param_1 + 0xa42) = 0;
-  *(undefined1 *)((int)param_1 + 0xa43) = 0;
+  *(u8 *)(param_1 + 0x285) = 0;
+  *(u8 *)(param_1 + 0x290) = 0;
+  *(u8 *)((int)param_1 + 0xa41) = 0;
+  *(u8 *)((int)param_1 + 0xa42) = 0;
+  *(u8 *)((int)param_1 + 0xa43) = 0;
   param_1[0x291] = 0;
   param_1[0x292] = 0;
   param_1[0x293] = 0;
@@ -107,20 +92,20 @@ undefined4 * FUN_0027dc40(undefined4 *param_1)
   param_1[0x59] = 0;
   param_1[0x5a] = 0;
   param_1[0x5b] = 0;
-  *(undefined1 *)(param_1 + 0x5c) = 0;
-  *(undefined1 *)((int)param_1 + 0x171) = 0;
-  *(undefined1 *)((int)param_1 + 0x172) = 0;
-  *(undefined1 *)((int)param_1 + 0x173) = 0;
-  *(undefined1 *)(param_1 + 0x5d) = 0;
-  *(undefined1 *)((int)param_1 + 0x175) = 0;
-  *(undefined1 *)((int)param_1 + 0x176) = 0;
-  *(undefined1 *)((int)param_1 + 0x177) = 0;
-  *(undefined1 *)(param_1 + 0x5e) = 0;
-  *(undefined1 *)((int)param_1 + 0x179) = 0;
-  *(undefined1 *)((int)param_1 + 0x17a) = 0;
-  *(undefined1 *)((int)param_1 + 0x17b) = 0;
-  *(undefined1 *)(param_1 + 0x5f) = 0;
-  *(undefined1 *)((int)param_1 + 0x17d) = 0;
+  *(u8 *)(param_1 + 0x5c) = 0;
+  *(u8 *)((int)param_1 + 0x171) = 0;
+  *(u8 *)((int)param_1 + 0x172) = 0;
+  *(u8 *)((int)param_1 + 0x173) = 0;
+  *(u8 *)(param_1 + 0x5d) = 0;
+  *(u8 *)((int)param_1 + 0x175) = 0;
+  *(u8 *)((int)param_1 + 0x176) = 0;
+  *(u8 *)((int)param_1 + 0x177) = 0;
+  *(u8 *)(param_1 + 0x5e) = 0;
+  *(u8 *)((int)param_1 + 0x179) = 0;
+  *(u8 *)((int)param_1 + 0x17a) = 0;
+  *(u8 *)((int)param_1 + 0x17b) = 0;
+  *(u8 *)(param_1 + 0x5f) = 0;
+  *(u8 *)((int)param_1 + 0x17d) = 0;
   param_1[0x60] = 0;
   param_1[0x46] = 4;
   param_1[0x4a] = 4;

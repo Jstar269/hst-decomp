@@ -1,7 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001bcad8 end=0x001bcbd8 symbol=FUN_001bcad8 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: adapted 0x1acb5c subobject List and element addressing with uVar6 outer and iVar4 inner loop scoping; exact match verified; names and types await human review. */
 
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern void FUN_00105470(...);
@@ -19,8 +19,8 @@ struct List { int pad; unsigned size; };
 extern "C" void FUN_001bcad8(int param_1)
 {
   int iVar7 = *(int *)(param_1 + 0xc);
-  FUN_00105470(*(undefined4 *)(iVar7 + 0x4c), 1);
-  FUN_001118ac(*(undefined4 *)(iVar7 + 0x914), 15, 23);
+  FUN_00105470(*(u32 *)(iVar7 + 0x4c), 1);
+  FUN_001118ac(*(u32 *)(iVar7 + 0x914), 15, 23);
   unsigned uVar5 = *(unsigned *)(FUN_001aa91c() + 0x2dc);
   int iVar2 = FUN_001aa91c();
   List *pl = (List *)(iVar2 + 0x360);

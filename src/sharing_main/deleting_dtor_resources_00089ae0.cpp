@@ -1,31 +1,30 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00089ae0 end=0x00089d58 symbol=FUN_00089ae0 lang=c++ */
 /* Clone of src/eboot/deleting_dtor_resources_00088388.cpp (hstclone.py tag c20s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a6, variant v18c) corrected by hand: merged else-branches split back into independent null-checked blocks, the array global read once into a local, the callee prototyped with a float parameter, loop counter declared before the walking pointer; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
-typedef unsigned char undefined;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined DAT_00089d58;
-extern undefined DAT_00089db8;
-extern undefined DAT_00089e18;
-extern undefined DAT_00089ecc;
-extern undefined DAT_0024492c;
-extern undefined DAT_003b04a4;
-extern undefined4 DAT_003ba2c4;
-extern undefined4 DAT_003e19f0;
-extern undefined4 DAT_003e1a0c;
-extern undefined4 DAT_003e1a54;
+extern u8 DAT_00089d58;
+extern u8 DAT_00089db8;
+extern u8 DAT_00089e18;
+extern u8 DAT_00089ecc;
+extern u8 DAT_0024492c;
+extern u8 DAT_003b04a4;
+extern u32 DAT_003ba2c4;
+extern u32 DAT_003e19f0;
+extern u32 DAT_003e1a0c;
+extern u32 DAT_003e1a54;
 extern void *DAT_003e1df0;
-extern undefined4 DAT_003f39d8;
-extern undefined4 DAT_003f39dc;
-extern undefined4 DAT_003f39e0;
-extern undefined4 DAT_003f39e4;
-extern undefined4 DAT_003f39e8;
-extern undefined4 DAT_003f3b18;
+extern u32 DAT_003f39d8;
+extern u32 DAT_003f39dc;
+extern u32 DAT_003f39e0;
+extern u32 DAT_003f39e4;
+extern u32 DAT_003f39e8;
+extern u32 DAT_003f3b18;
 extern void FUN_000006e8(...);
 extern void FUN_00000788(...);
 extern void FUN_00000a00(...);
-extern undefined4 * FUN_0001ed28(...);
+extern u32 * FUN_0001ed28(...);
 extern void FUN_000429c8(...);
 extern int FUN_000541d8(...);
 extern int FUN_0005c688(...);
@@ -37,14 +36,14 @@ extern void FUN_00089f2c(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" undefined4 * FUN_00089ae0(undefined4 *param_1,short param_2)
+extern "C" u32 * FUN_00089ae0(u32 *param_1,short param_2)
 {
   int *piVar1;
   unsigned uVar4;
-  undefined4 *puVar3;
+  u32 *puVar3;
   void *p;
 
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_003b04a4);
     uVar4 = 0;
     puVar3 = param_1;

@@ -1,9 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002387dc end=0x002388d4 symbol=FUN_002387dc lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: unified element pointer in reverse destruction loop, typed buffer delete; exact match verified; names and types await human review. */
 
-typedef unsigned char undefined1;
-typedef unsigned int undefined4;
-
 extern void FUN_00000788(void *, void *, int, int);
 extern void FUN_00000a00(void *);
 extern int FUN_002388d4(void *);

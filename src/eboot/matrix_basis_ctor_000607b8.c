@@ -1,7 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000607b8 end=0x0006093c symbol=FUN_000607b8 lang=c99 */
 /* Clone of src/sharing_main/matrix_basis_ctor_0006163c.c (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
 typedef struct { float x, y, z, w; } Vec4;
 typedef struct { Vec4 r0, r1, r2, r3; } Mat4;
 typedef struct {

@@ -1,12 +1,12 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0005e30c end=0x0005e3e8 symbol=FUN_0005e30c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned short ushort;
+#include "hst/types.h"
 typedef struct Counter Counter;
 typedef struct CounterRef CounterRef;
 typedef struct Child Child;
 typedef struct Record Record;
 typedef struct Owner Owner;
-struct Counter { char pad[8]; ushort value; };
+struct Counter { char pad[8]; u16 value; };
 struct CounterRef { Counter *counter; };
 struct Child { char pad[0x1c]; int value; };
 struct Record { CounterRef *counter; Child *child; int value; };

@@ -1,21 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0009265c end=0x00092720 symbol=FUN_0009265c lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag v21) corrected by hand: typed the string lookup and dispatch prototypes, used the null-result ternary, and expressed the final negative exit; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 
 extern char DAT_002d2930[];
 extern char DAT_002d294c[];

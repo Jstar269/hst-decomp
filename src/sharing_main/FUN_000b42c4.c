@@ -1,8 +1,8 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000b42c4 end=0x000b43b0 symbol=FUN_000b42c4 lang=c99 */
 /* Clone of src/eboot/FUN_000b12d8.c (hstclone.py tag u3r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-extern undefined *DAT_003e19f0;
+#include "hst/types.h"
+extern u8 *DAT_003e19f0;
 extern unsigned char *DAT_003e1e84;
 extern void FUN_00091d44(void *, float *, float *, float, float, int *, int);
 extern void FUN_000cc2a8(void *, int);

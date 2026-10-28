@@ -2,11 +2,10 @@
 /* Clone of src/eboot/init_sub_record_00281238.cpp (hstclone.py tag u4r4s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ mode, non-POD struct memberwise copy assignment for 16-byte buffer, and 64-bit integer copy at tail; exact match verified; names and types await human review. */
 
-typedef unsigned char undefined1;
-typedef unsigned int uint;
+#include "hst/types.h"
 
 extern "C" void *DAT_003ea8e8;
-extern "C" uint *FUN_000114c0(void *, int, int);
+extern "C" u32 *FUN_000114c0(void *, int, int);
 
 struct Array16 {
   char data[16];
@@ -15,7 +14,7 @@ struct Array16 {
 
 extern "C" void FUN_00292650(int *param_1)
 {
-  uint uVar4;
+  u32 uVar4;
   int *puVar6;
   char *p;
   

@@ -1,13 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c896c end=0x000c8b78 symbol=FUN_000c896c lang=c99 */
 /* Clone of src/sharing_main/effect_trigger_matrix_000cc50c.c (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed structs, one && chain for the guards, float compares with the variable on the left (13.0f bounds), the three motion fields read into locals in order mode, f104, f100 (retail's hoisted loads and FPR numbering), effect offset idx * 0x1b0 computed once and re-added per call, the 64-byte matrix copied row by row into a local (batched lwc1/swc1) with the -0.05f row-3 y; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 typedef struct { float x, y, z, w; } Vec4;
 typedef struct { Vec4 r0, r1, r2, r3; } Mat4;
 
 typedef struct {
   char pad0[0xc0];
-  uchar c0;
+  u8 c0;
   char padc1[3];
   float c4;
   char padc8[8];
@@ -42,12 +42,12 @@ typedef struct {
 typedef struct {
   char pad0[0x1d0];
   char *f1d0;
-  uchar *f1d4;
+  u8 *f1d4;
 } Self;
 
 extern Mgr *DAT_003386b0;
 extern void FUN_00055044(Effect *, Mat4 *);
-extern void FUN_00058ddc(Effect *, uchar, int);
+extern void FUN_00058ddc(Effect *, u8, int);
 extern void FUN_00058ec4(Effect *, int, float);
 extern void FUN_00059084(Effect *, int);
 extern int FUN_000b3490(Player *);

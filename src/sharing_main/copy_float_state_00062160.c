@@ -1,6 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00062160 end=0x00062270 symbol=FUN_00062160 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 typedef struct { float x,y,z,w; } Vec4_00062160;
 typedef struct {
   char pad00[0x10];
@@ -37,10 +37,10 @@ void FUN_00062160(Dest_00062160 *dst,Src_00062160 *src)
   dst->f20.z = src->f1f0.z;
   dst->f20.w = src->f1f0.w;
   FUN_00022540(&dst->f30,&dst->f30);
-  ((uint *)&dst->f30)[3] = 0;
+  ((u32 *)&dst->f30)[3] = 0;
   FUN_00022520(&dst->f10,&dst->f20,&dst->f30);
   FUN_00022540(&dst->f10,&dst->f10);
-  ((uint *)&dst->f10)[3] = 0;
+  ((u32 *)&dst->f10)[3] = 0;
   FUN_00022520(&dst->f20,&dst->f30,&dst->f10);
   dst->f40.x = dst->f40.x;
   dst->f40.y = dst->f40.y;

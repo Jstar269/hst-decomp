@@ -2,26 +2,25 @@
 /* Clone of src/sharing_main/pack_two_colors_00191248.cpp (hstclone.py tag c17b203): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* matching idiom: the or chain is right-nested (a | (b | (c | 0x80000000))); a left-nested chain gives 56-68 differing words. Labels 0..3 are written in ascending order (MWCC tests them in reverse). */
-typedef unsigned int uint;
-typedef unsigned short ushort;
+#include "hst/types.h"
 extern "C" {
 extern int *FUN_0016bc8c();
 extern int FUN_00216de8(int);
 }
-static inline uint PackColor(ushort r, ushort g, ushort b)
+static inline u32 PackColor(u16 r, u16 g, u16 b)
 {
   return (r & 0xff) | (((g & 0xff) << 8) | (((b & 0xff) << 16) | 0x80000000));
 }
 
-extern "C" void FUN_00184afc(int param_1, uint *param_2, uint *param_3, int param_4)
+extern "C" void FUN_00184afc(int param_1, u32 *param_2, u32 *param_3, int param_4)
 {
   int *puVar1 = FUN_0016bc8c();
-    ushort uVar2;
-  ushort uVar3;
-  ushort uVar4;
-  ushort uVar5;
-  ushort uVar6;
-  ushort uVar7;
+    u16 uVar2;
+  u16 uVar3;
+  u16 uVar4;
+  u16 uVar5;
+  u16 uVar6;
+  u16 uVar7;
   switch (param_4) {
   case 0:
     uVar2 = FUN_00216de8(puVar1[0]);

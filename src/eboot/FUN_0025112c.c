@@ -1,18 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025112c end=0x00251414 symbol=FUN_0025112c lang=c99 rodata=0x002ca654 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Matching idioms: `flag = !(cVar1 != 0)` for the sltu+xori+andi byte test, and the if/else arm order in the 2-or-3 state picks. */
-typedef unsigned int undefined4;
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
 extern int DAT_002fbef4;
-extern undefined1 DAT_0034179c;
+extern u8 DAT_0034179c;
 extern unsigned char DAT_002fbef9;
 extern int DAT_002fc560;
-extern undefined4 *DAT_003415a8;
+extern u32 *DAT_003415a8;
 extern void FUN_0010b980();
 extern void FUN_00110a78();
-extern void FUN_001b1c44(undefined1 *, int);
-extern undefined4 FUN_001fea10();
+extern void FUN_001b1c44(u8 *, int);
+extern u32 FUN_001fea10();
 extern void FUN_00250f68();
 extern void FUN_00251414();
 extern void FUN_0025141c();
@@ -45,7 +44,7 @@ void FUN_0025112c(struct Player *param_1, int param_2, int param_3, int param_4)
   unsigned char flag;
   int iVar2;
   int *iVar4;
-  undefined4 uVar3;
+  u32 uVar3;
 
   param_1->f2f8 = param_2;
   switch (param_2) {
@@ -138,5 +137,4 @@ void FUN_0025112c(struct Player *param_1, int param_2, int param_3, int param_4)
       FUN_001b1c44(&DAT_0034179c, 4);
     }
   }
-  return;
 }

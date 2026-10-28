@@ -1,50 +1,57 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0008ea40 end=0x0008eadc symbol=FUN_0008ea40 lang=c99 */
 /* Clone of src/eboot/FUN_0008d2ec.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+#include "hst/types.h"
 
+/* Tail of a larger Entry-like record (0xc8 and up), sibling layout of Entry in hst/entry_records.h. */
+typedef struct EntryTail {
+  char pad00[0xc8];
+  u8 unkc8;       /* 0xc8 */
+  u8 unkc9;       /* 0xc9 */
+  char padca;
+  u8 unkcb;       /* 0xcb */
+  char strcc[13]; /* 0xcc, default UTF-8 string */
+  char padd9[0x14];
+  u8 unked;       /* 0xed */
+  u8 unkee;       /* 0xee */
+  u8 unkef;       /* 0xef */
+  u8 unkf0;       /* 0xf0 */
+  char padf1[3];
+  s32 unkf4;      /* 0xf4 */
+  s32 unkf8;      /* 0xf8 */
+  float unkfc;    /* 0xfc, initial 5.0f */
+  u8 unk100;      /* 0x100, initial 10 */
+  u8 unk101;      /* 0x101 */
+  char pad102[2];
+  u32 unk104;     /* 0x104 */
+} EntryTail;
 
-void FUN_0008ea40(int param_1)
+void FUN_0008ea40(EntryTail *entry)
 {
-  *(undefined1 *)(param_1 + 200) = 0;
-  *(undefined1 *)(param_1 + 0xcb) = 0;
-  *(undefined1 *)(param_1 + 0xc9) = 0;
-  *(undefined1 *)(param_1 + 0xed) = 0;
-  *(undefined1 *)(param_1 + 0xee) = 0;
-  *(undefined1 *)(param_1 + 0xef) = 0;
-  *(undefined1 *)(param_1 + 0xf0) = 0;
-  *(undefined4 *)(param_1 + 0xf4) = 0xffffffff;
-  *(undefined4 *)(param_1 + 0xf8) = 0xffffffff;
-  *(undefined4 *)(param_1 + 0xfc) = 0x40a00000;
-  *(undefined1 *)(param_1 + 0x100) = 10;
-  *(undefined1 *)(param_1 + 0x101) = 0;
-  *(undefined4 *)(param_1 + 0x104) = 0;
-  *(undefined1 *)(param_1 + 0xcc) = 0xe3;
-  *(undefined1 *)(param_1 + 0xcd) = 0x81;
-  *(undefined1 *)(param_1 + 0xce) = 0xbf;
-  *(undefined1 *)(param_1 + 0xcf) = 0xe3;
-  *(undefined1 *)(param_1 + 0xd0) = 0x82;
-  *(undefined1 *)(param_1 + 0xd1) = 0x93;
-  *(undefined1 *)(param_1 + 0xd2) = 0xe3;
-  *(undefined1 *)(param_1 + 0xd3) = 0x83;
-  *(undefined1 *)(param_1 + 0xd4) = 0x86;
-  *(undefined1 *)(param_1 + 0xd5) = 0xe3;
-  *(undefined1 *)(param_1 + 0xd6) = 0x83;
-  *(undefined1 *)(param_1 + 0xd7) = 0x8b;
-  *(undefined1 *)(param_1 + 0xd8) = 0x50;
-  return;
+  entry->unkc8 = 0;
+  entry->unkcb = 0;
+  entry->unkc9 = 0;
+  entry->unked = 0;
+  entry->unkee = 0;
+  entry->unkef = 0;
+  entry->unkf0 = 0;
+  entry->unkf4 = -1;
+  entry->unkf8 = -1;
+  entry->unkfc = 5.0f;
+  entry->unk100 = 10;
+  entry->unk101 = 0;
+  entry->unk104 = 0;
+  /* default UTF-8 string, five characters (four 3-byte kana, then 'P') */
+  entry->strcc[0] = 0xe3;
+  entry->strcc[1] = 0x81;
+  entry->strcc[2] = 0xbf;
+  entry->strcc[3] = 0xe3;
+  entry->strcc[4] = 0x82;
+  entry->strcc[5] = 0x93;
+  entry->strcc[6] = 0xe3;
+  entry->strcc[7] = 0x83;
+  entry->strcc[8] = 0x86;
+  entry->strcc[9] = 0xe3;
+  entry->strcc[10] = 0x83;
+  entry->strcc[11] = 0x8b;
+  entry->strcc[12] = 0x50;
 }

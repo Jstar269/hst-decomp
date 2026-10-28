@@ -2,11 +2,11 @@
 /* Clone of src/eboot/item_flags_check_001bfbe8.cpp (hstclone.py tag c162207): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
-extern undefined1 DAT_00391c44;
-extern undefined1 DAT_00391c4c;
-extern undefined1 DAT_00391c54;
+extern u8 DAT_00391c44;
+extern u8 DAT_00391c4c;
+extern u8 DAT_00391c54;
 extern int DAT_003eaa8c;
 
 extern "C" {

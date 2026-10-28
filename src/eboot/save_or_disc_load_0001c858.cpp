@@ -1,11 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0001c858 end=0x0001ca58 symbol=FUN_0001c858 lang=c++ data=0x002cfc34 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002cfc34-0x002cfc83) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 struct Loader {
     char pad[0x1008];
-    uchar loaded;
-    uchar result;
-    uchar use_save;
+    u8 loaded;
+    u8 result;
+    u8 use_save;
 };
 inline void *operator new[](unsigned, void *p) { return p; }
 extern int DAT_002cfae4;
@@ -17,9 +17,9 @@ extern "C" int FUN_000fcc78(char *, int);
 extern "C" int FUN_000fd850(char *, int, int, int *);
 extern "C" void FUN_0001c0fc(char *, int);
 extern "C" void FUN_000143b0(char *, char *, char *);
-extern "C" uchar FUN_0001c010(char *, char *, int);
+extern "C" u8 FUN_0001c010(char *, char *, int);
 
-extern "C" uchar FUN_0001c858(Loader *self)
+extern "C" u8 FUN_0001c858(Loader *self)
 {
     char name[128];
     char path[128];

@@ -2,7 +2,7 @@
 /* Clone of src/eboot/compute_shot_speed_00214e4c.cpp (hstclone.py tag c072907): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-typedef unsigned int uint;
+#include "hst/types.h"
 
 struct Vec4 {
     float x, y, z, w;
@@ -50,7 +50,7 @@ extern const float DAT_00397bac;
 extern const float DAT_00397bb0;
 
 float sqrtf(float);
-uint FUN_0001342c(void);
+u32 FUN_0001342c(void);
 Vec4 *FUN_0002245c(Vec4 *, const Vec4 *, const Vec4 *);
 Vec4 *FUN_000224c0(Vec4 *, const Vec4 *, float);
 int FUN_000b6e80(Player *);

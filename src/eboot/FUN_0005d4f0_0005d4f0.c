@@ -1,13 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0005d4f0 end=0x0005d5cc symbol=FUN_0005d4f0 lang=c99 */
 /* Clone of src/sharing_main/FUN_0005e30c_0005e30c.c (hstclone.py tag u5cr2e): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned short ushort;
+#include "hst/types.h"
 typedef struct Counter Counter;
 typedef struct CounterRef CounterRef;
 typedef struct Child Child;
 typedef struct Record Record;
 typedef struct Owner Owner;
-struct Counter { char pad[8]; ushort value; };
+struct Counter { char pad[8]; u16 value; };
 struct CounterRef { Counter *counter; };
 struct Child { char pad[0x1c]; int value; };
 struct Record { CounterRef *counter; Child *child; int value; };

@@ -1,7 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0021a2c0 end=0x0021a978 symbol=FUN_0021a2c0 lang=c++ data=0x00397a98 */
 /* Clone of src/eboot/FUN_0020b7a0.cpp (hstclone.py tag c155507): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00397a98-0x00397ab1) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
 struct Cfg {
   char pad0[0x45];
@@ -55,7 +55,7 @@ extern float DAT_00397a94;
 extern Cfg *DAT_003e1e84;
 
 extern float FUN_0000ce54(float, float);
-extern uint FUN_0001342c(void);
+extern u32 FUN_0001342c(void);
 extern bool FUN_000aae88(Self *, float *);
 extern int FUN_00215150(Self *, int, int);
 extern void FUN_002164c4(const char *, ...);
@@ -196,7 +196,7 @@ extern "C" int FUN_0021a2c0(Self *param_3, int param_4, int param_5, float param
     }
   }
   if (param_2 == 0.0f) {
-    uint u = FUN_0001342c();
+    u32 u = FUN_0001342c();
     param_2 = FUN_0000ce54(4.656613e-10f * (float)(int)(u & 0xfffff800), fVar12);
   }
   return (int)(fVar10 + param_2 * (fVar11 - fVar10));

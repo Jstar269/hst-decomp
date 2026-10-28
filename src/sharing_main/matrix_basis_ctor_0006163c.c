@@ -1,6 +1,5 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0006163c end=0x000617c0 symbol=FUN_0006163c lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: typed Mat4/Vec4 structs, the 64-byte copy from the global matrix as four Vec4 member assignments (row-batched lwc1/swc1), float member stores of 0.0f/-1.0f/1.0f, the last row copied onto itself field by field (as in copy_float_state_00062160.c); exact match verified; names and types await human review. */
-typedef unsigned int uint;
 typedef struct { float x, y, z, w; } Vec4;
 typedef struct { Vec4 r0, r1, r2, r3; } Mat4;
 typedef struct {

@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fdbb4 end=0x001fdd50 symbol=FUN_001fdbb4 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char byte;
+#include "hst/types.h"
 
 typedef struct KeyBits {
     signed char k0 : 2;
@@ -10,9 +10,9 @@ typedef struct KeyBits {
 } KeyBits;
 
 typedef struct PadState {
-    byte pad[0x89];
+    u8 pad[0x89];
     KeyBits f89;
-    byte gap8a;
+    u8 gap8a;
     KeyBits f8b;
     KeyBits f8c;
 } PadState;

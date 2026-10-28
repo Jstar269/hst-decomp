@@ -1,21 +1,8 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0029a220 end=0x0029a28c symbol=FUN_0029a220 lang=c++ */
 /* Clone of src/eboot/virtual_pointer_adjust_00288a84.cpp (hstclone.py tag u5cr3s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code();
+#include "hst/types.h"
 
-
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
 struct Interface {
   virtual int m0(); virtual int m1(); virtual int m2(); virtual int m3();
   virtual int m4(); virtual int m5(); virtual int m6(); virtual int m7();

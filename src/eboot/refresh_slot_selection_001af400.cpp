@@ -2,7 +2,7 @@
 /* Clone of src/sharing_main/refresh_slot_selection_001bcad8.cpp (hstclone.py tag u3r2e): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: adapted 0x1acb5c subobject List and element addressing with uVar6 outer and iVar4 inner loop scoping; exact match verified; names and types await human review. */
 
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern void FUN_000ffb3c(...);
@@ -20,8 +20,8 @@ struct List { int pad; unsigned size; };
 extern "C" void FUN_001af400(int param_1)
 {
   int iVar7 = *(int *)(param_1 + 0xc);
-  FUN_000ffb3c(*(undefined4 *)(iVar7 + 0x4c), 1);
-  FUN_0010b6d4(*(undefined4 *)(iVar7 + 0x914), 15, 23);
+  FUN_000ffb3c(*(u32 *)(iVar7 + 0x4c), 1);
+  FUN_0010b6d4(*(u32 *)(iVar7 + 0x914), 15, 23);
   unsigned uVar5 = *(unsigned *)(FUN_0019d474() + 0x2dc);
   int iVar2 = FUN_0019d474();
   List *pl = (List *)(iVar2 + 0x360);

@@ -1,22 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0028df14 end=0x0028e02c symbol=FUN_0028df14 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed the virtual dispatches, float argument, and module data address; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined4 DAT_002cfc8c;
+extern u32 DAT_002cfc8c;
 extern "C" void FUN_0001dfe8(int,int);
 extern "C" void FUN_0001e23c(int,int,int);
 extern "C" void FUN_00103540(float,int *);
@@ -41,8 +27,8 @@ extern "C" void FUN_0028df14(int *param_1)
 {
   FUN_00281128(param_1[400]);
   FUN_00280830(param_1[400],2,1);
-  *(undefined4 *)(param_1[400] + 0x61c) = 1;
-  *(undefined1 *)(param_1[400] + 0x615) = 1;
+  *(u32 *)(param_1[400] + 0x61c) = 1;
+  *(u8 *)(param_1[400] + 0x615) = 1;
   FUN_002817e0(param_1[400]);
   FUN_00103540(1010.0f,param_1);
   FUN_001037c8(param_1,0xffffffff);
@@ -51,13 +37,12 @@ extern "C" void FUN_0028df14(int *param_1)
   if ((int *)param_1[0x16] != (int *)0x0) {
     ((V30 *)param_1[0x16])->m10();
   }
-  *(undefined1 *)(param_1 + 0x15) = 1;
-  *(undefined1 *)((int)param_1 + 0x55) = 0;
+  *(u8 *)(param_1 + 0x15) = 1;
+  *(u8 *)((int)param_1 + 0x55) = 0;
   FUN_00103628(param_1,0);
   ((V10 *)param_1)->m2();
   FUN_001037c8(param_1,0x10);
   ((V0C *)param_1[0x197])->m1(1);
   FUN_0028e074(param_1,0);
   FUN_001b3ce8(&DAT_0034179c,4);
-  return;
 }

@@ -1,6 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0004fdb4 end=0x0004fe78 symbol=FUN_0004fdb4 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: locals declared result-first (s1/s0 roles), char* first parameter typed so the callee arg order is move-then-addiu, `if (r != 0) {..} else return fd;` form for the layout; exact match verified; names and types await human review. */
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern char DAT_003767fc[];
 extern char DAT_0037683c[];
@@ -13,7 +13,7 @@ extern void FUN_0004efe0();
 extern void FUN_0004f864();
 extern int FUN_0004ff3c();
 
-int FUN_0004fdb4(char *param_1, undefined4 param_2, undefined4 param_3, undefined4 param_4)
+int FUN_0004fdb4(char *param_1, u32 param_2, u32 param_3, u32 param_4)
 {
   int iVar2;
   int iVar1;

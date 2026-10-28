@@ -1,9 +1,9 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00227d2c end=0x00227f3c symbol=FUN_00227d2c lang=c99 */
 /* Clone of src/eboot/param_decode_00218814.c (hstclone.py tag nxc): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
-void FUN_00227d2c(int *param_1, uint *param_2, uint param_3)
+void FUN_00227d2c(int *param_1, u32 *param_2, u32 param_3)
 {
   if (param_3 == 0xcc) {
     *param_1 = 0;

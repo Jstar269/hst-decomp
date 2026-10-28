@@ -10,7 +10,7 @@
    go through the member array (the raw "count*12 + base + 0x12e0" arithmetic puts the base first in the
    addu), and the count is read again from the object for the second and third store (the store into the
    table may alias the count, so the compiler has to reload it). */
-typedef unsigned char undefined1;
+#include "hst/types.h"
 
 typedef struct {
   int f0;
@@ -24,7 +24,7 @@ typedef struct {
   int count;
 } Obj;
 
-void FUN_001fabb4(Obj *self, int a, int b, undefined1 c)
+void FUN_001fabb4(Obj *self, int a, int b, u8 c)
 {
   int count;
   int found;

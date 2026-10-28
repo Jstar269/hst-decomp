@@ -1,21 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b3a0c end=0x001b3b34 symbol=FUN_001b3a0c lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: combined the range and slot-present tests and stored the incoming mode value; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern int FUN_00062418();
 extern void FUN_001b0ef8();
@@ -44,12 +29,11 @@ void FUN_001b3a0c(int *param_1,int param_2,int param_3)
   FUN_001b0ef8(iVar3,param_2 + 0x84,0,0,0);
   if (param_2 == 6) {
     FUN_001b0ef8(iVar3,0x81,0,0,0);
-    *(undefined4 *)(iVar3 + 0x7a4) = param_2;
+    *(u32 *)(iVar3 + 0x7a4) = param_2;
   }
   else {
     FUN_001b0ef8(iVar3,param_2 * 2 + 0x98,0,0,0);
     FUN_001b0ef8(iVar3,param_2 * 2 + 0x99,0,0,0);
     *(int *)(iVar3 + 0x7a4) = param_2;
   }
-  return;
 }

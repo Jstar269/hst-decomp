@@ -1,12 +1,11 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001ca530 end=0x001ca5c8 symbol=FUN_001ca530 lang=c99 */
 /* Clone of src/eboot/FUN_001bc748.c (hstclone.py tag s10172123g4r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: inverted if/else branches; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern uint * FUN_000114c0();
+extern u32 * FUN_000114c0();
 
-void FUN_001ca530(undefined4 *param_1, int param_2)
+void FUN_001ca530(u32 *param_1, int param_2)
 {
   if (param_2 != 0) {
     *param_1 = 9999;
@@ -39,5 +38,4 @@ void FUN_001ca530(undefined4 *param_1, int param_2)
   else {
     FUN_000114c0(param_1, 0, 0xa0);
   }
-  return;
 }

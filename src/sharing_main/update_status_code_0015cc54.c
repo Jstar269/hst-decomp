@@ -1,6 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0015cc54 end=0x0015cd14 symbol=FUN_0015cc54 lang=c99 data=0x0038392c */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x0038392c-0x00383942) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
     char pad[8];
@@ -12,7 +12,7 @@ typedef struct {
     int f34;
     int f38;
     char pad2[0x5c - 0x3c];
-    uchar f5c;
+    u8 f5c;
 } Sub;
 
 typedef struct {
@@ -21,7 +21,7 @@ typedef struct {
     Sub *sub;
 } Param2;
 
-extern uchar DAT_003e9630;
+extern u8 DAT_003e9630;
 extern int *FUN_00157e10(void *target, int f8);
 extern void FUN_00158b2c(Param2 *param_2);
 extern void FUN_0015bb68(char *buf, int f8);

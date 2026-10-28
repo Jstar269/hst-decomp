@@ -1,7 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000aacac end=0x000aae88 symbol=FUN_000aacac lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* matching idiom: w2/w1 declared at the top (in that order) to get retail's f21/f22 for the two scaled values; the division is duplicated into both sign branches; fabsf is the abs.s intrinsic; Min is an inline const-reference helper. */
-typedef int undefined4;
 
 extern "C" {
 extern float DAT_0037acb4;

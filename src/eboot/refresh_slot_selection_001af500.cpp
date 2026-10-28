@@ -2,7 +2,7 @@
 /* Clone of src/sharing_main/refresh_slot_selection_001bcbd8.cpp (hstclone.py tag u3r2e): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag sh2) corrected by hand: twin of 0x001bcad8 with updated field offsets and mode arguments; exact match verified; names and types await human review. */
 
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
 extern void FUN_000ffb3c(...);
@@ -20,8 +20,8 @@ struct List { int pad; unsigned size; };
 extern "C" void FUN_001af500(int param_1)
 {
   int iVar7 = *(int *)(param_1 + 0xc);
-  FUN_000ffb3c(*(undefined4 *)(iVar7 + 0x60), 1);
-  FUN_0010b6d4(*(undefined4 *)(iVar7 + 0x914), 0x18, 0x1d);
+  FUN_000ffb3c(*(u32 *)(iVar7 + 0x60), 1);
+  FUN_0010b6d4(*(u32 *)(iVar7 + 0x914), 0x18, 0x1d);
   unsigned uVar5 = *(unsigned *)(FUN_0019d474() + 0x2dc);
   int iVar2 = FUN_0019d474();
   List *pl = (List *)(iVar2 + 0x360);

@@ -1,12 +1,12 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000508a0 end=0x00050920 symbol=FUN_000508a0 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag gen-sh2/v0) corrected by hand: switch statement on obj->kind with inner result variable assigned to outer result; exact match verified; names and types await human review. */
-typedef unsigned char uchar;
+#include "hst/types.h"
 
 typedef struct {
     char pad[0x18];
     void *ptr;
     char pad2[0x8c - 0x1c];
-    uchar kind;
+    u8 kind;
 } Obj;
 
 extern Obj *FUN_00050aec(void);

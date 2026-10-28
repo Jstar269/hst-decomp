@@ -1,23 +1,22 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00191524 end=0x001916f8 symbol=FUN_00191524 lang=c++ */
 /* Ghidra pseudocode (hstgen.py tag gen-sh2/v0) corrected by hand: switch statement on index 0..4 and right-nested bitwise-OR color packing helper; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned short ushort;
+#include "hst/types.h"
 
 extern "C" {
 extern int *FUN_00177eb4();
 extern int FUN_00225dec(int);
 }
 
-static inline uint PackColor(ushort r, ushort g, ushort b)
+static inline u32 PackColor(u16 r, u16 g, u16 b)
 {
     return (r & 0xff) | (((g & 0xff) << 8) | (((b & 0xff) << 16) | 0x80000000));
 }
 
-extern "C" uint FUN_00191524(int param_1, int param_2)
+extern "C" u32 FUN_00191524(int param_1, int param_2)
 {
     int *puVar1 = FUN_00177eb4();
-    uint res = 0;
-    ushort r, g, b;
+    u32 res = 0;
+    u16 r, g, b;
     switch (param_2) {
     case 0:
         r = FUN_00225dec(puVar1[27]);

@@ -1,11 +1,11 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000e5f04 end=0x000e5f4c symbol=FUN_000e5f04 lang=c99 */
 /* Clone of src/eboot/store_vec4_000e193c.c (hstclone.py tag c1707b): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: replaced the four loose undefined4 locals with a float v[4] array the callee fills, and stored it as four indexed float member writes; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 
-extern void FUN_0001d430(float *param_1, uint param_2);
+extern void FUN_0001d430(float *param_1, u32 param_2);
 
-void FUN_000e5f04(float *param_1, uint param_2)
+void FUN_000e5f04(float *param_1, u32 param_2)
 {
   float v[4];
 

@@ -1,24 +1,9 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0009378c end=0x00093860 symbol=FUN_0009378c lang=c99 data=0x00378af0 */
 /* Clone of src/eboot/initialize_state_00091af4.c (hstclone.py tag u2r1s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x00378af0-0x00378b06) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003e1a30;
+extern u8 DAT_003e1a30;
 extern char DAT_00378a5c[];
 extern char DAT_00378a68[];
 extern void FUN_000963e0();

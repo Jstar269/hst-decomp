@@ -2,7 +2,7 @@
 /* Clone of src/eboot/round_half_000def58.c (hstclone.py tag lnmc): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; matching idiom: shared bool result with an inner >= half branch; exact match verified; names and types await human review. */
 extern unsigned char DAT_003e1e88;
-typedef unsigned char bool;
+#include "hst/types.h"
 bool FUN_000e3144(int self) {
   bool result;
   if (DAT_003e1e88 != 0) {

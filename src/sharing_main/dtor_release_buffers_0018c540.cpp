@@ -1,22 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0018c540 end=0x0018c6e8 symbol=FUN_0018c540 lang=c++ */
 /* Clone of src/eboot/dtor_release_buffers_0017fe4c.cpp (hstclone.py tag c45): addresses substituted; exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: delete[] call takes the tested global as its argument (Ghidra dropped it), loop index declared before the walking pointer; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned long long undefined8;
-typedef int code(...);
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
 extern "C" {
-extern undefined DAT_003b23fc;
+extern u8 DAT_003b23fc;
 extern int DAT_003ea85c;
 extern void FUN_00000788(...);
 extern void FUN_000009e4(int);
@@ -28,13 +16,13 @@ extern void FUN_00104ff8(...);
 struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
 
-extern "C" undefined4 * FUN_0018c540(undefined4 *param_1,short param_2)
+extern "C" u32 * FUN_0018c540(u32 *param_1,short param_2)
 {
   int *piVar1;
   int iVar3;
-  undefined4 *puVar2;
+  u32 *puVar2;
   
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_003b23fc);
     if (DAT_003ea85c != 0) {
       FUN_000009e4(DAT_003ea85c);

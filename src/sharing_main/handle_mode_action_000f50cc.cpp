@@ -1,12 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000f50cc end=0x000f523c symbol=FUN_000f50cc lang=c++ */
 /* Hand-written reconstruction of the EBOOT twin (src/eboot/handle_mode_action_000efa04.cpp) ported to the Sharing module with its addresses substituted, no other change; exact match verified; names and types await human review. */
 
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned char uchar;
-
 extern char *DAT_003751d4;
 extern float DAT_0037dfa8;
 extern unsigned char DAT_003e19f8;

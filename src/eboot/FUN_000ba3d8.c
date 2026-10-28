@@ -1,23 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ba3d8 end=0x000ba48c symbol=FUN_000ba3d8 lang=c99 data=0x002d4b0c */
 /* Ghidra pseudocode (hstgen.py tag not recorded in lane candidate inputs/generated/FUN_000ba3d8.c) corrected by hand: passed the tested field to FUN_002b78e8, typed the variadic log helper, and reversed the result branch; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d4b0c-0x002d4b57) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_003073f0;
+extern u8 DAT_003073f0;
 extern void FUN_00000a00();
 extern void FUN_000ba3ac(const char *, ...);
 extern void FUN_000bb780();

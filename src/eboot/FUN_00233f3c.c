@@ -1,32 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00233f3c end=0x00233fc4 symbol=FUN_00233f3c lang=c99 */
 /* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern undefined DAT_0030985c;
-extern undefined4 DAT_0034a664;
-extern undefined4 DAT_0034a668;
+extern u8 DAT_0030985c;
+extern u32 DAT_0034a664;
+extern u32 DAT_0034a668;
 extern void FUN_00000a00();
-extern undefined4 * FUN_0001f0f0();
+extern u32 * FUN_0001f0f0();
 extern int FUN_00232c58();
 
-undefined4 * FUN_00233f3c(undefined4 *param_1,short param_2)
+u32 * FUN_00233f3c(u32 *param_1,short param_2)
 {
-  if (param_1 != (undefined4 *)0x0) {
+  if (param_1 != (u32 *)0x0) {
     *param_1 = (unsigned int)(&DAT_0030985c);
     DAT_0034a668 = 0;
     if (DAT_0034a664 != 0) {

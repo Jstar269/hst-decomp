@@ -1,11 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001bc748 end=0x001bc7e0 symbol=FUN_001bc748 lang=c99 */
 /* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: inverted if/else branches; exact match verified; names and types await human review. */
-typedef unsigned int uint;
-typedef unsigned int undefined4;
+#include "hst/types.h"
 
-extern uint * FUN_000114c0();
+extern u32 * FUN_000114c0();
 
-void FUN_001bc748(undefined4 *param_1, int param_2)
+void FUN_001bc748(u32 *param_1, int param_2)
 {
   if (param_2 != 0) {
     *param_1 = 9999;
@@ -38,5 +37,4 @@ void FUN_001bc748(undefined4 *param_1, int param_2)
   else {
     FUN_000114c0(param_1, 0, 0xa0);
   }
-  return;
 }

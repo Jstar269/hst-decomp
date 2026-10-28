@@ -1,10 +1,10 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0018d978 end=0x0018da94 symbol=FUN_0018d978 lang=c99 */
 /* Clone of src/eboot/FUN_00181284.c (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef unsigned int uint;
+#include "hst/types.h"
 typedef struct { char pad[4]; short x0; short x1; short y0; short y1; } Rect;
 typedef struct { char pad[0x10d4]; Rect *rect; } Object;
-typedef struct { char pad[0x1d0]; uint fields[0x11]; } Render;
+typedef struct { char pad[0x1d0]; u32 fields[0x11]; } Render;
 extern void *DAT_003da704;
 extern void *DAT_003ea858;
 extern void FUN_0005c85c(void *, float, float, float, float, float, float);
