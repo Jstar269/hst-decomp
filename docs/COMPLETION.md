@@ -58,11 +58,11 @@ The headline figure is **strict**: bytes passing all seven gates over all in-sco
 scope are fixed, it can only rise. The tiers below explain where the remaining work is; each is a share of the same
 denominator.
 
-| Tier | A byte is in this tier when | Measured <!-- hstprogress:begin completion-date -->2026-10-27<!-- hstprogress:end --> (public sources) |
+| Tier | A byte is in this tier when | Measured <!-- hstprogress:begin completion-date -->2026-10-28<!-- hstprogress:end --> (public sources) |
 | --- | --- | --- |
-| T1 | its function matches exactly in isolation (`hstmatch.py`) | <!-- hstprogress:begin completion-t1 -->22.304% (2,068,848 B<!-- hstprogress:end -->; code only, matched one function at a time; data is not counted in this tier) |
-| T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | <!-- hstprogress:begin completion-t2 -->29.154% (2,704,262 B<!-- hstprogress:end -->; code, data and relocation-table bytes the whole-module build produces from source, so it can exceed T1; retail-derived scaffolding is never counted; current public build reports, both game-module images identical and all generated relocation tables equal) |
-| T3 | T2, and the shifted build passes (gate 5) | <!-- hstprogress:begin completion-t3 -->29.130% (2,702,078 B<!-- hstprogress:end -->; shifted static checks and numeric-address scans passed for counted sources; shifted runtime not run) |
+| T1 | its function matches exactly in isolation (`hstmatch.py`) | <!-- hstprogress:begin completion-t1 -->22.342% (2,072,424 B<!-- hstprogress:end -->; code only, matched one function at a time; data is not counted in this tier) |
+| T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | <!-- hstprogress:begin completion-t2 -->29.197% (2,708,262 B<!-- hstprogress:end -->; code, data and relocation-table bytes the whole-module build produces from source, so it can exceed T1; retail-derived scaffolding is never counted; current public build reports, both game-module images identical and all generated relocation tables equal) |
+| T3 | T2, and the shifted build passes (gate 5) | <!-- hstprogress:begin completion-t3 -->29.173% (2,706,078 B<!-- hstprogress:end -->; shifted static checks and numeric-address scans passed for counted sources; shifted runtime not run) |
 | T4 = strict | T3, and the source is reviewed (gate 7) | <!-- hstprogress:begin completion-t4 -->0.000% (0 B)<!-- hstprogress:end --> |
 
 Current figures are drawn in [`progress.svg`](progress.svg) and [`progress-map.svg`](progress-map.svg) and computed by

@@ -2629,3 +2629,123 @@ pointer: a local `pp = &DAT; *pp` probe folds back and was recorded as a dead en
   0x3e858 (hot frustum test; `return any == 0 ? 1 : 2;`, duplicated epilogue), 0x36e7c (lw, not lhu, from the
   stack temporary); gcc171 near misses: 0x31ee8/0x31d24 slerp (2 words, a lui register), 0x35610 (-Os, 4 words),
   0x225b0 family (branch-likely layout), 0x3e9d8 (retail fills the slot with mtc1).
+- (lane dsn2, unreviewed by the main session)
+- 2026-10-27 (0x0005a410, lane dsn2, EXACT): the increment-FIRST push spelling `count = count + 1; items[count - 1] = h;` reproduces retail's `addiu v1,v1,1; sw v1,count; lw v0,base; sll v1,v1,2; lw a0,slot; addu; sw a0,-4(v0)` and forces the `h` reload after the count store when `h` comes through an inlined `int &slot` parameter, where `items[count++] = h` gave store-first order, no reload and one word less; a global declared as a POINTER (`void *DAT_x` then `((void **)DAT_x)[i]`) emits the element base as `lui; lw` while the same address declared as an ARRAY emits `lui; addiu` (retail's `lw` = pointer variable); and `if (self) { body } return self;` gives the shared `move v0,sN` epilogue entry (`beqz s3,<move v0,s3>`) where `if (!self) return 0;` gives a separate zero block.
+2026-10-27 dsn2 0x00055eac: the pointer-walk loop `for (j=0;j<self->count;j++) idx[j+1]=(short)j;` indexed i-to-index form first, but reusing the OUTER loop's counter variable made MWCC give the counter v1 and the base a0; declaring a separate counter (`j`) flipped it to retail's a0=counter/v1=base with zero other changes.
+2026-10-27 dsn2 0x00062150: (a) a sparse constant-selection chain (i==3/2/4/9 -> four different globals) is a `switch` with the cases written in the REVERSE of retail's test order: MWCC emits the compare chain reversed and the case bodies in source order, so source order 3,2,4,9 gave retail's tests 9,4,2,3 with bodies 3,2,4,9 (an if/else-if chain gave inline `bne` chains instead, 69 words off). (b) confirmed note 898: the loop guard `i <= 31` gives `slti at,s1,32` (retail), `i < 32` gives `slti v1,s1,32` - the last 2 words of the match. (c) two loop variables need a comma for-init (`for (i = 0, p = (Panel *)DAT_..; ..)`) to put the counter in s1 and the pointer in s0.
+2026-10-27 dsn2 0x0003807c / 0x000383f4 (twins, parked, 53/56 words): the whole difference is the s-register colouring plus one idiom. (a) Retail holds `base = a0+8` in s6 and re-derives nothing; MWCC re-derives `addiu a0,s1,8` from a saved copy of a0 unless base's live range spans everything - its save order for the five argument registers (a3 before a1, i.e. right-to-left for the arg list `(base, a1, a3)`) is the part we cannot reproduce by source spelling yet; ours saves a1,a2,a3,t0,t1 in declaration order. (b) `(r & 0x00ffffff) | 0x55000000` must come out as `ins v0,zero,0x18,0x8; or v0,v0,v1` (retail); the same expression in our compile gives `sll v1,v0,8; srl v1,v1,8` although the retail MWCC emits `ins` for a plain `x & 0xffffff` (cf. NOTES 221, 0x2d498). (c) retail tail-calls (`j 0x41cd4` with `addiu sp,sp,32` in the slot) where ours emits `jal` + a normal epilogue.
+2026-10-27 dsn2 0x0006f6dc (parked, 27/27 words): retail's byte-compare keeps the raw byte unfolded (`lbu v0,0(a0); seb a2,v0`) and re-uses that unsigned byte at the shared join (`seb v0,v0` in the branch delay slot). A source with both an `unsigned char ua` and a `(char)ua` view still compiles to a single `lb` (MWCC folds lbu+seb), so the signed view in the original must come through something opaque (inline helper or a cast through a differently typed pointer). Function semantics recovered from the bytes: 1 when both strings end together, 0 when the second ends first (or the first ends with more left), else the second string's differing byte.
+2026-10-27 dsn2 0x00036714 (NEAR 6/21, VFPU family): the gate-legal VFPU shape, verified by assembly this time: a header `cc=gcc171-O2 asm=vfpu` with an `Original inline VFPU asm:` line; asm templates may hold only VFPU instructions (no `lw`/`sh`, so a packed-short tail can never live in the block) - `mfv` moves go in their own one-line template with a register binding (`register int t asm("$8"); asm volatile("mfv %0, S000.s" : "=r"(t));`) and the stores stay in C, which reproduces retail's `mfv t0,S000.s; sh t0,0(a0)` pair exactly and lets gas move the function's last C `sh` into `jr ra`'s slot by itself; a VFPU load/store operand is `"=m"(buf)` and prints as `0($sp)` (writing `0(%0)` around it produces the invalid `0(0($sp))`), and operand numbers restart in every template. The residual is allocator-only: with `register ... asm("$2"/"$3"/"$5")` pins on the three packed words (needed, because plain C and `*(int *)&tmp[i]` both narrow the loads to `lhu`) GCC hoists the return's `addiu` off $2 into `$6` and adds a `move`, leaving 6 of 21 words different; without pins the loads land in the wrong registers and reorder 0/8/4.
+2026-10-27 dsn2 0x00049e68 / 0x00049ec4 / 0x00049f20 / 0x0001f294 (all EXACT): the three 0x49e__ functions are one family over `struct Outer { Inner *inner; int state; int index/f10; }` where the callee is a REAL virtual call on `self->inner` (declare the class's virtuals: the vtable's first two entries are the offset-to-top and typeinfo, so the target's `lw t9,24(t9)` is the 5th declared virtual, and GCC puts the callee in t9 where a manual function-pointer table lands it in v0 - the manual table is 3 words off, the real virtual call is exact); the negative arm goes out of line only when the POSITIVE test is written first (`if (state >= 0) { .. return 1; } return 0;`), and the two twin getters differ only in a literal offset added to the base (`+0` / `+20`). 0x00049f20 additionally shows the float argument of `FUN_00022498(out, out, self->inner->scale)` arriving in $f12 from the object field (136) with a0/a1 both `out`. 0x0001f294 confirms the empty-tag recipe on the function's OWN signature (an unused `struct Tag {}` by-value parameter turns a 16-byte frame into retail's 32-byte one; the `if (!count) return;` + `while (count)` split is what produces retail's duplicated top test), and the release call is `node->obj->release(1)` with that vcall at vtable +8 (the first declared virtual).
+2026-10-27 dsn2 0x00049d34 (EXACT): a function whose failure path is a `return 0` wins one word by writing it as `int n = 0; if (state >= 0 && other >= 0) { n = <expr>; } return n;` instead of `if (!ok) return 0; return <expr>;`: the initialized result puts `move v0,zero` in the first test's delay slot and both failing tests branch straight to the epilogue, where the two-return form materialises a separate zero block before the epilogue (29 words instead of retail's 28). Same family as 0x00049e68 (slots 8/20 for state/index, the second guard at 24). Also confirms that a test written positively (`if (state >= 0 && other >= 0)`) is what keeps both arms out of line.
+- 2026-10-27 dsn2 (0x00040194 / 0x000400d8, RGB565/RGBA4444 -> float4 converters, parked at 22/22 and 24 words): the four
+  value stores come out in retail's rotated order only when the source writes them LAST-store-first (`out[3]=alpha;`
+  then `out[0]=r; out[1]=g; out[2]=b;`); written 0,1,2,3 the rotation shifts the other way and the delay slot takes
+  the wrong store. `unsigned short` parameters give retail's entry `andi r,r,0xffff`, but `x >> 11` on such a value
+  promotes to a SIGNED int and emits `sra`; write `(float)(int)((unsigned)x >> 11)` to get retail's `srl` while
+  keeping the cheap `cvt.s.w` (a plain `(float)((unsigned)x >> 11)` instead triggers MWCC's unsigned->float
+  double-and-add sequence, +20 words). Both files are otherwise the same instruction multiset as retail; MWCC -O4,p
+  interleaves (extract -> convert -> multiply -> store per element) where retail batches (all extracts, all mtc1,
+  all cvt, both constants, all mul.s, then all stores). Statement grouping, int locals for the fields and permuting
+  the term order (r,g,b / b,r,g) all leave the interleaving unchanged - the batching is a scheduler decision, not a
+  source-order one, and was not reachable in 7 compiles.
+- 2026-10-27 dsn2 (0x000424a4): the lane's `ins` blocker is confirmed on a third function. `base | (x & 0xffffff)`
+  emits `sll; srl; or` where retail has a single `ins a3,a1,0x0,0x18` (+2 words); dropping the mask gives the exact
+  23/23-word multiset with `or rd,rs,rd` in that one slot; a union bitfield write (`c.w = 0xcf000000; c.f.v = tag;`,
+  the spelling that works for GCC in the a0db2 lane) makes it worse in MWCC (+4 words, and/or pair). The float-bit
+  pun pair is fine as `*(unsigned *)&param` / `*(unsigned *)&local` (forces the `swc1`+`lw` spill pair retail has).
+- 2026-10-27 dsn2 (0x000008d8, parked 75/67): a LOCAL STRUCT stays frame-resident exactly like retail (fields via
+  lw/sw sp-relative, `count` cached in a register for the loop test but reloaded after a callback) only when its
+  address escapes to an OUT-OF-LINE callee; an INLINED escape loses it completely (MWCC promotes the struct to
+  registers, frame 32 vs 64, 7 saves vs 6). The escape itself costs words retail does not have, so such a function
+  can only match if its original source had a zero-cost escape - worth knowing before spending compiles on the
+  frame-resident-locals family.
+- 2026-10-27 dsn2 (0x000507b0, EXACT): the early-exit spelling `if (!p) { report(DAT_...); for (;;) { } }` followed by the success path reproduces retail's block order (bnez into the success block with the error block inline); the if/else form instead puts the success block first and adds a `b` to the shared epilogue (+1 word). Also note the mid-call pointer: `p = FUN_x(p); *(int *)p = tag;` is a call that RETURNS its argument (retail keeps using v0 after the call), so read the callee's return register before writing the source.
+- 2026-10-27 dsn2 (ins blocker RESOLVED as a compiler limit, 5 compiles + 1 isolated probe): this lane's MWCC never
+  emits `ins`. A 3-line probe (`return x & 0xffffffu;`) compiles to `sll v0,a0,8; srl v0,v0,8` - not `ins v0,zero,24,8`
+  - and the four source forms of `base | (x & 0xffffff)` all miss it: mask-then-or and or-then-mask give the sll/srl
+  pair (+2 words), union `c.w = base; c.f.v = x;` gives an and/or pair (+4), two-field bitfield writes
+  (`c.f.tag = 0xcf; c.f.v = x;`) force the union into the frame (+7). The GCC route is closed too: `cc=gcc171x-O2`
+  wants a `rodata=` pool for 1.0f (retail materialises it with `lui;mtc1`, the digest's later-Sony-psp-gcc
+  signature) and `cc=gcc402x-O2` gives a different 20-word form. So 0x000424a4 (23/23 words, one `or` vs `ins`) and
+  the 0x0003807c/0x000383f4 twins (`ins v0,zero,0x18,8`) are BLOCKED on compiler availability, not on spelling:
+  record and stop spending on them until the harvest has a compiler that emits `ins`.
+- 2026-10-27 dsn2 (`move s8,sp` / `move sp,s8` = an alloca-style frame; 0x00004408 37w, 0x000008d8 67w): MWCC saves sp
+  into s8 after the prologue and restores it before every return exactly when the source frame is variable-sized
+  (alloca / VLA / an assert macro that formats into a stack buffer). Both functions ALSO contain an unreachable
+  block (`jal <report>; a0 = s8+24; for (;;);` for 0x4408 - no branch targets it; the 0x000008d8 rollback is the
+  same phenomenon). Match the reachable code first, but expect the dead block and the s8 dance to be source-level
+  (an ASSERT macro with an alloca'd message buffer), not spellable by hand; treat that pairing as a "heavy/expensive"
+  signature when triaging a batch: 0x00004408, 0x000068d8 (skipped 2026-10-27), and the 105-word list-manager
+  0x00068cb0 (three nested iterator loops over the 0x00331c28 lists plus an element loop with five calls and a
+  virtual t9 call at +12 - deferred, not a near miss).
+- 2026-10-27 dsn2 (three EXACT from one family in one pass: 0x65554/0x655f8/0x6569c, a parked 40/41 near miss
+  plus its two untouched twins): two levers did it, both reusable.
+  (1) FRAME ORDER for an address-taken argument: retail had the argument temp at 28(sp) ABOVE the local
+  (local 20..28), while the raw `&arg` spelling puts the temp at 20(sp) with the local at 24..32. Declaring a
+  copy first (`const char *pa = arg;`, then passing `&pa`) and keeping the local at retail's slot span (the
+  iterator local is declared 8 bytes here even though the helper writes only its first word - the span is what
+  pins it to 20) reproduces retail's layout word-for-word.
+  (2) GUARD SPELLING: retail's `bltzl key,<past zero>; <zero in the delay>; bltz idx,<zero block>; nop` comes
+  from the POSITIVE combined test with a single trailing return
+  (`if (k >= 0 && i >= 0) { return <call>; } return 0;`). Two early returns give `bgez`+`b`/`bgezl`+hoisted
+  delay instead, and the NEGATIVE combined test (`if (k < 0 || i < 0) return 0;`) targets the zero block and
+  lands one word short (40/41) - same three-way trap for int and float returns.
+- 2026-10-27 dsn2 (`ext` is a second tooling wall, not just `ins`; 0x00051740): the straight-line GE command
+  emitter 0x00051740 reconstructs to 70/71 words with the correct shape, and the single unspellable word is
+  `ext v1,a1,0x18,0x8` - MWCC 2.19 here lowers `(x >> 24) << 16` (and every mask/bitfield spelling tried for
+  the `ins` probe) to `srl`/`sll`, so Allegrex `ext`/`ins` are BOTH unavailable at source level. Triage rule
+  for the rest of this batch: if the retail disassembly contains `ext ` or `ins `, the item is tooling-blocked
+  (record + move on); check that before spending compiles.
+- 2026-10-27 dsn2 (the SLOT-SPAN lever generalises: 0x00065480 now EXACT, and the 0x65554 family before it):
+  MWCC packs the frame's declared objects TOP-DOWN IN DECLARATION ORDER, each taking exactly its DECLARED size,
+  so to reproduce a slot grid you size the declarations rather than adding filler locals. Worked example
+  (frame 48): retail's slots were 44 / 36 / 28 / 24 for the two key copies and the two iterators, which is
+  4 / 8 / 8 / 4 bytes in declaration order - the second key's slot is 8 bytes and the second iterator's only 4
+  even though both hold one pointer. Declaring `It8 pb;` between `void *pa;` and the iterators, and a 4-byte
+  iterator second, reproduced all four offsets in one compile after the earlier variants had packed them
+  contiguously (44/40/32/24). Corollary: an 8-byte slot only needs one word written - the SPAN is what counts.
+- 2026-10-27 dsn2 0x0001f558 (park 55/55, 6 differ) - two reusable measurements on FRAMES and ARG COLOURING:
+  (a) ONE-WORD BY-VALUE STRUCT PARAMETERS (`struct Arg { void *p; }` x3 in the signature) make the frame grow by
+  exactly 16 bytes of never-written parameter homes AND colour the arguments ASCENDING (2nd param -> s4, 3rd -> s5,
+  4th -> s6, and a scalar `self` gets the leftover low s-register); plain scalar parameters colour DESCENDING
+  (self -> s6, a1 -> s5, a2 -> s4, a3 -> s3) and reserve no frame bytes. Use the struct form when retail's frame is
+  exactly 16 above the saves and retail's arg registers ascend; use scalars otherwise - the two cannot be combined.
+  (b) The empty `Tag` by-value parameter (the 0x1f294 recipe) works only while the tag is NOT forwarded: passing it
+  to a recursive call takes its address and costs a save register plus >=4 words (measured on 0x0001f558: s7 added,
+  frame -64 vs retail -48). A silent +16 frame with SCALAR arg colouring resisted 5 further shapes (reordered
+  declarations, alias, empty tag, 16-byte Rec, Tag()); treat it as a frame/scheduler park when the rest of the
+  function is word-for-word.
+- 2026-10-27 dsn2 (structural limit, three functions measured): this binary contains functions that take
+  arguments 5-8 in t0-t3 instead of o32's stack slots - 0x0004c8d8 homes the incoming t2/t3 at 56/60(sp) and moves
+  t0/t1 into s7/s8, 0x00044d40 passes its 5th call argument in t0 (`move t0,zero` before the jal), and 0x0005a500
+  reads its 4th argument from t0 at entry (`move s3,t0`). No plain-C signature can put a 5th parameter in t0, so
+  any function with this signature is unmatchable on this lane regardless of effort - check for t0-t3 use in the
+  prologue before spending compiles (0x0005a500, 0x00044d40, 0x0004c8d8 skipped for this reason).
+- 2026-10-27 dsn2 CORRECTION to the previous day's "structural limit" line: t0-t3 are NOT a foreign convention. They are
+  this build's EABI argument registers 5-8 (see the 0x0004f864 line above: "MIPS EABI 5th parameter in t0"), so
+  functions that home incoming t2/t3 (0x0004c8d8), pass a 5th call argument in t0 (0x00044d40), or read a 4th
+  argument from t0 (0x0005a500) are plain C with a 5+ parameter signature - they are matchable, and the three SKIP
+  lines for them in PROGRESS.md are retracted to RETRY. Lesson: before filing any "different calling convention"
+  SKIP, grep these notes for the register name.
+- 2026-10-27 dsn2 0x00051894 (park 95/95, 46 differ) - reusable order rules for local-struct builders:
+  (a) declaration order assigns slots TOP-DOWN, so to reproduce retail's layout you declare the structs in the
+  REVERSE of the slot order (declaring q4,q3,q2,q1,col gives q4 the highest slot and col the lowest, which is
+  what retail has at 96/80/64/48/32);
+  (b) the ARGUMENT-HOMING sequence follows the assignment statements, so the first struct assigned decides which
+  float parameters are stored first (retail homes f14,f15 before f18,f19 before f12,f13 before f16,f17 = q4,q3,q2,q1);
+  (c) a byte-view of a packed argument (`unsigned char *p = (unsigned char *)&color`) homes the argument to the
+  frame and converts each byte with the unsigned-char->float idiom; converting the bytes LAST-TO-FIRST also gives
+  retail's last-store-first rotation of the four results. The remaining gap in such functions is always the
+  interleaving of sibling conversion chains (retail fills the next byte's bltz delay with the previous byte's div.s),
+  which needs the chains to be visible as one dependency-free group in a single statement.
+- 2026-10-27 dsn2 0x0001b880 EXACT (src/eboot/poll_status_wait_0001b880.cpp) and 0x0001f558 park advance (55/55, 4 differ):
+  (a) the INLINE-HELPER-WITH-EMPTY-TAG recipe generalises: when a function's frame is exactly 16 bytes short of
+  retail's and the call that needs wrapping is a virtual/no-tag call, wrap it as
+  `static inline void Notify(Self *s, Tag t) { s->vfn4(); }` and call `Notify(self, Tag())` - MWCC then reserves
+  the 16 bytes as the inline helper's unused by-value tag slot at zero instruction cost (this is what finally
+  matched 0x0001f558's frame; forwarding a tag from the function's OWN signature instead costs a save register
+  and 4 words, so the helper form is the one to use).
+  (b) symbols/EBOOT.BIN.txt is `name = 0xADDR;` and FUN_<addr>/DAT_<addr> names need NO entry at all - a
+  malformed line (e.g. an address-first line) makes hstmatch abort with ValueError for every file, so append in
+  the existing format only.
