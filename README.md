@@ -40,8 +40,8 @@ will let more of it run as real, readable code over time.
 
 | | Progress | What it means |
 |---|---|---|
-| **Code matched** | **36.0%** | 12,220 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
-| **Built from source** | **29.2%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
+| **Code matched** | **36.2%** | 12,334 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
+| **Built from source** | **29.3%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
 The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-28.
 
@@ -101,14 +101,14 @@ How a function is matched is described in [CONTRIBUTING.md](CONTRIBUTING.md), an
 
 <!-- hstprogress:begin readme-progress -->
 
-**12,217 exact sources** (12,220 functions) and 1,013 near misses, measured 2026-10-28 with `python tools/hstcov.py`
+**12,331 exact sources** (12,334 functions) and 1,045 near misses, measured 2026-10-28 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 6,202 / 9,804 | 1,074,568 / 2,849,076 | 37.716 % |
-| `hstp_trans_main.prx` (Sharing Version) | 6,018 / 9,830 | 997,856 / 2,914,004 | 34.243 % |
-| **Both** | 12,220 / 19,634 | 2,072,424 / 5,763,080 | 35.960 % |
+| `EBOOT.BIN` | 6,269 / 9,804 | 1,081,440 / 2,849,076 | 37.958 % |
+| `hstp_trans_main.prx` (Sharing Version) | 6,065 / 9,830 | 1,002,888 / 2,914,004 | 34.416 % |
+| **Both** | 12,334 / 19,634 | 2,084,328 / 5,763,080 | 36.167 % |
 
 <!-- hstprogress:end -->
 

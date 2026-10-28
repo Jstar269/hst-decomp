@@ -13,40 +13,40 @@
   {
    "id": "game-code",
    "title": "Game code matched",
-   "progress": 36.61891396951923,
-   "detail": "2,072,424 of 5,659,436 code bytes (103,644 B of Sony code kept out of this repository are not counted)",
+   "progress": 36.829252950293984,
+   "detail": "2,084,328 of 5,659,436 code bytes (103,644 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "all-code",
    "title": "All code matched",
-   "progress": 36.61891396951923,
-   "detail": "2,072,424 of 5,659,436 code bytes (230,252 B of Sony code kept out of this repository are not counted)",
+   "progress": 36.829252950293984,
+   "detail": "2,084,328 of 5,659,436 code bytes (230,252 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-rebuild",
    "title": "PSP rebuild",
-   "progress": 29.998059397500523,
-   "detail": "2,708,262 of 9,028,124 image bytes from source in the whole-module build",
+   "progress": 30.103862109115912,
+   "detail": "2,717,814 of 9,028,124 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-moddable",
    "title": "Moddable PSP rebuild",
-   "progress": 29.97386832524675,
-   "detail": "2,706,078 of 9,028,124 image bytes from source in the relocated build",
+   "progress": 30.079671036862145,
+   "detail": "2,715,630 of 9,028,124 image bytes from source in the relocated build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "full-rebuild",
    "title": "Every module rebuilt",
-   "progress": 29.998059397500523,
-   "detail": "2,708,262 of 9,028,124 image bytes from source in the whole-module build",
+   "progress": 30.103862109115912,
+   "detail": "2,717,814 of 9,028,124 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },
@@ -62,7 +62,7 @@
    "id": "platform-layer",
    "title": "Platform layer",
    "progress": 3.4615384615384617,
-   "detail": "9 of 260 imported system functions complete in Nakagawa; 213 partial or unreviewed, 5 refused or fake, 33 missing",
+   "detail": "9 of 260 imported system functions complete in Nakagawa; 213 partial or unreviewed, 36 refused or fake, 2 missing",
    "reached": null,
    "regressed": false
   },
