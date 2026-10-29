@@ -1,52 +1,37 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000eeb64 end=0x000eec94 symbol=FUN_000eeb64 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef struct Node {
-  char pad[0x24];
-  int v24;
-  int v28;
-} Node;
-
-typedef struct Obj {
-  char pad[0x64];
-  Node *n64;
-  Node *n68;
-  void *a[5];
-  void *b[5];
-} Obj;
-
-typedef struct Info {
-  char pad[0xc];
-  short w;
-  short h;
-} Info;
+#include "hst/inp_panes.h"
+#include "hst/info_rec.h"
 
 typedef struct Cfg {
   char pad[0x1364];
-  int idx;
+  int idx;                      /* 0x1364 index of the selected record */
 } Cfg;
 
 extern Cfg *DAT_003402a0;
 extern void *DAT_0034a7ec;
 extern int DAT_002d6f64;
 extern int DAT_002d6f70;
-extern void FUN_000eecc4(Obj *);
-extern void FUN_001036f8(Obj *, int);
-extern Info *FUN_0027edbc(void *, int);
+extern void FUN_000eecc4(SlotPane *);
+extern void FUN_001036f8(SlotPane *, int);
+extern InfoRec *FUN_0027edbc(void *, int);
 extern int FUN_000ca4a4(void);
-extern void FUN_000ffb3c(void *, int);
+extern void FUN_000ffb3c(PaneItem *, int);
 
-static inline void Set2(Node *n, int v)
+/* Sets both words of an item's range to the same value. */
+static inline void SetRange(PaneItem *n, int v)
 {
-  n->v24 = v;
-  n->v28 = v;
+  n->unk24 = v;
+  n->unk28 = v;
 }
 
-void FUN_000eeb64(Obj *self)
+/* Resets the slot pane and lights as many slots in each row as the selected record says. */
+void FUN_000eeb64(SlotPane *self)
 {
   int mode;
   int idx;
-  Info *info;
-  int h, w;
+  InfoRec *info;
+  int slotsB, slotsA;
   int i;
 
   FUN_000eecc4(self);
@@ -55,8 +40,8 @@ void FUN_000eeb64(Obj *self)
   idx = DAT_003402a0->idx;
   i = idx - 1;
   info = FUN_0027edbc(DAT_0034a7ec, idx);
-  w = info->w;
-  h = info->h;
+  slotsA = info->slotsA;
+  slotsB = info->slotsB;
   switch (FUN_000ca4a4()) {
   case 1:
     mode = 1;
@@ -67,18 +52,18 @@ void FUN_000eeb64(Obj *self)
   case 2:
     break;
   }
-  Set2(self->n64, DAT_002d6f64 + i);
-  Set2(self->n68, DAT_002d6f70 + mode);
-  for (i = 0; i < 5; i++) {
-    if (i < w) {
-      FUN_000ffb3c(self->a[i], 0);
+  SetRange(self->item[SLOT_ITEM_NUMBER], DAT_002d6f64 + i);
+  SetRange(self->item[SLOT_ITEM_MODE], DAT_002d6f70 + mode);
+  for (i = 0; i < SLOT_PANE_COLUMNS; i++) {
+    if (i < slotsA) {
+      FUN_000ffb3c(self->item[SLOT_ITEM_ROW_A + i], 0);
     } else {
-      FUN_000ffb3c(self->a[i], 1);
+      FUN_000ffb3c(self->item[SLOT_ITEM_ROW_A + i], 1);
     }
-    if (i < h) {
-      FUN_000ffb3c(self->b[i], 0);
+    if (i < slotsB) {
+      FUN_000ffb3c(self->item[SLOT_ITEM_ROW_B + i], 0);
     } else {
-      FUN_000ffb3c(self->b[i], 1);
+      FUN_000ffb3c(self->item[SLOT_ITEM_ROW_B + i], 1);
     }
   }
 }

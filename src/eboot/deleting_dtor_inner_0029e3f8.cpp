@@ -16,64 +16,64 @@ struct VC {
     virtual ~VC();
 };
 
-struct Inner_0029e3f8 {
-    int f0;
-    VC *m4;
-    void *m8;
-    char pad0c[0x28 - 0x0c];
+struct ReceiveState {
     int state;
+    VC *obj;
+    void *unk08;
+    char pad0c[0x28 - 0x0c];
+    int thread;
     char pad2c[0x1b0 - 0x2c];
-    VC *m1b0;
-    VC *m1b4;
+    VC *listener;
+    VC *unk1b4;
 
-    void CloseState()
+    void CloseThread()
     {
-        if (state >= 0) {
-            int r = FUN_002b79a8(state);
-            if (r != 0) {
-                FUN_0029e3cc(DAT_002cbb24, r);
+        if (thread >= 0) {
+            int result = FUN_002b79a8(thread);
+            if (result != 0) {
+                FUN_0029e3cc(DAT_002cbb24, result);
             }
-            state = -1;
+            thread = -1;
         }
     }
 
-    ~Inner_0029e3f8()
+    ~ReceiveState()
     {
-        CloseState();
+        CloseThread();
         FUN_0029e3cc(DAT_002cba24);
-        if (m1b0 != 0) {
-            delete m1b0;
-            m1b0 = 0;
+        if (listener != 0) {
+            delete listener;
+            listener = 0;
         }
-        FUN_000104e0(m8);
-        if (m4 != 0) {
-            delete m4;
-            m4 = 0;
+        FUN_000104e0(unk08);
+        if (obj != 0) {
+            delete obj;
+            obj = 0;
         }
-        if (m1b4 != 0) {
-            delete m1b4;
-            m1b4 = 0;
+        if (unk1b4 != 0) {
+            delete unk1b4;
+            unk1b4 = 0;
         }
     }
 };
 
-struct Obj_0029e3f8 {
+struct ReceiveScreen {
     void *vptr;
     char pad[0x3c - 4];
-    Inner_0029e3f8 *inner;
+    ReceiveState *recv;
 };
 
-extern "C" Obj_0029e3f8 *FUN_0029e3f8(Obj_0029e3f8 *self, short flag)
+extern "C" ReceiveScreen *FUN_0029e3f8(ReceiveScreen *self, short flags)
 {
     if (self != 0) {
         self->vptr = &DAT_00309e80;
         FUN_00047620(1);
-        if (self->inner != 0) {
-            delete self->inner;
-            self->inner = 0;
+        if (self->recv != 0) {
+            delete self->recv;
+            self->recv = 0;
         }
         FUN_0001f0f0(self, 0);
-        if (flag > 0) {
+        if (flags > 0) {
             FUN_00000a00(self);
         }
     }

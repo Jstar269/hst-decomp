@@ -1,25 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002905bc end=0x002908cc symbol=FUN_002905bc lang=c++ helpers=FUN_0028fb44@0x0028fb44-0x0028fb70 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef struct Sub { char pad[0x14]; int handle; char pad18[4]; } Sub;
-
-typedef struct Obj {
-  char pad0[0x10];
-  int f10;
-  int f14;
-  int f18;
-  int f1c;
-  int f20;
-  int f24;
-  unsigned char f28;
-  unsigned char f29;
-  char pad2a[6];
-  int f30;
-  char pad34[0x50 - 0x34];
-  Sub s50;
-  Sub s6c;
-  char pad88[0xec - 0x88];
-  char fec[4];
-} Obj;
+#include "hst/psmf_player.h"
 
 extern "C" {
 extern unsigned char DAT_0034a80c;
@@ -36,88 +17,89 @@ extern char DAT_002ff65c[];
 extern char DAT_002ff678[];
 extern char DAT_002ff690[];
 extern char DAT_002ff6b8[];
-extern void FUN_000149a8(void *);
+extern void FUN_000149a8(void *, const char *);
 static void FUN_0028fb44(...) { }
-extern void FUN_00291868(Sub *);
-extern unsigned char FUN_002919e4(Sub *, const char *, void *, void *, int, int, int);
+extern void FUN_00291868(ServiceSock *);
+extern unsigned char FUN_002919e4(ServiceSock *, const char *, void *, void *, int, int, int);
 extern void FUN_002b7958(int);
 extern int FUN_002b7990(void);
 extern int FUN_002b79a8(int);
-extern int FUN_002b7eb0(Obj *, int);
-extern int FUN_002b7eb8(Obj *, int *, int);
-extern int FUN_002b7ed8(Obj *);
-extern int FUN_002b7ee0(Obj *);
+extern int FUN_002b7eb0(PsmfPlayer *, const char *);
+extern int FUN_002b7eb8(PsmfPlayer *, int *, int);
+extern int FUN_002b7ed8(PsmfPlayer *);
+extern int FUN_002b7ee0(PsmfPlayer *);
 }
 
-extern "C" int FUN_002905bc(Obj *o, int p2, int p3, int p4)
+/* Movie play: sets the file, waits for the player status, creates the display and audio worker threads and starts playback. */
+extern "C" int FUN_002905bc(PsmfPlayer *o, const char *file_name, int arg, int start_pts)
 {
   int r;
-  if (o->f28 == 0) {
-    FUN_0028fb44(DAT_002ff534, p2);
+  if (o->ready == 0) {
+    FUN_0028fb44(DAT_002ff534, file_name);
     return 0;
   }
-  FUN_000149a8(o->fec);
-  o->f30 = p3;
+  FUN_000149a8(o->unkec, file_name);
+  o->unk30 = arg;
   for (;;) {
     if (!(DAT_0034a80c == 0 && (r = FUN_002b7ee0(o)) >= 0 && r != 1)) {
       break;
     }
-    FUN_002b7958(1000);
+    FUN_002b7958(PSMF_POLL_DELAY);
   }
   if (DAT_0034a80c != 0) {
     FUN_0028fb44(DAT_002ff5d8);
   } else {
-    r = FUN_002b7eb0(o, p2);
+    r = FUN_002b7eb0(o, file_name);
     if (r != 0) {
       FUN_0028fb44(DAT_002ff5f4, r);
     } else {
       for (;;) {
-        if (!(DAT_0034a80c == 0 && (r = FUN_002b7ee0(o)) != 2 && r != 4 && r != 0x200 && r >= 0)) {
+        if (!(DAT_0034a80c == 0 && (r = FUN_002b7ee0(o)) != PSMF_STATUS_STANDBY && r != PSMF_STATUS_PLAYING && r != PSMF_STATUS_FINISHED && r >= 0)) {
           break;
         }
         FUN_0028fb44(DAT_002ff620);
-        FUN_002b7958(1000);
+        FUN_002b7958(PSMF_POLL_DELAY);
       }
       if (DAT_0034a80c != 0) {
         FUN_0028fb44(DAT_002ff5d8);
       } else {
         int k = FUN_002b7990();
-        if (FUN_002919e4(&o->s50, DAT_002ff644, o, &DAT_002ff5c0, k + 1, 0x1000, 0x4000) == 0) {
+        if (FUN_002919e4(&o->b, DAT_002ff644, o, &DAT_002ff5c0, k + 1, 0x1000, 0x4000) == 0) {
           FUN_0028fb44(DAT_002ff65c);
         } else {
-          if (FUN_002919e4(&o->s6c, DAT_002ff678, o, &DAT_002ff5cc, 16, 0x1000, 0) == 0) {
+          if (FUN_002919e4(&o->c, DAT_002ff678, o, &DAT_002ff5cc, 16, 0x1000, 0) == 0) {
             FUN_0028fb44(DAT_002ff65c);
           } else {
-            o->f10 = 0;
-            o->f14 = 0;
-            o->f18 = 1;
-            o->f1c = 0;
-            o->f20 = 0;
-            o->f24 = 1;
-            r = FUN_002b7eb8(o, &o->f10, p4);
+            o->video_codec = 0;
+            o->video_stream_num = 0;
+            o->audio_codec = 1;
+            o->audio_stream_num = 0;
+            o->play_mode = 0;
+            o->play_speed = 1;
+            r = FUN_002b7eb8(o, &o->video_codec, start_pts);
             if (r != 0) {
               FUN_0028fb44(DAT_002ff690, r);
             } else {
-              FUN_00291868(&o->s50);
-              FUN_00291868(&o->s6c);
-              o->f29 = 1;
-              FUN_0028fb44(DAT_002ff6b8, p2);
+              FUN_00291868(&o->b);
+              FUN_00291868(&o->c);
+              o->started = 1;
+              FUN_0028fb44(DAT_002ff6b8, file_name);
               return 1;
             }
-            if (o->s6c.handle >= 0) {
-              r = FUN_002b79a8(o->s6c.handle);
+            if (o->c.handle >= 0) {
+              r = FUN_002b79a8(o->c.handle);
               if (r != 0) {
                 FUN_0028fb44(DAT_002cabbc, r);
               }
-              o->s6c.handle = -1;
+              o->c.handle = -1;
             }
           }
-          if (o->s50.handle >= 0) {
-            r = FUN_002b79a8(o->s50.handle);
+          if (o->b.handle >= 0) {
+            r = FUN_002b79a8(o->b.handle);
             if (r != 0) {
               FUN_0028fb44(DAT_002cabbc, r);
             }
-            o->s50.handle = -1;
+            o->b.handle = -1;
           }
         }
       }
@@ -130,7 +112,7 @@ extern "C" int FUN_002905bc(Obj *o, int p2, int p3, int p4)
   return 0;
 }
 
-// second pass (sn6): 4 words left (was 8). The prologue copy-order group is FIXED: Ghidra's `FUN_0028fb44(DAT_002ff534)` in the early-failure arm passes the INCOMING a1 (p2) unchanged, i.e. it is
-//  `FUN_0028fb44(DAT_002ff534, p2)`; using a1 directly before its copy moves `move s1,a1` to the end (the bnez delay slot). Remaining: success arm `lui a0; li v0,1; move a1,s1; addiu a0; jal; sb v0,41(s2)` (sb in the jal slot)
-//  vs ours `li v0,1; lui a0; move a1,s1; sb; jal; addiu a0`. Tried again on top of the fix: comma expressions in either argument, `int t = p2; o->f29 = 1; return F(fmt, t)`, a `char *fmt` local.
+// second pass (sn6): 4 words left (was 8). The prologue copy-order group is FIXED: Ghidra's `FUN_0028fb44(DAT_002ff534)` in the early-failure arm passes the INCOMING a1 (file_name) unchanged, i.e. it is
+//  `FUN_0028fb44(DAT_002ff534, file_name)`; using a1 directly before its copy moves `move s1,a1` to the end (the bnez delay slot). Remaining: success arm `lui a0; li v0,1; move a1,s1; addiu a0; jal; sb v0,41(s2)` (sb in the jal slot)
+//  vs ours `li v0,1; lui a0; move a1,s1; sb; jal; addiu a0`. Tried again on top of the fix: comma expressions in either argument, `int t = file_name; o->started = 1; return F(fmt, t)`, a `char *fmt` local.
 // improved by lane sn6 (unreviewed): 8 -> 4 differing words

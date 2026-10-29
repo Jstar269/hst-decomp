@@ -5,7 +5,8 @@ typedef int code();
 typedef struct Vec4 { float x, y, z, w; } Vec4;
 typedef struct BytePair { unsigned char first, second; } BytePair;
 typedef struct ShortPair { short first, second; } ShortPair;
-typedef struct Root { char pad[0x40]; void *child; } Root;
+
+/* Profile record: a 0x9c-byte base followed by the default settings copied in here. */
 typedef struct DataRecord {
   char pad0[0x9c];
   BytePair bytes;
@@ -17,7 +18,28 @@ typedef struct DataRecord {
   int i_b8;
   short shorts[6];
 } DataRecord;
-typedef struct State { char pad[1]; unsigned char byte1; } State;
+
+/* Object that owns the profile record (reached through the root object). */
+typedef struct ProfileOwner {
+  char pad0[1];
+  unsigned char flag1;        /* 0x01 */
+  char pad2[0x528 - 2];
+  DataRecord profile;         /* 0x528 */
+  char pad5f0[0x61c - 0x5f0];
+  int unk61c;                 /* 0x61c cleared when flag1 is set and the caller asks for it */
+} ProfileOwner;
+typedef struct Root { char pad[0x40]; ProfileOwner *child; } Root;
+
+/* Menu object: only the two callbacks and the word at +0x8c are used here. */
+typedef struct MenuObj {
+  char pad0[0x8c];
+  u32 unk8c;                  /* 0x8c */
+  char pad90[0x3e8 - 0x90];
+  code *unk3e8;               /* 0x3e8 callback taking the selected id */
+  char pad3ec[0x540 - 0x3ec];
+  code *getSelectedId;        /* 0x540 */
+} MenuObj;
+
 extern Root *DAT_003e1a08;
 extern char DAT_003eab08;
 extern BytePair DAT_003eaba4;
@@ -30,17 +52,19 @@ extern int DAT_003eabc0;
 extern short DAT_003eabc4[];
 extern void FUN_00099c98();
 extern void FUN_001cf8c4();
-void FUN_0017cef0(int param_1, int param_2)
+
+/* Notifies with the selected id, then resets the owner's profile to the built-in defaults. */
+void FUN_0017cef0(MenuObj *menu, int clear_flag)
 {
-  u32 uVar4;
-  u32 uVar5;
-  uVar4 = (**(code **)(param_1 + 0x540))();
-  uVar5 = (**(code **)(param_1 + 0x540))();
-  uVar5 = (**(code **)(param_1 + 1000))(uVar5);
-  FUN_001cf8c4(0, uVar4, uVar5, 0, *(u32 *)(param_1 + 0x8c), 0);
+  u32 id;
+  u32 mapped;
+  id = menu->getSelectedId();
+  mapped = menu->getSelectedId();
+  mapped = menu->unk3e8(mapped);
+  FUN_001cf8c4(0, id, mapped, 0, menu->unk8c, 0);
   if (DAT_003e1a08 != 0) {
-    int iVar6 = (int)DAT_003e1a08->child;
-    DataRecord *dst = (DataRecord *)(iVar6 + 0x528);
+    ProfileOwner *owner = DAT_003e1a08->child;
+    DataRecord *dst = &owner->profile;
     FUN_00099c98(dst, &DAT_003eab08);
     dst->bytes = DAT_003eaba4;
     dst->b9e = DAT_003eaba6;
@@ -61,10 +85,10 @@ void FUN_0017cef0(int param_1, int param_2)
         ++out;
       } while (count > 0);
     }
-    if (param_2 != 0) {
-      int *obj = (int *)DAT_003e1a08->child;
-      if (((unsigned char *)obj)[1] != 0)
-        *(int *)((char *)obj + 0x61c) = 0;
+    if (clear_flag != 0) {
+      ProfileOwner *o = DAT_003e1a08->child;
+      if (o->flag1 != 0)
+        o->unk61c = 0;
     }
   }
 }

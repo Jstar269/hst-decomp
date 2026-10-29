@@ -1,41 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002613a8 end=0x0026141c symbol=FUN_002613a8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/entry_records.h"
 
-
-void FUN_002613a8(int param_1)
+/* Sets the entry's tail fields and its default UTF-8 name (13 bytes, ends in 'P'). */
+void FUN_002613a8(Entry *entry)
 {
-  *(undefined1 *)(param_1 + 200) = 0;
-  *(undefined4 *)(param_1 + 0xec) = 0x40a00000;
-  *(undefined1 *)(param_1 + 0xf0) = 10;
-  *(undefined1 *)(param_1 + 0xf1) = 0;
-  *(undefined1 *)(param_1 + 0xc9) = 0xe3;
-  *(undefined1 *)(param_1 + 0xca) = 0x81;
-  *(undefined1 *)(param_1 + 0xcb) = 0xbf;
-  *(undefined1 *)(param_1 + 0xcc) = 0xe3;
-  *(undefined1 *)(param_1 + 0xcd) = 0x82;
-  *(undefined1 *)(param_1 + 0xce) = 0x93;
-  *(undefined1 *)(param_1 + 0xcf) = 0xe3;
-  *(undefined1 *)(param_1 + 0xd0) = 0x83;
-  *(undefined1 *)(param_1 + 0xd1) = 0x86;
-  *(undefined1 *)(param_1 + 0xd2) = 0xe3;
-  *(undefined1 *)(param_1 + 0xd3) = 0x83;
-  *(undefined1 *)(param_1 + 0xd4) = 0x8b;
-  *(undefined1 *)(param_1 + 0xd5) = 0x50;
+  entry->unkc8 = 0;
+  entry->unkec = 5.0f;
+  entry->unkf0 = 10;
+  entry->unkf1 = 0;
+  entry->strc9[0] = 0xe3;
+  entry->strc9[1] = 0x81;
+  entry->strc9[2] = 0xbf;
+  entry->strc9[3] = 0xe3;
+  entry->strc9[4] = 0x82;
+  entry->strc9[5] = 0x93;
+  entry->strc9[6] = 0xe3;
+  entry->strc9[7] = 0x83;
+  entry->strc9[8] = 0x86;
+  entry->strc9[9] = 0xe3;
+  entry->strc9[10] = 0x83;
+  entry->strc9[11] = 0x8b;
+  entry->strc9[12] = 0x50;
   return;
 }

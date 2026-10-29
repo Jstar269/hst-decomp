@@ -1,15 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c81ec end=0x000c825c symbol=FUN_000c81ec */
 /* Hand-written reconstruction (early session work from before provenance notes were recorded; it may have started from Ghidra pseudocode); exact match verified; names and types await human review. */
-typedef struct { char pad[0x3c]; void *a; void *b; void *pad44; void *c; void *d; void *e; void *f; void *g; } Res3c;
-extern void FUN_0001f21c(Res3c *r, void *h);
+#include "hst/effect_scene.h"
 
-void FUN_000c81ec(Res3c *r)
+extern void FUN_0001f21c(EffectScene *scene, void *member);
+
+/* Register the members 3c, 40, 48, 4c, 50, 54 and 58 with the base object. */
+void FUN_000c81ec(EffectScene *scene)
 {
-    FUN_0001f21c(r, r->a);
-    FUN_0001f21c(r, r->b);
-    FUN_0001f21c(r, r->c);
-    FUN_0001f21c(r, r->d);
-    FUN_0001f21c(r, r->e);
-    FUN_0001f21c(r, r->f);
-    FUN_0001f21c(r, r->g);
+    FUN_0001f21c(scene, scene->member3c);
+    FUN_0001f21c(scene, scene->member40);
+    FUN_0001f21c(scene, scene->member48);
+    FUN_0001f21c(scene, scene->member4c);
+    FUN_0001f21c(scene, scene->member50);
+    FUN_0001f21c(scene, scene->member54);
+    FUN_0001f21c(scene, scene->member58);
 }

@@ -13,46 +13,51 @@ extern void *FUN_00051450(void *);
 extern void FUN_00011090(char *, char *, int);
 extern void *FUN_00000bcc(int);
 
+#define ENTRY_COUNT 15      /* entries in each table */
+#define PRERENDER_ROWS 0x40 /* rows copied into the pre-render object */
+#define ROW_BYTES 0x80      /* bytes per row */
+
+/* Loads the default-data file for each entry into the first table and builds its pre-render object into the second. */
 void FUN_0018c4dc(void)
 {
-  char name[64];
-  int a;
-  int b;
-  char path[64];
-  int i;
-  int j;
-  void *buf;
-  void *obj;
-  void *u;
-  int *tab1;
-  int h;
-  int *tab2;
+  char fileName[64];
+  int outA;
+  int outB;
+  char objName[64];
+  int index;
+  int row;
+  void *pixels;
+  void *prerender;
+  void *surface;
+  int *rawSlot;
+  int raw;
+  int *objSlot;
 
   if (DAT_00341530 != 0) return;
-  a = 0;
-  b = 0;
+  outA = 0;
+  outB = 0;
   FUN_0001ca58(DAT_0030ebf4, "menu/chrsel_020_prerender.xb");
-  i = 0;
-  tab1 = &DAT_00341530;
-  tab2 = &DAT_0034156c;
+  index = 0;
+  rawSlot = &DAT_00341530;
+  objSlot = &DAT_0034156c;
   do {
-    FUN_000143b0(name, "%sdef_%02d.bin", "data/menu/chrselect/", i);
-    if ((h = *tab1 = FUN_0004cad0(name, 0, 0x10, 1)) != 0) {
-      FUN_000143b0(path, "PreD%02d", i);
-      u = FUN_0004e780(&a, &b, 1, 0, 0x40, 0x40);
-      obj = FUN_00000bcc(0x48);
-      if (obj != 0) obj = FUN_00051050(obj, path, u, 0);
-      buf = FUN_00051450(obj);
-      j = 0;
+    FUN_000143b0(fileName, "%sdef_%02d.bin", "data/menu/chrselect/", index);
+    if ((raw = *rawSlot = FUN_0004cad0(fileName, 0, 0x10, 1)) != 0) {
+      FUN_000143b0(objName, "PreD%02d", index);
+      surface = FUN_0004e780(&outA, &outB, 1, 0, 0x40, 0x40);
+      prerender = FUN_00000bcc(0x48);
+      if (prerender != 0) prerender = FUN_00051050(prerender, objName, surface, 0);
+      pixels = FUN_00051450(prerender);
+      row = 0;
       do {
-        FUN_00011090((char *)buf + j * 0x80, (char *)h + j * 0x80, 0x80);
-        j++;
-      } while (j < 0x40);
-      *tab2 = (int)obj;
+        FUN_00011090((char *)pixels + row * ROW_BYTES, (char *)raw + row * ROW_BYTES, ROW_BYTES);
+        row++;
+      } while (row < PRERENDER_ROWS);
+      *objSlot = (int)prerender;
     }
-    i++;
-    tab1++;
-    tab2++;
-  } while (i < 15);
+    index++;
+    rawSlot++;
+    objSlot++;
+  } while (index < ENTRY_COUNT);
   FUN_0001cb88(DAT_0030ebf4);
 }

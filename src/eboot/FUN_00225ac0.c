@@ -1,17 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00225ac0 end=0x00225b00 symbol=FUN_00225ac0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/mode_parts.h"
 
 extern void FUN_000f6b0c();
 
-void FUN_00225ac0(int param_1)
+/* Reset: clear the part at +0x30, then restore the +0x20 part's selection words. */
+void FUN_00225ac0(ModeObj *self)
 {
-  int iVar1;
-  
-  iVar1 = *(int *)(param_1 + 0x3c);
-  FUN_000f6b0c(*(u32 *)(iVar1 + 0x30),0);
-  iVar1 = *(int *)(iVar1 + 0x20);
-  *(u32 *)(iVar1 + 0x78) = 0xffffffff;
-  *(u32 *)(iVar1 + 0x7c) = 0;
-  *(u32 *)(iVar1 + 0x80) = 0;
+  ModeParts *parts;
+  ModePart20 *part20;
+
+  parts = self->parts;
+  FUN_000f6b0c(parts->part30,0);
+  part20 = parts->part20;
+  part20->unk78 = -1;
+  part20->unk7c = 0;
+  part20->unk80 = 0;
 }

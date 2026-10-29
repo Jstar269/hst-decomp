@@ -1,20 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0022589c end=0x002258f8 symbol=FUN_0022589c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: merged allocation and constructor store pattern for sub-object; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: merged allocation and constructor store pattern for sub-object; readability pass; exact match verified; names and types await human review. */
+#include "hst/mode_parts.h"
 
 extern void *DAT_00309608;
 extern void *DAT_0034a2e0;
 extern void *FUN_00000bcc(unsigned int);
 extern void *FUN_0001f06c(void *);
-extern void *FUN_00225090(void *);
+extern ModeParts *FUN_00225090(ModeParts *);
 
-void *FUN_0022589c(void **param_1)
+/* Constructor: base constructor, vtable, global instance pointer, then build the part set. */
+ModeObj *FUN_0022589c(ModeObj *self)
 {
-  FUN_0001f06c(param_1);
-  param_1[0] = &DAT_00309608;
-  param_1[0xf] = 0;
-  DAT_0034a2e0 = param_1;
-  void *p = FUN_00000bcc(0x3c);
-  if (p != 0) p = FUN_00225090(p);
-  param_1[0xf] = p;
-  return param_1;
+  ModeParts *parts;
+
+  FUN_0001f06c(self);
+  self->vtbl = &DAT_00309608;
+  self->parts = 0;
+  DAT_0034a2e0 = self;
+  parts = FUN_00000bcc(sizeof(ModeParts));
+  if (parts != 0) parts = FUN_00225090(parts);
+  self->parts = parts;
+  return self;
 }

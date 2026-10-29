@@ -1,26 +1,39 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ee44c end=0x000ee510 symbol=FUN_000ee44c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag exp-gen3, variant v8) corrected by hand: the hoisted index temporary inlined and the array base written first; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag exp-gen3, variant v8) corrected by hand: the hoisted index temporary inlined and the array base written first; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u8 DAT_002d6cbc;
-extern u8 DAT_002d6cc0;
-extern u8 DAT_00338b58;
-extern u8 DAT_00338b5c;
-extern u8 DAT_00338b60;
-extern u8 DAT_00338b64;
+/* Centre point of a rectangle, stored twice. */
+typedef struct RectCenter {
+  int x;                        /* 0x00 */
+  int y;                        /* 0x04 */
+  int x2;                       /* 0x08 same value as x */
+  int y2;                       /* 0x0c same value as y */
+} RectCenter;
 
-void FUN_000ee44c(int param_1,int param_2,int param_3,int param_4,int param_5)
+/* Size of a rectangle relative to the 60x28 reference size. */
+typedef struct RectScale {
+  float x;                      /* 0x00 */
+  float y;                      /* 0x04 */
+} RectScale;
+
+#define REF_WIDTH 60.0f
+#define REF_HEIGHT 28.0f
+
+extern RectScale DAT_002d6cbc[];
+extern RectCenter DAT_00338b58[];
+
+/* Stores the centre and relative size of rectangle (x0,y0)-(x1,y1) in entry `index` of both tables. */
+void FUN_000ee44c(int index,int x0,int y0,int x1,int y1)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  
-  iVar1 = param_2 + param_4;
-  *(int *)((int)&DAT_00338b58 + param_1 * 0x10) = iVar1 / 2;
-  iVar2 = param_3 + param_5;
-  *(int *)((int)&DAT_00338b5c + param_1 * 0x10) = iVar2 / 2;
-  *(int *)((int)&DAT_00338b60 + param_1 * 0x10) = iVar1 / 2;
-  *(int *)((int)&DAT_00338b64 + param_1 * 0x10) = iVar2 / 2;
-  *(float *)(&DAT_002d6cbc + param_1 * 8) = (float)(param_4 - param_2) / 60.0f;
-  *(float *)(&DAT_002d6cc0 + param_1 * 8) = (float)(param_5 - param_3) / 28.0f;
+  int sumX;
+  int sumY;
+
+  sumX = x0 + x1;
+  DAT_00338b58[index].x = sumX / 2;
+  sumY = y0 + y1;
+  DAT_00338b58[index].y = sumY / 2;
+  DAT_00338b58[index].x2 = sumX / 2;
+  DAT_00338b58[index].y2 = sumY / 2;
+  DAT_002d6cbc[index].x = (float)(x1 - x0) / REF_WIDTH;
+  DAT_002d6cbc[index].y = (float)(y1 - y0) / REF_HEIGHT;
 }

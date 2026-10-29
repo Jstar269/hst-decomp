@@ -17,28 +17,31 @@ void FUN_002bf548(void *, int);
 extern char DAT_003b0388[];
 }
 
-struct Elem1 {
-    int lo : 4;
-    unsigned int hi : 28;
-    float f4;
+#define LEVEL_COUNT 30  /* rows in the parameter file */
+
+struct LevelEntry {
+    int kind : 4;
+    unsigned int amount : 28;
+    float unk4;
 };
 
-struct Vec5 {
+struct CurveRow {
     float v[5];
 };
 
-struct Data {
-    Elem1 elems[30];
-    Vec5 vecs[30];
+struct LevelTable {
+    LevelEntry entries[LEVEL_COUNT];
+    CurveRow curves[LEVEL_COUNT];
 };
 
-struct Base {
-    virtual ~Base();
+struct ReaderBase {
+    virtual ~ReaderBase();
 };
 
-struct Res {
+/* Text reader constructed on the heap for the parameter file. */
+struct Reader {
     char pad[0x30];
-    Res() {
+    Reader() {
         FUN_00065884(this);
         *(char **)this = DAT_003b0388;
         FUN_0008d97c(pad + 16);
@@ -46,46 +49,47 @@ struct Res {
     }
 };
 
-extern "C" void FUN_002bf13c(Data *param_1)
+/* Read the parameter file into the 30 entries, then fetch the 30 curve rows. */
+extern "C" void FUN_002bf13c(LevelTable *table)
 {
-    Res *obj = new Res();
+    Reader *obj = new Reader();
     FUN_00066260(obj, DAT_003abfec, 0, 1, &DAT_003ac010);
 
     int i = 0;
-    Elem1 *cursor = param_1->elems;
-    for (; i < 30; ++i) {
+    LevelEntry *cursor = table->entries;
+    for (; i < LEVEL_COUNT; ++i) {
         switch (FUN_00066700(obj, i + 1, DAT_003ac014)) {
         case 0:
-            cursor->lo = 0;
+            cursor->kind = 0;
             break;
         case 1:
-            cursor->lo = 1;
+            cursor->kind = 1;
             break;
         case 2:
-            cursor->lo = 2;
+            cursor->kind = 2;
             break;
         case 3:
-            cursor->lo = 3;
+            cursor->kind = 3;
             break;
         }
 
-        cursor->f4 = FUN_0006682c(obj, i + 1, DAT_003ac01c);
-        float f = FUN_0006682c(obj, i + 1, &DAT_003ac024);
-        cursor->hi = (int)f;
+        cursor->unk4 = FUN_0006682c(obj, i + 1, DAT_003ac01c);
+        float value = FUN_0006682c(obj, i + 1, &DAT_003ac024);
+        cursor->amount = (int)value;
         cursor++;
     }
 
     if (obj) {
-        delete (Base *)obj;
+        delete (ReaderBase *)obj;
     }
 
-    for (int j = 0; j < 30; ++j) {
-        Vec5 vec;
-        FUN_002bf548(&vec, j);
-        param_1->vecs[j].v[0] = vec.v[0];
-        param_1->vecs[j].v[1] = vec.v[1];
-        param_1->vecs[j].v[2] = vec.v[2];
-        param_1->vecs[j].v[3] = vec.v[3];
-        param_1->vecs[j].v[4] = vec.v[4];
+    for (int j = 0; j < LEVEL_COUNT; ++j) {
+        CurveRow row;
+        FUN_002bf548(&row, j);
+        table->curves[j].v[0] = row.v[0];
+        table->curves[j].v[1] = row.v[1];
+        table->curves[j].v[2] = row.v[2];
+        table->curves[j].v[3] = row.v[3];
+        table->curves[j].v[4] = row.v[4];
     }
 }

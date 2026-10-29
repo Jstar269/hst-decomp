@@ -13,6 +13,8 @@ void FUN_0000d518(void);
 extern char DAT_003415d8;        /* max_size() static-local guard */
 extern unsigned DAT_002c2780;    /* max_size() static local */
 }
+/* Deque geometry: 128 four-byte elements per 512-byte block; an emptied deque restarts at element 64. */
+enum { BLOCK_ELEMS = 128, EMPTY_START = 64 };
 inline void *operator new(unsigned, void *p) { return p; }
 typedef void *Elem_001909ec;
 typedef Elem_001909ec *Block_001909ec;
@@ -39,7 +41,7 @@ struct Deque_001909ec {
     unsigned capacity() const
     {
         unsigned s = buf_.size();
-        return s == 0 ? 0 : (s - 1) * 128;
+        return s == 0 ? 0 : (s - 1) * BLOCK_ELEMS;
     }
 };
 extern "C" void FUN_00191194(Deque_001909ec *self, unsigned n); /* grow the block map at the back */
@@ -53,10 +55,10 @@ extern "C" void FUN_001909ec(Deque_001909ec *self, const Elem_001909ec &x)
         }
         FUN_00191194(self, 1);
         if (self->size_ == 0)
-            self->start_ = 64;
+            self->start_ = EMPTY_START;
         i = self->start_ + self->size_;
     }
-    Elem_001909ec *p = self->buf_[i >> 7] + (i & 0x7f);
+    Elem_001909ec *p = self->buf_[i / BLOCK_ELEMS] + (i % BLOCK_ELEMS);
     new (p) Elem_001909ec(x);
     ++self->size_;
 }

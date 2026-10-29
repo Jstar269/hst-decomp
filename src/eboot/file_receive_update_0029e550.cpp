@@ -1,5 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0029e550 end=0x0029ef50 symbol=FUN_0029e550 lang=c++ helpers=FUN_0029e3cc@0x0029e3cc-0x0029e3f8 rodata=0x002cb9c8 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. The empty log stub FUN_0029e3cc is a same-file static placed by helpers= (its preserved v0 carries the FUN_002990e0 result past the two log calls). Matching idioms: one-case switch with default for the state==0 test; the save-size compare written need-first (NeedKB(x) <= remain). */
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. The empty log stub FUN_0029e3cc is a same-file static placed by helpers= (its preserved v0 carries the FUN_002990e0 result past the two log calls). Matching idioms: one-case switch with default for the state==0 test; the save-size compare written need-first (NeedKB(recv) <= remain). */
+enum RecvState {
+  RECV_STATE_CONNECT,      /* waiting for the peer handshake */
+  RECV_STATE_AWAIT_ACK,
+  RECV_STATE_CHECK_SPACE,  /* compares the needed size with the free space */
+  RECV_STATE_AWAIT_START,
+  RECV_STATE_TRANSFER,     /* worker thread running */
+  RECV_STATE_SETTLE,       /* counts down `wait` */
+  RECV_STATE_FINALIZE,
+  RECV_STATE_ABORTING,
+  RECV_STATE_END           /* terminal: waits for the dialog to close */
+};
+
+enum {
+  BLOCK_SIZE = 0x8000,            /* save data is counted in whole blocks */
+  RESERVE_KB = 0x60,              /* extra space needed on top of the blocks */
+  RECV_SIZE_UNKNOWN = 0x7fffffff, /* total size not announced yet */
+  RECV_ERR_NO_SPACE = (int)0x8001001c
+};
+
 struct RefObj {
   virtual void Release(int);
   virtual void Slot0();
@@ -28,7 +47,7 @@ struct MacAddr {
 struct Recv {
   int state;               /* 0x00 */
   RefObj *obj;             /* 0x04 */
-  int f08, f0c;
+  int unk08, unk0c;
   int got;                 /* 0x10 */
   int total;               /* 0x14 */
   int extra;               /* 0x18 */
@@ -44,7 +63,7 @@ struct Recv {
   char text[0x400];        /* 0x201c4 */
 };
 
-struct Owner {
+struct ReceiveScreen {
   char pad[0x3c];
   Recv *recv;
 };
@@ -101,33 +120,33 @@ int FUN_0029ba08(void);
 void FUN_000149a8(char *, const char *);
 }
 
-static inline char *Text(Recv *x, int j)
+static inline char *Text(Recv *recv, int string_id)
 {
-  return FUN_00198278(DAT_0034176c, FUN_0018f1ac(FUN_0018c9f4(0x11), 14, j), 0x400, x->text);
+  return FUN_00198278(DAT_0034176c, FUN_0018f1ac(FUN_0018c9f4(0x11), 14, string_id), 0x400, recv->text);
 }
 
-static inline void Fail(Recv *x, int code)
+static inline void Fail(Recv *recv, int code)
 {
-  x->failed = 1;
-  FUN_0029ef70(x, code);
-  FUN_0029f92c(x, 8);
+  recv->failed = 1;
+  FUN_0029ef70(recv, code);
+  FUN_0029f92c(recv, RECV_STATE_END);
 }
 
-static inline int NeedKB(Recv *x)
+static inline int NeedKB(Recv *recv)
 {
-  return ((x->total + 0x7fff) / 0x8000 + (x->extra + 0x7fff) / 0x8000) * 0x8000 / 1024 + 0x60;
+  return ((recv->total + (BLOCK_SIZE - 1)) / BLOCK_SIZE + (recv->extra + (BLOCK_SIZE - 1)) / BLOCK_SIZE) * BLOCK_SIZE / 1024 + RESERVE_KB;
 }
 
-extern "C" void FUN_0029e550(Owner *self)
+extern "C" void FUN_0029e550(ReceiveScreen *self)
 {
-  Recv *x;
-  RefObj *p;
-  int r;
-  int err;
+  Recv *recv;
+  RefObj *obj;
+  int result;
+  int error_code;
   MacAddr mine;
-  long long remain;
+  long long remain;  /* free space in KB */
 
-  x = self->recv;
+  recv = self->recv;
   if (FUN_002a0370(DAT_003415ac) == 0) {
     if (FUN_001156fc(DAT_003415ac)) {
       FUN_001b1c44(DAT_0034179c, 3);
@@ -137,8 +156,8 @@ extern "C" void FUN_0029e550(Owner *self)
       FUN_001b1c44(DAT_0034179c, 1);
     }
   }
-  switch (x->state) {
-  case 0:
+  switch (recv->state) {
+  case RECV_STATE_CONNECT:
     switch (FUN_0029bd04(DAT_00338ac4)) {
     case 0:
       FUN_000bab10(DAT_00338ac4);
@@ -146,8 +165,8 @@ extern "C" void FUN_0029e550(Owner *self)
     case 2: {
       FUN_002b7da0(DAT_0034b32c, &mine);
       MacAddr peer = *FUN_0029bcfc(DAT_00338ac4);
-      FUN_000c038c(x->obj, 0, 1, &mine, &peer);
-      FUN_0029f92c(x, 1);
+      FUN_000c038c(recv->obj, 0, 1, &mine, &peer);
+      FUN_0029f92c(recv, RECV_STATE_AWAIT_ACK);
       break;
     }
     case 3:
@@ -156,168 +175,168 @@ extern "C" void FUN_0029e550(Owner *self)
     }
     break;
   default:
-    p = x->obj;
-    if (p != 0) {
-      if (x->failed != 0) {
-        if (p != 0) {
-          if (p != 0) {
-            p->Release(1);
+    obj = recv->obj;
+    if (obj != 0) {
+      if (recv->failed != 0) {
+        if (obj != 0) {
+          if (obj != 0) {
+            obj->Release(1);
           }
-          x->obj = 0;
+          recv->obj = 0;
         }
       } else {
-        if (x->finished == 0 && FUN_000c06b0(p) != 0 && FUN_000c06b0(x->obj) != 0x4000) {
-          x->failed = 1;
+        if (recv->finished == 0 && FUN_000c06b0(obj) != 0 && FUN_000c06b0(recv->obj) != 0x4000) {
+          recv->failed = 1;
           FUN_001b1c44(DAT_0034179c, 5);
-          FUN_00115088(DAT_003415ac, 0, Text(x, 22), 0, 0);
-          p = x->obj;
-          if (p != 0) {
-            if (p != 0) {
-              p->Release(1);
+          FUN_00115088(DAT_003415ac, 0, Text(recv, 22), 0, 0);
+          obj = recv->obj;
+          if (obj != 0) {
+            if (obj != 0) {
+              obj->Release(1);
             }
-            x->obj = 0;
+            recv->obj = 0;
           }
-        } else if (x->got >= x->total && FUN_000c06dc(x->obj) <= 0) {
-          x->finished = 1;
+        } else if (recv->got >= recv->total && FUN_000c06dc(recv->obj) <= 0) {
+          recv->finished = 1;
         } else {
-          FUN_0029f818(x);
+          FUN_0029f818(recv);
         }
       }
     }
     break;
   }
-  switch (x->state) {
-  case 0:
-  case 1:
-  case 2:
-    FUN_0029f70c(x, 0x20000);
+  switch (recv->state) {
+  case RECV_STATE_CONNECT:
+  case RECV_STATE_AWAIT_ACK:
+  case RECV_STATE_CHECK_SPACE:
+    FUN_0029f70c(recv, 0x20000);
     break;
   }
-  switch (x->state) {
-  case 0:
+  switch (recv->state) {
+  case RECV_STATE_CONNECT:
     if (FUN_0011564c(DAT_003415ac)) {
-      Fail(x, 0x80000006);
+      Fail(recv, 0x80000006);
     }
     break;
-  case 1:
+  case RECV_STATE_AWAIT_ACK:
     if (FUN_001155c0(DAT_003415ac)) {
       if (FUN_001156d4(DAT_003415ac) == 0) {
-        r = FUN_00296cac();
-        if (r < 0) {
-          Fail(x, r);
+        result = FUN_00296cac();
+        if (result < 0) {
+          Fail(recv, result);
         } else {
-          FUN_00115088(DAT_003415ac, 0, Text(x, 18), 0, 0);
-          FUN_0029f92c(x, 2);
+          FUN_00115088(DAT_003415ac, 0, Text(recv, 18), 0, 0);
+          FUN_0029f92c(recv, RECV_STATE_CHECK_SPACE);
         }
       } else {
-        Fail(x, 0x80000006);
+        Fail(recv, 0x80000006);
       }
     }
     break;
-  case 2:
-    if (x->total == 0x7fffffff) {
+  case RECV_STATE_CHECK_SPACE:
+    if (recv->total == RECV_SIZE_UNKNOWN) {
       if (FUN_0011564c(DAT_003415ac)) {
-        Fail(x, 0x80000006);
+        Fail(recv, 0x80000006);
       }
     } else {
-      r = FUN_002990e0(0, &remain);
+      result = FUN_002990e0(0, &remain);
       FUN_0029e3cc(DAT_002cbfa4, remain);
-      FUN_0029e3cc(DAT_002cbf90, NeedKB(x));
-      if (r == 0) {
-        if (NeedKB(x) <= remain) {
-          FUN_00115088(DAT_003415ac, 1, Text(x, 17), 0, 0);
+      FUN_0029e3cc(DAT_002cbf90, NeedKB(recv));
+      if (result == 0) {
+        if (NeedKB(recv) <= remain) {
+          FUN_00115088(DAT_003415ac, 1, Text(recv, 17), 0, 0);
           FUN_002955b4(DAT_003415ac);
-          FUN_0029f92c(x, 3);
+          FUN_0029f92c(recv, RECV_STATE_AWAIT_START);
         } else {
-          Fail(x, 0x8001001c);
+          Fail(recv, RECV_ERR_NO_SPACE);
         }
-      } else if (r == (int)0x80020321 || r == (int)0x80010013) {
-        Fail(x, 0x80010013);
+      } else if (result == (int)0x80020321 || result == (int)0x80010013) {
+        Fail(recv, 0x80010013);
       } else {
-        Fail(x, r);
+        Fail(recv, result);
       }
     }
     break;
-  case 3:
+  case RECV_STATE_AWAIT_START:
     if (FUN_001155c0(DAT_003415ac)) {
       if (FUN_001156d4(DAT_003415ac) == 0) {
-        FUN_00115088(DAT_003415ac, 4, Text(x, 6), 0, 0);
-        FUN_0029f92c(x, 4);
+        FUN_00115088(DAT_003415ac, 4, Text(recv, 6), 0, 0);
+        FUN_0029f92c(recv, RECV_STATE_TRANSFER);
       } else {
-        Fail(x, 0x80000006);
+        Fail(recv, 0x80000006);
       }
     }
     break;
-  case 4:
+  case RECV_STATE_TRANSFER:
     if (FUN_0029ef50() != 0 || FUN_0011564c(DAT_003415ac) != 0) {
       if (FUN_0029ef50() != 0) {
         FUN_001b1c44(DAT_0034179c, 4);
       }
-      x->failed = 1;
-      FUN_0029f92c(x, 7);
-    } else if (FUN_002b7908(x->thread) == 0) {
-      if (x->error == 0) {
-        FUN_0029f92c(x, 5);
+      recv->failed = 1;
+      FUN_0029f92c(recv, RECV_STATE_ABORTING);
+    } else if (FUN_002b7908(recv->thread) == 0) {
+      if (recv->error == 0) {
+        FUN_0029f92c(recv, RECV_STATE_SETTLE);
       } else {
-        x->failed = 1;
-        FUN_0029ef70(x, x->error);
-        FUN_0029f92c(x, 8);
+        recv->failed = 1;
+        FUN_0029ef70(recv, recv->error);
+        FUN_0029f92c(recv, RECV_STATE_END);
       }
     }
     break;
-  case 5:
-    if (x->wait-- <= 0) {
-      FUN_0029f92c(x, 6);
+  case RECV_STATE_SETTLE:
+    if (recv->wait-- <= 0) {
+      FUN_0029f92c(recv, RECV_STATE_FINALIZE);
     }
     break;
-  case 6:
-    if (FUN_002b7908(x->thread) == 0) {
-      FUN_0029ef70(x, x->error);
-      FUN_0029f92c(x, 8);
+  case RECV_STATE_FINALIZE:
+    if (FUN_002b7908(recv->thread) == 0) {
+      FUN_0029ef70(recv, recv->error);
+      FUN_0029f92c(recv, RECV_STATE_END);
     }
     break;
-  case 7:
-    if (FUN_002b7908(x->thread) == 0) {
-      x->failed = 1;
-      FUN_0029ef70(x, x->error);
-      FUN_0029f92c(x, 8);
+  case RECV_STATE_ABORTING:
+    if (FUN_002b7908(recv->thread) == 0) {
+      recv->failed = 1;
+      FUN_0029ef70(recv, recv->error);
+      FUN_0029f92c(recv, RECV_STATE_END);
     }
     break;
-  case 8:
+  case RECV_STATE_END:
     if (FUN_001155c0(DAT_003415ac)) {
       FUN_00295cdc(DAT_003415ac);
       FUN_0004784c();
     }
     break;
   }
-  FUN_00295ccc(DAT_003415ac, 0.0f, (float)x->total);
-  FUN_00295cc4(DAT_003415ac, (float)x->progress);
+  FUN_00295ccc(DAT_003415ac, 0.0f, (float)recv->total);
+  FUN_00295cc4(DAT_003415ac, (float)recv->progress);
   FUN_000bb190(DAT_00338ac4);
-  switch (x->state) {
-  case 5:
-  case 6:
-  case 7:
-  case 8:
+  switch (recv->state) {
+  case RECV_STATE_SETTLE:
+  case RECV_STATE_FINALIZE:
+  case RECV_STATE_ABORTING:
+  case RECV_STATE_END:
     break;
   default:
     if (FUN_0029ba14() == 0) {
-      x->failed = 1;
-      err = FUN_0029ba08();
-      switch (err) {
+      recv->failed = 1;
+      error_code = FUN_0029ba08();
+      switch (error_code) {
       case (int)0x80410b03:
       case (int)0x80410b0f:
-        FUN_0029ef70(x, err);
+        FUN_0029ef70(recv, error_code);
         break;
       default:
-        FUN_000149a8(x->message, Text(x, 22));
+        FUN_000149a8(recv->message, Text(recv, 22));
         break;
       }
-      FUN_000c06f0(x->obj);
-      FUN_0029f92c(x, 8);
+      FUN_000c06f0(recv->obj);
+      FUN_0029f92c(recv, RECV_STATE_END);
     }
     break;
   }
-  if (x->listener != 0) {
-    x->listener->Notify();
+  if (recv->listener != 0) {
+    recv->listener->Notify();
   }
 }

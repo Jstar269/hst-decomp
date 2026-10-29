@@ -2,9 +2,16 @@
 /* Clone of src/eboot/FUN_0019075c.c (hstclone.py tag u1r1s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+/* Object whose pointer at 0x3c is the target of the forwarding call. */
+typedef struct Forwarder {
+  char pad0[0x3c];
+  int *target; /* 0x3c */
+} Forwarder;
+
 extern void FUN_00100110();
 
-void FUN_001007b0(int param_1,u32 param_2,u32 param_3,u32 param_4, u32 param_5,u32 param_6,u32 param_7,u32 param_8)
+/* Forwards seven arguments unchanged to the call on the target member. */
+void FUN_001007b0(Forwarder *self,u32 arg1,u32 arg2,u32 arg3, u32 arg4,u32 arg5,u32 arg6,u32 arg7)
 {
-  FUN_00100110(*(int **)(param_1 + 0x3c),param_2,param_3,param_4,param_5,param_6,param_7,param_8);
+  FUN_00100110(self->target,arg1,arg2,arg3,arg4,arg5,arg6,arg7);
 }

@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00261e1c end=0x00261f7c symbol=FUN_00261e1c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/option_panel.h"
+
 extern int DAT_00309380;
 extern int DAT_00309a54;
 extern int DAT_003386c8;
@@ -12,8 +14,8 @@ extern int DAT_002fddc8;
 extern int DAT_002fddd8;
 extern "C" void FUN_00102e38(void *);
 extern "C" void FUN_00104118(void *, void *, int);
-extern "C" int FUN_001039d8(void *, void *, int);
-extern "C" int FUN_001026b8(int, void *);
+extern "C" void *FUN_001039d8(void *, void *, int);
+extern "C" LayoutElem *FUN_001026b8(void *, void *);
 extern "C" void FUN_000143b0(void *, void *, unsigned);
 
 class Base {
@@ -28,58 +30,43 @@ public:
     virtual void m7();
 };
 
-struct Self {
-    void *vt;
-    char pad[0x50];
-    char b54;
-    char b55;
-    int f58;
-    int f5c;
-    int f60;
-    int f64;
-    int f68[4];
-    int f78;
-    int f7c;
-    int f80;
-    int f84;
-    int f88;
-};
-
-static inline int *SlotOf(Self *s, int off) {
-    return (int *)((char *)s + off + 0x68);
+/* Slot pointer at a byte offset from the first slot. */
+static inline LayoutElem **SlotOf(OptionPanel *s, int off) {
+    return (LayoutElem **)((char *)s + off + 0x68);
 }
 
-extern "C" Self *FUN_00261e1c(Self *self) {
+/* Constructor: builds the option panel from its layout (sets the second vtable after the base). */
+extern "C" OptionPanel *FUN_00261e1c(OptionPanel *self) {
     FUN_00102e38(self);
-    self->vt = &DAT_00309380;
-    self->b54 = 0;
-    self->b55 = 0;
-    self->f58 = 0;
-    self->vt = &DAT_00309a54;
-    int f = *(int *)(DAT_003386c8 + 0x40);
-    self->f5c = f;
+    self->vtable = &DAT_00309380;
+    self->unk54 = 0;
+    self->confirmed = 0;
+    self->cursor = 0;
+    self->vtable = &DAT_00309a54;
+    OptionOwner *owner = *(OptionOwner **)(DAT_003386c8 + 0x40);
+    self->owner = owner;
     FUN_00104118(self, &DAT_002fdd78, 0);
-    self->f64 = FUN_001039d8(self, &DAT_002fdd98, 0);
-    int v = FUN_001026b8(self->f64, &DAT_002fdda4);
-    int obj = *(int *)(v + 0x20);
-    self->f58 = obj;
-    *(int *)(obj + 0xd8) = 2;
-    *(char *)(obj + 0x114) = 1;
+    self->pane = FUN_001039d8(self, &DAT_002fdd98, 0);
+    LayoutElem *e = FUN_001026b8(self->pane, &DAT_002fdda4);
+    CursorWidget *cursor = e->widget;
+    self->cursor = cursor;
+    cursor->unkd8 = 2;
+    cursor->unk114 = 1;
     char buf[0x40];
     unsigned i = 0;
     unsigned off = 0;
-    for (; i < 4; i++) {
+    for (; i < OPTION_SLOT_COUNT; i++) {
         FUN_000143b0(buf, &DAT_002fddac, i);
-        *SlotOf(self, off) = FUN_001026b8(self->f64, buf);
+        *SlotOf(self, off) = FUN_001026b8(self->pane, buf);
         off += 4;
     }
-    self->f78 = FUN_001026b8(self->f64, &DAT_002fddb8);
-    self->f7c = FUN_001026b8(self->f64, &DAT_002fddc8);
-    int w = FUN_001026b8(self->f64, &DAT_002fddd8);
-    self->f80 = w;
-    self->f84 = *(int *)(w + 0x24);
-    self->f88 = 1;
-    self->b55 = 0;
+    self->unk78 = FUN_001026b8(self->pane, &DAT_002fddb8);
+    self->unk7c = FUN_001026b8(self->pane, &DAT_002fddc8);
+    LayoutElem *w = FUN_001026b8(self->pane, &DAT_002fddd8);
+    self->value = w;
+    self->base = w->unk24;
+    self->page = 1;
+    self->confirmed = 0;
     ((Base *)self)->m7();
     return self;
 }

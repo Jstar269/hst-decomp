@@ -2,8 +2,16 @@
 /* Clone of src/eboot/FUN_0019cf80.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-void FUN_001aa4bc(int param_1)
+typedef struct ResetTarget {
+  char pad00[0xc];
+  u32 unkc;     /* 0x0c */
+  char pad10[0x42];
+  u8 unk52;     /* 0x52 */
+} ResetTarget;
+
+/* Clear the word at 0x0c and the byte at 0x52. */
+void FUN_001aa4bc(ResetTarget *self)
 {
-  *(u32 *)(param_1 + 0xc) = 0;
-  *(u8 *)(param_1 + 0x52) = 0;
+  self->unkc = 0;
+  self->unk52 = 0;
 }

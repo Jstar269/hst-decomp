@@ -2865,3 +2865,89 @@ delay-slot filler, FP liveness) is not an arity problem and should be capped qui
 2026-10-28: mwcc C has NO usable va_list in this lane: `#include <stdarg.h>` resolves to a header whose first line is `typedef __gnuc_va_list va_list;` (undefined -> compile error), and `__builtin_va_list` / `__va_list` are both rejected. Any target whose body walks a va_list (0x260c) is blocked on a compiler-profile answer, not on source shape. The newlib va_list sources in the tree all carry cc=gcc171-O2.
 2026-10-28: WALL measured on the fill-insert family (0xe8468/0x91090/0xd57a8): for `if (cond) { grow(); } else { fill(); return; } tail();` mwcc emits `beqzl at,target` with `lw v1,0(s2)` in the delay slot AND keeps the same load as the first instruction of the target block (one duplicated word), plus a dead `move a0,s2` at the call join. Legal spellings tried (base-pointer parameter, `(char*)data + size*32`, hoisted base local, named tag, for vs do-while, `new (p) T(x)` vs member-wise copy) all reproduce the duplication; the copy loop itself only matches with the member-wise float loop.
 2026-10-28: the fourth argument of a callee can legitimately be a byte read out of a local 8-byte array (`struct L { char b[8]; }; L loc; f(..., loc.b[4])` -> `lb a3,28(sp)`), and having that local is also what stops the tail-call optimisation and keeps the 32-byte frame with the jal (0xd99b8). Without the local mwcc emits `j target` with no frame.
+- (lane dsn3, unreviewed by the main session)
+## Index (records pass, 2026-10-28)
+The log below is append-only and chronological, so these are its line numbers on that date;
+if they drift, search the phrase in the third column.
+| recipe | what it buys | search phrase | line |
+| --- | --- | --- | --- |
+| (p == e) ^ 1 guard | destroy-loop guard, no andi | `(p == e) ^ 1` | 2819 |
+| Redundant nested guard | produces beqzl + delay-slot store | `REDUNDANT DUPLICATE test` | 2829 |
+| Aggregate-initialiser fill | rolled inline memset, no string.h | `aggregate initialiser` | 2826 |
+| In-source O32 va_list | va_list walk without stdarg.h | `O32 classic` | 2827 |
+| Tag dropped in an inline helper | 16-byte frame, no argument code | `must DROP the tag` | 2820 |
+| Empty class by value | frame plus seb argument | `0x001d688c + 0x0010b730` | 2795 |
+| Vtable slots start at +8 | 3rd virtual = lw t9,16(t9) | `vtable dispatch starts at +8` | 2811 |
+| addu operand order | index-first versus pointer-first | `operand order follows the SOURCE order` | 2802 |
+| DAT_ sign extension | lui hi + negative lo decodes lower | `NEGATIVE lo is sign-extended` | 2822 |
+| Global type = load width | unsigned char versus char | `Ghidra types char is unsigned char` | 184 |
+| Mirrored threshold | b > a gives c.ngt.s + bc1tl | `mirrored-threshold recipe` | 2812 |
+| Materialised && boolean | xori/sltiu/beqz guard | `return A && B;` | 2788 |
+| Plus versus or | packed-field combines (addu vs or) | `where the bits do not overlap` | 2799 |
+| Store before call | fills the jal delay slot | `a store written BEFORE a call` | 2823 |
+| Float constant spelling | 0x3dcccccc is 0.099999994f | `0.099999994f` | 2824 |
+| Loop rotation + duplicate guard | beqzl p + dead beqz p, tail n-- | `the decrement written AFTER the nullable body` | 2832 |
+Cross-lane: the dsn2 log (`../dsn2/docs/MWCC-NOTES.md`) carries the earlier versions of the mirrored-threshold, 
+struct-copy and declaration-order recipes; the dsn2 lane is closed, so only new dsn3 findings are appended there.
+2026-10-28 (pass 5): MWCC vtable dispatch starts at +8, not 0 - the 3rd virtual is `lw t9,16(t9)` (verified with hstcc on a 5-virtual class). Writing a struct of function pointers instead gives `lw v0,16(v0); jalr v0`, so a retail `lw t9,0(a0); lw t9,16(t9); jalr t9` means a real C++ virtual call.
+2026-10-28 (pass 5): the mirrored-threshold recipe generalises to float compares: `if (a < b)` gives `c.lt.s a,b` + bc1fl, but the same predicate spelled `if (b > a)` gives retail's `c.ngt.s b,a` + bc1tl. Swapping the operands is the whole fix (0x24d458 went 13 -> 9 differing words on that alone).
+2026-10-28 (pass 5): a callee that really returns `int` but is declared `unsigned char` adds an `andi v,reg,0xff` after the call; fix the prototype first (0x24d458).
+2026-10-28 (pass 5): a membership chain `if (i < 0) return; if (a==A[i]||a==B[i]||a==C[i]) r=1;` compiles very differently from the ternary-shaped `if (i >= 0 && (a==A[i]||...)) r = 1;` - only the latter gives retail's beql/bne layout (0x12b7cc).
+2026-10-28 (pass 5): `memset` is never inlined by this mwcc (it emits `j memset`), but a counted byte-fill loop `for (i=0;i<n;i++) p[i]=0;` IS expanded into the 8-byte-unrolled memset idiom. Writing the count as `sizeof - (p - base)` folds to a constant and fully unrolls, so keep the pointer form.
+2026-10-28 guard materialisation `xor r,a,b; sltiu r,r,1; xori r,r,1` (destroy-loop family): reproduced exactly by **C mode** with a materialised int guard (`int m = !(p == e); ... while (m)` / `for(;;){int m=...; if(!m) break;}`). C++ mode emits one extra `andi r,r,0xff` at every materialisation because `==` yields `bool` and the bool->int conversion is normalised (tested: int/unsigned/long/bool/register storage all add it, `?(0):(1)` instead gives `xor/sltu` and loses the `sltiu/xori` pair). Measured wall for C++ TUs that need this guard: retail has the 3-word form in functions that also use `jalr t9` virtual dispatch (0x000c7ed0, 0x0015e33c), and C mode cannot emit virtual dispatch (struct-of-fnptr -> `jalr v0`, never `t9`), so those functions cannot be matched in this profile. Corollary recipe: in a C TU the dead 16-byte frame slot is NOT reachable - a by-value struct argument is passed by reference (`addiu aN,sp,16`), so a retail 32-byte frame with 16 dead bytes above ra in a C-expressible function means a C++ by-value empty-class temporary and that file must be C++.
+2026-10-28 C++ spelling for the same guard (supersedes the wall note above): `int m = (p == e) ^ 1;` materialises EXACTLY `xor r,p,e; sltiu r,r,1; xori r,r,1` in a **C++** TU with no `andi` - the bool^int result is already 0/1 so no normalisation is emitted (x1 variant, tested). `!(p==e)`, `?0:1`, `bool`, `unsigned`, `long` all add `andi 0xff`; `(p==e)^1` is the only one that does not. So the destroy-loop guard is available in C++ after all, and the earlier "C++ cannot" conclusion is withdrawn; the C-mode note stands only as an alternative spelling.
+2026-10-28 Tag temporary that costs frame but NO argument register: the helper must DROP the tag (`inline int poll(void *self, Tag t) { return FUN_x(self); }` with FUN_x declared one-argument), not forward it. Forwarding the Tag to a callee whose prototype declares it materialises `move v0,zero; andi v0,v0,0xff; seb a1,v0` (3 words, 0x147188/0x25060c measured); dropping it inside the inline helper keeps the 16-byte caller temp and emits no argument code at all (0x25060c frame 32/ra@12/s0@8 now byte-exact with this).
+2026-10-28 volume pass (0x000ceb1c EXACT): a `DAT_` address read from `lui hi` + a NEGATIVE lo is sign-extended - `lui v1,0x34; lwc1 f1,-30868(v1)` is 0x33876C (not 0x34876C); the hi half is one lower than the naive read whenever the lo has bit 15 set. Naming the wrong DAT_ silently links to a synthesised address and shifts the whole prologue.
+2026-10-28 volume pass (0x000ceb1c EXACT): a store written BEFORE a call is what lets mwcc hoist `li aN,-1` above the `jal` and put that store in the delay slot; the same store written AFTER the call leaves `li aN,-1` in the delay slot (2 differing words at the call, nothing else).
+2026-10-28 volume pass (0x000ceb1c EXACT): retail's float constant 0x3dcccccc is `0.099999994f`; `0.1f` compiles to 0x3dcccccd and differs by one word in the `ori` half.
+2026-10-28 TOOLING WALL CLEARED (no header needed): mwcc's rolled inline zero-fill (`li vN,<n>` + `sb zero,0(vN)` loop with a decrementing count) is exactly what `char b[N] = {0};` emits - an aggregate initialiser, not a memset call. `for (i=0;i<N;i++) b[i]=0;` is FULLY UNROLLED (one `sb` per byte, 8 extra words at N=24) and `memset(b,0,N)` with a hand declaration compiles to a `j memset` tail call. Same loop from a `struct {char c[N];} s = {{0}}`. So a retail byte-fill loop is an initialiser, and the lane needs no <string.h> at all.
+2026-10-28 TOOLING WALL CLEARED (no header needed): <stdarg.h> can be replaced in-source by the O32 classic - `typedef char *va_list; #define va_start(ap,last) (ap=(char*)&last+4); #define va_arg(ap,t) (*(t*)((ap+=4)-4)); #define va_end(ap)` - and mwcc still emits the full variadic register-save prologue (`sw a0..a3` at sp+4..sp+16, `sw t0..t3` at sp+20..sp+44) before the body. Verified with `int sum(int n, ...)`: frame 48, saves at 4/20/24/28/32/36/40/44. So a va_list-walk function is writable in this lane without any header; the va_list is a plain char* over the callee's own save area.
+2026-10-28 (0x00252ed0 EXACT): a likely branch (`beqzl a0,exit` with a store in the delay slot) can be produced by a REDUNDANT DUPLICATE test - `if (c->child != 0) { if (c->child) c->child->release(1); c->child = 0; }` gives `beqz a0; nop; beqzl a0,exit; sw zero,0(s2)`. Nine spellings of the single test (`if`, ternary, if/else with stores in both arms, store after the if) all stay at 2 differing words or regress to 34-41; the inner duplicate is what makes the second test a likely branch and the store its delay filler.
+2026-10-28 (0x00147188 EXACT): a destroy loop whose retail body is `beqzl p,tail` + dead `beqz p` + `addiu n,-1` at the tail is the source order `while (n != 0) { p--; if (p != 0) { if (p != 0) { ...body... } } n--; }` - the decrement written AFTER the nullable body lets mwcc rotate the loop (top test on n, per-iteration n-- at the tail, p-- in the bnz delay), and the nested duplicate `if (p)` supplies the second, dead null test. Writing `n--` before the body gives a plain `beqz` preheader and one test and is 1-2 words short. Also: the accessor payload must be read into a local immediately after the call (`void *x = ((int *)FUN(p))[2];`) or the load sinks past the following call.
+2026-10-28 (0x000e863c, 0x00103898, 0x0019d368; pass 35): (a) 0xe863c's 48-byte frame with 16 dead bytes at sp+32..47 is an INLINE member taking an empty class BY VALUE: `v->construct_at_end(n, src, Tag())` inlined into the caller reserves the 16-byte tag slot and emits no `seb`/argument code (unlike passing the same Tag to an out-of-line callee, which adds `move v0,zero; seb a2,v0`); the frame goes 32 -> 48 and nothing else in the prologue changes. The grow-path/shared-call placement needs the out-of-line insert call AFTER the if/else with `return;` in the else arm — putting the call inside the grow branch gives the same instruction multiset but the wrong block order. (b) 0x103898: the `(p == e) ^ 1` guard reproduces exactly (xor/sltiu/xori + beqz) when the outer loop is a `do { } while ((it == s->begin + s->size) ^ 1)` with the condition recomputed, not hoisted into a `last` local (a hoisted last turns it into a plain `beq`). (c) 0x19d368: the two-call random word `(rand() >> 30) | (rand() << 1)` only matches when written as two statements with `>>30` first (`hi = f() >> 30; lo = f() << 1; return lo | hi;`); the single-expression forms put the calls in the other order and flip the final `or` operands.
+2026-10-28 (0x0025322c, 0x002530b8, 0x000a84c0; pass 37): (a) a stack region that is a run of 16-byte slots at consecutive addresses (sp+32/48/64/80, written by four different calls) is ONE array local (`Vec4 rows[4]`), not four locals - and the slots then order themselves by index, which removes the declaration-order guessing that four separate locals need. (b) A `.w = 0` / component clear written BEFORE the call that consumes the struct lands in that call's DELAY SLOT (`jal` ... `sw zero,76(sp)`); written after the call it stays after and the address setup takes the slot instead (`jal` ... `addiu a2,sp,64`), which is 3 words per call and looks exactly like a scheduler tie. (c) When a helper's float arguments are already staged and retail hoists a `move a0,sN` far above the call, check for a hidden FIRST pointer argument: `FUN_0005bbd4(dst, 0.0f, 0.0f, 480.0f, 272.0f, x, y)` - the pointer goes in a0 and the six floats shift to f12..f17, and the `move a0,sN` is scheduled early because a0 has no other use. Declaring the helper float-only left the body 92/93 with that one word missing.
+## 16-byte-aligned stack temporaries, and breaking address CSE
+Two mechanisms measured on `0x00141718` (2026-10-28):
+**`__attribute__((aligned(16)))` on a typedef works; between `struct` and the tag it does not.**
+`struct __attribute__((aligned(16))) Item { ... };` is a hard "illegal struct/union/enum/class
+definition" in mwccpsp 2.1.9, but `typedef struct { ... } __attribute__((aligned(16))) Item;` compiles
+and gives the type 16-byte alignment. The alignment is what decides where mwcc puts a 48-byte temp:
+unaligned it lands at `sp+48`, aligned it lands at `sp+32` (the bottom of the local area, straight after
+the save block), which is where retail keeps it. Every offset in a body that copies through such a temp
+is wrong until this is right, so it looks like a 40-word diff and is really one declaration.
+**An address argument that retail recomputes must not be CSE-able.**
+When retail emits `addiu a0,s4,2284` twice for the same sub-object but the source passes the same
+expression twice, mwcc keeps it in a saved register (`addiu s0,s3,2284`) and the whole register
+allocation shifts. Giving the two calls different *types* for the same address — `self + 0x8ec` as
+`char *` for one, `(int)(self + 0x8ec)` for the other — stops the CSE and restores the two `addiu a0`
+forms. Declaring the containing object properly (`struct Big { char pad[0x8e0]; Arr arr; }` with `self`
+of that type) is the cleaner fix for the *offsets*, since every member access then folds to `offset(s4)`.
+## The parked word-count ties are not flag-reachable (measured 2026-10-28)
+Pile: the 9 of 69 NEARs whose recorded body length already equals retail's — the colour/layout
+class. Tool: `tools/flagmatrix.py` (runs the real matcher per variant; a hit would be byte-equality).
+Baseline differ counts in brackets:
+`0x000d99b8` (10), `0x001a5a1c` (12), `0x00199904` (14), `0x001aecf4` (15), `0x0015a728` (17),
+`0x001c38e0` (23), `0x00171588` (29), `0x00285d04` (30), `0x000e5580` (47).
+Variants tried inside build 219 — every one of the nine stayed MISMATCH:
+| variant | flags | best-of-nine result |
+| --- | --- | --- |
+| profile | `-O4,p -sdatathreshold 0` | **minimum for all nine** |
+| O3p | `-O3,p` | equals profile on 7, worse on `0x00285d04` (61 vs 30) |
+| O4s | `-O4,s` | worse on 3 (`0x001c38e0` 49, `0x00199904` 35, `0x000e5580` 47) |
+| O2p | `-O2,p` | worse on all (12→70, 23→67, 29→70 …) |
+| L3nospeed | `-O3` | worse on 3 |
+| L4nospeed | `-O4` | no improvement |
+| lvl3speed | `-opt level=3,speed` | no improvement |
+| O4pnoin | `-O4,p -opt nointrinsics` | identical to profile |
+| O4pinauto / O4pinl2 / O4pbottomup | `-inline auto / level=2 / bottomup` | identical to profile |
+| strictenum / enumint | `-strict on -enum int` | identical to profile |
+Two control runs with other compiler builds at the profile flags (`210`, `205`) also fail all nine.
+Those are diagnostic only: the retail profile is build 219, and a match from another build would be a
+false match for the rest of the object.
+**The help exposes no further knobs that could move allocation:** no aliasing/strict-aliasing option,
+no `-proc`/`-mcpu`/`-march`, no alignment flag, no scheduler switch (`-opt level=3` is what turns
+scheduling on, and it is already the profile). Alignment is reachable only at source level
+(`__attribute__((aligned(16)))`, see the section above) — that is the one lever this matrix cannot pull.
+**Conclusion:** the nine word-count ties are unreachable by flag variation with this toolchain
+profile. Any further progress on that class has to come from the source shape (declaration order,
+address-taking, aggregate types), not from the build.

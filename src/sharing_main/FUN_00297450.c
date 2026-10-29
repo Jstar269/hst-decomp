@@ -6,10 +6,10 @@ extern u32 DAT_003e1e04;
 extern void FUN_000c0484();
 extern void FUN_0029693c();
 
-void FUN_00297450(int param_1)
+void FUN_00297450(int self)
 {
   if (DAT_003e1e04 != 0) {
     FUN_000c0484(DAT_003e1e04);
   }
-  FUN_0029693c(param_1);
+  FUN_0029693c(self);
 }

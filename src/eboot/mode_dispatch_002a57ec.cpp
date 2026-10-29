@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a57ec end=0x002a594c symbol=FUN_002a57ec lang=c++ */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-/* Ghidra pseudocode corrected by hand: C++ virtual method calls on sub-objects, mode switch dispatching sub-object updates and child notifications; exact match verified; names and types await human review. */
+/* Ghidra pseudocode corrected by hand: C++ virtual method calls on sub-objects, mode switch dispatching sub-object updates and child notifications; readability pass; exact match verified; names and types await human review. */
 
 extern "C" {
 extern int DAT_00300a70;
@@ -19,58 +19,59 @@ struct Target {
 
 struct Obj {
     char pad0[100];
-    SubObj *obj_64;
-    SubObj *obj_68;
-    SubObj *obj_6c;
+    SubObj *panel_a;
+    SubObj *panel_b;
+    SubObj *panel_c;
     char pad70[60];
-    int f_ac;
-    int f_b0;
-    int f_b4;
-    int f_b8;
-    int f_bc;
-    int f_c0;
+    int item_ac;
+    int item_b0;
+    int item_b4;
+    int item_b8;
+    int item_bc;
+    int item_c0;
     char padc4[4];
-    Target *f_c8;
+    Target *target;
     char padcc[20];
     unsigned char flag_e0;
     char pade1[3];
     int mode;
-    int param_3;
+    int sub_mode;
 };
 
-void FUN_002a57ec(Obj *param_1, int param_2, int p3)
+void FUN_002a57ec(Obj *self, int new_mode, int sub_mode)
 {
-    param_1->mode = param_2;
-    param_1->param_3 = p3;
+    self->mode = new_mode;
+    self->sub_mode = sub_mode;
 
-    param_1->obj_64->vfunc_c(1);
-    param_1->obj_68->vfunc_c(1);
-    param_1->obj_6c->vfunc_c(1);
+    /* Hide all three panels, then show the one for the new mode. */
+    self->panel_a->vfunc_c(1);
+    self->panel_b->vfunc_c(1);
+    self->panel_c->vfunc_c(1);
 
-    if (param_1->flag_e0 != 0) {
+    if (self->flag_e0 != 0) {
         return;
     }
 
-    switch (param_1->mode) {
+    switch (self->mode) {
     case 0:
-        param_1->obj_64->vfunc_c(0);
+        self->panel_a->vfunc_c(0);
         break;
     case 1:
-        param_1->obj_68->vfunc_c(0);
-        FUN_000ffb3c(param_1->f_ac, p3 != 0);
-        FUN_000ffb3c(param_1->f_b0, p3 != 0);
-        FUN_000ffb3c(param_1->f_b4, p3 != 0);
-        FUN_000ffb3c(param_1->f_b8, p3 != 0);
-        FUN_000ffb3c(param_1->f_bc, p3 != 1);
-        FUN_000ffb3c(param_1->f_c0, p3 != 1);
+        self->panel_b->vfunc_c(0);
+        FUN_000ffb3c(self->item_ac, sub_mode != 0);
+        FUN_000ffb3c(self->item_b0, sub_mode != 0);
+        FUN_000ffb3c(self->item_b4, sub_mode != 0);
+        FUN_000ffb3c(self->item_b8, sub_mode != 0);
+        FUN_000ffb3c(self->item_bc, sub_mode != 1);
+        FUN_000ffb3c(self->item_c0, sub_mode != 1);
         break;
     case 2:
     case 3: {
-        param_1->obj_6c->vfunc_c(0);
-        int val = DAT_00300a70 + p3;
-        Target *t = param_1->f_c8;
-        t->f_24 = val;
-        t->f_28 = val;
+        self->panel_c->vfunc_c(0);
+        int value = DAT_00300a70 + sub_mode;
+        Target *t = self->target;
+        t->f_24 = value;
+        t->f_28 = value;
         break;
     }
     }

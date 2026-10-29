@@ -8,11 +8,12 @@ extern int FUN_0005c700();
 extern void FUN_0014c118();
 extern void FUN_0015142c();
 
-void FUN_001382bc(u32 param_1)
+/* Teardown step: passes the registry to the object registered in DAT_003e1a54 (if any), then runs the two cleanup calls. */
+void FUN_001382bc(u32 obj)
 {
   if (DAT_003e1a54 != 0) {
     FUN_0005c700(DAT_003e1a54,DAT_003da704);
   }
-  FUN_0014c118(param_1);
-  FUN_0015142c(param_1);
+  FUN_0014c118(obj);
+  FUN_0015142c(obj);
 }

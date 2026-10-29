@@ -15,12 +15,17 @@
    literal 1/32768 (0x38000000), not 0.25f. */
 typedef struct { float x, y, z, w; } Vec4;
 
+/* Context object: unk88 is a pointer to an object whose word at 0x1d4 is tested, unk5bc is the target handed to the position query. */
 typedef struct {
   char pad88[0x88];
-  void *f88;
+  void *unk88;
   char pad5bc[0x5bc - 0x8c];
-  void *f5bc;
+  void *unk5bc;
 } Ctx;
+
+#define LCG_MUL 0x343fd /* constants of the global random generator */
+#define LCG_ADD 0x269ec3
+#define RAND_MASK 0x7fff
 
 extern float DAT_003e1aac;
 extern Vec4 DAT_003e1aa0;
@@ -32,21 +37,23 @@ extern void FUN_0002245c(Vec4 *out, Vec4 *a, Vec4 *b);
 extern unsigned int *FUN_001c2a1c(void);
 extern void FUN_001c0ce8(void *a0, int a1);
 
-void FUN_001c3e84(int param_1, Ctx *param_2)
+/* If the position vector is active and close enough to the target, with a random 50% chance calls the
+   global manager with id 187. */
+void FUN_001c3e84(int unused, Ctx *ctx)
 {
-  Vec4 *p = (DAT_003e1aac > 0.0f) ? &DAT_003e1aa0 : 0;
-  if (p != 0) {
-    Vec4 r;
-    FUN_0002245c(&r, p, FUN_0009575c(param_2->f5bc));
-    float x = r.x;
-    float z = r.z;
-    if (DAT_003e19f0->f88 != 0 && *(int *)((char *)DAT_003e19f0->f88 + 0x1d4) == 0) {
+  Vec4 *vec = (DAT_003e1aac > 0.0f) ? &DAT_003e1aa0 : 0;
+  if (vec != 0) {
+    Vec4 delta;
+    FUN_0002245c(&delta, vec, FUN_0009575c(ctx->unk5bc));
+    float x = delta.x;
+    float z = delta.z;
+    if (DAT_003e19f0->unk88 != 0 && *(int *)((char *)DAT_003e19f0->unk88 + 0x1d4) == 0) {
       if (x * x + z * z < DAT_0039157c * DAT_0039157c) {
-        unsigned int *seed = FUN_001c2a1c();
-        unsigned int u = *seed;
-        u = u * 0x343fd + 0x269ec3;
-        *seed = u;
-        if ((float)((u >> 16) & 0x7fff) * 3.0517578e-05f < 0.5f) {
+        unsigned int *state = FUN_001c2a1c();
+        unsigned int rng = *state;
+        rng = rng * LCG_MUL + LCG_ADD;
+        *state = rng;
+        if ((float)((rng >> 16) & RAND_MASK) * 3.0517578e-05f < 0.5f) {
           FUN_001c0ce8(&DAT_003eaad8, 187);
         }
       }

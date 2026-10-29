@@ -1,12 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000f031c end=0x000f0350 symbol=FUN_000f031c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/ingame_panes.h"
 
 extern void FUN_00103628();
 
-void FUN_000f031c(int param_1)
+/* Show the fade-cycle pane with its fade level at zero. */
+void FUN_000f031c(FadeCyclePane *self)
 {
-  FUN_00103628(param_1,1);
-  *(u8 *)(param_1 + 0x54) = 1;
-  *(u32 *)(param_1 + 0x94) = 0;
+  FUN_00103628(self,1);
+  self->base.shown = 1;
+  self->scale = 0.0f;
 }

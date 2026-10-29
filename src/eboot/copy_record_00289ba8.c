@@ -1,28 +1,42 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00289ba8 end=0x00289c3c symbol=FUN_00289ba8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: typed the copied record fields as floats; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: typed the copied record fields as floats; readability pass; exact match verified; names and types await human review. */
+#include "hst/vec.h"
 
-int FUN_00289ba8(int *param_1,float *param_2)
+/* Record pool: the number of records in use and the start of the record array. */
+typedef struct RecPool {
+  int unk00;          /* 0x00 */
+  int count;          /* 0x04 records in use */
+  Float4 *base;       /* 0x08 */
+} RecPool;
+
+/* Insert cursor: the slot to write and the pool it belongs to. */
+typedef struct RecCursor {
+  Float4 *slot;       /* 0x00 */
+  RecPool *pool;      /* 0x04 */
+} RecCursor;
+
+/* Store `src` at the cursor's slot; a slot past the records in use also grows the pool's count. Returns the slot. */
+int FUN_00289ba8(RecCursor *cursor,Float4 *src)
 {
-  int iVar1;
-  float *puVar2;
+  int diff;
+  Float4 *slot;
   
-  puVar2 = (float *)*param_1;
-  iVar1 = (int)puVar2 - *(int *)(param_1[1] + 8);
-  if (iVar1 / 16 < *(int *)(param_1[1] + 4)) {
-    *puVar2 = *param_2;
-    puVar2[1] = param_2[1];
-    puVar2[2] = param_2[2];
-    puVar2[3] = param_2[3];
+  slot = cursor->slot;
+  diff = (int)slot - (int)cursor->pool->base;
+  if (diff / 16 < cursor->pool->count) {
+    slot->x = src->x;
+    slot->y = src->y;
+    slot->z = src->z;
+    slot->w = src->w;
   }
   else {
-    if (puVar2 != (float *)0x0) {
-      *puVar2 = *param_2;
-      puVar2[1] = param_2[1];
-      puVar2[2] = param_2[2];
-      puVar2[3] = param_2[3];
+    if (slot != (Float4 *)0x0) {
+      slot->x = src->x;
+      slot->y = src->y;
+      slot->z = src->z;
+      slot->w = src->w;
     }
-    iVar1 = param_1[1];
-    *(int *)(iVar1 + 4) = *(int *)(iVar1 + 4) + 1;
+    cursor->pool->count = cursor->pool->count + 1;
   }
-  return *param_1;
+  return (int)cursor->slot;
 }

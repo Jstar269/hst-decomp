@@ -1,6 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002815c4 end=0x002817e0 symbol=FUN_002815c4 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag gen-a1/v0c) corrected by hand: matching idiom: signed-char constants for high-bit byte fields; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag gen-a1/v0c) corrected by hand: matching idiom: signed-char constants for high-bit byte fields; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/slot_block.h"
+
+/* Name source object: nested tables from which a default name string is chosen. */
+typedef struct NameEntry {
+  char pad00[0xc];
+  u8 *text;               /* 0x0c */
+} NameEntry;
+typedef struct NameTable {
+  NameEntry *entries;     /* 0x00 */
+  int count;              /* 0x04 */
+} NameTable;
+typedef struct NameCount {
+  char pad00[8];
+  int count;              /* 0x08 */
+} NameCount;
+typedef struct NameSource {
+  char pad00[4];
+  int unk4;               /* 0x04, zero when there is no name data */
+  NameCount *unk8;        /* 0x08 */
+  NameTable *unkc;        /* 0x0c */
+} NameSource;
 
 extern u8 DAT_002c0e18;
 extern u8 DAT_002c0e1c;
@@ -8,102 +29,103 @@ extern u8 DAT_002c0e20;
 extern void FUN_000133f4();
 extern u32 FUN_0001342c();
 extern u32 * FUN_000149a8();
-extern u8 * FUN_0018c9f4();
+extern NameSource * FUN_0018c9f4();
 extern int FUN_002b78f8();
 
-void FUN_002815c4(int param_1)
+/* Resets the records of slots 1 and 2 to defaults and gives both the chosen name. */
+void FUN_002815c4(SlotBlockOwner *self)
 {
-  int iVar1;
-  u32 uVar2;
-  u8 *puVar3;
+  NameSource *src;
+  u32 seed;
+  u8 *text;
   
-  *(u8 *)(param_1 + 0x710) = 0;
-  *(u8 *)(param_1 + 0x713) = 0;
-  *(u8 *)(param_1 + 0x711) = 0;
-  *(u8 *)(param_1 + 0x735) = 0;
-  *(u8 *)(param_1 + 0x736) = 0;
-  *(u8 *)(param_1 + 0x737) = 0;
-  *(u8 *)(param_1 + 0x738) = 0;
-  *(u32 *)(param_1 + 0x73c) = 0xffffffff;
-  *(u32 *)(param_1 + 0x740) = 0xffffffff;
-  *(u32 *)(param_1 + 0x744) = 0x40a00000;
-  *(u8 *)(param_1 + 0x748) = 10;
-  *(u8 *)(param_1 + 0x749) = 0;
-  *(u32 *)(param_1 + 0x74c) = 0;
-  *(signed char *)(param_1 + 0x714) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x715) = (signed char)0x81;
-  *(signed char *)(param_1 + 0x716) = (signed char)0xbf;
-  *(signed char *)(param_1 + 0x717) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x718) = (signed char)0x82;
-  *(signed char *)(param_1 + 0x719) = (signed char)0x93;
-  *(signed char *)(param_1 + 0x71a) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x71b) = (signed char)0x83;
-  *(signed char *)(param_1 + 0x71c) = (signed char)0x86;
-  *(signed char *)(param_1 + 0x71d) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x71e) = (signed char)0x83;
-  *(signed char *)(param_1 + 0x71f) = (signed char)0x8b;
-  *(u8 *)(param_1 + 0x720) = 0x50;
-  *(u8 *)(param_1 + 0x830) = 0;
-  *(u8 *)(param_1 + 0x833) = 0;
-  *(u8 *)(param_1 + 0x831) = 0;
-  *(u8 *)(param_1 + 0x855) = 0;
-  *(u8 *)(param_1 + 0x856) = 0;
-  *(u8 *)(param_1 + 0x857) = 0;
-  *(u8 *)(param_1 + 0x858) = 0;
-  *(u32 *)(param_1 + 0x85c) = 0xffffffff;
-  *(u32 *)(param_1 + 0x860) = 0xffffffff;
-  *(u32 *)(param_1 + 0x864) = 0x40a00000;
-  *(u8 *)(param_1 + 0x868) = 10;
-  *(u8 *)(param_1 + 0x869) = 0;
-  *(u32 *)(param_1 + 0x86c) = 0;
-  *(signed char *)(param_1 + 0x834) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x835) = (signed char)0x81;
-  *(signed char *)(param_1 + 0x836) = (signed char)0xbf;
-  *(signed char *)(param_1 + 0x837) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x838) = (signed char)0x82;
-  *(signed char *)(param_1 + 0x839) = (signed char)0x93;
-  *(signed char *)(param_1 + 0x83a) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x83b) = (signed char)0x83;
-  *(signed char *)(param_1 + 0x83c) = (signed char)0x86;
-  *(signed char *)(param_1 + 0x83d) = (signed char)0xe3;
-  *(signed char *)(param_1 + 0x83e) = (signed char)0x83;
-  *(signed char *)(param_1 + 0x83f) = (signed char)0x8b;
-  *(u8 *)(param_1 + 0x840) = 0x50;
-  *(u8 *)(param_1 + 0x735) = 1;
-  *(u8 *)(param_1 + 0x855) = 1;
-  *(u8 *)(param_1 + 0x710) = 1;
-  *(u8 *)(param_1 + 0x830) = 1;
-  iVar1 = (int)(FUN_0018c9f4(0x13));
-  if (*(int *)(iVar1 + 4) == 0) {
-    puVar3 = &DAT_002c0e20;
+  self->block.slots[1].rec.unk00 = 0;
+  self->block.slots[1].rec.unk03 = 0;
+  self->block.slots[1].rec.unk01 = 0;
+  self->block.slots[1].rec.unk25 = 0;
+  self->block.slots[1].rec.unk26 = 0;
+  self->block.slots[1].rec.unk27 = 0;
+  self->block.slots[1].rec.unk28 = 0;
+  self->block.slots[1].rec.unk2c = SLOT_ID_NONE;
+  self->block.slots[1].rec.unk30 = SLOT_ID_NONE;
+  self->block.slots[1].rec.unk34 = SLOT_REC_DEFAULT_SCALE;
+  self->block.slots[1].rec.unk38 = 10;
+  self->block.slots[1].rec.unk39 = 0;
+  self->block.slots[1].rec.unk3c = 0;
+  self->block.slots[1].rec.name[0] = (signed char)0xe3;
+  self->block.slots[1].rec.name[1] = (signed char)0x81;
+  self->block.slots[1].rec.name[2] = (signed char)0xbf;
+  self->block.slots[1].rec.name[3] = (signed char)0xe3;
+  self->block.slots[1].rec.name[4] = (signed char)0x82;
+  self->block.slots[1].rec.name[5] = (signed char)0x93;
+  self->block.slots[1].rec.name[6] = (signed char)0xe3;
+  self->block.slots[1].rec.name[7] = (signed char)0x83;
+  self->block.slots[1].rec.name[8] = (signed char)0x86;
+  self->block.slots[1].rec.name[9] = (signed char)0xe3;
+  self->block.slots[1].rec.name[10] = (signed char)0x83;
+  self->block.slots[1].rec.name[11] = (signed char)0x8b;
+  self->block.slots[1].rec.name[12] = 0x50;
+  self->block.slots[2].rec.unk00 = 0;
+  self->block.slots[2].rec.unk03 = 0;
+  self->block.slots[2].rec.unk01 = 0;
+  self->block.slots[2].rec.unk25 = 0;
+  self->block.slots[2].rec.unk26 = 0;
+  self->block.slots[2].rec.unk27 = 0;
+  self->block.slots[2].rec.unk28 = 0;
+  self->block.slots[2].rec.unk2c = SLOT_ID_NONE;
+  self->block.slots[2].rec.unk30 = SLOT_ID_NONE;
+  self->block.slots[2].rec.unk34 = SLOT_REC_DEFAULT_SCALE;
+  self->block.slots[2].rec.unk38 = 10;
+  self->block.slots[2].rec.unk39 = 0;
+  self->block.slots[2].rec.unk3c = 0;
+  self->block.slots[2].rec.name[0] = (signed char)0xe3;
+  self->block.slots[2].rec.name[1] = (signed char)0x81;
+  self->block.slots[2].rec.name[2] = (signed char)0xbf;
+  self->block.slots[2].rec.name[3] = (signed char)0xe3;
+  self->block.slots[2].rec.name[4] = (signed char)0x82;
+  self->block.slots[2].rec.name[5] = (signed char)0x93;
+  self->block.slots[2].rec.name[6] = (signed char)0xe3;
+  self->block.slots[2].rec.name[7] = (signed char)0x83;
+  self->block.slots[2].rec.name[8] = (signed char)0x86;
+  self->block.slots[2].rec.name[9] = (signed char)0xe3;
+  self->block.slots[2].rec.name[10] = (signed char)0x83;
+  self->block.slots[2].rec.name[11] = (signed char)0x8b;
+  self->block.slots[2].rec.name[12] = 0x50;
+  self->block.slots[1].rec.unk25 = 1;
+  self->block.slots[2].rec.unk25 = 1;
+  self->block.slots[1].rec.unk00 = 1;
+  self->block.slots[2].rec.unk00 = 1;
+  src = FUN_0018c9f4(0x13);
+  if (src->unk4 == 0) {
+    text = &DAT_002c0e20;
   }
-  else if (*(int *)(*(int *)(iVar1 + 8) + 8) < 1) {
-    puVar3 = &DAT_002c0e1c;
+  else if (src->unk8->count < 1) {
+    text = &DAT_002c0e1c;
   }
-  else if ((*(int **)(iVar1 + 0xc))[1] < 4) {
-    puVar3 = &DAT_002c0e18;
-  }
-  else {
-    puVar3 = *(u8 **)(**(int **)(iVar1 + 0xc) + 0xc);
-  }
-  FUN_000149a8(param_1 + 0x714,puVar3);
-  if (*(int *)(iVar1 + 4) == 0) {
-    puVar3 = &DAT_002c0e20;
-  }
-  else if (*(int *)(*(int *)(iVar1 + 8) + 8) < 1) {
-    puVar3 = &DAT_002c0e1c;
-  }
-  else if ((*(int **)(iVar1 + 0xc))[1] < 4) {
-    puVar3 = &DAT_002c0e18;
+  else if (src->unkc->count < 4) {
+    text = &DAT_002c0e18;
   }
   else {
-    puVar3 = *(u8 **)(**(int **)(iVar1 + 0xc) + 0xc);
+    text = src->unkc->entries->text;
   }
-  FUN_000149a8(param_1 + 0x834,puVar3);
-  uVar2 = FUN_002b78f8();
-  FUN_000133f4(uVar2);
-  uVar2 = FUN_0001342c();
-  *(u32 *)(param_1 + 0x74c) = uVar2;
-  uVar2 = FUN_0001342c();
-  *(u32 *)(param_1 + 0x86c) = uVar2;
+  FUN_000149a8(self->block.slots[1].rec.name,text);
+  if (src->unk4 == 0) {
+    text = &DAT_002c0e20;
+  }
+  else if (src->unk8->count < 1) {
+    text = &DAT_002c0e1c;
+  }
+  else if (src->unkc->count < 4) {
+    text = &DAT_002c0e18;
+  }
+  else {
+    text = src->unkc->entries->text;
+  }
+  FUN_000149a8(self->block.slots[2].rec.name,text);
+  seed = FUN_002b78f8();
+  FUN_000133f4(seed);
+  seed = FUN_0001342c();
+  self->block.slots[1].rec.unk3c = seed;
+  seed = FUN_0001342c();
+  self->block.slots[2].rec.unk3c = seed;
 }

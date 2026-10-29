@@ -1,42 +1,46 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fe8c0 end=0x001fe974 symbol=FUN_001fe8c0 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed the mixed word, byte, and float record members and grouped the two-float tail; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed the mixed word, byte, and float record members and grouped the two-float tail; readability pass; exact match verified; names and types await human review. */
+
+#include "hst/key_record.h"
 
 typedef struct { float f[4]; } Float4;
 typedef struct { float f[2]; } Float2;
+/* One 32-byte keyed record of the fixed 10-entry table (same layout as KeyRecord). */
 typedef struct {
-  unsigned int word;
+  unsigned int key;
   unsigned char bytes[4];
   union { Float4 vector; unsigned int u[4]; } vector;
   union { Float2 pair; float f[2]; unsigned int u[2]; } tail;
 } Record;
 
-void FUN_001fe8c0(Record *param_1)
+/* Removes the record at the pointer: later records shift down and the last one is emptied. */
+void FUN_001fe8c0(Record *rec)
 {
-  int iVar1 = 0;
+  int i = 0;
   do {
-    if (iVar1 == 9) {
-      param_1->word = 0x7fffffff;
-      param_1->bytes[0] = 0;
-      param_1->bytes[1] = 0;
-      param_1->bytes[2] = 0;
-      param_1->bytes[3] = 0;
-      param_1->vector.u[0] = 0x7fffffff;
-      param_1->vector.u[1] = 0x7fffffff;
-      param_1->vector.u[2] = 0x7fffffff;
-      param_1->vector.u[3] = 0x7fffffff;
-      param_1->tail.u[0] = 0x7fffffff;
-      param_1->tail.u[1] = 0x7fffffff;
+    if (i == KEY_RECORD_COUNT - 1) {
+      rec->key = KEY_RECORD_EMPTY;
+      rec->bytes[0] = 0;
+      rec->bytes[1] = 0;
+      rec->bytes[2] = 0;
+      rec->bytes[3] = 0;
+      rec->vector.u[0] = KEY_RECORD_EMPTY;
+      rec->vector.u[1] = KEY_RECORD_EMPTY;
+      rec->vector.u[2] = KEY_RECORD_EMPTY;
+      rec->vector.u[3] = KEY_RECORD_EMPTY;
+      rec->tail.u[0] = KEY_RECORD_EMPTY;
+      rec->tail.u[1] = KEY_RECORD_EMPTY;
     }
     else {
-      param_1->word = param_1[1].word;
-      param_1->bytes[0] = param_1[1].bytes[0];
-      param_1->bytes[1] = param_1[1].bytes[1];
-      param_1->bytes[2] = param_1[1].bytes[2];
-      param_1->bytes[3] = param_1[1].bytes[3];
-      param_1->vector.vector = param_1[1].vector.vector;
-      param_1->tail.pair = param_1[1].tail.pair;
+      rec->key = rec[1].key;
+      rec->bytes[0] = rec[1].bytes[0];
+      rec->bytes[1] = rec[1].bytes[1];
+      rec->bytes[2] = rec[1].bytes[2];
+      rec->bytes[3] = rec[1].bytes[3];
+      rec->vector.vector = rec[1].vector.vector;
+      rec->tail.pair = rec[1].tail.pair;
     }
-    iVar1 = iVar1 + 1;
-    param_1 = param_1 + 1;
-  } while (iVar1 < 10);
+    i = i + 1;
+    rec = rec + 1;
+  } while (i < KEY_RECORD_COUNT);
 }

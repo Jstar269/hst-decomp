@@ -87,6 +87,7 @@ static inline void W1(Node *n, int arg)
   }
 }
 
+/* Applies the two per-node calls to the node and then recurses into every child. */
 void FUN_0018b490(Node *n, int arg)
 {
   int i;

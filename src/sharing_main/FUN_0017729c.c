@@ -1,22 +1,23 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0017729c end=0x001772d4 symbol=FUN_0017729c lang=c99 */
 /* Clone of src/eboot/FUN_0016b088.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#define LOOKUP_COUNT 3   /* entries in the table */
 
-extern u8 DAT_002d232c;
+extern int DAT_002d232c[LOOKUP_COUNT];
 
-int FUN_0017729c(int param_1)
+/* Returns the index of value in the table, or 0 when it is absent. */
+int FUN_0017729c(int value)
 {
-  int iVar1;
-  int *piVar2;
+  int index;
+  int *entry;
   
-  iVar1 = 0;
-  piVar2 = (int *)(&DAT_002d232c);
+  index = 0;
+  entry = DAT_002d232c;
   do {
-    if (param_1 == *piVar2) {
-      return iVar1;
+    if (value == *entry) {
+      return index;
     }
-    iVar1 = iVar1 + 1;
-    piVar2 = piVar2 + 1;
-  } while (iVar1 < 3);
+    index = index + 1;
+    entry = entry + 1;
+  } while (index < LOOKUP_COUNT);
   return 0;
 }

@@ -1,30 +1,31 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c1518 end=0x001c159c symbol=FUN_001c1518 lang=c99 rodata=0x002c6340 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/record_table.h"
 
-u16 FUN_001c1518(char *param_1,u32 param_2)
+/* Look up one of the 16-bit values by selector; unknown selectors give 0. */
+u16 FUN_001c1518(RecordTable *self,u32 selector)
 {
-  u16 uVar1;
+  u16 value;
   
-  switch(param_2) {
+  switch(selector) {
   case 0:
-    uVar1 = *(u16 *)(param_1 + 0x8416);
+    value = self->unk8416;
     break;
   case 1:
-    uVar1 = *(u16 *)(param_1 + 0x8418);
+    value = self->unk8418;
     break;
   case 2:
-    uVar1 = *(u16 *)(param_1 + 0x841a);
+    value = self->unk841a;
     break;
   case 3:
   case 4:
-    uVar1 = *(u16 *)(param_1 + 0x841c);
+    value = self->unk841c;
     break;
   case 5:
-    uVar1 = *(u16 *)(param_1 + 0x841e);
+    value = self->unk841e;
     break;
   default:
-    uVar1 = 0;
+    value = 0;
   }
-  return uVar1;
+  return value;
 }

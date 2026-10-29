@@ -10,17 +10,17 @@ struct Vec4 {
 
 struct Obj {
     char pad0[0x150];
-    float f150;
-    float f154;
+    float weight_a;
+    float weight_b;
     char pad158[8];
-    Vec4 v160;
+    Vec4 move;
     char pad170[0x194 - 0x170];
     int mode;
     char pad198[0x1b0 - 0x198];
-    Vec4 v1b0;
+    Vec4 pos;
     char pad1c0[0x200 - 0x1c0];
-    Vec4 v200;
-    Vec4 v210;
+    Vec4 dir_a;
+    Vec4 dir_b;
 };
 
 extern "C" {
@@ -52,26 +52,27 @@ inline void Vec4::Add(Vec4 v)
     FUN_00022418(this, this, &v);
 }
 
+/* Like the follow step without the state changes: weighted sum of two directions, clamped length, position advance. */
 extern "C" void FUN_0012855c(Obj *self)
 {
-    float s0 = self->f150;
-    self->v160 = Combine(Scale(self->v200, s0), Scale(self->v210, self->f154));
-    float l2 = FUN_000224d8(&self->v160, &self->v160);
-    if (FUN_000224d8(&self->v160, &self->v160) > 1e-05f) {
-        float len = sqrtf(l2);
+    float weight = self->weight_a;
+    self->move = Combine(Scale(self->dir_a, weight), Scale(self->dir_b, self->weight_b));
+    float len_sq = FUN_000224d8(&self->move, &self->move);
+    if (FUN_000224d8(&self->move, &self->move) > 1e-05f) {
+        float len = sqrtf(len_sq);
         if (len > 1.0f) {
-            FUN_00022518(&self->v160, &self->v160);
-            self->v160.w = 0.0f;
+            FUN_00022518(&self->move, &self->move);
+            self->move.w = 0.0f;
         }
         if (len < DAT_002da3b0) {
-            FUN_00022518(&self->v160, &self->v160);
-            self->v160.w = 0.0f;
-            FUN_00022498(&self->v160, &self->v160, DAT_002da3b0);
+            FUN_00022518(&self->move, &self->move);
+            self->move.w = 0.0f;
+            FUN_00022498(&self->move, &self->move, DAT_002da3b0);
         }
         if (self->mode == 5)
-            self->v1b0.Add(Scale(self->v160, DAT_002da3a8));
+            self->pos.Add(Scale(self->move, DAT_002da3a8));
         else
-            self->v1b0.Add(Scale(self->v160, DAT_002da3a0));
-        FUN_00128c94(self, &self->v160, 0);
+            self->pos.Add(Scale(self->move, DAT_002da3a0));
+        FUN_00128c94(self, &self->move, 0);
     }
 }

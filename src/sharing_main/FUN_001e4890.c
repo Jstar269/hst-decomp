@@ -4,9 +4,10 @@
 
 extern void FUN_00108f54();
 
-void FUN_001e4890(int param_1)
+/* Reset the two flag bytes of the object and call FUN_00108f54(self, 1). */
+void FUN_001e4890(u8 *self)
 {
-  *(u8 *)(param_1 + 0x54) = 0;
-  *(u8 *)(param_1 + 0x55) = 0;
-  FUN_00108f54(param_1,1);
+  self[0x54] = 0;
+  self[0x55] = 0;
+  FUN_00108f54(self,1);
 }

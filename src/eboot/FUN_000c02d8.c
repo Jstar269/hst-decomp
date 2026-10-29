@@ -1,17 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c02d8 end=0x000c0308 symbol=FUN_000c02d8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/ptp_link.h"
 
-extern u8 DAT_003073fc;
+extern const void *DAT_003073fc;
 
-u32 * FUN_000c02d8(u32 *param_1)
+/* Constructor: no thread or semaphore yet, no shared cells or queues. */
+PtpLink * FUN_000c02d8(PtpLink *self)
 {
-  *param_1 = (unsigned int)(&DAT_003073fc);
-  param_1[2] = 0xffffffff;
-  param_1[1] = 0xffffffff;
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[6] = 0;
-  return param_1;
+  self->vtable = &DAT_003073fc;
+  self->sema_id = -1;
+  self->thread_id = -1;
+  self->shared_short = 0;
+  self->stop_flag = 0;
+  self->write_queue = 0;
+  self->read_queue = 0;
+  return self;
 }

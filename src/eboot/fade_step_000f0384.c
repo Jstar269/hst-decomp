@@ -1,53 +1,48 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000f0384 end=0x000f04dc symbol=FUN_000f0384 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef struct Sub { char pad0[0x64]; float a; char pad1[0x78 - 0x68]; float b; } Sub;
-typedef struct Obj {
-  char pad0[0x54]; unsigned char off;
-  char pad1[0x58 - 0x55]; Sub *s0; Sub *s1; Sub *s2;
-  char pad2[0x8c - 0x64]; int cnt;
-  char pad3[0x94 - 0x90]; float scale;
-} Obj;
+#include "hst/ingame_panes.h"
 
 extern int DAT_00338c20;
 extern void FUN_000fb06c(int);
-extern void FUN_00103128(Obj *);
-extern void FUN_00103480(Obj *);
+extern void FUN_00103128(FadeCyclePane *);
+extern void FUN_00103480(FadeCyclePane *);
 
-void FUN_000f0384(Obj *self)
+/* Advance the fade cycle one frame: fade in, hold, fade out, then off after FADE_CYCLE_END frames. */
+void FUN_000f0384(FadeCyclePane *self)
 {
-  float x;
-  float a;
+  float level;
+  float rise;
   float old;
 
-  if (self->off == 0) {
-    a = 0.0f;
+  if (self->base.shown == 0) {
+    rise = 0.0f;
     old = self->scale;
-    self->cnt = self->cnt + 1;
-    x = (float)self->cnt;
-    if (x < 15.0f) {
-      x = x / 15.0f;
-      a = (1.0f - x) * 18.0f;
+    self->frame = self->frame + 1;
+    level = (float)self->frame;
+    if (level < FADE_CYCLE_IN) {
+      level = level / FADE_CYCLE_IN;
+      rise = (1.0f - level) * 18.0f;
     }
-    else if (x < 75.0f) {
-      x = 1.0f;
+    else if (level < FADE_CYCLE_HOLD_END) {
+      level = 1.0f;
     }
-    else if (x < 90.0f) {
-      x = 1.0f - (x - 75.0f) / 15.0f;
+    else if (level < FADE_CYCLE_END) {
+      level = 1.0f - (level - FADE_CYCLE_HOLD_END) / (FADE_CYCLE_END - FADE_CYCLE_HOLD_END);
     }
     else {
-      x = 0.0f;
+      level = 0.0f;
     }
-    self->scale = x;
-    self->s0->a = a;
-    self->s0->b = x;
-    self->s1->a = a;
-    self->s1->b = x;
-    self->s2->a = a;
-    self->s2->b = x;
+    self->scale = level;
+    self->node[0]->y = rise;
+    self->node[0]->alpha = level;
+    self->node[1]->y = rise;
+    self->node[1]->alpha = level;
+    self->node[2]->y = rise;
+    self->node[2]->alpha = level;
     if (old > 0.0f || self->scale > 0.0f) {
       FUN_00103480(self);
     }
-    if ((float)self->cnt == 90.0f) {
+    if ((float)self->frame == FADE_CYCLE_END) {
       FUN_000fb06c(DAT_00338c20);
     }
     FUN_00103128(self);

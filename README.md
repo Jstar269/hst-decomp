@@ -5,34 +5,34 @@
   <img src="docs/images/brand/hst-decomp-mark-light.svg" width="96" height="96" alt="hst-decomp mark">
 </picture>
 
-# Hot Shots Tennis: Get a Grip — matching decompilation
+# hst-decomp
 
-**C and C++ that compiles back to the exact bytes of the PSP game, one function at a time.**
+**Matching decompilation of Hot Shots Tennis: Get a Grip for the PSP.**
 
-A Nakagawa project, alongside [Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp), the PSP-to-native recompiler and player.
+**[Progress](docs/PROGRESS.md) · [Guide](docs/GUIDE.md) · [Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp)**
 
 [![Code matched](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FJstar269%2Fhst-decomp%2Fmain%2Fdocs%2Fobjdiff-report.json&query=%24.measures.matched_code_percent&suffix=%25&label=code%20matched&color=6E9600)](#progress-at-a-glance)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](#license)
 [![REUSE status](https://api.reuse.software/badge/github.com/Jstar269/hst-decomp)](https://api.reuse.software/info/github.com/Jstar269/hst-decomp)
-[![Platform: PSP (UCUS98701)](https://img.shields.io/badge/PSP-UCUS98701-555555.svg)](#what-is-this)
+[![Platform: PSP (UCUS98701)](https://img.shields.io/badge/PSP-UCUS98701-555555.svg)](#hst-decomp)
 
 </div>
 
-## What is this?
+This project rebuilds the code of *Hot Shots Tennis: Get a Grip* (PSP, UCUS98701), also known as *Everybody's Tennis
+Portable*, as C and C++. A function counts as matched only when the original compiler turns its source into exactly
+the bytes in the game.
 
-A PSP game ships as machine code: instructions for the console's processor, not readable source. This project
-rebuilds that code as C and C++, the kind of source the developers originally wrote, for *Hot Shots Tennis: Get a
-Grip* (PlayStation Portable, UCUS98701), also known as *Everybody's Tennis Portable*.
+It covers both of the game's program files: the main game (`EBOOT.BIN`) and the Sharing Version
+(`hstp_trans_main.prx`), the trial copy that one PSP sends to another over wireless Game Sharing.
 
-"Matching" means every rebuilt function is proven: compiled with the same compiler the developers used, it produces
-exactly the same bytes as the original game. A function that doesn't match yet isn't counted.
+The repository holds source only and doesn't build a playable game on its own. To play on a PC, use
+[Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp) with your own copy of the game. The screenshot below
+is from that build. It is the only game imagery in this repository; the logo, artwork and on-screen text belong to
+their owners, are shown only to identify the game, and are not covered by this project's licences.
 
-The game has two program files, and this project rebuilds both: the main game (`EBOOT.BIN`) and the Sharing Version
-(`hstp_trans_main.prx`), the trial copy of the game that one PSP sends to a friend's PSP over wireless Game Sharing.
+![Title screen of Hot Shots Tennis: Get a Grip running natively in Nakagawa Recomp](docs/media/hst-title-screen.png)
 
-Why it matters: readable source lets people study how the game works, fix bugs, and run it natively on other
-systems. Nakagawa Recomp can already start the game on Windows from its original code, and the decompiled source
-will let more of it run as real, readable code over time.
+<div align="center"><sub>Hot Shots Tennis: Get a Grip belongs to its publisher. This repository contains no game data: you need your own copy of the game, and nothing here downloads one.</sub></div>
 
 ## Progress at a glance
 
@@ -40,87 +40,64 @@ will let more of it run as real, readable code over time.
 
 | | Progress | What it means |
 |---|---|---|
-| **Code matched** | **36.2%** | 12,334 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
+| **Code matched** | **36.3%** | 12,353 of the 19,634 game functions are rewritten as C or C++ that compiles to the game's exact bytes. This is the figure decompilation trackers such as [recomp.fyi](https://recomp.fyi) show. |
 | **Built from source** | **29.4%** | The share of the game's program files that the full build already reproduces, byte for byte, from this source. |
 
 The project's own finish line is stricter: the whole build must also work when moved to another address, and every source must be reviewed by a person. That figure is 0.0%. Measured 2026-10-28.
 
 <!-- hstprogress:end -->
 
-Decompilation projects usually count a game as done when both numbers reach 100%. More detail, charts and history:
-[Progress report](docs/PROGRESS.md).
+Decompilation projects usually count a game as done when both numbers reach 100%. Charts and history are in the
+[progress report](docs/PROGRESS.md).
 
-## See it running
+## Check the matches yourself
 
-[Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp) runs the game's own PSP code natively on Windows.
-This presentation capture shows the title screen in that build. It is the only game imagery in this repository; the
-logo, artwork and on-screen text belong to their owners, are shown only to identify the game, and are not covered by
-this project's licences.
-
-![Title screen of Hot Shots Tennis: Get a Grip running natively in Nakagawa Recomp](docs/media/hst-title-screen.png)
-
-<div align="center"><sub>Hot Shots Tennis: Get a Grip belongs to its publisher. This repository contains no game data: you need your own copy of the game, and nothing here downloads one.</sub></div>
-
-## Can I play it?
-
-Not from this repository: it holds source code only, with no game files, and doesn't build a playable game on its
-own. To play on a PC, use [Nakagawa Recomp](https://github.com/Jstar269/nakagawa-recomp) with your own copy of the
-game.
-
-## How is it made?
-
-Mostly by machines, and every result is checked by machines.
-
-- **Tools** produce most of the sources. Where the game contains the same code more than once, a tool reuses a
-  function that already matches; other tools translate decompiler output into C.
-- **AI agents** take on the functions those tools can't match, under the maintainer's direction.
-- **Nothing is accepted on trust.** A function is accepted only when an automatic checker compiles it with the
-  original compiler and proves it produces exactly the original bytes, and a second gate rejects fake matches, such
-  as machine code pasted in as assembly instead of written as C. A source that fails either check isn't counted,
-  whoever or whatever wrote it.
-
-How the sources break down, by the way they were made: [What the sources are](docs/GUIDE.md#what-the-sources-are).
-
-## How can I follow along?
-
-The repository isn't open to outside contributions yet ([CONTRIBUTING.md](CONTRIBUTING.md)). You can still follow
-the progress, and check every published match for yourself.
-
-Matching a function is a puzzle: you write C until the compiler's output equals the original bytes exactly. To
-re-check the published matches on your own machine:
+The repository isn't open to outside contributions yet ([CONTRIBUTING.md](CONTRIBUTING.md)). You can re-check every
+published match on your own machine:
 
 1. Bring your own copy of the game. The tools need its two executables in decrypted form; this repository contains
    no decryption code and does not explain how to decrypt them.
 2. Install the compilers in WSL and set up the campaign directory: [Setup](docs/GUIDE.md#setup).
-3. Check that everything matches: `python tools/hstmatch.py --all`.
+3. Run `python tools/hstmatch.py --all`.
 
-How a function is matched is described in [CONTRIBUTING.md](CONTRIBUTING.md), and the compiler lessons are in
+[CONTRIBUTING.md](CONTRIBUTING.md) describes how a function is matched, and the compiler lessons are in
 [`docs/MWCC-NOTES.md`](docs/MWCC-NOTES.md).
 
 ## Progress in detail
 
 <!-- hstprogress:begin readme-progress -->
 
-**12,331 exact sources** (12,334 functions) and 1,045 near misses, measured 2026-10-28 with `python tools/hstcov.py`
+**12,350 exact sources** (12,353 functions) and 1,082 near misses, measured 2026-10-28 with `python tools/hstcov.py`
 and counted in code bytes:
 
 | Module | Matched / functions | Matched / code bytes | Share of bytes |
 |---|---|---|---|
-| `EBOOT.BIN` | 6,269 / 9,804 | 1,081,440 / 2,849,076 | 37.958 % |
-| `hstp_trans_main.prx` (Sharing Version) | 6,065 / 9,830 | 1,002,888 / 2,914,004 | 34.416 % |
-| **Both** | 12,334 / 19,634 | 2,084,328 / 5,763,080 | 36.167 % |
+| `EBOOT.BIN` | 6,278 / 9,804 | 1,083,756 / 2,849,076 | 38.039 % |
+| `hstp_trans_main.prx` (Sharing Version) | 6,075 / 9,830 | 1,006,580 / 2,914,004 | 34.543 % |
+| **Both** | 12,353 / 19,634 | 2,090,336 / 5,763,080 | 36.271 % |
 
 <!-- hstprogress:end -->
 
-The Sharing Version is the Game Sharing trial copy described in [What is this?](#what-is-this). Every source is
-re-verified with `python tools/hstmatch.py` before it is published. These figures count each function matched on its
-own. The stricter tiers (the whole executables rebuilt from source, data included, relocatable and reviewed) are
-defined in [`docs/COMPLETION.md`](docs/COMPLETION.md), and [`docs/PROGRESS.md`](docs/PROGRESS.md) charts them.
+Every source is re-verified with `python tools/hstmatch.py` before it is published. These figures count each function
+matched on its own. The stricter tiers (the whole executables rebuilt from source, data included, relocatable and
+reviewed) are defined in [`docs/COMPLETION.md`](docs/COMPLETION.md), and [`docs/PROGRESS.md`](docs/PROGRESS.md)
+charts them.
+
+## How the sources are made
+
+Tools produce most of the sources. Where the game contains the same code more than once, a tool reuses a function that
+already matches; other tools translate decompiler output into C. AI agents work on the functions the tools can't
+match, under the maintainer's direction.
+
+Every source passes the same checks. An automatic checker compiles it with the original compiler and accepts it only
+if it produces exactly the original bytes, and a second gate rejects fake matches, such as machine code pasted in as
+assembly instead of written as C. [What the sources are](docs/GUIDE.md#what-the-sources-are) breaks them down by how
+they were made.
 
 ## Legal
 
 No game assets, executables, keys, decryption code or compilers are in this repository, except the presentation
-screenshot described above, and nothing in it lets you obtain the game. You install the compilers yourself from
+screenshot shown above, and nothing in it lets you obtain the game. You install the compilers yourself from
 [decomp.me's kits](https://github.com/decompme/compilers) and [wibo](https://github.com/decompals/wibo), under their
 vendors' licences ([THIRD_PARTY.md](THIRD_PARTY.md)).
 

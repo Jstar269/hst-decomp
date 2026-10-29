@@ -1,34 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002177d4 end=0x0021780c symbol=FUN_002177d4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/animator.h"
 
-
-void FUN_002177d4(int param_1,undefined2 param_2,undefined2 param_3,undefined2 param_4, undefined2 param_5,undefined4 param_6)
+/* Start the position block: four target values, duration `duration`, current = first two targets. */
+void FUN_002177d4(Animator *self,short a,short b,short c,short d,int duration)
 {
-  *(undefined1 *)(param_1 + 0x24) = 1;
-  *(undefined1 *)(param_1 + 0x25) = 0;
-  *(undefined4 *)(param_1 + 0x28) = param_6;
-  *(undefined2 *)(param_1 + 0x30) = param_2;
-  *(undefined2 *)(param_1 + 0x32) = param_3;
-  *(undefined2 *)(param_1 + 0x34) = param_4;
-  *(undefined2 *)(param_1 + 0x36) = param_5;
-  *(undefined4 *)(param_1 + 0x2c) = 0;
-  *(undefined2 *)(param_1 + 0x38) = *(undefined2 *)(param_1 + 0x30);
-  *(undefined2 *)(param_1 + 0x3a) = *(undefined2 *)(param_1 + 0x32);
+  self->pos.head.active = 1;
+  self->pos.head.done = 0;
+  self->pos.head.duration = duration;
+  self->pos.to[0] = a;
+  self->pos.to[1] = b;
+  self->pos.to[2] = c;
+  self->pos.to[3] = d;
+  self->pos.head.counter = 0;
+  self->pos.cur[0] = self->pos.to[0];
+  self->pos.cur[1] = self->pos.to[1];
   return;
 }

@@ -1,54 +1,54 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0028a230 end=0x0028a328 symbol=FUN_0028a230 lang=c++ data=0x002fed44 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002fed44-0x002fed4c) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Ghidra pseudocode (generated draft FUN_0028a230.c, no tag) corrected by hand: the two new/ctor pairs
-   use the null-case-else shape (`if (p != 0) f74 = ctor(p); else f74 = p;`), the selection count is the
-   ternary `param_2[2] ? param_2[2] : param_2[0]` and the effect handle is the ternary
-   `x ? FUN_0002fe80(x, str) : -1`; exact match verified; names and types await human review. */
-#include "hst/types.h"
+   use the null-case-else shape (`if (p != 0) modelA = ctor(p); else modelA = p;`), the stream choice is the
+   ternary `init->stream2 ? init->stream2 : init->stream0` and the effect handle is the ternary
+   `x ? FUN_0002fe80(x, str) : -1`; readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/effect_source.h"
 
 extern "C" {
-extern u8 DAT_00309d08;
-extern int FUN_00000bcc(...);
-extern u32 FUN_0002fe80(...);
-extern u32 * FUN_00056b98(...);
-extern u32 * FUN_00286790(...);
+extern char DAT_00309d08;
+extern void *FUN_00000bcc(...);
+extern unsigned FUN_0002fe80(...);
+extern ModelHolder *FUN_00056b98(...);
+extern void *FUN_00286790(...);
 }
-struct VC_0 { virtual void d0(); virtual void m(int); };
-struct VC_1 { virtual void d0(); virtual void m(int); };
+/* Virtual view of a model holder: slot 1 attaches a stream. */
+struct HolderA { virtual void d0(); virtual void SetStream(I3rStream *); };
+struct HolderB { virtual void d0(); virtual void SetStream(I3rStream *); };
 
-extern "C" u32 * FUN_0028a230(u32 *param_1,int *param_2)
+extern "C" EffectSource *FUN_0028a230(EffectSource *self,EffectInit *init)
 {
-  int iVar1;
-  u32 uVar2;
+  ModelHolder *holder;
   
-  FUN_00286790(param_1);
-  *param_1 = (unsigned int)(&DAT_00309d08);
-  param_1[0x1c] = 0;
-  param_1[0x1d] = 0;
-  param_1[0x1e] = 0;
-  param_1[0x1f] = 0;
-  param_1[0x38] = 0;
-  param_1[0x39] = 0;
-  param_1[0x3a] = 0;
-  iVar1 = FUN_00000bcc(0x1b0);
-  if (iVar1 != 0) {
-    param_1[0x1d] = (unsigned int)(FUN_00056b98(iVar1));
+  FUN_00286790(self);
+  self->vtable = &DAT_00309d08;
+  self->stream = 0;
+  self->modelA = 0;
+  self->modelB = 0;
+  self->unk7c = 0;
+  self->recs.data = 0;
+  self->recs.count = 0;
+  self->recs.cap = 0;
+  holder = (ModelHolder *)FUN_00000bcc(MODEL_HOLDER_SIZE);
+  if (holder != 0) {
+    self->modelA = FUN_00056b98(holder);
   }
   else {
-    param_1[0x1d] = iVar1;
+    self->modelA = holder;
   }
-  iVar1 = FUN_00000bcc(0x1b0);
-  if (iVar1 != 0) {
-    param_1[0x1e] = (unsigned int)(FUN_00056b98(iVar1));
+  holder = (ModelHolder *)FUN_00000bcc(MODEL_HOLDER_SIZE);
+  if (holder != 0) {
+    self->modelB = FUN_00056b98(holder);
   }
   else {
-    param_1[0x1e] = iVar1;
+    self->modelB = holder;
   }
-  param_1[0x1c] = param_2[2] ? param_2[2] : *param_2;
-  ((VC_0 *)((int *)param_1[0x1d]))->m((int)(*param_2));
-  ((VC_1 *)((int *)param_1[0x1e]))->m((int)(param_2[1]));
-  param_1[0x1f] = param_2[3];
-  *(u8 *)(param_1 + 0x3b) = 0;
-  param_1[0x3c] = *(int *)(param_1[0x1c] + 8) ? FUN_0002fe80(*(int *)(param_1[0x1c] + 8),"eff_get") : 0xffffffff;
-  return param_1;
+  self->stream = init->stream2 ? init->stream2 : init->stream0;
+  ((HolderA *)self->modelA)->SetStream(init->stream0);
+  ((HolderB *)self->modelB)->SetStream(init->stream1);
+  self->unk7c = init->unk0c;
+  self->started = 0;
+  self->effect = self->stream->unk8 ? FUN_0002fe80(self->stream->unk8,"eff_get") : EFFECT_NONE;
+  return self;
 }

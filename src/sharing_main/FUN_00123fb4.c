@@ -5,9 +5,10 @@
 extern int * FUN_00123ff4();
 extern u32 FUN_00124128();
 
-u32 FUN_00123fb4(u32 param_1,u32 param_2,u32 param_3)
+/* Copy-constructs the container from another (the allocator argument is unused). */
+u32 FUN_00123fb4(u32 self,u32 allocator,u32 other)
 {
-  FUN_00124128(param_1);
-  FUN_00123ff4(param_1,param_3);
-  return param_1;
+  FUN_00124128(self);
+  FUN_00123ff4(self,other);
+  return self;
 }

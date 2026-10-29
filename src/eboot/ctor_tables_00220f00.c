@@ -9,9 +9,15 @@ extern void FUN_00221260(void *self);
 extern char DAT_003096a4[];
 extern float DAT_002eff88;
 extern char *DAT_002f0c40[];
+#define PANE_COUNT 5  /* sub-panes created from the first table */
+#define ENTRY_COUNT 9 /* named parts looked up in the second table */
+
+/* Table row: index of the sub-pane to search, the part name, and where the part's result word is stored. */
 struct Entry_00220f00 { int idx; char *name; int result; };
 extern struct Entry_00220f00 DAT_002f0ca0[];
 
+/* Constructor of a layout pane: loads its layout file, creates the sub-panes, resolves the named parts
+   through the table and clears its selection. */
 char *FUN_00220f00(char *self)
 {
     FUN_00102e38(self);
@@ -19,25 +25,25 @@ char *FUN_00220f00(char *self)
     FUN_00104118(self, "data/menu/lobby/lobbyinpane/golayout.lay", 0);
     FUN_00103540(self, DAT_002eff88);
     int i = 0;
-    char **src = DAT_002f0c40;
+    char **name = DAT_002f0c40;
     int off = 0;
     do {
-        *(void **)(self + off + 0x64) = FUN_001039d8(self, *src, 0);
+        *(void **)(self + off + 0x64) = FUN_001039d8(self, *name, 0);
         i++;
-        src++;
+        name++;
         off += 4;
-    } while (i < 5);
+    } while (i < PANE_COUNT);
     int j = 0;
-    struct Entry_00220f00 *e = DAT_002f0ca0;
+    struct Entry_00220f00 *entry = DAT_002f0ca0;
     off = 0;
     do {
-        int *h = (int *)FUN_001026b8(*(void **)(self + e->idx * 4 + 0x64), e->name);
-        *(void **)(self + off + 0x78) = h;
-        e->result = h[9];
+        int *part = (int *)FUN_001026b8(*(void **)(self + entry->idx * 4 + 0x64), entry->name);
+        *(void **)(self + off + 0x78) = part;
+        entry->result = part[9];
         j++;
         off += 4;
-        e++;
-    } while (j < 9);
+        entry++;
+    } while (j < ENTRY_COUNT);
     *(int *)(self + 0x60) = -1;
     *(int *)(self + 0x54) = -999;
     *(char *)(self + 0x9c) = 0;

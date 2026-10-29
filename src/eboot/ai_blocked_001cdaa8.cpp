@@ -4,7 +4,8 @@ struct Vec4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
 
-class Ent {
+/* Game object with a virtual position getter (slot 6). */
+class Unit {
 public:
     virtual void m0();
     virtual void m1();
@@ -15,81 +16,83 @@ public:
     virtual const Vec4 *GetPos();
 };
 
-struct Base0 { char pad[0xe0]; };
-struct World : Base0, Ent {};
+struct WorldBase { char pad[0xe0]; };
+struct World : WorldBase, Unit {};
 
-struct Self {
+/* Viewer: a facing direction, an eye position and a view angle limit. */
+struct Viewer {
     char pad0[0x20];
-    Vec4 f20;
-    Vec4 f30;
-    float f40;
+    Vec4 facing;        /* 0x20 */
+    Vec4 eye;           /* 0x30 */
+    float view_angle;   /* 0x40 */
 };
 
 extern World *DAT_0034a118;
-extern float DAT_002ea2d4;
-extern float DAT_002ea2d8;
+extern float DAT_002ea2d4; /* lower bound of the cosine */
+extern float DAT_002ea2d8; /* upper bound of the cosine */
 
 extern "C" {
-int FUN_001cde28(Ent *);
-int FUN_001cddb0(Self *, Ent *);
+int FUN_001cde28(Unit *);
+int FUN_001cddb0(Viewer *, Unit *);
 void FUN_000542e8(Vec4 *, const Vec4 *, Vec4 *);
 void FUN_000c3f38(Vec4 *, Vec4 *);
 float FUN_001cdda8(Vec4 *, Vec4 *);
 float FUN_001cdd68(float *, float *, float *);
 float FUN_0000c5bc(float);
-int FUN_001cdd14(Ent *);
-int FUN_001cdcb0(Ent *);
-Ent *FUN_001cdd0c(Ent *);
-Ent *FUN_001cdca8(Ent *);
-int FUN_001cdcdc(Ent *, int);
+int FUN_001cdd14(Unit *);
+int FUN_001cdcb0(Unit *);
+Unit *FUN_001cdd0c(Unit *);
+Unit *FUN_001cdca8(Unit *);
+int FUN_001cdcdc(Unit *, int);
 int FUN_00127870(int);
 int FUN_00127a20(int);
-Vec4 *FUN_00093818(Ent *);
-Vec4 *FUN_001cdc9c(Ent *);
+Vec4 *FUN_00093818(Unit *);
+Vec4 *FUN_001cdc9c(Unit *);
 
-bool FUN_001cdaa8(Self *self, Ent **pp)
+/* True when the unit pointed to is NOT in the viewer's sight (outside the view angle or behind a blocker). */
+bool FUN_001cdaa8(Viewer *self, Unit **pp)
 {
-    bool r;
-    Ent *e = *pp;
-    if (FUN_001cde28(e) != 0 && FUN_001cddb0(self, e) != 0) {
-        Ent *g = DAT_0034a118;
-        if (e != g) {
-            Vec4 v;
-            Vec4 a;
-            FUN_000542e8(&a, e->GetPos(), &self->f30);
-            FUN_000c3f38(&v, &a);
-            float d = FUN_001cdda8(&self->f20, &v);
-            float c = FUN_0000c5bc(FUN_001cdd68(&d, &DAT_002ea2d4, &DAT_002ea2d8));
-            if (c < self->f40) {
-                if (FUN_001cdd14(e) != 0) {
-                    Ent *u = FUN_001cdd0c(e);
-                    if (FUN_00127870(FUN_001cdcdc(u, 0)) == 0 && FUN_00127a20(FUN_001cdcdc(u, 0)) == 0) {
-                        d = FUN_001cdda8(FUN_00093818(u) + 2, &self->f20);
+    bool visible;
+    Unit *target = *pp;
+    if (FUN_001cde28(target) != 0 && FUN_001cddb0(self, target) != 0) {
+        Unit *world = DAT_0034a118;
+        if (target != world) {
+            Vec4 dir;
+            Vec4 to_target;
+            FUN_000542e8(&to_target, target->GetPos(), &self->eye);
+            FUN_000c3f38(&dir, &to_target);
+            float d = FUN_001cdda8(&self->facing, &dir);
+            float angle = FUN_0000c5bc(FUN_001cdd68(&d, &DAT_002ea2d4, &DAT_002ea2d8));
+            if (angle < self->view_angle) {
+                if (FUN_001cdd14(target) != 0) {
+                    Unit *other = FUN_001cdd0c(target);
+                    if (FUN_00127870(FUN_001cdcdc(other, 0)) == 0 && FUN_00127a20(FUN_001cdcdc(other, 0)) == 0) {
+                        d = FUN_001cdda8(FUN_00093818(other) + 2, &self->facing);
                         if (d >= 0.0f) {
-                            r = false;
+                            visible = false;
                             goto end;
                         }
                     }
-                } else if (FUN_001cdcb0(e) != 0) {
-                    Ent *u = FUN_001cdca8(e);
-                    d = FUN_001cdda8(FUN_001cdc9c(u) + 2, &self->f20);
+                } else if (FUN_001cdcb0(target) != 0) {
+                    Unit *other = FUN_001cdca8(target);
+                    d = FUN_001cdda8(FUN_001cdc9c(other) + 2, &self->facing);
                     if (d >= 0.0f) {
-                        r = false;
+                        visible = false;
                         goto end;
                     }
-                    d = FUN_001cdda8(FUN_001cdc9c(u) + 2, &v);
+                    d = FUN_001cdda8(FUN_001cdc9c(other) + 2, &dir);
                     if (d >= 0.0f) {
-                        r = false;
+                        visible = false;
                         goto end;
                     }
                 }
-                r = true;
+                visible = true;
                 goto end;
             }
         }
     }
-    r = false;
+    visible = false;
 end:
-    return !r;
+    return !visible;
 }
 }

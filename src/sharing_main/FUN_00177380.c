@@ -1,12 +1,14 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00177380 end=0x001773a0 symbol=FUN_00177380 lang=c99 */
 /* Clone of src/eboot/FUN_0016b19c.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
+#include "hst/settings_block.h"
 
-extern int FUN_00177434();
+extern SettingsEntry * FUN_00177434();
 
-int FUN_00177380(void)
+/* Returns the 16-bit id of entry `index` of the settings block. */
+int FUN_00177380(int index)
 {
-  int iVar1;
+  SettingsEntry *e;
   
-  iVar1 = FUN_00177434();
-  return (int)*(short *)(iVar1 + 2);
+  e = FUN_00177434(index);
+  return (int)e->unk2;
 }

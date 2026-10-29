@@ -8,6 +8,7 @@ extern u32 DAT_00341738;
 extern u32 DAT_0034173c;
 extern u32 DAT_00341740;
 
+/* Return 1 when all five challenge tables are loaded. */
 u32 FUN_00194348(void)
 {
   if (DAT_00341734 == 0) goto zero;

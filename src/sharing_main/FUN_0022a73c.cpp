@@ -7,9 +7,10 @@ extern void FUN_00108f54(...);
 }
 struct VC_0 { virtual void d0(); virtual void m(int); };
 
-extern "C" void FUN_0022a73c(int param_1)
+/* Calls FUN_00108f54 with 0, clears the flag at 0x5c, then calls slot 1 of the object at 0x78 with 0. */
+extern "C" void FUN_0022a73c(int self)
 {
-  FUN_00108f54(param_1,0);
-  *(u8 *)(param_1 + 0x5c) = 0;
-  ((VC_0 *)(*(int **)(param_1 + 0x78)))->m((int)(0));
+  FUN_00108f54(self,0);
+  *(u8 *)(self + 0x5c) = 0;
+  ((VC_0 *)(*(int **)(self + 0x78)))->m((int)(0));
 }

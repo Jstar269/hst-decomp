@@ -24,7 +24,7 @@ public:
 };
 
 struct Entry {
-    int idx;
+    int slot_index;  /* index into Self::slots */
     int id;
     int out;
 };
@@ -33,11 +33,11 @@ struct Self {
     void *vt;
     char pad[0x54];
     int slots[3];
-    int f64[8];
-    int f84[2];
-    int f8c;
-    int f90;
-    int f94;
+    int nodes[8];
+    int targets[2];
+    int unk8c;
+    int unk90;
+    int unk94;
 };
 
 extern "C" Self *FUN_000efe28(Self *self) {
@@ -46,45 +46,48 @@ extern "C" Self *FUN_000efe28(Self *self) {
     FUN_00104118(self, &DAT_002d7380, 0);
     FUN_00103540(self, 3000.0f);
     FUN_001037c8(self, -304);
+    /* Create one object per slot kind. */
     {
         int i = 0;
-        int *tab = (int *)&DAT_002d72b4;
-        int off = 0;
+        int *slot_kinds = (int *)&DAT_002d72b4;
+        int slot_off = 0;
         do {
-            *(int *)((unsigned int)self + off + 0x58) = FUN_001039d8(self, *tab, 0);
+            *(int *)((unsigned int)self + slot_off + 0x58) = FUN_001039d8(self, *slot_kinds, 0);
             i++;
-            tab++;
-            off += 4;
+            slot_kinds++;
+            slot_off += 4;
         } while (i < 3);
     }
+    /* Look up the eight nodes from the slot objects. */
     {
-        int k = 0;
-        Entry *e = (Entry *)&DAT_002d7318;
-        int off2 = 0;
+        int node_i = 0;
+        Entry *entry = (Entry *)&DAT_002d7318;
+        int node_off = 0;
         do {
-            int *n = (int *)FUN_001026b8(self->slots[e->idx], e->id);
-            *(int *)((unsigned int)self + off2 + 0x64) = (int)n;
-            e->out = n[9];
-            k++;
-            off2 += 4;
-            e++;
-        } while (k < 8);
+            int *node = (int *)FUN_001026b8(self->slots[entry->slot_index], entry->id);
+            *(int *)((unsigned int)self + node_off + 0x64) = (int)node;
+            entry->out = node[9];
+            node_i++;
+            node_off += 4;
+            entry++;
+        } while (node_i < 8);
     }
+    /* Pick the two target handles and notify them. */
     {
-        int m = 0;
-        int *tab3 = (int *)&DAT_002d7378;
-        int off3 = 0;
+        int target_i = 0;
+        int *target_nodes = (int *)&DAT_002d7378;
+        int target_off = 0;
         do {
-            *(int *)((unsigned int)self + off3 + 0x84) = *(int *)(self->f64[*tab3] + 0x20);
-            ((Iface *)*(int *)((unsigned int)self + off3 + 0x84))->hit(-16);
-            m++;
-            tab3++;
-            off3 += 4;
-        } while (m < 2);
+            *(int *)((unsigned int)self + target_off + 0x84) = *(int *)(self->nodes[*target_nodes] + 0x20);
+            ((Iface *)*(int *)((unsigned int)self + target_off + 0x84))->hit(-16);
+            target_i++;
+            target_nodes++;
+            target_off += 4;
+        } while (target_i < 2);
     }
     FUN_000f031c(self);
-    self->f8c = 0;
-    self->f90 = 0;
-    self->f94 = 0x3f800000;
+    self->unk8c = 0;
+    self->unk90 = 0;
+    self->unk94 = 0x3f800000;  /* 1.0f */
     return self;
 }

@@ -1,10 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001a4278 end=0x001a4294 symbol=FUN_001a4278 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/slot_select.h"
 
-void FUN_001a4278(int param_1)
+void FUN_001a4278(SlotSelect *self)
 {
-  *(u32 *)(param_1 + 0x2e8) = *(u32 *)(param_1 + 0x2e4);
-  *(u32 *)(param_1 + 0x2f0) = *(u32 *)(param_1 + 0x2ec);
-  *(u32 *)(param_1 + 0x2f8) = *(u32 *)(param_1 + 0x2f4);
+  self->unk2e4Saved = self->unk2e4;
+  self->unk2ecSaved = self->unk2ec;
+  self->modeSaved = self->mode;
 }

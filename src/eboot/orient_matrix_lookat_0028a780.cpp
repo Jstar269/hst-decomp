@@ -1,6 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0028a780 end=0x0028a8f4 symbol=FUN_0028a780 lang=c++ */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-/* Ghidra pseudocode corrected by hand: lookat orient matrix computation for Obj sub-objects; exact match verified; names and types await human review. */
+/* Ghidra pseudocode corrected by hand: lookat orient matrix computation for the effect source's model holders; exact match verified; names and types await human review. */
+
+#include "hst/effect_source.h"
 
 struct Vec4 {
     float x, y, z, w;
@@ -14,15 +16,10 @@ struct Mat4 {
     Mat4(const Mat4 &o) : r0(o.r0), r1(o.r1), r2(o.r2), r3(o.r3) {}
 };
 
-struct SubObj {
+/* Model holder seen through its matrix at +0x30. */
+struct HolderMat {
     char pad[0x30];
     Mat4 m;
-};
-
-struct Obj {
-    char pad[0x74];
-    SubObj *f74;
-    SubObj *f78;
 };
 
 extern "C" {
@@ -30,12 +27,13 @@ void FUN_00022434(Vec4 *out, const Vec4 *target, const Vec4 *pos);
 void FUN_00048f08(Vec4 *out, const Vec4 *in);
 void FUN_00022518(Vec4 *out, const Vec4 *in);
 void FUN_000224f8(Vec4 *out, const Vec4 *a, const Vec4 *b);
-void FUN_00055044(SubObj *obj, const Mat4 *m);
+void FUN_00055044(ModelHolder *obj, const Mat4 *m);
 }
 
-extern "C" void FUN_0028a780(Obj *self, const Vec4 *target)
+/* Re-orients the holders' matrix so its third row looks from its position towards the target. */
+extern "C" void FUN_0028a780(EffectSource *self, const Vec4 *target)
 {
-    Mat4 m = self->f74->m;
+    Mat4 m = ((HolderMat *)self->modelA)->m;
     Vec4 dir;
     Vec4 diff_copy;
     Vec4 diff;
@@ -51,6 +49,6 @@ extern "C" void FUN_0028a780(Obj *self, const Vec4 *target)
     m.r0.w = 0.0f;
     FUN_000224f8(&m.r2, &m.r0, &m.r1);
     m.r3 = m.r3;
-    FUN_00055044(self->f74, &m);
-    FUN_00055044(self->f78, &m);
+    FUN_00055044(self->modelA, &m);
+    FUN_00055044(self->modelB, &m);
 }

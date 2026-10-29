@@ -1,14 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00093c30 end=0x00093c7c symbol=FUN_00093c30 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: typed the copied argument as a four-float record; exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: typed the copied argument as a four-float record; readability pass; exact match verified; names and types await human review. */
+#include "hst/model_set.h"
 
 extern void FUN_000944c8();
 
-typedef struct { float x, y, z, w; } Float4;
-
-void FUN_00093c30(int param_1,Float4 *param_2)
+/* Copy the four-float value and hand it, with the main model, to the setter for the unk80 area. */
+void FUN_00093c30(ModelSet *self,Float4 *value)
 {
   Float4 local;
-  local = *param_2;
-  FUN_000944c8(param_1 + 0x80,&local,*(u32 *)(param_1 + 0x58));
+  local = *value;
+  FUN_000944c8(self->unk80,&local,self->model[MODEL_SLOT_MAIN]);
 }

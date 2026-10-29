@@ -1,91 +1,71 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a1898 end=0x002a1a4c symbol=FUN_002a1898 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: typed struct views and prototypes (the float-argument calls FUN_00057bc0/FUN_00057b58/FUN_00058ec4 and the float-returning clamp); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: typed struct views and prototypes (the float-argument calls FUN_00057bc0/FUN_00057b58/FUN_00058ec4 and the float-returning clamp); readability pass; exact match verified; names and types await human review. */
+#include "hst/anim_host.h"
 
-typedef struct Sub_002a1898 {
-  char pad[0x78];
-  float f78;
-} Sub_002a1898;
-
-typedef struct Inner_002a1898 {
-  char pad0[0x5c];
-  Sub_002a1898 *f5c;
-  char pad60[8];
-  int f68;
-  int f6c;
-  unsigned char f70;
-  char pad71[3];
-  int f74;
-} Inner_002a1898;
-
-typedef struct Arg_002a1898 {
-  int f0;
-  int f4;
-  int f8;
-} Arg_002a1898;
-
-typedef struct Obj_002a1898 {
-  char pad0[0x1c8];
-  Inner_002a1898 *f1c8;
-  char pad1[0x1e0 - 0x1cc];
-  int f1e0;
-  unsigned char f1e4;
-} Obj_002a1898;
+/* Setup request: entry id, animation state and mode. */
+typedef struct EntryArgs {
+  int id;      /* 0x00 */
+  int state;   /* 0x04 */
+  int mode;    /* 0x08 */
+} EntryArgs;
 
 extern float DAT_00300658;
 extern float DAT_0030066c;
 extern float DAT_00300670;
 extern float DAT_00300674;
 extern float DAT_00300678;
-extern void FUN_00057b58(Obj_002a1898 *, int, int, float);
-extern void FUN_00057bc0(Obj_002a1898 *, int, int, float, float, float);
-extern void FUN_00058ddc(Obj_002a1898 *, int, int);
-extern void FUN_00058ec4(Obj_002a1898 *, int, float);
-extern void FUN_00059084(Obj_002a1898 *, int);
-extern void FUN_00103480(Inner_002a1898 *);
+extern void FUN_00057b58(AnimHost *, int, int, float);
+extern void FUN_00057bc0(AnimHost *, int, int, float, float, float);
+extern void FUN_00058ddc(AnimHost *, int, int);
+extern void FUN_00058ec4(AnimHost *, int, float);
+extern void FUN_00059084(AnimHost *, int);
+extern void FUN_00103480(EntryData *);
 extern void FUN_00114fb8(int);
-extern float FUN_001cdd68(float *, float *, float *);
-extern Sub_002a1898 *FUN_001d1f80(Inner_002a1898 *, int);
-extern void FUN_001d2124(Sub_002a1898 *);
+extern float FUN_001cdd68(float *, float *, float *); /* clamp: value, low, high */
+extern EntryPart *FUN_001d1f80(EntryData *, int);
+extern void FUN_001d2124(EntryPart *);
 extern void FUN_001d61e4(int);
-extern void FUN_002a0b84(Inner_002a1898 *, int);
-extern void FUN_002a1398(Obj_002a1898 *, int, int);
-extern void FUN_002a165c(Obj_002a1898 *, int);
-extern void FUN_002a1a4c(int *, int);
+extern void FUN_002a0b84(EntryData *, int);
+extern void FUN_002a1398(AnimHost *, int, int);
+extern void FUN_002a165c(AnimHost *, int);
+extern void FUN_002a1a4c(EntryBlock *, int);
 
-void FUN_002a1898(Obj_002a1898 *param_1, Arg_002a1898 *param_2, unsigned char param_3)
+/* Loads an entry into the host: resets its data, clamps the two part values, then starts its animation state. */
+void FUN_002a1898(AnimHost *host, EntryArgs *args, unsigned char flag)
 {
-  Inner_002a1898 *in;
-  int iVar1;
-  float fVar5;
-  float local_4;
-  float local_8;
+  EntryData *entry;
+  int id;
+  int state;
+  float clamped;
+  float shifted0;
+  float shifted1;
 
-  iVar1 = param_2->f0;
-  in = param_1->f1c8;
-  FUN_002a0b84(in, 1);
-  FUN_002a1a4c(&in->f74, iVar1);
-  FUN_001d2124(in->f5c);
-  FUN_001d61e4(in->f68);
-  FUN_00114fb8(in->f6c);
-  in->f70 = param_3;
-  local_4 = DAT_00300658 + FUN_001d1f80(in, 0)->f78;
-  fVar5 = FUN_001cdd68(&local_4, &DAT_0030066c, &DAT_00300670);
-  FUN_001d1f80(in, 0)->f78 = fVar5;
-  local_8 = in->f5c->f78 + DAT_00300658;
-  fVar5 = FUN_001cdd68(&local_8, &DAT_00300674, &DAT_00300678);
-  in->f5c->f78 = fVar5;
-  FUN_00103480(in);
-  param_1->f1e4 = 1;
-  FUN_002a165c(param_1, param_2->f8);
-  iVar1 = param_2->f4;
-  param_1->f1e0 = iVar1;
-  if (iVar1 == 0xe) {
-    FUN_00057bc0(param_1, 1, -1, 0.0f, 0.0f, 0.0f);
-    FUN_00057b58(param_1, 1, iVar1, 0.0f);
+  id = args->id;
+  entry = host->entry;
+  FUN_002a0b84(entry, 1);
+  FUN_002a1a4c(&entry->block, id);
+  FUN_001d2124(entry->part);
+  FUN_001d61e4(entry->unk68);
+  FUN_00114fb8(entry->unk6c);
+  entry->unk70 = flag;
+  shifted0 = DAT_00300658 + FUN_001d1f80(entry, 0)->unk78;
+  clamped = FUN_001cdd68(&shifted0, &DAT_0030066c, &DAT_00300670);
+  FUN_001d1f80(entry, 0)->unk78 = clamped;
+  shifted1 = entry->part->unk78 + DAT_00300658;
+  clamped = FUN_001cdd68(&shifted1, &DAT_00300674, &DAT_00300678);
+  entry->part->unk78 = clamped;
+  FUN_00103480(entry);
+  host->flag_a = 1;
+  FUN_002a165c(host, args->mode);
+  state = args->state;
+  host->state = state;
+  if (state == HOST_STATE_SPECIAL) {
+    FUN_00057bc0(host, 1, -1, 0.0f, 0.0f, 0.0f);
+    FUN_00057b58(host, 1, state, 0.0f);
   } else {
-    FUN_002a1398(param_1, 1, iVar1);
+    FUN_002a1398(host, 1, state);
   }
-  FUN_00058ddc(param_1, 1, 1);
-  FUN_00058ec4(param_1, 1, 1.0f);
-  FUN_00059084(param_1, 1);
+  FUN_00058ddc(host, 1, 1);
+  FUN_00058ec4(host, 1, 1.0f);
+  FUN_00059084(host, 1);
 }

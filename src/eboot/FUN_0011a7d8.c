@@ -1,22 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011a7d8 end=0x0011a820 symbol=FUN_0011a7d8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/action_pair_obj.h"
 
-extern u32 DAT_00338b44;
+typedef struct GlobB {
+  char pad[0x8c];
+  int unk8c;      /* 0x8c */
+} GlobB;
 
-u32 FUN_0011a7d8(int param_1)
+extern GlobB *DAT_00338b44;
+
+/* True when any of the object's action codes is 5 (only checked while unk8c is zero). */
+u32 FUN_0011a7d8(ActionPairObj *self)
 {
-  int iVar1;
+  int i;
   
-  if (*(int *)(DAT_00338b44 + 0x8c) == 0) {
-    iVar1 = 0;
+  if (DAT_00338b44->unk8c == 0) {
+    i = 0;
     do {
-      if (*(int *)(param_1 + 0x314) == 5) {
+      if (self->action[i] == 5) {
         return 1;
       }
-      iVar1 = iVar1 + 1;
-      param_1 = param_1 + 4;
-    } while (iVar1 < 2);
+      i = i + 1;
+    } while (i < ACTION_SLOT_COUNT);
   }
   return 0;
 }

@@ -3,13 +3,14 @@
 
 struct Tag {};
 
+/* Tree node: two child links, a value, and a small vector of 6-byte items. */
 struct Node {
     Node *child[2];
-    int f08;
-    int f0c;
-    void *vec_data;
-    int vec_size;
-    int vec_cap;
+    int unk08;
+    int value;
+    void *items;
+    int item_count;
+    int item_cap;
 };
 
 extern "C" {
@@ -27,95 +28,96 @@ void FUN_000db1cc(void *ctx, Node *node);
 
 static inline void TagHelper(Tag = Tag()) {}
 
+/* Free every node below node (the first two levels of each child are unrolled), then the item vector and node. */
 extern "C" void FUN_000db1cc(void *ctx, Node *node)
 {
     TagHelper();
-    Node *s3 = node->child[0];
-    if (s3 != 0) {
-        Node *s2 = s3->child[0];
-        if (s2 != 0) {
-            Node *c0 = s2->child[0];
-            if (c0 != 0) {
-                FUN_000db1cc(ctx, c0);
+    Node *outer = node->child[0];
+    if (outer != 0) {
+        Node *inner = outer->child[0];
+        if (inner != 0) {
+            Node *left = inner->child[0];
+            if (left != 0) {
+                FUN_000db1cc(ctx, left);
             }
-            Node *c1 = s2->child[1];
-            if (c1 != 0) {
-                FUN_000db1cc(ctx, c1);
+            Node *right = inner->child[1];
+            if (right != 0) {
+                FUN_000db1cc(ctx, right);
             }
-            void *u0 = FUN_000db4e4(ctx);
-            FUN_000db4c0(u0, &s2->f0c);
-            void *u1 = FUN_000db4b8(ctx);
-            FUN_000db4b0(u1, s2, 1);
+            void *val_alloc = FUN_000db4e4(ctx);
+            FUN_000db4c0(val_alloc, &inner->value);
+            void *node_alloc = FUN_000db4b8(ctx);
+            FUN_000db4b0(node_alloc, inner, 1);
         }
-        s2 = s3->child[1];
-        if (s2 != 0) {
-            Node *c0 = s2->child[0];
-            if (c0 != 0) {
-                FUN_000db1cc(ctx, c0);
+        inner = outer->child[1];
+        if (inner != 0) {
+            Node *left = inner->child[0];
+            if (left != 0) {
+                FUN_000db1cc(ctx, left);
             }
-            Node *c1 = s2->child[1];
-            if (c1 != 0) {
-                FUN_000db1cc(ctx, c1);
+            Node *right = inner->child[1];
+            if (right != 0) {
+                FUN_000db1cc(ctx, right);
             }
-            void *u0 = FUN_000db4e4(ctx);
-            FUN_000db4c0(u0, &s2->f0c);
-            void *u1 = FUN_000db4b8(ctx);
-            FUN_000db4b0(u1, s2, 1);
-        }
-        FUN_000db4e4(ctx);
-        FUN_000d98ac(&s3->f0c, -1);
-        FUN_000db4b8(ctx);
-        FUN_00000a00(s3);
-    }
-    s3 = node->child[1];
-    if (s3 != 0) {
-        Node *s2 = s3->child[0];
-        if (s2 != 0) {
-            Node *c0 = s2->child[0];
-            if (c0 != 0) {
-                FUN_000db1cc(ctx, c0);
-            }
-            Node *c1 = s2->child[1];
-            if (c1 != 0) {
-                FUN_000db1cc(ctx, c1);
-            }
-            void *u0 = FUN_000db4e4(ctx);
-            FUN_000db4c0(u0, &s2->f0c);
-            void *u1 = FUN_000db4b8(ctx);
-            FUN_000db4b0(u1, s2, 1);
-        }
-        s2 = s3->child[1];
-        if (s2 != 0) {
-            Node *c0 = s2->child[0];
-            if (c0 != 0) {
-                FUN_000db1cc(ctx, c0);
-            }
-            Node *c1 = s2->child[1];
-            if (c1 != 0) {
-                FUN_000db1cc(ctx, c1);
-            }
-            void *u0 = FUN_000db4e4(ctx);
-            FUN_000db4c0(u0, &s2->f0c);
-            void *u1 = FUN_000db4b8(ctx);
-            FUN_000db4b0(u1, s2, 1);
+            void *val_alloc = FUN_000db4e4(ctx);
+            FUN_000db4c0(val_alloc, &inner->value);
+            void *node_alloc = FUN_000db4b8(ctx);
+            FUN_000db4b0(node_alloc, inner, 1);
         }
         FUN_000db4e4(ctx);
-        FUN_000d98ac(&s3->f0c, -1);
+        FUN_000d98ac(&outer->value, -1);
         FUN_000db4b8(ctx);
-        FUN_00000a00(s3);
+        FUN_00000a00(outer);
     }
-    if (&node->f0c != 0) {
-        if (&node->vec_data != 0 && &node->vec_data != 0 && &node->vec_data != 0) {
-            int sz = node->vec_size;
-            char *end = (char *)FUN_000db494(&node->vec_data);
-            node->vec_size = node->vec_size - sz;
-            for (; sz != 0; sz--) {
-                void *alloc = FUN_000db48c(&node->vec_data);
+    outer = node->child[1];
+    if (outer != 0) {
+        Node *inner = outer->child[0];
+        if (inner != 0) {
+            Node *left = inner->child[0];
+            if (left != 0) {
+                FUN_000db1cc(ctx, left);
+            }
+            Node *right = inner->child[1];
+            if (right != 0) {
+                FUN_000db1cc(ctx, right);
+            }
+            void *val_alloc = FUN_000db4e4(ctx);
+            FUN_000db4c0(val_alloc, &inner->value);
+            void *node_alloc = FUN_000db4b8(ctx);
+            FUN_000db4b0(node_alloc, inner, 1);
+        }
+        inner = outer->child[1];
+        if (inner != 0) {
+            Node *left = inner->child[0];
+            if (left != 0) {
+                FUN_000db1cc(ctx, left);
+            }
+            Node *right = inner->child[1];
+            if (right != 0) {
+                FUN_000db1cc(ctx, right);
+            }
+            void *val_alloc = FUN_000db4e4(ctx);
+            FUN_000db4c0(val_alloc, &inner->value);
+            void *node_alloc = FUN_000db4b8(ctx);
+            FUN_000db4b0(node_alloc, inner, 1);
+        }
+        FUN_000db4e4(ctx);
+        FUN_000d98ac(&outer->value, -1);
+        FUN_000db4b8(ctx);
+        FUN_00000a00(outer);
+    }
+    if (&node->value != 0) {
+        if (&node->items != 0 && &node->items != 0 && &node->items != 0) {
+            int count = node->item_count;
+            char *end = (char *)FUN_000db494(&node->items);
+            node->item_count = node->item_count - count;
+            for (; count != 0; count--) {
+                void *alloc = FUN_000db48c(&node->items);
                 end -= 6;
                 FUN_000db484(alloc, end);
             }
-            if (node->vec_data != 0) {
-                FUN_00000a00(node->vec_data);
+            if (node->items != 0) {
+                FUN_00000a00(node->items);
             }
         }
     }

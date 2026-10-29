@@ -1,14 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00118908 end=0x00118980 symbol=FUN_00118908 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
-void FUN_00118908(int param_1)
+/* Zeroes the four-int array at +0xf4 and the table of 4 banks x 2 rows x 11 ints at +0x104. */
+void FUN_00118908(int self)
 {
   int outer = 0;
   int middle = 0;
   int inner = 0;
-  char *parent = (char *)param_1;
+  char *parent = (char *)self;
   do {
-    *(int *)(param_1 + 0xf4) = 0;
+    *(int *)(self + 0xf4) = 0;
     middle = 0;
     {
       char *row = parent;
@@ -32,7 +33,7 @@ void FUN_00118908(int param_1)
       } while (middle < 2);
     }
     outer++;
-    param_1 += 4;
+    self += 4;
     parent += 0x58;
   } while (outer < 4);
 }

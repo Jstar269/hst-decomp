@@ -4,16 +4,17 @@
    `x == 0` gives beqz on the loaded byte instead). The 0xe04f / 0xc208 offsets come out of
    DAT_003415a8 + 0x10000 with negative displacements, and both loads are unsigned (`lbu`).
    Exact match verified; names and types await human review. */
-extern char *DAT_003415a8;
+extern char *DAT_003415a8;  /* address of the global system block */
 
+/* Returns 1 when the byte at 0xe04f is zero and bit 1 of the byte at 0xc208 is clear. */
 int FUN_0022cc04(void)
 {
-    int uVar1;
+    int allowed;
 
-    uVar1 = 0;
+    allowed = 0;
     if ((((int)*(unsigned char *)(DAT_003415a8 + 0xe04f) != 0) ^ 1) &&
         ((((int)*(unsigned char *)(DAT_003415a8 + 0xc208) & 2) != 0) ^ 1)) {
-        uVar1 = 1;
+        allowed = 1;
     }
-    return uVar1;
+    return allowed;
 }

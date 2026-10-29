@@ -1,29 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00295ccc end=0x00295cdc symbol=FUN_00295ccc lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef float undefined4;
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/value_range.h"
 
-
-void FUN_00295ccc(undefined4 param_1,undefined4 param_2,int param_3)
+/* Set the limits of the owner's clamped value. */
+void FUN_00295ccc(float lo,float hi,RangeOwner *owner)
 {
-  int iVar1;
+  ValueRange *range;
   
-  iVar1 = *(int *)(param_3 + 100);
-  *(undefined4 *)(iVar1 + 0x1c) = param_1;
-  *(undefined4 *)(iVar1 + 0x20) = param_2;
+  range = owner->range;
+  range->lo = lo;
+  range->hi = hi;
   return;
 }

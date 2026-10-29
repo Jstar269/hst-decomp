@@ -1,14 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00279b50 end=0x00279b7c symbol=FUN_00279b50 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/mode_menu.h"
 
-void FUN_00279b50(char *param_1)
+/* Counts the countdown down; sets timedOut when it reaches zero. */
+void FUN_00279b50(ModeMenu *self)
 {
-  int iVar1;
+  int remaining;
   
-  if ((0 < *(int *)(param_1 + 0x45c)) &&
-     (iVar1 = *(int *)(param_1 + 0x45c) + -1, *(int *)(param_1 + 0x45c) = iVar1, iVar1 < 1)) {
-    *(u32 *)(param_1 + 0x45c) = 0;
-    *(u8 *)(param_1 + 0x454) = 1;
+  if ((0 < self->countdown) &&
+     (remaining = self->countdown + -1, self->countdown = remaining, remaining < 1)) {
+    self->countdown = 0;
+    self->timedOut = 1;
   }
 }

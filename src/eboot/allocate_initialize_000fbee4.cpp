@@ -6,29 +6,35 @@ extern "C" void FUN_000fc00c(void *,void *);
 extern "C" void FUN_000fbf84(void *,void *);
 extern "C" char DAT_0030779c;
 extern "C" char DAT_002bc410;
-struct Object_fbee4 {
-  char pad0[0x30];
-  int at30;
-  char pad34[0x4c];
-  int at80;
-  char pad84[0x3c];
-  unsigned value;
+
+struct NewObject {
+  void *vtbl;             /* 0x00 */
+  char pad4[0x2c];
+  char sub30[0x40];       /* 0x30 sub-object */
+  int unk70;              /* 0x70 */
+  int unk74;              /* 0x74 -1 when unset */
+  float unk78;            /* 0x78 */
+  float unk7c;            /* 0x7c */
+  char sub80[0x40];       /* 0x80 sub-object */
+  unsigned value;         /* 0xc0 */
   char padc4[0xc];
-  Object_fbee4(unsigned v) {
+  NewObject(unsigned v) {
     FUN_000fc0a0(this);
-    FUN_00056098(&at30);
-    *(void **)this = &DAT_0030779c;
-    ((unsigned *)this)[0x1c] = 0;
-    ((unsigned *)this)[0x1d] = 0xffffffff;
-    ((unsigned *)this)[0x1e] = 0x3f800000;
-    ((unsigned *)this)[0x1f] = 0x3f800000;
-    FUN_00056098(&at80);
+    FUN_00056098(sub30);
+    vtbl = &DAT_0030779c;
+    unk70 = 0;
+    unk74 = 0xffffffff;
+    unk78 = 1.0f;
+    unk7c = 1.0f;
+    FUN_00056098(sub80);
     value = v;
     FUN_000fc00c(this,&DAT_002bc410);
-    FUN_000fbf84((char *)this + 0x80,&DAT_002bc410);
+    FUN_000fbf84(sub80,&DAT_002bc410);
   }
 };
-extern "C" Object_fbee4 *FUN_000fbee4(unsigned, unsigned value, unsigned char *out) {
+
+/* Allocate and construct the object with `value`; clears *out. */
+extern "C" NewObject *FUN_000fbee4(unsigned, unsigned value, unsigned char *out) {
   *out = 0;
-  return new Object_fbee4(value);
+  return new NewObject(value);
 }

@@ -2,7 +2,7 @@
 /* Hand-written reconstruction from the disassembly (near miss wip/script_stack_pop_push_0014e698.cpp, completed with its same-file static helper FUN_0014c610 defined in front of it and placed at its own retail address by helpers=); exact match verified; names and types await human review. */
 struct Node { Node *prev; Node *next; int value; };
 struct List { int size_; Node *head_; };
-struct Obj { char pad[0x18]; List list; };
+struct ScriptObj { char pad[0x18]; List list; };  /* list of states at 0x18 */
 struct EraseIt {
   Node *node;
   EraseIt(Node *n) : node(n) {}
@@ -26,10 +26,11 @@ InsertIt FUN_0014f43c(List *l, const InsertIt &pos, const int &x);
 }
 
 
-extern "C" int FUN_0014e698(int unused, Obj *obj)
+/* Pops the head state from the list and pushes its successor (0 after state 1, otherwise 2), tracing both when enabled. */
+extern "C" int FUN_0014e698(int unused, ScriptObj *obj)
 {
   Node *first = obj->list.head_;
-  int state = first->value;
+  int state = first->value;  /* state being left */
   FUN_0014f3cc(&obj->list, EraseIt(first));
   if (DAT_003402f0 != 0) {
     if (DAT_003402f0 != 0) {

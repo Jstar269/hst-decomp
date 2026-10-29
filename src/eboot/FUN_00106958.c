@@ -1,23 +1,37 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00106958 end=0x00106a34 symbol=FUN_00106958 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/ui_node.h"
+
+typedef struct ChoiceHost {
+  NodeHost base;   /* 0x00 */
+  char pad18[0xb8];
+  int selected;    /* 0xd0 index of the chosen node (used in single mode) */
+  int mode;        /* 0xd4 how many nodes take part */
+  char group[4];   /* 0xd8 collection the nodes are added to */
+} ChoiceHost;
+
+enum {
+  MODE_SINGLE = 2, /* only the selected node */
+  MODE_PAIR = 3    /* nodes 1 and 2 */
+};                 /* any other mode: nodes 1 to 4 */
 
 extern void FUN_0027fc70();
 
-void FUN_00106958(int param_1)
+/* Add the nodes for the current mode to the group; the flag is set on the last one added. */
+void FUN_00106958(ChoiceHost *host)
 {
-  if (*(int *)(param_1 + 0xd4) == 2) {
-    FUN_0027fc70(param_1 + 0xd8,
-                 *(u32 *)(*(int *)(param_1 + 0x10) + *(int *)(param_1 + 0xd0) * 4),1);
+  if (host->mode == MODE_SINGLE) {
+    FUN_0027fc70(host->group,host->base.nodes[host->selected],1);
   }
-  else if (*(int *)(param_1 + 0xd4) == 3) {
-    FUN_0027fc70(param_1 + 0xd8,*(u32 *)(*(int *)(param_1 + 0x10) + 4),0);
-    FUN_0027fc70(param_1 + 0xd8,*(u32 *)(*(int *)(param_1 + 0x10) + 8),1);
+  else if (host->mode == MODE_PAIR) {
+    FUN_0027fc70(host->group,host->base.nodes[1],0);
+    FUN_0027fc70(host->group,host->base.nodes[2],1);
   }
   else {
-    FUN_0027fc70(param_1 + 0xd8,*(u32 *)(*(int *)(param_1 + 0x10) + 4),0);
-    FUN_0027fc70(param_1 + 0xd8,*(u32 *)(*(int *)(param_1 + 0x10) + 8),0);
-    FUN_0027fc70(param_1 + 0xd8,*(u32 *)(*(int *)(param_1 + 0x10) + 0xc),0);
-    FUN_0027fc70(param_1 + 0xd8,*(u32 *)(*(int *)(param_1 + 0x10) + 0x10),1);
+    FUN_0027fc70(host->group,host->base.nodes[1],0);
+    FUN_0027fc70(host->group,host->base.nodes[2],0);
+    FUN_0027fc70(host->group,host->base.nodes[3],0);
+    FUN_0027fc70(host->group,host->base.nodes[4],1);
   }
 }

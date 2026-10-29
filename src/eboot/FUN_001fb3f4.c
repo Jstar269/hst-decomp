@@ -1,7 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fb3f4 end=0x001fb404 symbol=FUN_001fb3f4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/slot_panel.h"
 
-void FUN_001fb3f4(int param_1)
+/* Increments the panel counter. */
+void FUN_001fb3f4(SlotPanel *panel)
 {
-  *(int *)(param_1 + 0x1034) = *(int *)(param_1 + 0x1034) + 1;
+  panel->unk1034 = panel->unk1034 + 1;
 }

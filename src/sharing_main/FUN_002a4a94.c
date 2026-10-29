@@ -7,15 +7,16 @@ extern void FUN_00000a00();
 extern u32 * FUN_00297f98();
 extern void FUN_002a4af8();
 
-u32 * FUN_002a4a94(u32 *param_1,short param_2)
+/* Destructor: resets the vtable word, runs the member and base destructors, frees the object when flags > 0. */
+u32 * FUN_002a4a94(u32 *self,short flags)
 {
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b30d4);
+  if (self != (u32 *)0x0) {
+    *self = (unsigned int)(&DAT_003b30d4);
     FUN_002a4af8();
-    FUN_00297f98(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_00297f98(self,0);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

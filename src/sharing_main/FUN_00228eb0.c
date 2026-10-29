@@ -1,11 +1,12 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00228eb0 end=0x00228ee0 symbol=FUN_00228eb0 lang=c99 */
 /* Clone of src/eboot/FUN_00219968.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/vec.h"
 
-extern u32 * FUN_0002245c();
+extern void FUN_0002245c();
 
-u32 FUN_00228eb0(u32 param_1,u32 param_2)
+/* dst += src (4-float vectors). */
+Float4 * FUN_00228eb0(Float4 *dst,const Float4 *src)
 {
-  FUN_0002245c(param_1,param_1,param_2);
-  return param_1;
+  FUN_0002245c(dst,dst,src);
+  return dst;
 }

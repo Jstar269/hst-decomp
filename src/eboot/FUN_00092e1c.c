@@ -1,10 +1,12 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00092e1c end=0x00092e38 symbol=FUN_00092e1c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/char_model.h"
 
-void FUN_00092e1c(int param_1)
+/* Sets the flag on model item 2, if present, to 1. */
+void FUN_00092e1c(CharModel *self)
 {
-  if (*(int *)(param_1 + 0x58) != 0) {
-    *(u8 *)(*(int *)(param_1 + 0x58) + 0x170) = 1;
+  if (self->item[2] != 0) {
+    self->item[2]->unk170 = 1;
   }
 }

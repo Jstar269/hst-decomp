@@ -14,9 +14,13 @@ extern char DAT_002bc450[];
 }
 struct Alloc_000c4450 { void **allocate(unsigned n) { return (void **)FUN_00000bcc(n << 2); } };
 struct Vec_000c4450 { void **data; int size; unsigned capacity; };
+
+/* Allocates storage for n pointers into v (throws when n is too large, aborts when the allocation fails). */
+#define MAX_ELEMENTS 0x3fffffff /* larger counts overflow the byte size */
+
 extern "C" void FUN_000c4450(Vec_000c4450 *v, unsigned n)
 {
-    if (n > 0x3fffffff)
+    if (n > MAX_ELEMENTS)
         FUN_000043b4();
     void **p = Alloc_000c4450().allocate(n);
     if (p == 0) {

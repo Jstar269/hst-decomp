@@ -1,5 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001f41e8 end=0x001f44ec symbol=FUN_001f41e8 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: the else-call of FUN_000657e4 passes a literal 1 that Ghidra drops (retail shares the compare constant in a2), Vec4 and the temp matrix copied field by field while the stored matrix is a struct assignment (row batches), the loop body indexes self->obj[i] / self->mat[i] (self-based induction pointers); names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: the else-call of FUN_000657e4 passes a literal 1 that Ghidra drops (retail shares the compare constant in a2), Vec4 and the temp matrix copied field by field while the stored matrix is a struct assignment (row batches), the loop body indexes group->slot[i] / group->mat[i] (group-based induction pointers); names and types await human review. */
+#include "hst/slot_group.h"
 struct Vec4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
@@ -10,26 +11,26 @@ struct Node {
     char pad[0x50];
     Vec4 v;
 };
-struct Obj {
+struct Slot {
     virtual void m0();
     virtual void m1();
     char pad[0x58 - 4];
-    Node *f58;
+    Node *node;
 };
-struct Tgt {
+struct Target {
     char pad[0x90];
-    void *f90;
+    void *table;
 };
-struct Self {
+struct Group {
     char pad[0x3a0];
-    Obj *obj[4];
-    int prm[4];
+    Slot *slot[SLOT_GROUP_COUNT];
+    int param[SLOT_GROUP_COUNT];
     char pad1[0x3cc - 0x3c0];
-    int sel;
+    int selected;
     char pad2[0x410 - 0x3d0];
-    Mat4 mat[4];
+    Mat4 mat[SLOT_GROUP_COUNT];
     char pad3[0x584 - 0x510];
-    Tgt *tgt;
+    Target *target;
 };
 extern Vec4 DAT_002bc430;
 extern Vec4 DAT_002bc440;
@@ -39,60 +40,61 @@ extern char DAT_002ee8d0[];
 extern "C" {
 float FUN_000657e4(void *, char *, ...);
 void FUN_0004d2d4(float, Mat4 *, Mat4 *);
-Mat4 *FUN_00093818(Obj *);
-void FUN_00093434(Obj *, Mat4 *);
-void FUN_001f37e4(Self *, Obj *, int, int, int, int);
+Mat4 *FUN_00093818(Slot *);
+void FUN_00093434(Slot *, Mat4 *);
+void FUN_001f37e4(Group *, Slot *, int, int, int, int);
 void FUN_0005548c(Mat4 *, Node *, char *);
-void FUN_001ed87c(Tgt *, Vec4 *, Vec4 *);
+void FUN_001ed87c(Target *, Vec4 *, Vec4 *);
 }
 
-extern "C" void FUN_001f41e8(Self *self)
+/* Rotate each slot's matrix by the table angle, store it, and report the selected slot's pelvis and node positions to the target. */
+extern "C" void FUN_001f41e8(Group *group)
 {
-    Vec4 q;
-    q.x = DAT_002bc440.x;
-    q.y = DAT_002bc440.y;
-    q.z = DAT_002bc440.z;
-    q.w = DAT_002bc440.w;
-    Vec4 p;
-    p.x = DAT_002bc430.x;
-    p.y = DAT_002bc430.y;
-    p.z = DAT_002bc430.z;
-    p.w = DAT_002bc430.w;
-    float ang;
+    Vec4 pelvis_pos;
+    pelvis_pos.x = DAT_002bc440.x;
+    pelvis_pos.y = DAT_002bc440.y;
+    pelvis_pos.z = DAT_002bc440.z;
+    pelvis_pos.w = DAT_002bc440.w;
+    Vec4 node_pos;
+    node_pos.x = DAT_002bc430.x;
+    node_pos.y = DAT_002bc430.y;
+    node_pos.z = DAT_002bc430.z;
+    node_pos.w = DAT_002bc430.w;
+    float angle;
     if (DAT_003417b8 == 1) {
-        ang = FUN_000657e4(self->tgt->f90, DAT_002ee4c8, 2);
+        angle = FUN_000657e4(group->target->table, DAT_002ee4c8, 2);
     } else {
-        ang = FUN_000657e4(self->tgt->f90, DAT_002ee4c8, 1);
+        angle = FUN_000657e4(group->target->table, DAT_002ee4c8, 1);
     }
     int i = 0;
     do {
-        Node *n = self->obj[i] ? self->obj[i]->f58 : 0;
-        if (n != 0) {
-            Mat4 *src = FUN_00093818(self->obj[i]);
-            Mat4 t;
-            t.r0.x = src->r0.x; t.r0.y = src->r0.y; t.r0.z = src->r0.z; t.r0.w = src->r0.w;
-            t.r1.x = src->r1.x; t.r1.y = src->r1.y; t.r1.z = src->r1.z; t.r1.w = src->r1.w;
-            t.r2.x = src->r2.x; t.r2.y = src->r2.y; t.r2.z = src->r2.z; t.r2.w = src->r2.w;
-            t.r3.x = src->r3.x; t.r3.y = src->r3.y; t.r3.z = src->r3.z; t.r3.w = src->r3.w;
-            FUN_0004d2d4(-ang * 0.017453292f, &t, &t);
-            FUN_00093434(self->obj[i], &t);
-            self->obj[i]->m1();
-            self->mat[i] = *FUN_00093818(self->obj[i]);
-            FUN_001f37e4(self, self->obj[i], self->prm[i], i, 5, 0);
-            if (self->sel == i) {
-                Mat4 pel;
-                FUN_0005548c(&pel, n, DAT_002ee8d0);
-                q.x = pel.r3.x;
-                q.y = pel.r3.y;
-                q.z = pel.r3.z;
-                q.w = pel.r3.w;
-                p.x = n->v.x;
-                p.y = n->v.y;
-                p.z = n->v.z;
-                p.w = n->v.w;
+        Node *node = group->slot[i] ? group->slot[i]->node : 0;
+        if (node != 0) {
+            Mat4 *cur_mat = FUN_00093818(group->slot[i]);
+            Mat4 rot_mat;
+            rot_mat.r0.x = cur_mat->r0.x; rot_mat.r0.y = cur_mat->r0.y; rot_mat.r0.z = cur_mat->r0.z; rot_mat.r0.w = cur_mat->r0.w;
+            rot_mat.r1.x = cur_mat->r1.x; rot_mat.r1.y = cur_mat->r1.y; rot_mat.r1.z = cur_mat->r1.z; rot_mat.r1.w = cur_mat->r1.w;
+            rot_mat.r2.x = cur_mat->r2.x; rot_mat.r2.y = cur_mat->r2.y; rot_mat.r2.z = cur_mat->r2.z; rot_mat.r2.w = cur_mat->r2.w;
+            rot_mat.r3.x = cur_mat->r3.x; rot_mat.r3.y = cur_mat->r3.y; rot_mat.r3.z = cur_mat->r3.z; rot_mat.r3.w = cur_mat->r3.w;
+            FUN_0004d2d4(-angle * 0.017453292f /* degrees to radians */, &rot_mat, &rot_mat);
+            FUN_00093434(group->slot[i], &rot_mat);
+            group->slot[i]->m1();
+            group->mat[i] = *FUN_00093818(group->slot[i]);
+            FUN_001f37e4(group, group->slot[i], group->param[i], i, 5, 0);
+            if (group->selected == i) {
+                Mat4 pelvis_mat;
+                FUN_0005548c(&pelvis_mat, node, DAT_002ee8d0);
+                pelvis_pos.x = pelvis_mat.r3.x;
+                pelvis_pos.y = pelvis_mat.r3.y;
+                pelvis_pos.z = pelvis_mat.r3.z;
+                pelvis_pos.w = pelvis_mat.r3.w;
+                node_pos.x = node->v.x;
+                node_pos.y = node->v.y;
+                node_pos.z = node->v.z;
+                node_pos.w = node->v.w;
             }
         }
         i++;
-    } while (i < 4);
-    FUN_001ed87c(self->tgt, &q, &p);
+    } while (i < SLOT_GROUP_COUNT);
+    FUN_001ed87c(group->target, &pelvis_pos, &node_pos);
 }

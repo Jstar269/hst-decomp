@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001133a8 end=0x0011343c symbol=FUN_001133a8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern u8 DAT_0030779c;
@@ -8,22 +8,23 @@ extern u8 DAT_00307d50;
 extern void FUN_00000a00();
 extern u32 * FUN_00100b24();
 
-int * FUN_001133a8(int *param_1,int param_2)
+/* Destructor body for the object with a base at +0x10: restores the vtables and, when asked, destroys the base; frees when `flags` > 0. */
+int * FUN_001133a8(int *self,int flags)
 {
-  int *piVar1;
+  int *base;
   
-  if (param_1 != (int *)0x0) {
-    param_1[1] = (int)&DAT_00307d40;
-    *(u8 **)*param_1 = &DAT_00307d50;
-    piVar1 = param_1 + 4;
-    *(int *)(*param_1 + 0xd0) = (int)piVar1 - *param_1;
-    if ((param_2 != 0) && (piVar1 != (int *)0x0)) {
-      param_1[4] = (int)&DAT_0030779c;
-      FUN_00100b24(piVar1,0);
+  if (self != (int *)0x0) {
+    self[1] = (int)&DAT_00307d40;
+    *(u8 **)*self = &DAT_00307d50;
+    base = self + 4;
+    *(int *)(*self + 0xd0) = (int)base - *self;
+    if ((flags != 0) && (base != (int *)0x0)) {
+      self[4] = (int)&DAT_0030779c;
+      FUN_00100b24(base,0);
     }
-    if (0 < (short)param_2) {
-      FUN_00000a00(param_1);
+    if (0 < (short)flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

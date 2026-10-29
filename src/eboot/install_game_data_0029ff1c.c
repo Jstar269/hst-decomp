@@ -2,6 +2,14 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idiom: pass the saved status as the variadic error argument. */
 #include "hst/types.h"
 
+/* Install job as seen by the worker thread (the thread argument points at a pointer to it). */
+typedef struct InstallJobView {
+  char pad00[8];
+  u32 unk8;         /* 0x08 */
+  char pad0c[0x20 - 0xc];
+  int result;       /* 0x20: negative on failure, -1 once a failure was reported */
+} InstallJobView;
+
 extern char DAT_002cbdc0[];
 extern char DAT_002cbe10[];
 extern char DAT_002cbe1c[];
@@ -19,49 +27,50 @@ extern int FUN_002973a4();
 extern void FUN_0029e3cc(const char *, ...);
 extern int FUN_002b79b0();
 
-u32 FUN_0029ff1c(u32 param_1,int *param_2)
+/* Worker thread body: runs the install steps, logs the outcome and exits. */
+u32 FUN_0029ff1c(u32 arg_size,InstallJobView **argp)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
+  int ret;
+  int status;
+  InstallJobView *job;
   
-  iVar3 = *param_2;
-  iVar1 = FUN_000fe448(DAT_002cbf6c,DAT_002cbf60,
-                       *(u32 *)(iVar3 + 8),0x218000);
-  if (iVar1 < 0) {
-    FUN_0029e3cc(DAT_002cbf18,*(u32 *)(iVar3 + 0x20));
-    *(u32 *)(iVar3 + 0x20) = 0xffffffff;
+  job = *argp;
+  ret = FUN_000fe448(DAT_002cbf6c,DAT_002cbf60,
+                       job->unk8,0x218000);
+  if (ret < 0) {
+    FUN_0029e3cc(DAT_002cbf18,job->result);
+    job->result = -1;
   }
   else {
-    iVar2 = FUN_00296d60();
-    *(int *)(iVar3 + 0x20) = iVar2;
-    if (iVar2 < 0) {
-      FUN_0029e3cc(DAT_002cbec8,iVar2);
-      goto LAB_0029fff8;
+    status = FUN_00296d60();
+    job->result = status;
+    if (status < 0) {
+      FUN_0029e3cc(DAT_002cbec8,status);
+      goto report_result;
     }
-    iVar1 = FUN_002973a4(DAT_002cbebc,*(u32 *)(iVar3 + 8),iVar1);
-    *(int *)(iVar3 + 0x20) = iVar1;
-    if (iVar1 < 0) {
-      FUN_0029e3cc(DAT_002cbe74,iVar1);
+    ret = FUN_002973a4(DAT_002cbebc,job->unk8,ret);
+    job->result = ret;
+    if (ret < 0) {
+      FUN_0029e3cc(DAT_002cbe74,ret);
     }
     else {
-      iVar1 = FUN_00296ff8();
-      *(int *)(iVar3 + 0x20) = iVar1;
-      if (iVar1 < 0) {
-        FUN_0029e3cc(DAT_002cbe28,iVar1);
+      ret = FUN_00296ff8();
+      job->result = ret;
+      if (ret < 0) {
+        FUN_0029e3cc(DAT_002cbe28,ret);
       }
     }
   }
-LAB_0029fff8:
-  iVar1 = *(int *)(iVar3 + 0x20);
-  if (iVar1 >= 0) {
+report_result:
+  ret = job->result;
+  if (ret >= 0) {
     FUN_0029e3cc(DAT_002cbe1c);
   } else {
-    FUN_0029e3cc(DAT_002cbe10,iVar1);
+    FUN_0029e3cc(DAT_002cbe10,ret);
   }
-  iVar1 = FUN_002b79b0(0);
-  if (iVar1 < 0) {
-    FUN_0029e3cc(DAT_002cbdc0,iVar1);
+  ret = FUN_002b79b0(0);
+  if (ret < 0) {
+    FUN_0029e3cc(DAT_002cbdc0,ret);
   }
   return 0;
 }

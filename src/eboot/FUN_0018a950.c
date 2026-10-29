@@ -1,15 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0018a950 end=0x0018a960 symbol=FUN_0018a950 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag p64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag p64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/phase_screen.h"
 
 extern void FUN_0010d4a8();
 
-void FUN_0018a950(int param_1,u32 param_2)
+/* Show `buffer` in the first text box and refresh it. */
+void FUN_0018a950(PhaseScreen *self,void *buffer)
 {
-  int iVar1;
+  TextBox *box;
   
-  iVar1 = *(int *)(param_1 + 0x78);
-  *(u32 *)(iVar1 + 0xf8) = param_2;
-  *(u32 *)(iVar1 + 0x138) = 0;
-  FUN_0010d4a8(iVar1);
+  box = self->boxes[0];
+  box->buffer = buffer;
+  box->unk138 = 0;
+  FUN_0010d4a8(box);
 }

@@ -2,26 +2,26 @@
 /* Clone of src/eboot/FUN_001cddb0.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern "C" {
-}
-struct VC_0 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual int m(); };
-struct VC_1 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual int m(); };
-struct VC_2 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual int m(); };
+/* Three identical views of the same object: each Kind() call reloads the vtable. */
+struct ObjView0 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual int Kind(); };
+struct ObjView1 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual int Kind(); };
+struct ObjView2 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual int Kind(); };
 
-extern "C" bool FUN_001dc48c(u32 param_1,int *param_2)
+/* True when the object's kind is 3, 5 or 4. */
+extern "C" bool FUN_001dc48c(u32 viewer,ObjView0 *obj)
 {
-  bool bVar1;
-  int iVar2;
+  bool match;
+  int kind;
   
-  iVar2 = ((VC_0 *)(param_2))->m();
-  bVar1 = iVar2 == 3;
-  if (!bVar1) {
-    iVar2 = ((VC_1 *)(param_2))->m();
-    bVar1 = iVar2 == 5;
+  kind = obj->Kind();
+  match = kind == 3;
+  if (!match) {
+    kind = ((ObjView1 *)(obj))->Kind();
+    match = kind == 5;
   }
-  if (!bVar1) {
-    iVar2 = ((VC_2 *)(param_2))->m();
-    bVar1 = iVar2 == 4;
+  if (!match) {
+    kind = ((ObjView2 *)(obj))->Kind();
+    match = kind == 4;
   }
-  return bVar1;
+  return match;
 }

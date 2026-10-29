@@ -10,27 +10,29 @@ extern char DAT_002c6f64[];
 extern char DAT_002c6f70[];
 extern char DAT_002c6f78[];
 }
+#define COLUMN_COUNT 2
+
 struct Rect {
     char pad0[4];
-    short s4;
-    short s6;
-    short s8;
-    short sa;
+    short left;   /* 0x04 */
+    short top;    /* 0x06 */
+    short right;  /* 0x08 */
+    short bottom; /* 0x0a */
     char pad1[0x20 - 0xc];
-    int f20;
+    int unk20;    /* 0x20 */
 };
 struct Node {
     void *vptr;
     char pad[0x50];
-    unsigned char f54;
-    unsigned char f55;
-    int f58;
-    int f5c;
+    unsigned char unk54;
+    unsigned char unk55;
+    int rectRef;       /* 0x58 value of the unk20 field of a rect looked up in part68 */
+    int columnCount;   /* 0x5c */
     char pad60[4];
-    void *f64;
-    void *f68;
+    void *part64;      /* 0x64 */
+    void *part68;      /* 0x68 group the column rects are looked up in */
     char pad6c[0x84 - 0x6c]; /* two {Rect *item; short cx, cy; float scale} columns, see the loop */
-    int f84;
+    int unk84;
 };
 struct VC {
     virtual void d0();
@@ -53,38 +55,38 @@ void FUN_001d1f04(Node *);
 }
 extern "C" Node *FUN_001d68b4(Node *self)
 {
-    char buf[64];
+    char name[64];
     FUN_00102e38(self);
     self->vptr = &DAT_00309380;
-    self->f54 = 0;
-    self->f55 = 0;
-    self->f58 = 0;
+    self->unk54 = 0;
+    self->unk55 = 0;
+    self->rectRef = 0;
     self->vptr = &DAT_003093b4;
-    self->f84 = 0;
+    self->unk84 = 0;
     FUN_00104118(self, DAT_002c6f78, 0);
-    self->f64 = FUN_001039d8(self, DAT_002c6f70, 0);
-    self->f68 = FUN_001039d8(self, DAT_002c6f64, 0);
-    self->f58 = FUN_001026b8(self->f68, DAT_002c6f5c)->f20;
+    self->part64 = FUN_001039d8(self, DAT_002c6f70, 0);
+    self->part68 = FUN_001039d8(self, DAT_002c6f64, 0);
+    self->rectRef = FUN_001026b8(self->part68, DAT_002c6f5c)->unk20;
     int base = (int)self; /* column offsets are separate byte IVs (+0x6c items, +0x74 cx, +0x78 cy, +0x7c scale) */
     unsigned i = 0;
     int off4 = 0;
     int off2 = 0;
     do {
-        FUN_000143b0(buf, DAT_002c6f50, i);
-        Rect *r = FUN_001026b8(self->f68, buf);
-        *(Rect **)(base + off4 + 0x6c) = r;
-        *(short *)(base + off2 + 0x74) = (r->s4 + r->s8) / 2;
-        r = *(Rect **)(base + off4 + 0x6c);
-        *(short *)(base + off2 + 0x78) = (r->s6 + r->sa) / 2;
+        FUN_000143b0(name, DAT_002c6f50, i);
+        Rect *rect = FUN_001026b8(self->part68, name);
+        *(Rect **)(base + off4 + 0x6c) = rect;
+        *(short *)(base + off2 + 0x74) = (rect->left + rect->right) / 2;
+        rect = *(Rect **)(base + off4 + 0x6c);
+        *(short *)(base + off2 + 0x78) = (rect->top + rect->bottom) / 2;
         *(float *)(base + off4 + 0x7c) = 1.0f;
         i++;
         off4 += 4;
         off2 += 2;
-    } while (i < 2);
-    self->f55 = 0;
-    self->f5c = 2;
-    FUN_001d2124((Rect *)self->f58);
-    self->f55 = 0;
+    } while (i < COLUMN_COUNT);
+    self->unk55 = 0;
+    self->columnCount = COLUMN_COUNT;
+    FUN_001d2124((Rect *)self->rectRef);
+    self->unk55 = 0;
     FUN_001d1f04(self);
     ((VC *)self)->m();
     return self;

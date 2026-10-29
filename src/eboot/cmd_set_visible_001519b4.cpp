@@ -9,10 +9,12 @@ struct Obj_001519b4 { char pad0[0x54]; unsigned char visible; };
 struct PBase_001519b4 { char pad0[0xe0]; };
 struct Player_001519b4 : PBase_001519b4, Obj_001519b4 {};
 struct Mgr_001519b4 { char pad0[0x4c]; Obj_001519b4 **objs; };
-struct Ctx_001519b4 { int a; int b; int c; Obj_001519b4 *obj; };
-struct Cmd_001519b4 { void *vt; int a; int id; unsigned char visible; };
+struct Ctx_001519b4 { int unk0; int unk4; int unk8; Obj_001519b4 *obj; };
+struct Cmd_001519b4 { void *vt; int unk4; int id; unsigned char visible; };
+/* Object ids: -1 is the global player, other negatives mean the context object. */
+enum { OBJ_ID_PLAYER = -1, OBJ_ID_TABLE_LIMIT = 100, OBJ_ID_LOOKUP_LIMIT = 1000 };
 extern "C" {
-extern unsigned char DAT_003402f0;
+extern unsigned char DAT_003402f0; /* script trace flag */
 extern char DAT_002dc57c[];
 extern char DAT_002dc580[];
 extern Mgr_001519b4 *DAT_0034a114;
@@ -25,13 +27,13 @@ Obj_001519b4 *FUN_001c70c0(Mgr_001519b4 *m, int id);
 inline Obj_001519b4 *Find_001519b4(int id, Ctx_001519b4 *ctx)
 {
     Obj_001519b4 *obj = ctx->obj;
-    if (id == -1)
+    if (id == OBJ_ID_PLAYER)
         return DAT_0034a118;
     if (id < 0)
         return obj;
-    if (id < 100)
+    if (id < OBJ_ID_TABLE_LIMIT)
         return DAT_0034a114->objs[id];
-    if (id < 1000)
+    if (id < OBJ_ID_LOOKUP_LIMIT)
         return FUN_001c6f70(DAT_0034a114, id, 0);
     return FUN_001c70c0(DAT_0034a114, id);
 }

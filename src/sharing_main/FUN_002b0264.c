@@ -2,15 +2,24 @@
 /* Clone of src/eboot/FUN_002a0e58.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+typedef struct LimitedObj {
+  u32 vtable;       /* 0x0 */
+  u8 unk4;          /* 0x4 */
+  char pad5[0x104 - 0x5];
+  u32 unk104;       /* 0x104 */
+  u32 limit;        /* 0x108 */
+  u8 unk10c;        /* 0x10c */
+} LimitedObj;
+
 extern u8 DAT_002dc598;
 
-u32 * FUN_002b0264(u32 *param_1)
+LimitedObj * FUN_002b0264(LimitedObj *self)
 {
-  *param_1 = (unsigned int)(&DAT_002dc598);
-  *(u8 *)(param_1 + 1) = 0;
-  param_1[0x41] = 0;
-  param_1[0x42] = 0;
-  *(u8 *)(param_1 + 0x43) = 0;
-  param_1[0x42] = 0x7fffffff;
-  return param_1;
+  self->vtable = (unsigned int)(&DAT_002dc598);
+  self->unk4 = 0;
+  self->unk104 = 0;
+  self->limit = 0;
+  self->unk10c = 0;
+  self->limit = 0x7fffffff;
+  return self;
 }

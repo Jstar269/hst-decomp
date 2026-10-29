@@ -21,16 +21,17 @@ struct GroupVec {
     ItemVec &operator[](unsigned i) { return data[i]; }
 };
 
+enum { POS_NONE = 0x7fffffff };  /* idx/grp value meaning "not found" */
 struct Pos {
     unsigned idx;
     unsigned grp;
     Pos(unsigned i, unsigned g) : idx(i), grp(g) {}
-    bool IsValid() const { bool r; if (idx != 0x7fffffff && grp != 0x7fffffff) r = true; else r = false; return r; }
+    bool IsValid() const { bool r; if (idx != POS_NONE && grp != POS_NONE) r = true; else r = false; return r; }
 };
 
-struct Obj { virtual ~Obj(); };
+struct SlotObj { virtual ~SlotObj(); };  /* object kept per slot in DAT_0034b340 */
 
-struct Track { char pad0[4]; int cur; char **names; };
+struct NameList { char pad0[4]; int cur; char **names; };  /* names[cur] is the current entry */
 
 struct Sprite { char pad0[0xe]; unsigned short flags; char pad10[0x60 - 0x10]; float x; float y; };
 /* Release build: assertions compile to nothing (the Sharing build keeps them, see the twin). */
@@ -61,46 +62,46 @@ struct Screen {
 
 struct Self {
     char pad0[0x3d];
-    unsigned char m3d;
-    unsigned char m3e;
+    unsigned char entered;
+    unsigned char unk3e;
     char pad3f[0x41 - 0x3f];
-    unsigned char m41;
-    unsigned char m42;
+    unsigned char unk41;
+    unsigned char unk42;
     char pad43[0x4d - 0x43];
-    unsigned char m4d;
+    unsigned char useSlotObj;
     char pad4e;
-    unsigned char m4f;
-    unsigned char m50;
+    unsigned char unk4f;
+    unsigned char unk50;
     char pad51[3];
-    int m54;
-    int m58;
+    int slotIdx;
+    int slotIdx2;
     char pad5c[0x64 - 0x5c];
-    char m64[0x74 - 0x64];
+    char unk64[0x74 - 0x64];
     int state;
     char pad78[0x90 - 0x78];
-    int m90;
+    int unk90;
     char pad94[0x174 - 0x94];
-    void *m174;
-    Track *m178;
-    void *m17c;
+    void *unk174;
+    NameList *nameList;
+    void *unk17c;
     char pad180[0x2a4 - 0x180];
-    char m2a4[0x514 - 0x2a4];
-    char m514[4];
+    char unk2a4[0x514 - 0x2a4];
+    char unk514[4];
     Pos pos;
     ItemVec items;
     GroupVec groups;
-    void *m538;
+    void *unk538;
     char pad53c[4];
-    int (*m540)();
+    int (*getSelectedId)();
     char pad544[0x554 - 0x544];
-    void (*m554)(int);
-    int (*m558)();
-    void *m55c;
+    void (*setFn)(int);
+    int (*getFn)();
+    void *unk55c;
     char pad560[0x580 - 0x560];
-    int m580;
+    int unk580;
 };
 
-extern Obj *DAT_0034b340[];
+extern SlotObj *DAT_0034b340[];
 extern Screen *DAT_003415ac;
 extern int DAT_0034a678;
 extern char DAT_0034179c[];
@@ -110,11 +111,11 @@ void *operator new(unsigned int);
 extern "C" {
 void FUN_00170c24(Self *, int);
 void FUN_00170d9c(Self *);
-bool FUN_0017c344(Track *);
-Obj *FUN_00091830(void *);
-void FUN_0009191c(Obj *, char *);
-void FUN_00091c48(Obj *, int);
-void FUN_00092ff8(Obj *);
+bool FUN_0017c344(NameList *);
+SlotObj *FUN_00091830(void *);
+void FUN_0009191c(SlotObj *, char *);
+void FUN_00091c48(SlotObj *, int);
+void FUN_00092ff8(SlotObj *);
 int FUN_0016b164();
 void FUN_0016b6c8(int);
 void FUN_0016fab8(Self *, int);
@@ -131,6 +132,7 @@ void FUN_001b3ea4(void *, float);
 void FUN_001fe0f4(int);
 }
 
+/* Total number of items over all groups. */
 static inline int CountItems(Self *s)
 {
     int n = 0;
@@ -139,9 +141,10 @@ static inline int CountItems(Self *s)
     return n;
 }
 
+/* Position (item index, group index) of the item with this id, POS_NONE when absent. */
 static inline Pos FindPos(Self *s, int id)
 {
-    unsigned idx = 0x7fffffff, grp = 0x7fffffff;
+    unsigned idx = POS_NONE, grp = POS_NONE;
     for (int g = 0; g < s->groups.Size(); g++) {
         for (int i = 0; i < s->groups[g].Size(); i++) {
             if (s->groups[g][i]->id == id) {
@@ -155,6 +158,7 @@ done:
     return Pos(idx, grp);
 }
 
+/* Unit scale, centred on the 480x272 screen. */
 static inline void ResetScreen()
 {
     if (DAT_003415ac) {
@@ -168,40 +172,41 @@ static inline void ShowScreen(Self *self)
     if (DAT_003415ac && (DAT_003415ac->set->GetSprite(0)->flags & 3) == 0) {
         FUN_00103628(DAT_003415ac, 1);
         ResetScreen();
-        FUN_00187294(self->m174, 1);
+        FUN_00187294(self->unk174, 1);
     }
 }
 
+/* Per-frame step of the selection menu: enters the selected state once, otherwise routes to the next state. */
 extern "C" void FUN_00170f08(Self *self)
 {
     bool b = false;
-    if (self->m3e && !self->m3d)
+    if (self->unk3e && !self->entered)
         b = true;
     if (b) {
         FUN_00170c24(self, 1);
-        int idx = self->m54;
-        if (self->m4d) {
-            if (FUN_0017c344(self->m178) == 0) {
-                Obj **pp = &DAT_0034b340[idx];
+        int idx = self->slotIdx;
+        if (self->useSlotObj) {
+            if (FUN_0017c344(self->nameList) == 0) {
+                SlotObj **pp = &DAT_0034b340[idx];
                 if (*pp) {
                     delete *pp;
                     *pp = 0;
                 }
             } else {
-                Obj **pp = &DAT_0034b340[idx];
+                SlotObj **pp = &DAT_0034b340[idx];
                 if (*pp == 0) {
-                    Obj *mem = (Obj *)operator new(0xe0);
+                    SlotObj *mem = (SlotObj *)operator new(0xe0);
                     if (mem)
                         mem = FUN_00091830(mem);
                     *pp = mem;
                 }
-                FUN_0009191c(*pp, self->m178->names[self->m178->cur] + 0x10);
+                FUN_0009191c(*pp, self->nameList->names[self->nameList->cur] + 0x10);
                 FUN_00091c48(*pp, 0);
                 FUN_00092ff8(*pp);
             }
         }
         self->state = 10;
-        int cur = self->m540();
+        int cur = self->getSelectedId();
         for (int i = 0; i < CountItems(self); i++) {
             Item *it = self->items[i];
             if (it->id == cur)
@@ -210,52 +215,52 @@ extern "C" void FUN_00170f08(Self *self)
                 it->selected = 0;
         }
         int before = FUN_0016b164();
-        FUN_0016fab8(self, self->m540());
+        FUN_0016fab8(self, self->getSelectedId());
         Pos q = FindPos(self, FUN_0016b164());
         if (!q.IsValid()) {
             FUN_0016b6c8(0);
-            FUN_0016fab8(self, self->m540());
+            FUN_0016fab8(self, self->getSelectedId());
         }
-        if (before != FUN_0016b164() && self->m50) {
-            self->m50 = 0;
-            if (DAT_0034b340[self->m58]) {
-                delete DAT_0034b340[self->m58];
-                DAT_0034b340[self->m58] = 0;
+        if (before != FUN_0016b164() && self->unk50) {
+            self->unk50 = 0;
+            if (DAT_0034b340[self->slotIdx2]) {
+                delete DAT_0034b340[self->slotIdx2];
+                DAT_0034b340[self->slotIdx2] = 0;
             }
         }
         Pos p = FindPos(self, FUN_0016b164());
-        if (p.idx != 0x7fffffff && p.grp != 0x7fffffff)
+        if (p.idx != POS_NONE && p.grp != POS_NONE)
             self->pos = p;
-        if (self->m50) {
-            self->m4f = 1;
-            self->m50 = 0;
+        if (self->unk50) {
+            self->unk4f = 1;
+            self->unk50 = 0;
         }
-        self->m3d = 1;
-        self->m538 = self->m514;
-        self->m554 = FUN_0016b6c8;
-        self->m558 = FUN_0016b164;
-        self->m55c = self->m64;
-        FUN_0017358c(self, self->m558());
-        FUN_00170658(self, self->m558());
-        if (self->m558() == 0x7fff)
+        self->entered = 1;
+        self->unk538 = self->unk514;
+        self->setFn = FUN_0016b6c8;
+        self->getFn = FUN_0016b164;
+        self->unk55c = self->unk64;
+        FUN_0017358c(self, self->getFn());
+        FUN_00170658(self, self->getFn());
+        if (self->getFn() == 0x7fff)
             ShowScreen(self);
         else
             ShowScreen(self);
-        FUN_00187114(self->m174);
-        FUN_0017e8bc(self->m17c, self->m2a4);
-        void *m = self->m538;
-        FUN_001733d0(self, m, self->m558());
+        FUN_00187114(self->unk174);
+        FUN_0017e8bc(self->unk17c, self->unk2a4);
+        void *m = self->unk538;
+        FUN_001733d0(self, m, self->getFn());
     } else {
-        if (self->m3e && self->m3d)
+        if (self->unk3e && self->entered)
             FUN_00170d9c(self);
         else
             FUN_00170c24(self, 0);
-        if (self->m41) {
+        if (self->unk41) {
             self->state = 0x1d;
-            self->m90 = 2;
-        } else if (self->m42) {
+            self->unk90 = 2;
+        } else if (self->unk42) {
             self->state = 0x20;
-            self->m580 = 0;
+            self->unk580 = 0;
         } else {
             self->state = 0x25;
             FUN_0016bdc4(0x25);

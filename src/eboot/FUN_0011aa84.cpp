@@ -1,24 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011aa84 end=0x0011aaf4 symbol=FUN_0011aa84 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
 extern "C" {
 extern void FUN_00000a00(...);
 }
-struct VC_0 { virtual ~VC_0(); };
+struct Owned { virtual ~Owned(); };
 
-extern "C" int * FUN_0011aa84(int *param_1,short param_2)
+/* Object holding a single owned pointer in its first word. */
+struct OwnedHolder {
+  Owned *owned;   /* 0x0 */
+};
+
+/* Deleting destructor: deletes the owned object, then frees the holder when delete_flag is positive. */
+extern "C" OwnedHolder * FUN_0011aa84(OwnedHolder *self,short delete_flag)
 {
-  int *piVar1;
-  
-  if (param_1 != (int *)0x0) {
-    piVar1 = (int *)*param_1;
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      *param_1 = 0;
+  if (self != 0) {
+    if (self->owned != 0) {
+      delete self->owned;
+      self->owned = 0;
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

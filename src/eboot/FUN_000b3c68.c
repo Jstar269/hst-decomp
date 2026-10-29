@@ -1,11 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000b3c68 end=0x000b3ca0 symbol=FUN_000b3c68 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/chara_player.h"
 
-extern u32 DAT_00341508;
+/* One of the character containers (stride 0x18); the first word points at its rows. */
+typedef struct CharaContainer {
+  int rows;                  /* 0x00 */
+  char pad04[0x14];
+} CharaContainer;
 
-int FUN_000b3c68(int param_1)
+enum { CHARA_RECORD_SIZE = 0x22c };
+
+extern CharaContainer *DAT_00341508;
+
+/* Address of the player's character record: container `chara_group`, row `chara_index`. */
+int FUN_000b3c68(CharaPlayer *self)
 {
-  return *(int *)(DAT_00341508 + *(int *)(param_1 + 0x158) * 0x18) +
-         *(int *)(param_1 + 0x15c) * 0x22c;
+  return DAT_00341508[self->chara_group].rows +
+         self->chara_index * CHARA_RECORD_SIZE;
 }

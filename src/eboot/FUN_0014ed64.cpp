@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0014ed64 end=0x0014ee3c symbol=FUN_0014ed64 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern "C" {
@@ -10,36 +10,46 @@ extern void FUN_0014f32c(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" u32 * FUN_0014ed64(u32 *param_1,short param_2)
+/* Container node: owns one sub-object and keeps a range record starting at +0x1c. */
+struct ScriptContainer {
+  u32 vtable;       /* 0x00 */
+  char pad04[8];
+  VC_0 *owned;      /* 0x0c deleted by the destructor */
+  char pad10[0xc];
+  u32 range[3];     /* 0x1c */
+};
+
+/* Deleting destructor: frees the owned object and the range record, resets the vtable, frees self when delete_flag > 0. */
+extern "C" ScriptContainer * FUN_0014ed64(ScriptContainer *self,short delete_flag)
 {
-  int *piVar1;
-  u32 *puVar2;
-  u8 auStack_4 [4];
-  u32 local_8;
-  u32 *local_c;
+  VC_0 *owned;
+  u32 *range;
+  u8 range_out [4];
+  u32 range_end;
+  u32 *range_cursor;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00308348);
-    if ((char *)param_1 + 0x4 != (char *)0) {
-      piVar1 = (int *)param_1[3];
-      if (piVar1 != (int *)0x0) {
-        delete ((VC_0 *)(piVar1));
-        param_1[3] = 0;
+  if (self != (ScriptContainer *)0x0) {
+    self->vtable = (unsigned int)(&DAT_00308348);
+    if ((char *)self + 0x4 != (char *)0) {
+      owned = self->owned;
+      if (owned != (VC_0 *)0x0) {
+        delete owned;
+        self->owned = 0;
       }
-      puVar2 = param_1 + 7;
-      if (((puVar2 != (u32 *)0x0) && (puVar2 != (u32 *)0x0)) &&
-         (puVar2 != (u32 *)0x0)) {
-        local_c = param_1 + 8;
-        local_8 = param_1[9];
-        FUN_0014f32c(auStack_4,puVar2,&local_8,&local_c);
+      range = self->range;
+      if (((range != (u32 *)0x0) && (range != (u32 *)0x0)) &&
+         (range != (u32 *)0x0)) {
+        range_cursor = &self->range[1];
+        range_end = self->range[2];
+        FUN_0014f32c(range_out,range,&range_end,&range_cursor);
       }
     }
-    if (param_1 != (u32 *)0x0) {
-      *param_1 = (unsigned int)(&DAT_003083cc);
+    if (self != (ScriptContainer *)0x0) {
+      self->vtable = (unsigned int)(&DAT_003083cc);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

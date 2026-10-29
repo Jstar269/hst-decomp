@@ -1,11 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c38c0 end=0x001c38e0 symbol=FUN_001c38c0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64b); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64b) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/menu_state.h"
 
-void FUN_001c38c0(int param_1,u8 param_2)
+/* Set the flag at 0x61; turning it on also sets the flag at 0x62. */
+void FUN_001c38c0(MenuState *self,u8 flag)
 {
-  *(u8 *)(param_1 + 0x61) = param_2;
-  if (*(u8 *)(param_1 + 0x61) != '\0') {
-    *(u8 *)(param_1 + 0x62) = 1;
+  self->unk61 = flag;
+  if (self->unk61 != '\0') {
+    self->unk62 = 1;
   }
 }

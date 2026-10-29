@@ -1,21 +1,22 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00153818 end=0x00153874 symbol=FUN_00153818 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern u8 DAT_003083cc;
 extern u8 DAT_00308a20;
 extern void FUN_00000a00();
 
-u32 * FUN_00153818(u32 *param_1,short param_2)
+/* Deleting destructor of a script command: restore the base vtable, free the object when flags > 0. */
+u32 * FUN_00153818(u32 *self,short flags)
 {
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00308a20);
-    if (param_1 != (u32 *)0x0) {
-      *param_1 = (unsigned int)(&DAT_003083cc);
+  if (self != (u32 *)0x0) {
+    *self = (unsigned int)(&DAT_00308a20); /* vtable of the derived command */
+    if (self != (u32 *)0x0) {
+      *self = (unsigned int)(&DAT_003083cc); /* vtable of the command base class */
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

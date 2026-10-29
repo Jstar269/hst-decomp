@@ -1,64 +1,62 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000ef83c end=0x000ef9c8 symbol=FUN_000ef83c lang=c99 */
 /* Clone of src/eboot/FUN_000ea62c.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef float undefined4;
+#include "hst/types.h"
+#include "hst/vec.h"
 
+#define HISTORY_LEN 0x28 /* records kept in the ring */
 
-void FUN_000ef83c(int param_1,undefined4 *param_2,undefined4 *param_3,undefined4 *param_4, undefined4 *param_5,undefined4 *param_6,undefined4 *param_7,undefined4 *param_8)
+/* One record: seven 4-float vectors. */
+typedef struct VecRecord {
+  Float4 v[7];
+} VecRecord;            /* size 0x70 */
+
+/* Ring of the most recent records, written at index head. */
+typedef struct VecRing {
+  char pad00[0x50];
+  VecRecord entries[HISTORY_LEN]; /* 0x50 */
+  int head;                       /* 0x11d0 next slot to write */
+} VecRing;
+
+/* Store seven vectors into the current ring slot, then advance the head with wrap-around. */
+void FUN_000ef83c(VecRing *ring,Float4 *v0,Float4 *v1,Float4 *v2,Float4 *v3, Float4 *v4,Float4 *v5,Float4 *v6)
 {
-  int iVar1;
-  
-  iVar1 = param_1 + *(int *)(param_1 + 0x11d0) * 0x70;
-  *(undefined4 *)(iVar1 + 0x50) = *param_2;
-  *(undefined4 *)(iVar1 + 0x54) = param_2[1];
-  *(undefined4 *)(iVar1 + 0x58) = param_2[2];
-  *(undefined4 *)(iVar1 + 0x5c) = param_2[3];
-  iVar1 = param_1 + *(int *)(param_1 + 0x11d0) * 0x70;
-  *(undefined4 *)(iVar1 + 0x60) = *param_3;
-  *(undefined4 *)(iVar1 + 100) = param_3[1];
-  *(undefined4 *)(iVar1 + 0x68) = param_3[2];
-  *(undefined4 *)(iVar1 + 0x6c) = param_3[3];
-  iVar1 = param_1 + *(int *)(param_1 + 0x11d0) * 0x70;
-  *(undefined4 *)(iVar1 + 0x70) = *param_4;
-  *(undefined4 *)(iVar1 + 0x74) = param_4[1];
-  *(undefined4 *)(iVar1 + 0x78) = param_4[2];
-  *(undefined4 *)(iVar1 + 0x7c) = param_4[3];
-  iVar1 = param_1 + *(int *)(param_1 + 0x11d0) * 0x70;
-  *(undefined4 *)(iVar1 + 0x80) = *param_5;
-  *(undefined4 *)(iVar1 + 0x84) = param_5[1];
-  *(undefined4 *)(iVar1 + 0x88) = param_5[2];
-  *(undefined4 *)(iVar1 + 0x8c) = param_5[3];
-  iVar1 = param_1 + *(int *)(param_1 + 0x11d0) * 0x70;
-  *(undefined4 *)(iVar1 + 0x90) = *param_6;
-  *(undefined4 *)(iVar1 + 0x94) = param_6[1];
-  *(undefined4 *)(iVar1 + 0x98) = param_6[2];
-  *(undefined4 *)(iVar1 + 0x9c) = param_6[3];
-  iVar1 = param_1 + *(int *)(param_1 + 0x11d0) * 0x70;
-  *(undefined4 *)(iVar1 + 0xa0) = *param_7;
-  *(undefined4 *)(iVar1 + 0xa4) = param_7[1];
-  *(undefined4 *)(iVar1 + 0xa8) = param_7[2];
-  *(undefined4 *)(iVar1 + 0xac) = param_7[3];
-  iVar1 = param_1 + *(int *)(param_1 + 0x11d0) * 0x70;
-  *(undefined4 *)(iVar1 + 0xb0) = *param_8;
-  *(undefined4 *)(iVar1 + 0xb4) = param_8[1];
-  *(undefined4 *)(iVar1 + 0xb8) = param_8[2];
-  *(undefined4 *)(iVar1 + 0xbc) = param_8[3];
-  iVar1 = *(int *)(param_1 + 0x11d0) + 1;
-  *(int *)(param_1 + 0x11d0) = iVar1;
-  *(int *)(param_1 + 0x11d0) = iVar1 % 0x28;
-  return;
+  VecRecord *rec;
+
+  rec = &ring->entries[ring->head];
+  rec->v[0].x = v0->x;
+  rec->v[0].y = v0->y;
+  rec->v[0].z = v0->z;
+  rec->v[0].w = v0->w;
+  rec = &ring->entries[ring->head];
+  rec->v[1].x = v1->x;
+  rec->v[1].y = v1->y;
+  rec->v[1].z = v1->z;
+  rec->v[1].w = v1->w;
+  rec = &ring->entries[ring->head];
+  rec->v[2].x = v2->x;
+  rec->v[2].y = v2->y;
+  rec->v[2].z = v2->z;
+  rec->v[2].w = v2->w;
+  rec = &ring->entries[ring->head];
+  rec->v[3].x = v3->x;
+  rec->v[3].y = v3->y;
+  rec->v[3].z = v3->z;
+  rec->v[3].w = v3->w;
+  rec = &ring->entries[ring->head];
+  rec->v[4].x = v4->x;
+  rec->v[4].y = v4->y;
+  rec->v[4].z = v4->z;
+  rec->v[4].w = v4->w;
+  rec = &ring->entries[ring->head];
+  rec->v[5].x = v5->x;
+  rec->v[5].y = v5->y;
+  rec->v[5].z = v5->z;
+  rec->v[5].w = v5->w;
+  rec = &ring->entries[ring->head];
+  rec->v[6].x = v6->x;
+  rec->v[6].y = v6->y;
+  rec->v[6].z = v6->z;
+  rec->v[6].w = v6->w;
+  ring->head = ring->head + 1;
+  ring->head = ring->head % HISTORY_LEN;
 }

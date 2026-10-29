@@ -1,49 +1,56 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00170b30 end=0x00170c24 symbol=FUN_00170b30 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a6, variant v17) corrected by hand: flag byte typed unsigned char (lbu) and the new-then-construct store shared (p = alloc; if (p) p = ctor(p); *slot = p); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a6, variant v17) corrected by hand: flag byte typed unsigned char (lbu) and the new-then-construct store shared (p = alloc; if (p) p = ctor(p); *slot = p); readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
+struct SlotObj { virtual ~SlotObj(); };  /* object kept per slot in DAT_0034b340 */
+
+struct NameList { char pad0[4]; int cur; char **names; };  /* names[cur] is the current entry */
+
+struct MenuObj {
+  char pad0[0x4d];
+  unsigned char useSlotObj;
+  char pad4e[0x178 - 0x4e];
+  NameList *nameList;
+};
+
+extern SlotObj *DAT_0034b340[];
 extern "C" {
-extern u8 DAT_0034b340;
-extern int FUN_00000bcc(...);
-extern u32 * FUN_00091830(...);
-extern void FUN_0009191c(...);
-extern void FUN_00091c48(...);
-extern void FUN_00092ff8(...);
-extern u32 FUN_0017c344(...);
+extern void *FUN_00000bcc(int);
+extern SlotObj *FUN_00091830(void *);
+extern void FUN_0009191c(SlotObj *, char *);
+extern void FUN_00091c48(SlotObj *, int);
+extern void FUN_00092ff8(SlotObj *);
+extern bool FUN_0017c344(NameList *);
 }
-struct VC_0 { virtual ~VC_0(); };
 
-extern "C" void FUN_00170b30(int param_1,int param_2)
+/* Drops the slot's object when the name list has nothing for it, otherwise creates it if absent and binds the current name. */
+extern "C" void FUN_00170b30(MenuObj *menu,int slot)
 {
-  u32 uVar1;
-  int iVar2;
-  u32 *puVar3;
-  int *piVar4;
-  int *piVar5;
+  SlotObj *obj;
+  SlotObj **entry;
+  NameList *list;
   
-  if (*(unsigned char *)(param_1 + 0x4d) != 0) {
-    uVar1 = FUN_0017c344(*(int *)(param_1 + 0x178));
-    if ((uVar1 & 0xff) == 0) {
-      piVar4 = (int *)(&DAT_0034b340 + param_2 * 4);
-      piVar5 = (int *)*piVar4;
-      if (piVar5 != (int *)0x0) {
-        delete ((VC_0 *)(piVar5));
-        *piVar4 = 0;
+  if (menu->useSlotObj != 0) {
+    if (FUN_0017c344(menu->nameList) == 0) {
+      entry = &DAT_0034b340[slot];
+      obj = *entry;
+      if (obj != 0) {
+        delete obj;
+        *entry = 0;
       }
     }
     else {
-      piVar5 = (int *)(&DAT_0034b340 + param_2 * 4);
-      if (*piVar5 == 0) {
-        puVar3 = (u32 *)FUN_00000bcc(0xe0);
-        if (puVar3 != (u32 *)0x0) {
-          puVar3 = FUN_00091830(puVar3);
+      entry = &DAT_0034b340[slot];
+      if (*entry == 0) {
+        obj = (SlotObj *)FUN_00000bcc(0xe0);
+        if (obj != 0) {
+          obj = FUN_00091830(obj);
         }
-        *piVar5 = (int)puVar3;
+        *entry = obj;
       }
-      iVar2 = *(int *)(param_1 + 0x178);
-      FUN_0009191c(*piVar5,*(int *)(*(int *)(iVar2 + 8) + *(int *)(iVar2 + 4) * 4) + 0x10);
-      FUN_00091c48(*piVar5,0);
-      FUN_00092ff8(*piVar5);
+      list = menu->nameList;
+      FUN_0009191c(*entry,list->names[list->cur] + 0x10);
+      FUN_00091c48(*entry,0);
+      FUN_00092ff8(*entry);
     }
   }
 }

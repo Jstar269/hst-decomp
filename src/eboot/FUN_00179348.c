@@ -1,30 +1,32 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00179348 end=0x001793e8 symbol=FUN_00179348 lang=c99 rodata=0x002c1f90 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/list_host.h"
 
-u32 FUN_00179348(int param_1,u32 param_2,int param_3)
+/* First word of the index'th record in the second list family chosen by kind; 0 for kind 0. */
+u32 FUN_00179348(ListHost *host,u32 kind,int index)
 {
-  u32 uVar1;
+  u32 value;
   
-  switch(param_2) {
+  switch(kind) {
   case 0:
-    uVar1 = 0;
+    value = 0;
     break;
   case 1:
-    uVar1 = **(u32 **)(*(int *)(param_1 + 0x1e4) + param_3 * 4);
+    value = *((u32 **)host->list1b.data)[index];
     break;
   case 2:
-    uVar1 = **(u32 **)(*(int *)(param_1 + 0x1fc) + param_3 * 4);
+    value = *((u32 **)host->list2b.data)[index];
     break;
   case 3:
   case 4:
-    uVar1 = **(u32 **)(*(int *)(param_1 + 0x208) + param_3 * 4);
+    value = *((u32 **)host->list3.data)[index];
     break;
   case 5:
-    uVar1 = **(u32 **)(**(int **)(param_1 + 0x1d4) + param_3 * 4);
+    value = *((u32 **)host->shared->data)[index];
     break;
   default:
-    uVar1 = 0;
+    value = 0;
   }
-  return uVar1;
+  return value;
 }

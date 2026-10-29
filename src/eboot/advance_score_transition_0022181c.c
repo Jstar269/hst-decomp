@@ -1,11 +1,12 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0022181c end=0x00221a98 symbol=FUN_0022181c lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-/* Ghidra pseudocode corrected by hand: typed float globals, preserved the shared input load, and matched the state/limit branch layout; exact match verified; names and types await human review. */
+/* Ghidra pseudocode corrected by hand: typed float globals, preserved the shared input load, and matched the state/limit branch layout; readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/lay_pane.h"
 
 extern u8 * DAT_002cfc8c;
-extern int DAT_002eff90;
-extern int DAT_002eff94;
+extern int DAT_002eff90; /* hold check starts this many frames (plus a margin) in */
+extern int DAT_002eff94; /* timer value at which the animation ends */
 extern float DAT_002f0d94;
 extern float DAT_002f0d98;
 extern u8 DAT_0034179c;
@@ -19,61 +20,61 @@ extern void FUN_00103480(int);
 extern void FUN_00103628(int, int);
 extern int FUN_001b1c44(int *, int);
 
-void FUN_0022181c(int param_1)
+/* Per-frame update: ease the entries towards the goals of the current phase, advance the timer, finish at the limit. */
+void FUN_0022181c(PaneB *self)
 {
-  int iVar1;
-  int iVar2;
-  float fVar3;
-  float fVar4;
-  float fVar5;
-  float fVar6;
+  PaneEnt *first;
+  int i;
+  float x_goal;
+  float eased;
+  float y_goal;
+  float s_goal;
   float input;
-  
-  if (*(int *)(param_1 + 0x5c) < 0) goto LAB_00221a6c;
-  iVar1 = *(int *)(param_1 + 0x60);
-  fVar5 = *(volatile float *)(iVar1 + 100);
-  fVar6 = *(volatile float *)(iVar1 + 0x78);
-  input = *(volatile float *)(iVar1 + 0x60);
-  if (*(int *)(param_1 + 0x5c) < 100) {
-    fVar3 = FUN_000ede98(input,0.0f,DAT_002f0d98,0.01f);
-    fVar5 = FUN_000ede98(fVar5,0.0f,DAT_002f0d98,0.01f);
-    fVar6 = FUN_000ede98(fVar6,1.0f,DAT_002f0d98,0.01f);
+  float y_cur;
+  float s_cur;
+
+  if (self->timer < 0) goto done;
+  first = self->ent[0];
+  y_cur = *(volatile float *)&first->unk64;
+  s_cur = *(volatile float *)&first->unk78;
+  input = *(volatile float *)&first->unk60;
+  if (self->timer < PANE_TIMER_SPLIT) {
+    x_goal = FUN_000ede98(input,0.0f,DAT_002f0d98,0.01f);
+    y_goal = FUN_000ede98(y_cur,0.0f,DAT_002f0d98,0.01f);
+    s_goal = FUN_000ede98(s_cur,1.0f,DAT_002f0d98,0.01f);
   }
   else {
-    fVar3 = FUN_000ede98(input,-DAT_0034a250,DAT_002f0d98,0.01f);
-    fVar5 = FUN_000ede98(fVar5,-DAT_0034a254,DAT_002f0d98,0.01f);
-    fVar6 = FUN_000ede98(fVar6,DAT_002f0d94,DAT_002f0d98,0.01f);
+    x_goal = FUN_000ede98(input,-DAT_0034a250,DAT_002f0d98,0.01f);
+    y_goal = FUN_000ede98(y_cur,-DAT_0034a254,DAT_002f0d98,0.01f);
+    s_goal = FUN_000ede98(s_cur,DAT_002f0d94,DAT_002f0d98,0.01f);
   }
-  iVar2 = 0;
-  iVar1 = param_1;
-  do {
-    fVar4 = FUN_0000bd2c(fVar3);
-    *(float *)(*(int *)(iVar1 + 0x60) + 0x60) = fVar4;
-    fVar4 = FUN_0000bd2c(fVar5);
-    iVar2 = iVar2 + 1;
-    *(float *)(*(int *)(iVar1 + 0x60) + 100) = fVar4;
-    *(float *)(*(int *)(iVar1 + 0x60) + 0x78) = fVar6;
-    iVar1 = iVar1 + 4;
-  } while (iVar2 < 2);
-  FUN_00103480(param_1);
-  if (*(int *)(param_1 + 0x5c) >= DAT_002eff90 + 0x14 && *(unsigned char *)(param_1 + 0x74) != 0) {
-    FUN_000ffb3c(*(int *)(param_1 + 0x68),0);
-    FUN_000ffb3c(*(int *)(param_1 + 0x6c),0);
+  for (i = 0; i < 2; i++) {
+    eased = FUN_0000bd2c(x_goal);
+    self->ent[i]->unk60 = eased;
+    eased = FUN_0000bd2c(y_goal);
+    self->ent[i]->unk64 = eased;
+    self->ent[i]->unk78 = s_goal;
+  }
+  FUN_00103480((int)self);
+  if (self->timer >= DAT_002eff90 + 0x14 && self->hold != 0) {
+    FUN_000ffb3c((int)self->handle[0],0);
+    FUN_000ffb3c((int)self->handle[1],0);
+    /* the condition below tests a 2-bit field of the environment object */
     if (((int)*(char *)(DAT_002cfc8c + 0x8b) << 0x1c) >> 0x1e == 0) {
       FUN_001b1c44((int *)&DAT_0034179c,3);
-      *(u8 *)(param_1 + 0x74) = 0;
-      *(u32 *)(param_1 + 0x5c) = 100;
+      self->hold = 0;
+      self->timer = PANE_TIMER_SPLIT;
     }
   } else {
-    FUN_000ffb3c(*(int *)(param_1 + 0x68),1);
-    FUN_000ffb3c(*(int *)(param_1 + 0x6c),1);
-    *(int *)(param_1 + 0x5c) = *(int *)(param_1 + 0x5c) + 1;
+    FUN_000ffb3c((int)self->handle[0],1);
+    FUN_000ffb3c((int)self->handle[1],1);
+    self->timer = self->timer + 1;
   }
-  if (!(*(int *)(param_1 + 0x5c) < DAT_002eff94)) {
-    FUN_00103628(param_1,1);
-    *(u8 *)(param_1 + 0x54) = 1;
-    *(u32 *)(param_1 + 0x5c) = 0xffffffff;
+  if (!(self->timer < DAT_002eff94)) {
+    FUN_00103628((int)self,1);
+    self->unk54 = 1;
+    self->timer = PANE_TIMER_IDLE;
   }
-LAB_00221a6c:
-  FUN_00103128(param_1);
+done:
+  FUN_00103128((int)self);
 }

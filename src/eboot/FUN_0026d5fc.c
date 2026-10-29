@@ -3,53 +3,41 @@
 /* Near-miss wip (lane u6cr1-1, hstgen tag a1 origin) corrected by hand: the type/subtype tests are one && condition and the loop count is re-read once for the loop test; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
 #include "hst/types.h"
+#include "hst/shop_scene.h"
 
 extern void FUN_00277a1c();
 extern void FUN_00279b24();
 
-struct Item_26d5fc {
-  unsigned char byte0;
-  unsigned char small;
-  unsigned char flag;
-  char pad03[0x11];
-  int type;
-  int subtype;
-};
-
-struct ItemVector_26d5fc {
-  struct Item_26d5fc **data;
-  unsigned int count;
-};
-
-void FUN_0026d5fc(int param_1,u32 param_2)
+/* Switches the scene to a new state: remembers the previous one, resets the per-state fields and fixes up the item list. */
+void FUN_0026d5fc(ShopScene *scene,int new_state)
 {
-  struct ItemVector_26d5fc *items;
-  struct Item_26d5fc *item;
+  ShopItemVec *items;
+  ShopItem *item;
   unsigned int index;
   unsigned int count;
   
-  *(u32 *)(param_1 + 0x108) = *(u32 *)(param_1 + 0x104);
-  *(u32 *)(param_1 + 0x104) = param_2;
-  *(u8 *)(param_1 + 0x110) = 1;
-  *(u32 *)(param_1 + 0x180) = 0xffffffff;
+  scene->prev_state = scene->state;
+  scene->state = new_state;
+  scene->unk110 = 1;
+  scene->unk180 = SHOP_NO_VALUE;
   FUN_00279b24();
-  *(u32 *)(param_1 + 0x458) = 0;
-  FUN_00277a1c(param_1,*(u32 *)(param_1 + 0x108),*(u32 *)(param_1 + 0x104));
-  *(u8 *)(param_1 + 0x8c3) = 0;
-  *(u32 *)(param_1 + 0x114) = 0;
-  *(u8 *)(param_1 + 0x8c4) = 0;
-  *(u32 *)(param_1 + 0x8bc) = 0;
-  *(u32 *)(param_1 + 0x8c8) = 0;
-  if (*(int *)(param_1 + 0x104) != 7 && *(int *)(param_1 + 0x104) != 1) {
-    *(u8 *)(param_1 + 0xf8) = 0;
+  scene->unk458 = 0;
+  FUN_00277a1c(scene,scene->prev_state,scene->state);
+  scene->unk8c3 = 0;
+  scene->unk114 = 0;
+  scene->unk8c4 = 0;
+  scene->unk8bc = 0;
+  scene->unk8c8 = 0;
+  if (scene->state != 7 && scene->state != 1) {
+    scene->unkf8 = 0;
   }
-  *(u32 *)(param_1 + 0x99c) = 0;
-  *(u32 *)(param_1 + 0x9a0) = 0;
-  *(u32 *)(param_1 + 0x9a4) = 0;
-  *(u32 *)(param_1 + 0x9a8) = 0;
-  *(u32 *)(param_1 + 0x9ac) = 0;
-  *(u8 *)(param_1 + 0x8ce) = 0;
-  items = (struct ItemVector_26d5fc *)(param_1 + 0xd8);
+  scene->unk99c = 0;
+  scene->unk9a0 = 0;
+  scene->unk9a4 = 0;
+  scene->unk9a8 = 0;
+  scene->unk9ac = 0;
+  scene->unk8ce = 0;
+  items = &scene->items;
   index = 0;
   if (items->count != 0) {
     do {

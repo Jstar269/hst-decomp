@@ -1,51 +1,56 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00152948 end=0x00152a58 symbol=FUN_00152948 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag v0c) corrected by hand: typed struct instead of pointer arithmetic, the mode is an unsigned int (masked ushort result) tested by `switch (m) { case 2: ...; case 0: ... }` (case 2 body first), goto removed; exact match verified; names and types await human review. */
-struct S_00152948 {
-    unsigned int vptr;
-    unsigned char f4;
-    unsigned int f8, fc, f10;
-    int f14;
-    unsigned int f18;
-    unsigned char f1c, f1d;
+/* Ghidra pseudocode (hstgen.py tag v0c) corrected by hand: typed struct instead of pointer arithmetic, the mode is an unsigned int (masked ushort result) tested by `switch (m) { case 2: ...; case 0: ... }` (case 2 body first), goto removed; readability pass; exact match verified; names and types await human review. */
+#include "hst/stream_cursor.h"
+
+/* Record read from a stream: five header values, then two flag bytes derived from the mode value. */
+struct StreamRecord {
+    const void *vtable; /* 0x00 */
+    unsigned char unk04;
+    unsigned int unk08;
+    unsigned int unk0c;
+    unsigned int unk10;
+    int unk14;          /* signed value read from the stream, made positive; 0 and 1 are swapped */
+    unsigned int unk18;
+    unsigned char unk1c, unk1d; /* flags set from the mode value */
 };
 extern "C" {
 extern char DAT_0030840c;
 extern char DAT_00308bb0;
-extern unsigned short FUN_0014f050(unsigned int);
-extern int FUN_00159ee0(unsigned int);
+extern unsigned short FUN_0014f050(StreamCursor *);
+extern int FUN_00159ee0(StreamCursor *);
 }
 
-extern "C" S_00152948 *FUN_00152948(S_00152948 *p, unsigned int r)
+extern "C" StreamRecord *FUN_00152948(StreamRecord *self, StreamCursor *stream)
 {
-    unsigned int sVar1;
-    p->vptr = (unsigned int)&DAT_0030840c;
-    p->f4 = 0;
-    p->vptr = (unsigned int)&DAT_00308bb0;
-    p->f8 = FUN_0014f050(r);
-    p->fc = 0;
-    p->f10 = FUN_0014f050(r);
-    sVar1 = FUN_0014f050(r);
-    p->f14 = (short)FUN_00159ee0(r);
-    p->f18 = FUN_0014f050(r);
-    p->f1c = 0;
-    p->f1d = 0;
-    switch (sVar1) {
+    unsigned int mode;
+    self->vtable = &DAT_0030840c;
+    self->unk04 = 0;
+    self->vtable = &DAT_00308bb0;
+    self->unk08 = FUN_0014f050(stream);
+    self->unk0c = 0;
+    self->unk10 = FUN_0014f050(stream);
+    mode = FUN_0014f050(stream);
+    self->unk14 = (short)FUN_00159ee0(stream);
+    self->unk18 = FUN_0014f050(stream);
+    self->unk1c = 0;
+    self->unk1d = 0;
+    switch (mode) {
     case 2:
-        p->f1c = 1;
-        p->f1d = 1;
+        self->unk1c = 1;
+        self->unk1d = 1;
         break;
     case 0:
-        p->f1d = 1;
+        self->unk1d = 1;
         break;
     }
-    if (p->f14 < 0) {
-        p->f14 = -p->f14;
+    if (self->unk14 < 0) {
+        self->unk14 = -self->unk14;
     }
-    int v = p->f14;
+    int v = self->unk14;
     if (v == 0) {
-        p->f14 = 1;
+        self->unk14 = 1;
     } else if (v == 1) {
-        p->f14 = 0;
+        self->unk14 = 0;
     }
-    return p;
+    return self;
 }

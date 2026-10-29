@@ -1,35 +1,38 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000ef9c8 end=0x000efa78 symbol=FUN_000ef9c8 lang=c++ */
 /* Clone of src/eboot/FUN_000ea7b8.cpp (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/pair_owner.h"
 
 extern "C" {
 extern u8 DAT_003b09bc;
 extern void FUN_00000a00(...);
-extern u32 * FUN_0001ed28(...);
+extern PairOwner * FUN_0001ed28(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
 
-extern "C" u32 * FUN_000ef9c8(u32 *param_1,short param_2)
+/* Deleting destructor: installs the vtable, deletes both owned children, runs the base destructor and frees
+   the object when flag > 0. */
+extern "C" PairOwner * FUN_000ef9c8(PairOwner *self,short flag)
 {
-  int *piVar1;
-  
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b09bc);
-    piVar1 = (int *)param_1[0x10];
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      param_1[0x10] = 0;
+  void *child;
+
+  if (self != (PairOwner *)0x0) {
+    self->vtable = &DAT_003b09bc;
+    child = self->first;
+    if (child != (void *)0x0) {
+      delete ((VC_0 *)(child));
+      self->first = 0;
     }
-    piVar1 = (int *)param_1[0x11];
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_1 *)(piVar1));
-      param_1[0x11] = 0;
+    child = self->second;
+    if (child != (void *)0x0) {
+      delete ((VC_1 *)(child));
+      self->second = 0;
     }
-    FUN_0001ed28(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0001ed28(self,0);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

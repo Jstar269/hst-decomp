@@ -16,6 +16,7 @@ struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
 struct VC_2 { virtual ~VC_2(); };
 
+/* Player teardown: members are released in reverse order of construction. */
 struct Player {
   void *vptr;
   char pad4[0x80 - 4];
@@ -30,6 +31,7 @@ struct Player {
   char m788[8];
 };
 
+/* Deleting destructor of the player; the global per-player slot takes over the helper when it is set. */
 extern "C" Player *FUN_00095fc0(Player *self, short flag)
 {
   if (self != 0) {
@@ -40,17 +42,17 @@ extern "C" Player *FUN_00095fc0(Player *self, short flag)
     }
     FUN_00098870(self);
     FUN_0009265c(self->m5bc, 1);
-    VC_2 *q = DAT_0034b340[self->idx];
-    if (q != 0) {
-      if (q != 0) {
-        delete q;
+    VC_2 *registered = DAT_0034b340[self->idx];
+    if (registered != 0) {
+      if (registered != 0) {
+        delete registered;
         DAT_0034b340[self->idx] = 0;
       }
       self->m5bc = 0;
     } else {
-      VC_1 *p = self->m5bc;
-      if (p != 0) {
-        delete p;
+      VC_1 *helper = self->m5bc;
+      if (helper != 0) {
+        delete helper;
         self->m5bc = 0;
       }
     }

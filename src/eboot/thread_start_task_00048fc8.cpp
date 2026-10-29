@@ -6,9 +6,11 @@
    function was given (FUN_002b78d8) and a semaphore is waited on (FUN_002b7928). 0x10000 is the thread
    attribute word retail passes in a3 (it is `lui a3,0x1`, so the value is 65536, not 1).
    Steering trick: the two guards are spelled as the positive nest
-   (`if (gate(...) != 0) { ... if (n > 0) { ... return 1; } } return 0;`) — the early-return spellings
+   (`if (gate(...) != 0) { ... if (thread > 0) { ... return 1; } } return 0;`) — the early-return spellings
    emit an inverted likely branch plus an extra `b`, and the negative wrap points the first branch at the
    wrong zero block. */
+enum { WORKER_PRIORITY = 111, WORKER_STACK_SIZE = 0x10000, WORKER_ATTR = 16384, WORKER_NAME_SIZE = 64 };
+
 extern "C" {
 extern char DAT_002d0730;
 extern int DAT_002d0734;
@@ -25,18 +27,18 @@ extern int FUN_002b78d8(int, int, void *);
 extern int FUN_002b7928(int, int, int);
 }
 
-extern "C" int FUN_00048fc8(char *self, int arg)
+extern "C" int FUN_00048fc8(char *owner, int start_arg)
 {
-  char buf[64];
+  char name[WORKER_NAME_SIZE];
   if (FUN_00049094(0) != 0) {
-    FUN_000143b0(buf, DAT_002d073c, DAT_002d074c, 115);
-    int n = FUN_002b7920(buf, (void *)&LAB_00048f64, 111, 0x10000, 16384, 0);
-    if (n > 0) {
-      DAT_002d0738 = n;
+    FUN_000143b0(name, DAT_002d073c, DAT_002d074c, 115);
+    int thread = FUN_002b7920(name, (void *)&LAB_00048f64, WORKER_PRIORITY, WORKER_STACK_SIZE, WORKER_ATTR, 0);
+    if (thread > 0) {
+      DAT_002d0738 = thread;
       DAT_00311140 = 1;
       DAT_002d0730 = 0;
-      DAT_00311144 = (int)self;
-      FUN_002b78d8(n, 4, &arg);
+      DAT_00311144 = (int)owner;
+      FUN_002b78d8(thread, 4, &start_arg);
       FUN_002b7928(DAT_002d0734, 1, 0);
       return 1;
     }

@@ -1,36 +1,38 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016fe64 end=0x0016ff10 symbol=FUN_0016fe64 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idiom: hold the call context and table base in locals before indexed access. */
 #include "hst/types.h"
+#include "hst/table_page.h"
 
 extern void *DAT_00338b08;
 extern int FUN_000d8c24(void *, int, int);
 
 #pragma opt_strength_reduction off
 
-u32 FUN_0016fe64(int param_1)
+/* Returns 1 when any record in the list maps to a live object whose byte-table cell equals the flagged value. */
+u32 FUN_0016fe64(TablePage *self)
 {
-  int iVar1;
-  u32 uVar2;
-  u32 uVar3;
-  int *piVar4;
+  int obj;
+  u32 count;
+  u32 index;
+  int *record;
   
-  uVar3 = 0;
-  if (*(int *)(param_1 + 0x1e8) != 0) {
+  index = 0;
+  if (self->listA.count != 0) {
 LOOP_BODY:
       void *context = DAT_00338b08;
-      int **entries = *(int ***)(param_1 + 0x1e4);
-      piVar4 = entries[uVar3];
-      iVar1 = FUN_000d8c24(context,1,*piVar4);
-      if (iVar1 != 0) {
-        if (*(signed char *)(iVar1 + 0x60) >= 0) {
-          if (*(unsigned char *)(param_1 + *piVar4 + 0x63b) == 4) {
+      int **entries = self->listA.items;
+      record = entries[index];
+      obj = FUN_000d8c24(context,1,*record);
+      if (obj != 0) {
+        if (*(signed char *)(obj + 0x60) >= 0) {
+          if (self->tables[0][*record] == TABLE_CELL_FLAGGED) {
             return 1;
           }
         }
       }
-      uVar2 = *(u32 *)(param_1 + 0x1e8);
-      uVar3 = uVar3 + 1;
-    if (uVar3 < uVar2) goto LOOP_BODY;
+      count = self->listA.count;
+      index = index + 1;
+    if (index < count) goto LOOP_BODY;
   }
   return 0;
 }

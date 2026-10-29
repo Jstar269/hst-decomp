@@ -1,48 +1,30 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002294f4 end=0x002295f4 symbol=FUN_002294f4 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: structured if/else ladder sharing common return variable, ternary map end check; exact match verified; names and types await human review. */
-extern void *DAT_002c0e18;
-extern void *DAT_002c0e1c;
-extern void *DAT_002c0e20;
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: structured if/else ladder sharing common return variable, ternary map end check; readability pass; exact match verified; names and types await human review. */
+#include "hst/tree_map.h"
+#include "hst/text_bank_lookup.h"
 
 extern void FUN_00229868(void *out, void *map, void *key);
 
-struct Sub8 {
-  char pad[8];
-  int size;
-};
-
-struct Entry {
-  void **array;
-  int count;
-  int pad;
-};
-
-struct Context {
-  char pad[4];
-  int f4;
-  struct Sub8 *f8;
-  struct Entry *entries;
-};
-
-void *FUN_002294f4(void *map, struct Context *ctx, int key_val, int index)
+/* Finds the group id for key_val in the name tree, then returns string index of that group in the bank. */
+void *FUN_002294f4(TreeMap *map, TextBank *bank, int key_val, int index)
 {
   int key = key_val;
-  void *it[2];
+  TreeNode *it[2];
   
   FUN_00229868(it, map, &key);
-  int id = (it[0] != (char *)map + 4) ? *(int *)((char *)it[0] + 0x10) : -1;
+  int id = (it[0] != (TreeNode *)&map->root) ? it[0]->value : -1;
 
-  if (ctx != 0) {
+  if (bank != 0) {
     if (id >= 0) {
       void *res;
-      if (ctx->f4 == 0) {
+      if (bank->loaded == 0) {
         res = &DAT_002c0e20;
-      } else if (id < 0 || id >= ctx->f8->size) {
+      } else if (id < 0 || id >= bank->header->groupCount) {
         res = &DAT_002c0e1c;
-      } else if (index < 0 || index >= ctx->entries[id].count) {
+      } else if (index < 0 || index >= bank->groups[id].count) {
         res = &DAT_002c0e18;
       } else {
-        res = ctx->entries[id].array[index];
+        res = (void *)bank->groups[id].strings[index];
       }
       return res;
     }

@@ -20,7 +20,9 @@ struct Vector {
     Iter end() { return Iter(data + count); }
 };
 
-struct Obj {
+/* Values of GetType() that carry a probe object. */
+enum { ENTITY_TYPE_LIST1 = 4, ENTITY_TYPE_LIST2 = 5 };
+struct Entity {
     virtual void _0() = 0;
     virtual void _1() = 0;
     virtual void _2() = 0;
@@ -35,31 +37,31 @@ struct Obj {
     virtual int GetType() = 0; // offset 52 (0x34)
 
     char pad[0x54 - 4];
-    unsigned char flag;        // 84 (0x54)
+    unsigned char enabled;     // 84 (0x54)
     char pad55[0x74 - 0x55];
-    void *subobj1;             // 116 (0x74)
-    void *subobj2;             // 120 (0x78)
+    void *probe1;             // 116 (0x74)
+    void *probe2;             // 120 (0x78)
 };
 
-struct SceneObj {
+struct SceneObj {  // global scene (two entity lists)
     char pad[0x70];
-    Vector<Obj *> vec1;        // 0x70
+    Vector<Entity *> list1;        // 0x70
     char pad78[4];
-    Vector<Obj *> vec2;        // 0x7c
+    Vector<Entity *> list2;        // 0x7c
 };
 
 struct RayHit {
     char pad[0x30];
     unsigned int dist;         // 48 (0x30)
-    int f34;                   // 52 (0x34)
+    int unk34;                 // 52 (0x34)
     char pad38[4];
-    int f3c;                   // 60 (0x3c)
-    int f40;                   // 64 (0x40)
+    int unk3c;                 // 60 (0x3c)
+    int unk40;                 // 64 (0x40)
 };
 
 struct Context {
     char pad[12];
-    void *main_obj;            // 12 (0x0c)
+    void *mainProbe;            // 12 (0x0c)
 };
 
 extern "C" {
@@ -68,37 +70,38 @@ extern SceneObj *DAT_0034a114;
 extern bool FUN_00055b54(void *, RayHit *, int, void *, int, int, int);
 }
 
-extern "C" bool FUN_0012d550(Context *ctx, RayHit *hit, int tag)
+/* Probe the main object and the enabled entities of both lists; true when any probe reports a hit. */
+extern "C" bool FUN_0012d550(Context *ctx, RayHit *hit, int mask)
 {
-    hit->dist = 0x7f7fffff;
-    hit->f34 = 0;
-    hit->f3c = 0;
-    hit->f40 = 0;
+    hit->dist = 0x7f7fffff;  /* largest float: no hit yet */
+    hit->unk34 = 0;
+    hit->unk3c = 0;
+    hit->unk40 = 0;
 
     bool result = false;
-    if (FUN_00055b54(ctx->main_obj, hit, tag, &DAT_002c1514, 0, 0, 1)) {
+    if (FUN_00055b54(ctx->mainProbe, hit, mask, &DAT_002c1514, 0, 0, 1)) {
         result = true;
     }
 
-    Obj *obj;
-    Vector<Obj *> &vec1 = DAT_0034a114->vec1;
-    for (Vector<Obj *>::Iter it = vec1.begin(); it != vec1.end(); ++it) {
+    Entity *obj;
+    Vector<Entity *> &list1 = DAT_0034a114->list1;
+    for (Vector<Entity *>::Iter it = list1.begin(); it != list1.end(); ++it) {
         obj = *it;
-        if (obj->GetType() == 4) {
-            if (obj->flag && obj->subobj1) {
-                if (FUN_00055b54(obj->subobj1, hit, tag, 0, 0, 0, 1)) {
+        if (obj->GetType() == ENTITY_TYPE_LIST1) {
+            if (obj->enabled && obj->probe1) {
+                if (FUN_00055b54(obj->probe1, hit, mask, 0, 0, 0, 1)) {
                     result = true;
                 }
             }
         }
     }
 
-    Vector<Obj *> &vec2 = DAT_0034a114->vec2;
-    for (Vector<Obj *>::Iter it = vec2.begin(); it != vec2.end(); ++it) {
+    Vector<Entity *> &list2 = DAT_0034a114->list2;
+    for (Vector<Entity *>::Iter it = list2.begin(); it != list2.end(); ++it) {
         obj = *it;
         if (obj != 0) {
-            if (obj->GetType() == 5 && obj->flag && obj->subobj2) {
-                if (FUN_00055b54(obj->subobj2, hit, tag, 0, 0, 0, 1)) {
+            if (obj->GetType() == ENTITY_TYPE_LIST2 && obj->enabled && obj->probe2) {
+                if (FUN_00055b54(obj->probe2, hit, mask, 0, 0, 0, 1)) {
                     result = true;
                 }
             }

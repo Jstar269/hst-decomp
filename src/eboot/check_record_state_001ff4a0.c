@@ -7,10 +7,14 @@
    Matching idioms: the three global tests are NESTED ifs (not early returns) and the inner pair is
    repeated around the record lookup, so the null paths leave the record pointer at 0 and fall into the
    shared test block; the call's argument (the second global) is loaded into a0 before its own test. */
-typedef unsigned char u8;
+#include "hst/adhoc_net.h"
+#include "hst/record_bank.h"
 
-extern void *DAT_003386c8;
-extern void *DAT_00338ac4;
+/* The state value both ints of a finished bank must hold. */
+#define RECORD_STATE_DONE 11
+
+extern RecordRoot *DAT_003386c8;
+extern AdhocNet *DAT_00338ac4;
 extern int FUN_000be7b4(void *arg);
 
 int FUN_001ff4a0(void)
@@ -19,18 +23,18 @@ int FUN_001ff4a0(void)
     if (DAT_003386c8 != 0) {
         if (DAT_00338ac4 != 0) {
             if (FUN_000be7b4(DAT_00338ac4) != 0) {
-                char *sub = 0;
+                RecordBank *bank = 0;
                 if (DAT_003386c8 != 0) {
                     if (DAT_00338ac4 != 0) {
-                        char *base = *(char **)((char *)DAT_003386c8 + 0x40);
-                        if (*(u8 *)((char *)DAT_00338ac4 + 0x178) != 0) {
-                            sub = base + 0x1ef8;
+                        RecordOwner *owner = DAT_003386c8->owner;
+                        if (DAT_00338ac4->unk178 != 0) {
+                            bank = &owner->banks[1];
                         } else {
-                            sub = base + 0x1aa0;
+                            bank = &owner->banks[0];
                         }
                     }
                 }
-                if (*(u8 *)(sub + 0x12d) != 0 && *(int *)(sub + 0x3c0) == 11 && *(int *)(sub + 0x3c4) == 11) {
+                if (bank->unk12d != 0 && bank->unk3c0 == RECORD_STATE_DONE && bank->unk3c4 == RECORD_STATE_DONE) {
                     res = 1;
                 }
             }

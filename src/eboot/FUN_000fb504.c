@@ -1,16 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000fb504 end=0x000fb528 symbol=FUN_000fb504 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/mode_screen.h"
 
-bool FUN_000fb504(int param_1)
+#define STATUS_DONE 5
+
+/* True when there is no status object or it has reached the done state. */
+bool FUN_000fb504(ModeScreen *self)
 {
-  bool bVar1;
-  int iVar2;
+  bool done;
+  ModeStatusObj *status;
   
-  iVar2 = *(int *)(*(int *)(param_1 + 0x3c) + 100);
-  bVar1 = true;
-  if (iVar2 != 0) {
-    bVar1 = *(int *)(iVar2 + 0xb8) == 5;
+  status = self->core->status;
+  done = true;
+  if (status != 0) {
+    done = status->unkb8 == STATUS_DONE;
   }
-  return bVar1;
+  return done;
 }

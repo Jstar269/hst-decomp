@@ -5,11 +5,14 @@
 extern u8 DAT_003b2f7c;
 extern u8 DAT_003b2f88;
 
-u32 * FUN_001e49b8(u32 *param_1)
+/* Polymorphic object with two zeroed words; two vtables are installed in turn, the second stays. */
+typedef struct VtableWords { const void *vtable; u32 unk04; u32 unk08; } VtableWords;
+
+VtableWords * FUN_001e49b8(VtableWords *self)
 {
-  *param_1 = (unsigned int)(&DAT_003b2f88);
-  param_1[1] = 0;
-  param_1[2] = 0;
-  *param_1 = (unsigned int)(&DAT_003b2f7c);
-  return param_1;
+  self->vtable = &DAT_003b2f88;
+  self->unk04 = 0;
+  self->unk08 = 0;
+  self->vtable = &DAT_003b2f7c;
+  return self;
 }

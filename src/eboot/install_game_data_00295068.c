@@ -1,17 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00295068 end=0x002951a0 symbol=FUN_00295068 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idiom: pass the stored status to the variadic error formatter. */
 #include "hst/types.h"
+#include "hst/menu_resource.h"
 
-extern char DAT_002cb0f8[];
+extern char DAT_002cb0f8[]; /* "... sceKernelExitDeleteThread(): failed. 0x%08x" */
 extern char DAT_002cb148[];
-extern char DAT_002cb154[];
-extern char DAT_002cb160[];
-extern char DAT_002cb1ac[];
-extern char DAT_002cb1f4[];
-extern char DAT_002cb200[];
-extern char DAT_002cb250[];
-extern char DAT_002cb298[];
-extern char DAT_002cb2a4[];
+extern char DAT_002cb154[]; /* "Write OK.
+" */
+extern char DAT_002cb160[]; /* "... scesupGameaccInstallEnd(): failed. 0x%08x" */
+extern char DAT_002cb1ac[]; /* "... scesupGameaccInstall(): failed. 0x%08x" */
+extern char DAT_002cb1f4[]; /* "EBOOT.PBP" */
+extern char DAT_002cb200[]; /* "... scesupGameaccInstallStart(): failed. 0x%08x" */
+extern char DAT_002cb250[]; /* "... FileBundle::ReadFile(): failed. 0x%08x" */
+extern char DAT_002cb298[]; /* "TRIAL.PBP" */
+extern char DAT_002cb2a4[]; /* "ms0:/PSP/GAME/NPJG90047/FILE.BDL" */
 extern u32 FUN_000fe448();
 extern void FUN_00294684(const char *, ...);
 extern int FUN_00296d60();
@@ -19,48 +21,49 @@ extern int FUN_00296ff8();
 extern int FUN_002973a4();
 extern int FUN_002b79b0();
 
-u32 FUN_00295068(u32 param_1,int *param_2)
+/* Thread body: read the game data bundle and install it, logging each failure. */
+u32 FUN_00295068(u32 arglen,MenuResource **argp)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
+  int size;
+  int ret;
+  MenuResource *res;
   
-  iVar3 = *param_2;
-  iVar1 = FUN_000fe448(DAT_002cb2a4,DAT_002cb298,
-                       *(u32 *)(iVar3 + 4),0x200000);
-  if (iVar1 < 0) {
-    FUN_00294684(DAT_002cb250,*(u32 *)(iVar3 + 0x1c));
-    *(u32 *)(iVar3 + 0x1c) = 0xffffffff;
+  res = *argp;
+  size = FUN_000fe448(DAT_002cb2a4,DAT_002cb298,
+                      res->unk4,0x200000);
+  if (size < 0) {
+    FUN_00294684(DAT_002cb250,res->result);
+    res->result = -1;
   }
   else {
-    iVar2 = FUN_00296d60();
-    *(int *)(iVar3 + 0x1c) = iVar2;
-    if (iVar2 < 0) {
-      FUN_00294684(DAT_002cb200,iVar2);
-      goto LAB_00295140;
+    ret = FUN_00296d60();
+    res->result = ret;
+    if (ret < 0) {
+      FUN_00294684(DAT_002cb200,ret);
+      goto report;
     }
-    iVar1 = FUN_002973a4(DAT_002cb1f4,*(u32 *)(iVar3 + 4),iVar1);
-    *(int *)(iVar3 + 0x1c) = iVar1;
-    if (iVar1 < 0) {
-      FUN_00294684(DAT_002cb1ac,iVar1);
+    size = FUN_002973a4(DAT_002cb1f4,res->unk4,size);
+    res->result = size;
+    if (size < 0) {
+      FUN_00294684(DAT_002cb1ac,size);
     }
     else {
-      iVar1 = FUN_00296ff8();
-      *(int *)(iVar3 + 0x1c) = iVar1;
-      if (iVar1 < 0) {
-        FUN_00294684(DAT_002cb160,iVar1);
+      size = FUN_00296ff8();
+      res->result = size;
+      if (size < 0) {
+        FUN_00294684(DAT_002cb160,size);
       }
     }
   }
-LAB_00295140:
-  if (*(int *)(iVar3 + 0x1c) >= 0) {
+report:
+  if (res->result >= 0) {
     FUN_00294684(DAT_002cb154);
   } else {
-    FUN_00294684(DAT_002cb148,*(int *)(iVar3 + 0x1c));
+    FUN_00294684(DAT_002cb148,res->result);
   }
-  iVar1 = FUN_002b79b0(0);
-  if (iVar1 < 0) {
-    FUN_00294684(DAT_002cb0f8,iVar1);
+  size = FUN_002b79b0(0);
+  if (size < 0) {
+    FUN_00294684(DAT_002cb0f8,size);
   }
   return 0;
 }

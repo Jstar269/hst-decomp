@@ -1,44 +1,50 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c1d74 end=0x001c1e20 symbol=FUN_001c1d74 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Derived from: try/gen-a1/v0/FUN_001c1d74.c (tag: a1) */
-extern unsigned char *DAT_003386c8;
-extern unsigned char *DAT_00338ac4;
-extern char *DAT_003415a8;
+#include "hst/unit_block.h"
+#include "hst/screen_obj.h"
+#include "hst/slot_block.h"
+
+extern UnitOwner *DAT_003386c8;
+extern ScreenEnv *DAT_00338ac4;
+extern SetupData *DAT_003415a8;
 extern int FUN_000bbba4(void *, void *);
 
+/* The setup data's string field, or 0 when there is no setup data. */
 static inline char *GetField20(void)
 {
     char *r = 0;
-    char *g = DAT_003415a8;
+    SetupData *g = DAT_003415a8;
     if (g != 0) {
-        r = g + 0x20;
+        r = g->unk20;
     }
     return r;
 }
 
+/* Find the entry whose key matches the env's lookup key (the string field when the env flag is set). */
 void *FUN_001c1d74(void)
 {
-    int iVar4;
-    char *iVar3;
-    char *iVar2;
-    int iVar1;
+    int i;
+    void *result;
+    UnitBlock *cur;
+    int key;
 
-    iVar3 = 0;
+    result = 0;
     if (DAT_003386c8 != 0 && DAT_00338ac4 != 0) {
-        iVar2 = *(char **)(DAT_003386c8 + 0x40);
-        if (DAT_00338ac4[0x178] != 0) {
-            iVar3 = GetField20();
+        cur = DAT_003386c8->block; /* advanced one entry per pass */
+        if (DAT_00338ac4->unk178 != 0) {
+            result = GetField20();
         } else {
-            iVar4 = 0;
+            i = 0;
             do {
-                iVar1 = FUN_000bbba4(DAT_00338ac4, DAT_00338ac4 + 0x3e);
-                if (*(int *)(iVar2 + 0x1bd8) == iVar1) {
-                    iVar3 = iVar2 + 0x1bac;
+                key = FUN_000bbba4(DAT_00338ac4, (char *)DAT_00338ac4 + 0x3e);
+                if (cur->entry[0].key == key) {
+                    result = &cur->entry[0];
                 }
-                iVar4 = iVar4 + 1;
-                iVar2 = iVar2 + 0x458;
-            } while (iVar4 < 4);
+                i = i + 1;
+                cur = (UnitBlock *)((char *)cur + sizeof(UnitEntry));
+            } while (i < UNIT_ENTRY_COUNT);
         }
     }
-    return iVar3;
+    return result;
 }

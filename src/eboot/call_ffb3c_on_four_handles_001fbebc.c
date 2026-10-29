@@ -2,23 +2,21 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 typedef struct Obj {
   char pad[0x58];
-  void *h0;
-  void *h1;
-  void *h2;
-  void *h3;
+  void *handle[4];   /* 0x58 */
 } Obj;
 
 extern int FUN_000487f4();
 extern void FUN_000ffb3c(void *, int);
 extern void FUN_00103128(Obj *);
 
-void FUN_001fbebc(Obj *o)
+/* If FUN_000487f4 reports true, calls FUN_000ffb3c(handle, 1) on all four handles; then FUN_00103128. */
+void FUN_001fbebc(Obj *self)
 {
   if (FUN_000487f4() != 0) {
-    FUN_000ffb3c(o->h0, 1);
-    FUN_000ffb3c(o->h1, 1);
-    FUN_000ffb3c(o->h2, 1);
-    FUN_000ffb3c(o->h3, 1);
+    FUN_000ffb3c(self->handle[0], 1);
+    FUN_000ffb3c(self->handle[1], 1);
+    FUN_000ffb3c(self->handle[2], 1);
+    FUN_000ffb3c(self->handle[3], 1);
   }
-  FUN_00103128(o);
+  FUN_00103128(self);
 }

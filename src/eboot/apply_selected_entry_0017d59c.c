@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017d59c end=0x0017d728 symbol=FUN_0017d59c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: flag local is unsigned char (lbu) and the conditional param_2 reassignment is a ternary; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: flag local is unsigned char (lbu) and the conditional param_2 reassignment is a ternary; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/slot_mgr.h"
 
 extern void FUN_000943d0();
 extern void FUN_0017c39c();
@@ -10,37 +11,37 @@ extern int FUN_001fe244();
 extern int FUN_001fe584();
 extern void FUN_001fe7b8();
 
-void FUN_0017d59c(int param_1,int param_2,u32 param_3,int param_4,int param_5, u32 param_6)
+void FUN_0017d59c(SlotMgr *self,int *vals,u32 arg3,int on,int slot, u32 arg6)
 {
-  int iVar1;
-  unsigned char local_1;
+  int found;
+  unsigned char use_table;
   
-  local_1 = '\0';
-  iVar1 = FUN_001fe244(param_1 + 0x5c,&local_1,param_5,param_3,param_2,param_4,param_6);
-  if (iVar1 != 0x7fffffff) {
-    param_2 = (local_1 != '\0') ? param_1 + iVar1 * 0x20 + 100 : param_2;
-    FUN_001fe584(param_1 + 0x1a0,param_5,param_3,param_2,param_4);
-    FUN_001fe7b8(param_1 + 0x1a0);
-    if (param_4 == 0) {
-      *(u32 *)(param_1 + 0x19c) = 0;
-      *(u32 *)(param_1 + 0x2e0) = 0;
+  use_table = '\0';
+  found = FUN_001fe244(self->sub5c,&use_table,slot,arg3,vals,on,arg6);
+  if (found != VALUE_UNSET) {
+    vals = (use_table != '\0') ? (int)self + found * 0x20 + 100 : vals;
+    FUN_001fe584(self->sub1a0,slot,arg3,vals,on);
+    FUN_001fe7b8(self->sub1a0);
+    if (on == 0) {
+      self->unk19c = 0;
+      self->unk2e0 = 0;
       FUN_001fe0f4(0);
-      FUN_0017c6d4(param_1,1);
-      FUN_0017c39c(param_1,1);
+      FUN_0017c6d4(self,1);
+      FUN_0017c39c(self,1);
     }
     else {
-      *(u32 *)(param_1 + 0x19c) = 3;
-      *(u32 *)(param_1 + 0x2e0) = 3;
-      if (*(int *)(param_2 + 0x14) != 0x7fffffff) {
-        FUN_000943d0(*(int *)(*(int *)(param_1 + 8) + param_5 * 4) + 0x10,5);
+      self->unk19c = 3;
+      self->unk2e0 = 3;
+      if (vals[5] != VALUE_UNSET) {
+        FUN_000943d0(self->entries[slot]->sub,5);
       }
-      iVar1 = *(int *)(param_2 + 0xc);
-      if (iVar1 != 0x7fffffff) {
-        FUN_000943d0(*(int *)(*(int *)(param_1 + 8) + param_5 * 4) + 0x10,3);
+      found = vals[3];
+      if (found != VALUE_UNSET) {
+        FUN_000943d0(self->entries[slot]->sub,3);
       }
-      iVar1 = *(int *)(param_2 + 0x10);
-      if (iVar1 != 0x7fffffff) {
-        FUN_000943d0(*(int *)(*(int *)(param_1 + 8) + param_5 * 4) + 0x10,4);
+      found = vals[4];
+      if (found != VALUE_UNSET) {
+        FUN_000943d0(self->entries[slot]->sub,4);
       }
     }
   }

@@ -1,16 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000fb528 end=0x000fb544 symbol=FUN_000fb528 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/mode_screen.h"
 
-u8 FUN_000fb528(int param_1)
+/* The status object's flag byte, or 0 when there is no status object. */
+u8 FUN_000fb528(ModeScreen *self)
 {
-  u8 uVar1;
-  int iVar2;
+  u8 flag;
+  ModeStatusObj *status;
   
-  iVar2 = *(int *)(*(int *)(param_1 + 0x3c) + 100);
-  uVar1 = 0;
-  if (iVar2 != 0) {
-    uVar1 = *(u8 *)(iVar2 + 0xb0);
+  status = self->core->status;
+  flag = 0;
+  if (status != 0) {
+    flag = status->unkb0;
   }
-  return uVar1;
+  return flag;
 }

@@ -1,16 +1,17 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00100c64 end=0x00100c80 symbol=FUN_00100c64 lang=c99 */
 /* Clone of src/eboot/FUN_000fb528.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/mode_screen.h"
 
-u8 FUN_00100c64(int param_1)
+/* The status object's flag byte, or 0 when there is no status object. */
+u8 FUN_00100c64(ModeScreen *self)
 {
-  u8 uVar1;
-  int iVar2;
+  u8 flag;
+  ModeStatusObj *status;
   
-  iVar2 = *(int *)(*(int *)(param_1 + 0x3c) + 100);
-  uVar1 = 0;
-  if (iVar2 != 0) {
-    uVar1 = *(u8 *)(iVar2 + 0xb0);
+  status = self->core->status;
+  flag = 0;
+  if (status != 0) {
+    flag = status->unkb0;
   }
-  return uVar1;
+  return flag;
 }

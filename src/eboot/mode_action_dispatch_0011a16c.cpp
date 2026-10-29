@@ -3,24 +3,24 @@
 /* Matching idiom: the guard chain is an early return (if (a != 0 || b != 0 || ... || f() != 0) return;) followed by the switch; the nested-if form lays the call result test out as bnez/nop instead of retail's beqzl + b END. */
 struct Player {
   char pad[0x4d8];
-  unsigned char f4d8;
+  unsigned char unk4d8;  /* flag tested in the default case */
   char pad4d9[0xf];
-  int f4e8;
+  int mode;
 };
-struct Slots {
+struct PlayerTable {
   char pad[0x70];
-  Player *player[1];
+  Player *players[1];
 };
 struct Game {
   char pad[0x5d];
-  unsigned char f5d;
-  unsigned char f5e;
-  unsigned char f5f;
+  unsigned char unk5d;
+  unsigned char unk5e;
+  unsigned char unk5f;
   char pad60[0x24];
-  unsigned char f84;
+  unsigned char unk84;
 };
 extern "C" {
-extern Slots *DAT_003386b0;
+extern PlayerTable *DAT_003386b0;
 extern Game *DAT_00338b44;
 int FUN_000dbc04();
 void FUN_0011a2ac(float, void *, int, int);
@@ -28,9 +28,9 @@ void FUN_0011b468(void *);
 
 void FUN_0011a16c(void *self, int unused, int idx)
 {
-  int mode = DAT_003386b0->player[idx]->f4e8;
-  if (DAT_00338b44->f5d != 0 || DAT_00338b44->f84 != 0 || DAT_00338b44->f5e != 0 ||
-      DAT_00338b44->f5f != 0 || FUN_000dbc04() != 0) {
+  int mode = DAT_003386b0->players[idx]->mode;
+  if (DAT_00338b44->unk5d != 0 || DAT_00338b44->unk84 != 0 || DAT_00338b44->unk5e != 0 ||
+      DAT_00338b44->unk5f != 0 || FUN_000dbc04() != 0) {
     return;
   }
   switch (mode) {
@@ -43,7 +43,7 @@ void FUN_0011a16c(void *self, int unused, int idx)
       FUN_0011b468(self);
       break;
     default:
-      if (DAT_003386b0->player[idx]->f4d8 != 0) {
+      if (DAT_003386b0->players[idx]->unk4d8 != 0) {
         FUN_0011a2ac(155.0f, self, 10, 30);
         FUN_0011b468(self);
       }

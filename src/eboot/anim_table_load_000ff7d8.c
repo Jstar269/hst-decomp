@@ -1,6 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ff7d8 end=0x000ff98c symbol=FUN_000ff7d8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: DAT_0033a6dc is an unsigned char (lbu), and iVar6 declared before iVar5 so the loop index gets s1 and the byte offset s0; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: DAT_0033a6dc is an unsigned char (lbu), and iVar6 declared before iVar5 so the loop index gets s1 and the byte offset s0; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/table_reader.h"
+
+#define ANIM_ROW_SIZE 8     /* four halfwords per row */
+#define ANIM_NAME_SIZE 0x80 /* bytes per row name */
+
+/* Table loaded from a file: row count (including the header row), the rows of four halfwords and optionally the row names. */
+typedef struct AnimTable {
+  int count;    /* 0x00 */
+  char *rows;   /* 0x04 */
+  char *names;  /* 0x08 */
+} AnimTable;
 
 extern unsigned char DAT_0033a6dc;
 extern int FUN_00000a90();
@@ -12,62 +23,63 @@ extern u32 FUN_000650e0();
 extern int FUN_00065104();
 extern int FUN_0006517c();
 
-u32 FUN_000ff7d8(int *param_1,u32 param_2,u32 param_3,u32 param_4)
+/* Opens the table file and loads its rows (and the names too when DAT_0033a6dc is set). Returns 1 on success, 0 if it cannot be opened. */
+u32 FUN_000ff7d8(AnimTable *table,u32 path,u32 arg3,u32 arg4)
 {
-  u8 cVar1;
-  u16 uVar2;
-  int iVar3;
-  u32 uVar4;
-  int iVar6;
-  int iVar5;
-  u8 auStack_10 [16];
+  u8 opened;
+  u16 value;
+  int n;       /* row count; in the name loop its index */
+  u32 result;
+  int row;     /* row index; in the name loop the byte offset */
+  int offset;  /* byte offset of the row */
+  TableReader reader;
   
-  FUN_000649c0(auStack_10);
-  cVar1 = FUN_00064bf4(auStack_10,param_2,param_3,param_4);
-  if (cVar1 == '\0') {
-    *param_1 = 0;
-    FUN_00064a08(auStack_10,0xffffffff);
-    uVar4 = 0;
+  FUN_000649c0(&reader);
+  opened = FUN_00064bf4(&reader,path,arg3,arg4);
+  if (opened == '\0') {
+    table->count = 0;
+    FUN_00064a08(&reader,0xffffffff);
+    result = 0;
   }
   else {
-    iVar3 = FUN_000650e0(auStack_10);
-    *param_1 = iVar3;
-    iVar3 = FUN_00000a90((iVar3 + -1) * 8);
-    param_1[1] = iVar3;
-    iVar3 = *param_1 + -1;
-    iVar6 = 0;
-    if (0 < iVar3) {
-      iVar5 = 0;
+    n = FUN_000650e0(&reader);
+    table->count = n;
+    n = FUN_00000a90((n + -1) * ANIM_ROW_SIZE);
+    table->rows = (char *)n;
+    n = table->count + -1;
+    row = 0;
+    if (0 < n) {
+      offset = 0;
       do {
-        uVar2 = FUN_00065104(auStack_10,iVar6 + 1,1);
-        *(u16 *)(param_1[1] + iVar5) = uVar2;
-        uVar2 = FUN_00065104(auStack_10,iVar6 + 1,2);
-        *(u16 *)(param_1[1] + iVar5 + 2) = uVar2;
-        uVar2 = FUN_00065104(auStack_10,iVar6 + 1,3);
-        *(u16 *)(param_1[1] + iVar5 + 4) = uVar2;
-        uVar2 = FUN_00065104(auStack_10,iVar6 + 1,4);
-        iVar6 = iVar6 + 1;
-        *(u16 *)(param_1[1] + iVar5 + 6) = uVar2;
-        iVar3 = *param_1 + -1;
-        iVar5 = iVar5 + 8;
-      } while (iVar6 < iVar3);
+        value = FUN_00065104(&reader,row + 1,1);
+        *(u16 *)(table->rows + offset) = value;
+        value = FUN_00065104(&reader,row + 1,2);
+        *(u16 *)(table->rows + offset + 2) = value;
+        value = FUN_00065104(&reader,row + 1,3);
+        *(u16 *)(table->rows + offset + 4) = value;
+        value = FUN_00065104(&reader,row + 1,4);
+        row = row + 1;
+        *(u16 *)(table->rows + offset + 6) = value;
+        n = table->count + -1;
+        offset = offset + ANIM_ROW_SIZE;
+      } while (row < n);
     }
     if (DAT_0033a6dc != '\0') {
-      iVar3 = FUN_00000a90(iVar3 << 7);
-      param_1[2] = iVar3;
-      iVar3 = 0;
-      if (0 < *param_1 + -1) {
-        iVar6 = 0;
+      n = FUN_00000a90(n << 7);
+      table->names = (char *)n;
+      n = 0;
+      if (0 < table->count + -1) {
+        row = 0;
         do {
-          uVar4 = FUN_0006517c(auStack_10,iVar3 + 1,0);
-          FUN_000149a8(param_1[2] + iVar6,uVar4);
-          iVar3 = iVar3 + 1;
-          iVar6 = iVar6 + 0x80;
-        } while (iVar3 < *param_1 + -1);
+          result = FUN_0006517c(&reader,n + 1,0);
+          FUN_000149a8(table->names + row,result);
+          n = n + 1;
+          row = row + ANIM_NAME_SIZE;
+        } while (n < table->count + -1);
       }
     }
-    FUN_00064a08(auStack_10,0xffffffff);
-    uVar4 = 1;
+    FUN_00064a08(&reader,0xffffffff);
+    result = 1;
   }
-  return uVar4;
+  return result;
 }

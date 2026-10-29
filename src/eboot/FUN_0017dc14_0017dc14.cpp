@@ -1,26 +1,25 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017dc14 end=0x0017dc8c symbol=FUN_0017dc14 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: this/float argument order and clamp access; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: this/float argument order and clamp access; readability pass; exact match verified; names and types await human review. */
+#include "hst/slot_mgr.h"
 
-extern "C" int FUN_0016bc7c();
-
-struct StateView_0017dc14 { char pad[0x4c]; float value; };
+extern "C" SlotSettings *FUN_0016bc7c();
 
 static inline float Clamp(const float &value, const float &low, const float &high)
 {
   return value < low ? low : (!(value > high) ? value : high);
 }
 
-static inline const float &Current(const struct StateView_0017dc14 *state)
+static inline const float &Current(const SlotMgr *state)
 {
   return state->value;
 }
 
-extern "C" void FUN_0017dc14(int param_2,float param_1)
+/* Add `delta` to the manager's value and clamp it to the settings' limits. */
+extern "C" void FUN_0017dc14(SlotMgr *self,float delta)
 {
-  int iVar1;
+  SlotSettings *settings;
   
-  iVar1 = FUN_0016bc7c();
-  *(float *)(param_2 + 0x4c) = *(float *)(param_2 + 0x4c) + param_1;
-  *(float *)(param_2 + 0x4c) = Clamp(Current((const struct StateView_0017dc14 *)param_2),
-                 *(float *)(iVar1 + 0x1c), *(float *)(iVar1 + 0x20));
+  settings = FUN_0016bc7c();
+  self->value = self->value + delta;
+  self->value = Clamp(Current(self), settings->lo, settings->hi);
 }

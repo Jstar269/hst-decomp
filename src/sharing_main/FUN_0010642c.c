@@ -8,24 +8,25 @@ extern int * FUN_001019c0();
 extern int * FUN_00101a28();
 extern void FUN_001064bc();
 
-u32 * FUN_0010642c(u32 *param_1,short param_2)
+/* Destructor: resets the vtable word, destroys the two embedded members (last first), frees the object when flags > 0. */
+u32 * FUN_0010642c(u32 *self,short flags)
 {
-  u32 *puVar1;
+  u32 *member;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b0e38);
+  if (self != (u32 *)0x0) {
+    *self = (unsigned int)(&DAT_003b0e38);
     FUN_001064bc();
-    puVar1 = param_1 + 4;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00101a28(puVar1,0);
+    member = self + 4;
+    if ((member != (u32 *)0x0) && (member != (u32 *)0x0)) {
+      FUN_00101a28(member,0);
     }
-    puVar1 = param_1 + 1;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001019c0(puVar1,0);
+    member = self + 1;
+    if ((member != (u32 *)0x0) && (member != (u32 *)0x0)) {
+      FUN_001019c0(member,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

@@ -1,16 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001cd810 end=0x001cd83c symbol=FUN_001cd810 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/flow_state.h"
 
 extern u8 DAT_00309350;
 
-u32 * FUN_001cd810(u32 *param_1)
+/* Constructor of the state record's base part. */
+FlowState * FUN_001cd810(FlowState *self)
 {
-  *param_1 = (unsigned int)(&DAT_00309350);
-  param_1[1] = 0xffffffff;
-  param_1[2] = 0;
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  return param_1;
+  self->vtable = (unsigned int)(&DAT_00309350);
+  self->unk04 = 0xffffffff;
+  self->unk08 = 0;
+  self->timer = 0;
+  self->state = 0;
+  self->unk14 = 0;
+  return self;
 }

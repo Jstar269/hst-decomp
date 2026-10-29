@@ -1,5 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00286f2c end=0x002872a0 symbol=FUN_00286f2c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/cmd_actor.h"
+
+/* One queued command: type id, remaining delay in frames, and four argument words (int or float by type). */
 struct Cmd {
     int type;
     int count;
@@ -15,49 +18,52 @@ struct Node {
     Cmd v;
 };
 
-struct Out {
+struct EraseResult {
     Node *p;
     int pad;
 };
 
-struct Self {
-    char pad0[0x64];
-    char list[4];
-    Node sentinel_hdr;
+/* Command type ids that have a handler. */
+enum {
+    CMD_DIALOGUE_ACTION = 0x34,
+    CMD_BGM_VOLUME = 0x49,
+    CMD_MODE_REQUEST = 0x52
 };
 
 extern "C" {
-int FUN_002890c0(Self *);
-void FUN_00288624(Self *, int, int);
-void FUN_002885dc(Self *, int, int, float);
-void FUN_00288594(Self *, int, int, float);
-void FUN_00288470(Self *, int, float);
-void FUN_00288414(Self *, float, int, int);
-void FUN_00288350(Self *, int, int);
-void FUN_00288208(Self *, int, int, unsigned, int);
-void FUN_00287ff0(Self *, int, int, int, int, unsigned);
-void FUN_00287de4(Self *, int, int, int);
-void FUN_00287c60(Self *, int, int, int, float);
-void FUN_00287b30(Self *, int, int, int, float);
-void FUN_002879e0(Self *, int, float, int, int, int);
-void FUN_0028797c(Self *, int, int);
-void FUN_00287924(Self *, int, int);
-void FUN_002878cc(Self *, int, int);
-void FUN_002876a0(Self *, int, int, int);
-void FUN_002875f8(Self *, int, unsigned, int);
-void FUN_002874c4(Self *, int, int, unsigned, unsigned, int);
-void FUN_002894d4(Out *, void *, Node **);
+int FUN_002890c0(CmdActor *);
+void FUN_00288624(CmdActor *, int, int);
+void FUN_002885dc(CmdActor *, int, int, float);
+void FUN_00288594(CmdActor *, int, int, float);
+void FUN_00288470(CmdActor *, int, float);
+void FUN_00288414(CmdActor *, float, int, int);
+void FUN_00288350(CmdActor *, int, int);
+void FUN_00288208(CmdActor *, int, int, unsigned, int);
+void FUN_00287ff0(CmdActor *, int, int, int, int, unsigned);
+void FUN_00287de4(CmdActor *, int, int, int);
+void FUN_00287c60(CmdActor *, int, int, int, float);
+void FUN_00287b30(CmdActor *, int, int, int, float);
+void FUN_002879e0(CmdActor *, int, float, int, int, int);
+void FUN_0028797c(CmdActor *, int, int);
+void FUN_00287924(CmdActor *, int, int);
+void FUN_002878cc(CmdActor *, int, int);
+void FUN_002876a0(CmdActor *, int, int, int);
+void FUN_002875f8(CmdActor *, int, unsigned, int);
+void FUN_002874c4(CmdActor *, int, int, unsigned, unsigned, int);
+void FUN_002894d4(EraseResult *, void *, Node **);
 }
 
-extern "C" void FUN_00286f2c(Self *self)
+/* Runs the queued commands: each tick counts a command's delay down and, once it reaches zero,
+   calls the handler for its type and removes it from the list. */
+extern "C" void FUN_00286f2c(CmdActor *self)
 {
-    Node *n = self->sentinel_hdr.next;
-    Node *end = &self->sentinel_hdr;
+    Node *n = (Node *)self->head.next;
+    Node *end = (Node *)&self->head;
     while (n != end) {
         Cmd *c = &n->v;
         int t = c->type;
         switch (t) {
-        case 0x49:
+        case CMD_BGM_VOLUME:
             if (FUN_002890c0(self) != 0) {
                 n = n->next;
                 continue;
@@ -85,7 +91,7 @@ extern "C" void FUN_00286f2c(Self *self)
             case 0x4c:
                 FUN_0028797c(self, c->a, 0);
                 break;
-            case 0x49:
+            case CMD_BGM_VOLUME:
                 FUN_002879e0(self, c->a, c->fb, c->c, 0, 0);
                 break;
             case 0x4f:
@@ -101,10 +107,10 @@ extern "C" void FUN_00286f2c(Self *self)
             case 0x42:
                 FUN_00287ff0(self, c->a, 0, c->b, 0, c->c == 1);
                 break;
-            case 0x34:
+            case CMD_DIALOGUE_ACTION:
                 FUN_00288208(self, c->a, c->b, c->c == 1, 0);
                 break;
-            case 0x52:
+            case CMD_MODE_REQUEST:
                 FUN_00288350(self, c->a, 0);
                 break;
             case 0x4e:
@@ -123,9 +129,9 @@ extern "C" void FUN_00286f2c(Self *self)
                 FUN_00288624(self, c->a, 0);
                 break;
             }
-            Out out;
+            EraseResult out;
             Node *pos = n;
-            FUN_002894d4(&out, self->list, &pos);
+            FUN_002894d4(&out, self->alloc64, &pos);
             n = out.p;
         } else {
             n = n->next;

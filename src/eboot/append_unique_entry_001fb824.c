@@ -1,38 +1,42 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fb824 end=0x001fb8a0 symbol=FUN_001fb824 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag p128a) corrected by hand: recovered the 20-entry key/value/count record layout and index-first table access; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag p128a) corrected by hand: recovered the 20-entry key/value/count record layout and index-first table access; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+enum { QUEUE_CAPACITY = 20 };
+
+/* Key/value queue embedded in a larger object. */
 struct QueueView {
   char pad[0x3c];
-  int keys[20];
-  int values[20];
-  int count;
+  int keys[QUEUE_CAPACITY];     /* 0x3c */
+  int values[QUEUE_CAPACITY];   /* 0x8c */
+  int count;                    /* 0xdc entries in use */
 };
 
-void FUN_001fb824(int param_1,int param_2,u32 param_3)
+/* Appends (key, value) unless the key is already present or the queue is full. */
+void FUN_001fb824(int obj,int key,u32 value)
 {
-  int bVar1;
-  int iVar2;
-  int iVar3;
+  int found;
+  int i;
+  int key_addr;
   
-  bVar1 = false;
-  iVar2 = 0;
-  iVar3 = param_1;
+  found = false;
+  i = 0;
+  key_addr = obj;
   do {
-    if (*(int *)(iVar3 + 0x3c) == param_2) {
-      bVar1 = true;
+    if (*(int *)(key_addr + 0x3c) == key) {
+      found = true;
       break;
     }
-    iVar2 = iVar2 + 1;
-    iVar3 = iVar3 + 4;
-  } while (iVar2 < 0x14);
-  if (!bVar1) {
-    struct QueueView *queue = (struct QueueView *)param_1;
-    iVar2 = queue->count;
-    if (iVar2 < 0) return;
-    if (iVar2 < 0x14) {
-      queue->keys[iVar2] = param_2;
-      queue->values[queue->count] = param_3;
+    i = i + 1;
+    key_addr = key_addr + 4;
+  } while (i < QUEUE_CAPACITY);
+  if (!found) {
+    struct QueueView *queue = (struct QueueView *)obj;
+    i = queue->count;
+    if (i < 0) return;
+    if (i < QUEUE_CAPACITY) {
+      queue->keys[i] = key;
+      queue->values[queue->count] = value;
       queue->count = queue->count + 1;
     }
   }

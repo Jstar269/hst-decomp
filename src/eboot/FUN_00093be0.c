@@ -1,11 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00093be0 end=0x00093c08 symbol=FUN_00093be0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag p64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag p64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/model_set.h"
 
 extern void FUN_00059084();
 
-void FUN_00093be0(int param_1,int param_2)
+/* Forward the argument to the main model's helper. */
+void FUN_00093be0(ModelSet *self,int arg)
 {
-  if (*(int *)(param_1 + 0x58) != 0) {
-    FUN_00059084(*(int *)(param_1 + 0x58),param_2);
+  if (self->model[MODEL_SLOT_MAIN] != 0) {
+    FUN_00059084(self->model[MODEL_SLOT_MAIN],arg);
   }
 }

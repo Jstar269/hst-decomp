@@ -2,29 +2,26 @@
 /* Container reserve for a 556-byte element type (template instance, hsttmpl.py tag t2): length check
    against max_size, allocate n elements through an allocator temporary, report failures on newlib stderr
    and abort. Names provisional. */
-extern "C" {
-struct Reent_00166910 { int pad[3]; void *err; };
-Reent_00166910 *FUN_0000fe3c(void);
-int FUN_00165ef4(void *stream, const char *format, ...);
-void FUN_0000d518(void);
-void *FUN_00000bcc(unsigned size);
-extern char DAT_002e03e8[];
-extern char DAT_002c1dac[];
-}
-struct Elem_00166910 { int w[139]; };
-struct Alloc_00166910 { Elem_00166910 *allocate(unsigned n) { return (Elem_00166910 *)FUN_00000bcc(n * sizeof(Elem_00166910)); } };
-struct Vec_00166910 { Elem_00166910 *data; int size; unsigned capacity; };
-extern "C" void FUN_00166910(Vec_00166910 *v, unsigned n)
+#include "hst/vec_reserve.h"
+
+extern char DAT_002e03e8[]; /* length-error message */
+extern char DAT_002c1dac[]; /* allocation-failure message */
+
+struct Elem { int w[139]; };
+struct Alloc { Elem *allocate(unsigned n) { return (Elem *)FUN_00000bcc(n * sizeof(Elem)); } };
+struct Vec { Elem *data; int size; unsigned capacity; };
+/* Reserve storage for `count` 556-byte elements: abort with a message when the length is too large or the allocation fails. */
+extern "C" void FUN_00166910(Vec *vec, unsigned count)
 {
-    if (n > 0xffffffffu / sizeof(Elem_00166910)) {
+    if (count > 0xffffffffu / sizeof(Elem)) {
         FUN_00165ef4(FUN_0000fe3c()->err, DAT_002e03e8);
         FUN_0000d518();
     }
-    Elem_00166910 *p = Alloc_00166910().allocate(n);
+    Elem *p = Alloc().allocate(count);
     if (p == 0) {
         FUN_00165ef4(FUN_0000fe3c()->err, DAT_002c1dac);
         FUN_0000d518();
     }
-    v->data = p;
-    v->capacity = n;
+    vec->data = p;
+    vec->capacity = count;
 }

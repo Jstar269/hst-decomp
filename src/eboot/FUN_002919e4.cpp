@@ -8,15 +8,7 @@ struct V3 {
     float x, y, z;
 };
 
-struct Self {
-    char pad0[4];
-    int f4;         /* 0x04 */
-    float fx;       /* 0x08 */
-    float fy;       /* 0x0c */
-    float fz;       /* 0x10 */
-    int f14;        /* 0x14 */
-    int f18;        /* 0x18 */
-};
+#include "hst/thread_task.h"
 
 extern "C" {
     extern void LAB_002919d4();
@@ -25,16 +17,17 @@ extern "C" {
     extern void FUN_0028fb44(void *, int);
 }
 
-extern "C" int FUN_002919e4(Self *p, int b, int c, const V3 *src, int e5, int e6, int e7)
+/* Like FUN_002918f0 but only creates the thread (no start); returns 1 on success, 0 on error. */
+extern "C" int FUN_002919e4(ThreadTask *self, int key, int unk4, const V3 *src, int priority, int stack_size, int attr)
 {
     V3 v = *src;        /* 12-byte local -> the sp+20 float staging MWCC emits */
-    p->f4 = c;
-    p->fx = v.x;
-    p->fy = v.y;
-    p->fz = v.z;
-    p->f18 = b;
-    int r = FUN_002b7920(b, &LAB_002919d4, e5, e6, e7, 0);
-    p->f14 = r;
+    self->unk4 = unk4;
+    self->pos[0] = v.x;
+    self->pos[1] = v.y;
+    self->pos[2] = v.z;
+    self->key = key;
+    int r = FUN_002b7920(key, &LAB_002919d4, priority, stack_size, attr, 0);
+    self->thread = r;
     if (r < 0) {
         FUN_0028fb44(&DAT_002ffa04, r);
         return 0;

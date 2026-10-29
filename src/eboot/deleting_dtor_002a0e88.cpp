@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a0e88 end=0x002a1000 symbol=FUN_002a0e88 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-/* Deleting destructor: member pointers released in reverse order (inline user dtors give the doubled null checks), base dtor FUN_00056cb0(this, 0), then operator delete(this) when flag > 0. Names provisional. */
+/* Deleting destructor: member pointers released in reverse order (inline user dtors give the doubled null checks), base dtor FUN_00056cb0(this, 0), then operator delete(this) when delete_flag > 0. Names provisional. */
 extern "C" {
 extern char DAT_00309e9c[];
 extern void *DAT_00331b84;
@@ -51,7 +51,7 @@ struct Obj {
   Pair *f1d4;
 };
 
-extern "C" Obj *FUN_002a0e88(Obj *self, short flag)
+extern "C" Obj *FUN_002a0e88(Obj *self, short delete_flag)
 {
   if (self != 0) {
     self->vptr = DAT_00309e9c;
@@ -72,7 +72,7 @@ extern "C" Obj *FUN_002a0e88(Obj *self, short flag)
       self->f1c8 = 0;
     }
     FUN_00056cb0(self, 0);
-    if (0 < flag) {
+    if (0 < delete_flag) {
       FUN_00000a00(self);
     }
   }

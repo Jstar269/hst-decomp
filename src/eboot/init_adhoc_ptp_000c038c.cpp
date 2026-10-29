@@ -1,34 +1,31 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c038c end=0x000c0634 symbol=FUN_000c038c lang=c++ */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
+#include "hst/ptp_link.h"
+
 struct MacAddr {
     unsigned char addr[6];
 };
 
-struct Queue {
-    virtual ~Queue();
-};
-
+/* Argument block handed to the worker thread (0x28 bytes). */
 struct ThreadArg {
-    unsigned char param_2;
+    unsigned char byte_arg;
     char pad[3];
-    short *buf1;
-    char *buf2;
+    short *shared_short;
+    char *stop_flag;
     int sema_id;
-    MacAddr mac1;
-    MacAddr mac2;
-    int param_3;
-    Queue *obj1;
-    Queue *obj2;
+    MacAddr mac_a;
+    MacAddr mac_b;
+    int word_arg;
+    PtpQueue *write_queue;
+    PtpQueue *read_queue;
 };
 
-struct Obj {
-    int pad0;
-    int thread_id;
-    int sema_id;
-    short *buf1;
-    char *buf2;
-    Queue *obj1;
-    Queue *obj2;
+enum {
+    ALLOC_SHARED_SHORT = 2,   /* sizes of the cells shared with the worker */
+    ALLOC_STOP_FLAG = 1,
+    ALLOC_QUEUE = 20,         /* size of one PtpQueue */
+    THREAD_PRIORITY = 0x28,
+    THREAD_STACK_SIZE = 0x2000
 };
 
 extern "C" {
@@ -42,7 +39,7 @@ extern char DAT_002d5874[];
 
 void* FUN_00000bcc(unsigned int);
 void FUN_00000a00(void*);
-Queue* FUN_000ff4fc(void*, int);
+PtpQueue* FUN_000ff4fc(void*, int);
 void FUN_000c02ac(const char*, int);
 int FUN_002b7890(const char*, int, int, int, int);
 int FUN_002b7920(const char*, void*, int, int, int, int);
@@ -51,47 +48,48 @@ int FUN_002b79a8(int);
 int FUN_002b78e8(int);
 void FUN_000bfb94(int, void*);
 
-int FUN_000c038c(Obj *self, unsigned char param_2, int param_3, const MacAddr *param_4, const MacAddr *param_5);
+int FUN_000c038c(PtpLink *self, unsigned char byte_arg, int word_arg, const MacAddr *mac_a, const MacAddr *mac_b);
 }
 
-int FUN_000c038c(Obj *self, unsigned char param_2, int param_3, const MacAddr *param_4, const MacAddr *param_5) {
+/* Creates the link's shared cells, queues, semaphore and worker thread; tears everything down again on failure. */
+int FUN_000c038c(PtpLink *self, unsigned char byte_arg, int word_arg, const MacAddr *mac_a, const MacAddr *mac_b) {
     ThreadArg arg;
 
-    arg.param_2 = param_2;
-    arg.mac1 = *param_4;
-    if (param_5 != 0) {
-        arg.mac2 = *param_5;
+    arg.byte_arg = byte_arg;
+    arg.mac_a = *mac_a;
+    if (mac_b != 0) {
+        arg.mac_b = *mac_b;
     }
 
-    short *buf1 = (short*)FUN_00000bcc(2);
-    if (buf1 != 0) {
-        *buf1 = 0;
+    short *shared_short = (short*)FUN_00000bcc(ALLOC_SHARED_SHORT);
+    if (shared_short != 0) {
+        *shared_short = 0;
     }
-    self->buf1 = buf1;
-    arg.buf1 = buf1;
+    self->shared_short = shared_short;
+    arg.shared_short = shared_short;
 
-    char *buf2 = (char*)FUN_00000bcc(1);
-    if (buf2 != 0) {
-        *buf2 = 0;
+    char *stop_flag = (char*)FUN_00000bcc(ALLOC_STOP_FLAG);
+    if (stop_flag != 0) {
+        *stop_flag = 0;
     }
-    self->buf2 = buf2;
-    arg.buf2 = buf2;
+    self->stop_flag = stop_flag;
+    arg.stop_flag = stop_flag;
 
-    Queue *p1 = (Queue*)FUN_00000bcc(20);
-    if (p1 != 0) {
-        p1 = FUN_000ff4fc(p1, 0x10000);
+    PtpQueue *write_queue = (PtpQueue*)FUN_00000bcc(ALLOC_QUEUE);
+    if (write_queue != 0) {
+        write_queue = FUN_000ff4fc(write_queue, PTP_QUEUE_CAPACITY);
     }
-    self->obj1 = p1;
-    arg.obj1 = p1;
+    self->write_queue = write_queue;
+    arg.write_queue = write_queue;
 
-    Queue *p2 = (Queue*)FUN_00000bcc(20);
-    if (p2 != 0) {
-        p2 = FUN_000ff4fc(p2, 0x10000);
+    PtpQueue *read_queue = (PtpQueue*)FUN_00000bcc(ALLOC_QUEUE);
+    if (read_queue != 0) {
+        read_queue = FUN_000ff4fc(read_queue, PTP_QUEUE_CAPACITY);
     }
-    self->obj2 = p2;
-    arg.obj2 = p2;
+    self->read_queue = read_queue;
+    arg.read_queue = read_queue;
 
-    arg.param_3 = param_3;
+    arg.word_arg = word_arg;
 
     int sema = FUN_002b7890(DAT_002d58bc, 0, 1, 1, 0);
     if (sema < 1) {
@@ -99,12 +97,12 @@ int FUN_000c038c(Obj *self, unsigned char param_2, int param_3, const MacAddr *p
     } else {
         self->sema_id = sema;
         arg.sema_id = sema;
-        int thid = FUN_002b7920(DAT_002d58f8, (void*)FUN_000bfb94, 0x28, 0x2000, 0, 0);
+        int thid = FUN_002b7920(DAT_002d58f8, (void*)FUN_000bfb94, THREAD_PRIORITY, THREAD_STACK_SIZE, 0, 0);
         if (thid < 1) {
             FUN_000c02ac(DAT_002d5908, thid);
         } else {
             self->thread_id = thid;
-            int res = FUN_002b78d8(thid, 0x28, &arg);
+            int res = FUN_002b78d8(thid, sizeof(ThreadArg), &arg);
             if (res != 0) {
                 FUN_000c02ac(DAT_002d5934, res);
             } else {
@@ -127,21 +125,21 @@ int FUN_000c038c(Obj *self, unsigned char param_2, int param_3, const MacAddr *p
         }
         self->sema_id = -1;
     }
-    if (self->obj2 != 0) {
-        delete self->obj2;
-        self->obj2 = 0;
+    if (self->read_queue != 0) {
+        delete self->read_queue;
+        self->read_queue = 0;
     }
-    if (self->obj1 != 0) {
-        delete self->obj1;
-        self->obj1 = 0;
+    if (self->write_queue != 0) {
+        delete self->write_queue;
+        self->write_queue = 0;
     }
-    if (self->buf2 != 0) {
-        FUN_00000a00(self->buf2);
-        self->buf2 = 0;
+    if (self->stop_flag != 0) {
+        FUN_00000a00(self->stop_flag);
+        self->stop_flag = 0;
     }
-    if (self->buf1 != 0) {
-        FUN_00000a00(self->buf1);
-        self->buf1 = 0;
+    if (self->shared_short != 0) {
+        FUN_00000a00(self->shared_short);
+        self->shared_short = 0;
     }
     return 0;
 }

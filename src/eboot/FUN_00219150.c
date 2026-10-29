@@ -1,13 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00219150 end=0x00219184 symbol=FUN_00219150 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/vtable_obj.h"
 
-extern u8 DAT_003095d8;
-extern u32 * FUN_0005a8ec();
+extern char DAT_003095d8;
+extern void * FUN_0005a8ec();
 
-u32 * FUN_00219150(u32 *param_1)
+/* Particle constructor: base init, then the particle vtable. */
+VtableObj * FUN_00219150(VtableObj *particle)
 {
   FUN_0005a8ec();
-  *param_1 = (unsigned int)(&DAT_003095d8);
-  return param_1;
+  particle->vtable = &DAT_003095d8;
+  return particle;
 }

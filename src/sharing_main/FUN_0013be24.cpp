@@ -1,6 +1,7 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0013be24 end=0x0013bf24 symbol=FUN_0013be24 lang=c++ */
 /* Clone of src/eboot/FUN_0013086c.cpp (hstclone.py tag c43): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/timed_obj.h"
 
 extern "C" {
 extern u8 DAT_003b14bc;
@@ -14,39 +15,41 @@ struct VC_0 { virtual ~VC_0(); };
 struct VC_1 { virtual ~VC_1(); };
 struct VC_2 { virtual ~VC_2(); };
 
-extern "C" u32 * FUN_0013be24(u32 *param_1,short param_2)
+/* Destructor: clears the global timed-object pointer, runs the base teardown, deletes the three
+   owned helpers and the effect, then frees the object when flag > 0. */
+extern "C" TimedObj * FUN_0013be24(TimedObj *self,short flag)
 {
-  int *piVar1;
-  int iVar2;
+  void *owned;
+  void *effect;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b14bc);
+  if (self != (TimedObj *)0x0) {
+    self->vtable = &DAT_003b14bc;
     DAT_003e95c4 = 0;
-    FUN_0013bf24(param_1,0);
-    piVar1 = (int *)param_1[0x1f];
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      param_1[0x1f] = 0;
+    FUN_0013bf24(self,0);
+    owned = self->unk7c;
+    if (owned != (void *)0x0) {
+      delete ((VC_0 *)(owned));
+      self->unk7c = 0;
     }
-    piVar1 = (int *)param_1[0x20];
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_1 *)(piVar1));
-      param_1[0x20] = 0;
+    owned = self->sub;
+    if (owned != (void *)0x0) {
+      delete ((VC_1 *)(owned));
+      self->sub = 0;
     }
-    piVar1 = (int *)param_1[0x21];
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_2 *)(piVar1));
-      param_1[0x21] = 0;
+    owned = self->unk84;
+    if (owned != (void *)0x0) {
+      delete ((VC_2 *)(owned));
+      self->unk84 = 0;
     }
-    iVar2 = param_1[0x12];
-    if (iVar2 != 0) {
-      FUN_00064d08(iVar2,1);
-      param_1[0x12] = 0;
+    effect = self->effect;
+    if (effect != (void *)0x0) {
+      FUN_00064d08(effect,1);
+      self->effect = 0;
     }
-    FUN_0001ed28(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0001ed28(self,0);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

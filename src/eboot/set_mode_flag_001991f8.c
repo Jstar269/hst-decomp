@@ -1,20 +1,23 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001991f8 end=0x00199244 symbol=FUN_001991f8 lang=c99 */
 /* Hand-written reconstruction (external matching lane): the flag global is written with a literal 1/0
-   in each arm of an inverted if (param_2 != 1), which is what puts the zero-store on the fallthrough
-   and the body out of line; writing `DAT = param_2 == 1` after the if instead re-derives the
-   comparison (xori/sltiu) and keeps param_2 alive in s0 across the call. Exact match verified; names
+   in each arm of an inverted if (mode != 1), which is what puts the zero-store on the fallthrough
+   and the body out of line; writing `DAT = mode == 1` after the if instead re-derives the
+   comparison (xori/sltiu) and keeps mode alive in s0 across the call. Exact match verified; names
    and types await human review. */
-extern unsigned char DAT_00341771;
-extern void FUN_002b7cd8(int *);
+#include "hst/install_flow.h"
 
-void FUN_001991f8(int param_1, int param_2)
+extern unsigned char DAT_00341771;
+extern void FUN_002b7cd8(InstallPart **);
+
+/* Switch the flow to `mode`; entering run mode also sets the pane word, starts the part and raises the global flag. */
+void FUN_001991f8(InstallFlow *self, int mode)
 {
-    *(int *)(param_1 + 0x7c) = param_2;
-    if (param_2 != 1) {
+    self->mode = mode;
+    if (mode != INSTALL_MODE_RUN) {
         DAT_00341771 = 0;
     } else {
-        *(int *)(*(int *)(param_1 + 0x70) + 0x30) = 8;
-        FUN_002b7cd8((int *)(param_1 + 0x3c));
+        self->pane->unk30 = 8;
+        FUN_002b7cd8(&self->part);
         DAT_00341771 = 1;
     }
 }

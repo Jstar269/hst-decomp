@@ -1,21 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b25bc end=0x001b28f0 symbol=FUN_001b25bc lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: `p4 = p4 ? p4 : &G->v1d0` (a ternary keeps the null test's else-first layout and duplicated first load), Vec4 temporaries declared in frame order and copied field by field, distance test written `d2 >= r*r` (c.nge.s), inline Clamp(const float &v, const float &lo, const float &hi) { return v < lo ? lo : (v > hi ? hi : v); } with the global read directly in the arguments; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: `from = from ? from : &G->ref_pos` (a ternary keeps the null test's else-first layout and duplicated first load), Vec4 temporaries declared in frame order and copied field by field, distance test written `d2 >= r*r` (c.nge.s), inline Clamp(const float &v, const float &lo, const float &hi) { return v < lo ? lo : (v > hi ? hi : v); } with the global read directly in the arguments; readability pass; names and types await human review. */
 struct Vec4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
-struct Inner {
+/* Slot table view: only the byte at 0x7dd is read here. */
+struct TableView {
     char pad[0x7dd];
-    unsigned char f7dd;
+    unsigned char unk7dd;
 };
-struct Ctx {
-    Inner *in;
+struct Ref {
+    TableView *table;
 };
+/* Global with the reference vectors used for the angle. */
 struct Glob {
     char pad[0x1d0];
-    Vec4 v1d0;
-    Vec4 v1e0;
-    Vec4 v1f0;
+    Vec4 ref_pos;   /* 0x1d0 default for the origin argument */
+    Vec4 ref_dir;   /* 0x1e0 direction the angle is measured from */
+    Vec4 ref_axis;  /* 0x1f0 axis the angle is measured around */
 };
+#define RADIUS_STEPS 3 /* number of radius thresholds in the scale table */
 extern Glob *DAT_003313c4;
 extern float DAT_002e9924[];
 extern float DAT_002e9930[];
@@ -31,79 +34,81 @@ void FUN_000224f8(Vec4 *, Vec4 *, Vec4 *);
 }
 
 static inline float Clamp(const float &v, const float &lo, const float &hi) { return v < lo ? lo : (v > hi ? hi : v); }
-extern "C" float FUN_001b25bc(Ctx *ctx, Vec4 *p2, int flag, Vec4 *p4)
+/* Signed angle, in turns, between the direction from `from` to `target` (flattened onto the plane
+   around ref_axis) and ref_dir; with fold != 0 the angle is folded to +-0.25 and clamped. */
+extern "C" float FUN_001b25bc(Ref *ref, Vec4 *target, int fold, Vec4 *from)
 {
-    Vec4 *s1 = &DAT_003313c4->v1f0;
-    Vec4 *s0 = &DAT_003313c4->v1e0;
-    Vec4 v;
-    Vec4 L;
-    Vec4 X;
-    Vec4 Y;
-    Vec4 W;
-    Vec4 Z;
-    Vec4 t0;
-    Vec4 r;
-    Vec4 cr;
-    Vec4 n;
-    Vec4 t1;
-    p4 = p4 ? p4 : &DAT_003313c4->v1d0;
-    v.x = p4->x;
-    v.y = p4->y;
-    v.z = p4->z;
-    v.w = p4->w;
-    if (ctx->in->f7dd != 0) {
+    Vec4 *axis = &DAT_003313c4->ref_axis;
+    Vec4 *base = &DAT_003313c4->ref_dir;
+    Vec4 origin;
+    Vec4 dir;
+    Vec4 along;
+    Vec4 side;
+    Vec4 delta_copy;
+    Vec4 flat_copy;
+    Vec4 delta;
+    Vec4 proj;
+    Vec4 cross;
+    Vec4 flat;
+    Vec4 perp;
+    from = from ? from : &DAT_003313c4->ref_pos;
+    origin.x = from->x;
+    origin.y = from->y;
+    origin.z = from->z;
+    origin.w = from->w;
+    if (ref->table->unk7dd != 0) {
         unsigned i = 0;
-        float *q = DAT_002e9924;
+        float *radius = DAT_002e9924;
         do {
-            if (v.x * v.x + v.z * v.z >= q[0] * q[0]) {
-                FUN_00022498(&v, &v, DAT_002e9930[i]);
+            if (origin.x * origin.x + origin.z * origin.z >= radius[0] * radius[0]) {
+                FUN_00022498(&origin, &origin, DAT_002e9930[i]);
                 break;
             }
             i++;
-            q++;
-        } while (i < 3);
-        v.w = 1.0f;
+            radius++;
+        } while (i < RADIUS_STEPS);
+        origin.w = 1.0f;
     }
-    FUN_00022434(&t0, p2, &v);
-    W.x = t0.x;
-    W.y = t0.y;
-    W.z = t0.z;
-    W.w = t0.w;
-    FUN_00048f08(&L, &W);
-    float d = FUN_000224d8(&L, s1);
-    FUN_00022498(&r, s1, d);
-    X.x = r.x;
-    X.y = r.y;
-    X.z = r.z;
-    X.w = r.w;
-    FUN_00022434(&t1, &L, &X);
-    Z.x = t1.x;
-    Z.y = t1.y;
-    Z.z = t1.z;
-    Z.w = t1.w;
-    FUN_00022518(&n, &Z);
-    L.x = n.x;
-    L.y = n.y;
-    L.z = n.z;
-    n.w = 0.0f;
-    L.w = 0.0f;
-    float a = FUN_0000c5bc(FUN_000224d8(&L, s0));
-    FUN_000224f8(&cr, s1, s0);
-    Y.x = cr.x;
-    Y.y = cr.y;
-    Y.z = cr.z;
-    Y.w = cr.w;
-    if (FUN_000224d8(&L, &Y) < 0.0f) {
-        a = -a;
+    FUN_00022434(&delta, target, &origin);
+    delta_copy.x = delta.x;
+    delta_copy.y = delta.y;
+    delta_copy.z = delta.z;
+    delta_copy.w = delta.w;
+    FUN_00048f08(&dir, &delta_copy);
+    float d = FUN_000224d8(&dir, axis);
+    FUN_00022498(&proj, axis, d);
+    along.x = proj.x;
+    along.y = proj.y;
+    along.z = proj.z;
+    along.w = proj.w;
+    FUN_00022434(&perp, &dir, &along);
+    flat_copy.x = perp.x;
+    flat_copy.y = perp.y;
+    flat_copy.z = perp.z;
+    flat_copy.w = perp.w;
+    FUN_00022518(&flat, &flat_copy);
+    dir.x = flat.x;
+    dir.y = flat.y;
+    dir.z = flat.z;
+    flat.w = 0.0f;
+    dir.w = 0.0f;
+    float angle = FUN_0000c5bc(FUN_000224d8(&dir, base));
+    FUN_000224f8(&cross, axis, base);
+    side.x = cross.x;
+    side.y = cross.y;
+    side.z = cross.z;
+    side.w = cross.w;
+    if (FUN_000224d8(&dir, &side) < 0.0f) {
+        angle = -angle;
     }
-    a = a / 6.2831855f;
-    if (flag != 0) {
-        if (0.25f <= a && a < 0.75f) {
-            a = 0.5f - a;
-        } else if (-0.75f <= a && a < -0.25f) {
-            a = -0.5f - a;
+    angle = angle / 6.2831855f; /* radians to turns */
+    if (fold != 0) {
+        if (0.25f <= angle && angle < 0.75f) {
+            angle = 0.5f - angle;
+        } else if (-0.75f <= angle && angle < -0.25f) {
+            angle = -0.5f - angle;
         }
-        a = Clamp(a * DAT_002e993c, -DAT_002e993c * 0.25f, DAT_002e993c * 0.25f);
+        angle = Clamp(angle * DAT_002e993c, -DAT_002e993c * 0.25f, DAT_002e993c * 0.25f);
     }
-    return a;
+    return angle;
 }

@@ -1,5 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017e6c0 end=0x0017e8bc symbol=FUN_0017e6c0 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/light_obj.h"
 
 struct Vec3 {
     float x, y, z;
@@ -11,7 +12,7 @@ struct Vec4 {
 
 struct LightParam {
     char pad0[4];
-    float f4;
+    float height;
     char pad8[28];
     struct Vec3 dir0;     // 36 (0x24)
     struct Vec3 col0;     // 48 (0x30)
@@ -20,18 +21,15 @@ struct LightParam {
     struct Vec3 ambient;  // 84 (0x54)
 };
 
-struct LightTarget {
-    char pad0[0x5a0];
-    struct Vec4 pos;      // 0x5a0
-};
-
 extern void *DAT_003313c4;
 extern void FUN_00022518(struct Vec4 *out, const struct Vec4 *in);
 extern void FUN_0005c76c(void *mgr, float r, float g, float b, float a);
 extern void FUN_0005c7a4(void *mgr, int idx, const struct Vec4 *dir);
 extern void FUN_0005c810(void *mgr, int idx, const struct Vec4 *col);
 
-void FUN_0017e6c0(struct LightTarget *target, const struct LightParam *param)
+/* Load the light settings into the light manager: position, two directional lights (skipped when their
+   direction is zero) and the ambient colour. */
+void FUN_0017e6c0(LightObj *light, const struct LightParam *param)
 {
     struct Vec4 dir0_vec;
     struct Vec4 dir1_vec;
@@ -42,11 +40,11 @@ void FUN_0017e6c0(struct LightTarget *target, const struct LightParam *param)
     struct Vec4 norm0;
     struct Vec4 norm1;
 
-    float f4 = param->f4;
-    target->pos.x = 0.0f;
-    target->pos.y = f4;
-    target->pos.z = 5.0f;
-    target->pos.w = 0.0f;
+    float height = param->height;
+    light->pos.x = 0.0f;
+    light->pos.y = height;
+    light->pos.z = 5.0f;
+    light->pos.w = 0.0f;
 
     float d0_x = param->dir0.x;
     float d0_z = param->dir0.z;

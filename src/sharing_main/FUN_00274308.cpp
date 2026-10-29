@@ -9,11 +9,12 @@ extern void FUN_0026a188(...);
 }
 struct VC_0 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void m(); };
 
+/* Run the helper, then call virtual slot 3 on the object returned for the DAT_003e1a08 handle. */
 extern "C" void FUN_00274308(void)
 {
-  int *piVar1;
+  VC_0 *target;
   
   FUN_0026a188();
-  piVar1 = (int *)FUN_0008f170(DAT_003e1a08);
-  ((VC_0 *)(piVar1))->m();
+  target = (VC_0 *)FUN_0008f170(DAT_003e1a08);
+  target->m();
 }

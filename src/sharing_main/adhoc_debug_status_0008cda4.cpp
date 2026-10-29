@@ -3,8 +3,23 @@
 
 struct Console;
 
+/* Values of Adhoc::state shown by the debug overlay (named after the text each prints). */
+enum {
+    NET_STATE_CONNECTING = 1,
+    NET_STATE_CHOOSE = 2,        /* prints the Create / Join entries */
+    NET_STATE_JOIN_REQUESTS = 4, /* lists join requests and the member slots */
+    NET_STATE_GAME_LIST = 5,
+    NET_STATE_REQUESTING = 6,
+    NET_STATE_MEMBERS = 8        /* lists the member slots */
+};
+
+#define MAC_SIZE 6        /* bytes of a MAC address */
+#define MEMBER_SLOTS 4    /* member slots shown */
+#define CHOOSE_ENTRIES 2  /* entries of the Create / Join list */
+#define LINE_SIZE 64      /* scratch line buffer */
+
 struct Member {                 /* 7 bytes */
-    unsigned char mac[6];
+    unsigned char mac[MAC_SIZE];
     unsigned char valid;
 };
 
@@ -31,12 +46,12 @@ struct Adhoc {
     char pad0[0x28];
     int state;                  /* 0x28 */
     char pad2c[0x38 - 0x2c];
-    unsigned char mac1[6];      /* 0x38 */
-    unsigned char mac2[6];      /* 0x3e */
+    unsigned char mac1[MAC_SIZE];      /* 0x38 */
+    unsigned char mac2[MAC_SIZE];      /* 0x3e */
     char pad44[0x50 - 0x44];
     PtrVec<GameInfo> *games;    /* 0x50 */
     PtrVec<unsigned char> *requests; /* 0x54 */
-    Member members[4];          /* 0x58 */
+    Member members[MEMBER_SLOTS];          /* 0x58 */
     char pad74[0x198 - 0x74];
     int ready;                  /* 0x198 */
 };
@@ -81,6 +96,7 @@ int FUN_000c0ea8(Adhoc *, int);
 
 inline void *operator new[](unsigned int, void *p) { return p; }
 
+/* Prints the ad-hoc connection status to the debug console, according to the network state (animated dots while waiting). */
 extern "C" void FUN_0008cda4(Menu *self)
 {
     if (DAT_003e1e04) {
@@ -90,46 +106,46 @@ extern "C" void FUN_0008cda4(Menu *self)
             return;
         }
         switch (DAT_003e1e04->state) {
-        case 1: {
+        case NET_STATE_CONNECTING: {
             FUN_000481dc(&DAT_003b8f08, DAT_0037854c);
-            int n = self->frame % 40 / 10 + 1;
-            for (int i = 0; i < n; i++)
+            int dots = self->frame % 40 / 10 + 1;
+            for (int i = 0; i < dots; i++)
                 FUN_000481dc(&DAT_003b8f08, DAT_00378558);
             break;
         }
-        case 2:
-            for (int i = 0; i < 2; i++)
+        case NET_STATE_CHOOSE:
+            for (int i = 0; i < CHOOSE_ENTRIES; i++)
                 FUN_000481dc(&DAT_003b8f08, DAT_00378514[i]);
             FUN_000481dc(&DAT_003b8f08, DAT_0037855c);
             break;
-        case 4: {
+        case NET_STATE_JOIN_REQUESTS: {
             FUN_000481dc(&DAT_003b8f08, DAT_00378560);
             PtrVec<unsigned char> *v = DAT_003e1e04->requests;
             if (v && v->Size()) {
                 for (Iter<unsigned char> it = v->begin(); it != v->end(); ++it) {
-                    char buf[64];
-                    new (buf) char[64]();
+                    char line[LINE_SIZE];
+                    new (line) char[LINE_SIZE]();
                     unsigned char *mac = *it;
-                    FUN_000143b0(buf, DAT_00378570, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-                    FUN_000481dc(&DAT_003b8f08, buf);
+                    FUN_000143b0(line, DAT_00378570, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                    FUN_000481dc(&DAT_003b8f08, line);
                     FUN_000481dc(&DAT_003b8f08, DAT_0037855c);
                 }
             } else
                 FUN_000481dc(&DAT_003b8f08, DAT_0037858c);
             FUN_000481dc(&DAT_003b8f08, DAT_00378594);
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < MEMBER_SLOTS; i++) {
                 Member *m = &DAT_003e1e04->members[i];
-                char buf[64];
-                new (buf) char[64]();
-                if (FUN_0001100c(m, DAT_003e1e04->mac1, 6) == 0)
+                char line[LINE_SIZE];
+                new (line) char[LINE_SIZE]();
+                if (FUN_0001100c(m, DAT_003e1e04->mac1, MAC_SIZE) == 0)
                     FUN_000481dc(&DAT_003b8f08, DAT_0037859c);
-                if (FUN_0001100c(m, DAT_003e1e04->mac2, 6) == 0)
+                if (FUN_0001100c(m, DAT_003e1e04->mac2, MAC_SIZE) == 0)
                     FUN_000481dc(&DAT_003b8f08, DAT_003785a0);
                 if (FUN_000c0ea8(DAT_003e1e04, i))
                     FUN_000481dc(&DAT_003b8f08, DAT_003785a4);
                 if (m->valid) {
-                    FUN_000143b0(buf, DAT_003785a8, i, m->mac[0], m->mac[1], m->mac[2], m->mac[3], m->mac[4], m->mac[5]);
-                    FUN_000481dc(&DAT_003b8f08, buf);
+                    FUN_000143b0(line, DAT_003785a8, i, m->mac[0], m->mac[1], m->mac[2], m->mac[3], m->mac[4], m->mac[5]);
+                    FUN_000481dc(&DAT_003b8f08, line);
                 } else
                     FUN_000481dc(&DAT_003b8f08, DAT_003785c4, i);
             }
@@ -141,50 +157,50 @@ extern "C" void FUN_0008cda4(Menu *self)
             }
             break;
         }
-        case 5: {
+        case NET_STATE_GAME_LIST: {
             PtrVec<GameInfo> *v = DAT_003e1e04->games;
             FUN_000481dc(&DAT_003b8f08, DAT_00378600);
             if (v && v->Size()) {
                 for (Iter<GameInfo> it = v->begin(); it != v->end(); ++it) {
                     if ((*it)->players > 0) {
-                        char buf[64];
-                        new (buf) char[64]();
+                        char line[LINE_SIZE];
+                        new (line) char[LINE_SIZE]();
                         unsigned char *mac = (*it)->mac;
-                        FUN_000143b0(buf, DAT_00378570, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-                        FUN_000481dc(&DAT_003b8f08, buf);
+                        FUN_000143b0(line, DAT_00378570, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                        FUN_000481dc(&DAT_003b8f08, line);
                         FUN_000481dc(&DAT_003b8f08, DAT_0037855c);
                     }
                 }
             } else {
                 FUN_000481dc(&DAT_003b8f08, DAT_0037860c);
-                int n = self->frame % 40 / 10 + 1;
-                for (int i = 0; i < n; i++)
+                int dots = self->frame % 40 / 10 + 1;
+                for (int i = 0; i < dots; i++)
                     FUN_000481dc(&DAT_003b8f08, DAT_00378558);
             }
             break;
         }
-        case 6: {
+        case NET_STATE_REQUESTING: {
             FUN_000481dc(&DAT_003b8f08, DAT_00378618);
-            int n = self->frame % 40 / 10 + 1;
-            for (int i = 0; i < n; i++)
+            int dots = self->frame % 40 / 10 + 1;
+            for (int i = 0; i < dots; i++)
                 FUN_000481dc(&DAT_003b8f08, DAT_00378558);
             break;
         }
-        case 8:
+        case NET_STATE_MEMBERS:
             FUN_000481dc(&DAT_003b8f08, DAT_00378594);
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < MEMBER_SLOTS; i++) {
                 Member *m = &DAT_003e1e04->members[i];
-                char buf[64];
-                new (buf) char[64]();
-                if (FUN_0001100c(m, DAT_003e1e04->mac1, 6) == 0)
+                char line[LINE_SIZE];
+                new (line) char[LINE_SIZE]();
+                if (FUN_0001100c(m, DAT_003e1e04->mac1, MAC_SIZE) == 0)
                     FUN_000481dc(&DAT_003b8f08, DAT_0037859c);
-                if (FUN_0001100c(m, DAT_003e1e04->mac2, 6) == 0)
+                if (FUN_0001100c(m, DAT_003e1e04->mac2, MAC_SIZE) == 0)
                     FUN_000481dc(&DAT_003b8f08, DAT_003785a0);
                 if (FUN_000c0ea8(DAT_003e1e04, i))
                     FUN_000481dc(&DAT_003b8f08, DAT_003785a4);
                 if (m->valid) {
-                    FUN_000143b0(buf, DAT_003785a8, i, m->mac[0], m->mac[1], m->mac[2], m->mac[3], m->mac[4], m->mac[5]);
-                    FUN_000481dc(&DAT_003b8f08, buf);
+                    FUN_000143b0(line, DAT_003785a8, i, m->mac[0], m->mac[1], m->mac[2], m->mac[3], m->mac[4], m->mac[5]);
+                    FUN_000481dc(&DAT_003b8f08, line);
                 } else
                     FUN_000481dc(&DAT_003b8f08, DAT_003785c4, i);
             }

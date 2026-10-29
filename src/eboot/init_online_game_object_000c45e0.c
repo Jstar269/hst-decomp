@@ -22,51 +22,51 @@ extern u32 * FUN_00095f90();
 extern void FUN_000c4708(const char *, int);
 extern void FUN_000c4bd4();
 
-typedef struct ObjectLayout {
-  u32 vtable;
-  char padding[0x3c];
-  u32 first;
-} ObjectLayout;
+#define SLOT_COUNT 4
+#define SLOT_WORDS 0x74                 /* each slot is 0x1d0 bytes */
+#define SLOT_BYTES (SLOT_WORDS * 4)
+#define SLOTS_START 0x40               /* byte offset of the first slot */
+#define OBJECT_WORDS (SLOT_WORDS * SLOT_COUNT + SLOTS_START / 4)
 
-u32 * FUN_000c45e0(u32 *param_1)
+/* Constructor: base init, then constructs the four slots (members, then the small header fields) and registers the object as the global instance. */
+u32 * FUN_000c45e0(u32 *self)
 {
-  u32 *puVar1;
-  u32 *puVar2;
-  ObjectLayout *object = (ObjectLayout *)param_1;
+  u32 *slot;
+  u32 *member;
   
-  FUN_0001f06c(param_1);
-  puVar1 = (u32 *)((*(u32 *)param_1 = (u32)DAT_00307430), (char *)param_1 + 0x40);
+  FUN_0001f06c(self);
+  slot = (u32 *)((*(u32 *)self = (u32)DAT_00307430), (char *)self + SLOTS_START);
   do {
-    puVar2 = puVar1 + 3;
+    member = slot + 3;
     do {
-      FUN_00095f90(puVar2);
-      puVar2 = puVar2 + 1;
-    } while (puVar2 < puVar1 + 5);
-    FUN_00095f60(puVar1 + 5);
-    FUN_00095f30(puVar1 + 8);
-    puVar2 = puVar1 + 0x14;
+      FUN_00095f90(member);
+      member = member + 1;
+    } while (member < slot + 5);
+    FUN_00095f60(slot + 5);
+    FUN_00095f30(slot + 8);
+    member = slot + 0x14;
     do {
-      FUN_00095f00(puVar2);
-      puVar2 = puVar2 + 3;
-    } while (puVar2 < puVar1 + 0x1a);
-    FUN_00095ed0(puVar1 + 0x1a);
-    FUN_00095ea0(puVar1 + 0x1d);
-    FUN_00095e70(puVar1 + 0x20);
-    FUN_00095e40(puVar1 + 0x2c);
-    FUN_00095e10(puVar1 + 0x38);
-    FUN_00095dd8(puVar1 + 0x3c);
-    FUN_00095da8(puVar1 + 0x4c);
-    FUN_00095d94((u8 *)(puVar1 + 0x4e));
-    FUN_00095d64(puVar1 + 0x50);
-    *(u8 *)puVar1 = 0;
-    *(u8 *)((int)puVar1 + 1) = 0;
-    *(u16 *)((int)puVar1 + 2) = 0;
-    puVar1[1] = 0;
-    puVar1[2] = 0;
-    puVar1 = puVar1 + 0x74;
-  } while (puVar1 < param_1 + 0x1e0);
-  FUN_000c4708(DAT_002d5ac8,0x1d0);
-  DAT_00338af0 = (unsigned int)(param_1);
-  FUN_000c4bd4((int)param_1);
-  return param_1;
+      FUN_00095f00(member);
+      member = member + 3;
+    } while (member < slot + 0x1a);
+    FUN_00095ed0(slot + 0x1a);
+    FUN_00095ea0(slot + 0x1d);
+    FUN_00095e70(slot + 0x20);
+    FUN_00095e40(slot + 0x2c);
+    FUN_00095e10(slot + 0x38);
+    FUN_00095dd8(slot + 0x3c);
+    FUN_00095da8(slot + 0x4c);
+    FUN_00095d94((u8 *)(slot + 0x4e));
+    FUN_00095d64(slot + 0x50);
+    *(u8 *)slot = 0;
+    *(u8 *)((int)slot + 1) = 0;
+    *(u16 *)((int)slot + 2) = 0;
+    slot[1] = 0;
+    slot[2] = 0;
+    slot = slot + SLOT_WORDS;
+  } while (slot < self + OBJECT_WORDS);
+  FUN_000c4708(DAT_002d5ac8,SLOT_BYTES);
+  DAT_00338af0 = (unsigned int)(self);
+  FUN_000c4bd4((int)self);
+  return self;
 }

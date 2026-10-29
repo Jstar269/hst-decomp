@@ -5,26 +5,27 @@ typedef unsigned char u8;
 
 struct Cfg {
     u8 pad[0x89];
-    signed char f0 : 2;
-    signed char f1 : 2;
-    signed char f2 : 2;
-    signed char f3 : 2;
+    signed char status0 : 2;   /* four 2-bit status fields of the byte at 0x89 */
+    signed char status1 : 2;
+    signed char status2 : 2;
+    signed char status3 : 2;
 };
 
 extern Cfg *DAT_002cfc8c;
 
 extern "C" unsigned FUN_0001ea64(Cfg *cfg, void *p, int a, int b, int c);
 
-extern "C" void FUN_0023988c(u8 *obj, u8 *o1, u8 *o2, u8 *o3, u8 *o4, u8 *o5, u8 *o6,
+/* Fill the eight byte outputs: o1..o4 from the register block, o5..o8 from the config status fields. */
+extern "C" void FUN_0023988c(u8 *regs, u8 *o1, u8 *o2, u8 *o3, u8 *o4, u8 *o5, u8 *o6,
                              u8 *o7, u8 *o8) {
     *o1 = *o2 = *o3 = *o4 = 0;
-    *o1 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, obj + 0x17a4, 0x80, 2, 9);
-    *o2 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, obj + 0x17a8, 0x20, 2, 9);
-    *o3 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, obj + 0x17ac, 0x10, 2, 9);
-    *o4 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, obj + 0x17b0, 0x40, 2, 9);
+    *o1 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, regs + 0x17a4, 0x80, 2, 9);
+    *o2 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, regs + 0x17a8, 0x20, 2, 9);
+    *o3 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, regs + 0x17ac, 0x10, 2, 9);
+    *o4 |= (unsigned char)FUN_0001ea64(DAT_002cfc8c, regs + 0x17b0, 0x40, 2, 9);
     *o5 = *o6 = *o7 = *o8 = 0;
-    *o5 |= DAT_002cfc8c->f3 == 0;
-    *o6 |= DAT_002cfc8c->f1 == 0;
-    *o7 |= DAT_002cfc8c->f0 == 0;
-    *o8 |= DAT_002cfc8c->f2 == 0;
+    *o5 |= DAT_002cfc8c->status3 == 0;
+    *o6 |= DAT_002cfc8c->status1 == 0;
+    *o7 |= DAT_002cfc8c->status0 == 0;
+    *o8 |= DAT_002cfc8c->status2 == 0;
 }

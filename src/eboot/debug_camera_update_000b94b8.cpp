@@ -7,23 +7,12 @@
    (bss=; its loads/stores are scheduled across pointer stores). Literal factors multiply with the constant
    first; retail's operand order (value first) and the kept `* 1.0f` come from non-const locals holding the
    factors (speed/down/rate). The fov clamp bounds are non-const globals (fov is reloaded after its store). */
+#include "hst/pad_state.h"
+
 struct Vec4 { float x, y, z, w; Vec4() {} Vec4(float x_, float y_, float z_, float w_) : x(x_), y(y_), z(z_), w(w_) {} };
 struct Mat4 { Vec4 r[4]; };
 
-struct Pad {                /* DAT_002cfc8c */
-    char pad0[0x8a];
-    signed char a0 : 2;     /* 0x8a bits 0-1 */
-    signed char a1 : 2;
-    signed char a2 : 2;     /* 0x8a bits 4-5 */
-    signed char a3 : 2;
-    signed char b0 : 2;
-    signed char b1 : 2;     /* 0x8b bits 2-3 */
-    signed char b2 : 2;
-    signed char b3 : 2;     /* 0x8b bits 6-7 */
-    char pad8c[0x90 - 0x8c];
-    float x;
-    float y;
-};
+enum { CAM_OFF = 0, CAM_FREE = 1, CAM_ORBIT = 2, PRESET_COUNT = 16 };
 
 struct Camera {
     char pad0[0x110];
@@ -55,7 +44,7 @@ struct DebugCam {
     CamObj *obj;
 };
 
-extern Pad *DAT_002cfc8c;
+extern PadState *DAT_002cfc8c;
 extern Camera *DAT_003313c4;
 extern void *DAT_00340284;
 extern float DAT_002d4a5c;
@@ -84,52 +73,52 @@ template <class T> inline T Clamp(const T &v, const T &lo, const T &hi)
 
 extern "C" void FUN_000b94b8(DebugCam *self)
 {
-    static float s_prevSel;
+    static float s_prevStep;
     Vec4 saved;
     Vec4 move;
     Vec4 pos;
     Mat4 m;
 
-    if (self->mode == 0)
+    if (self->mode == CAM_OFF)
         return;
-    if (DAT_002cfc8c->b1 == 0 && DAT_002cfc8c->b3 == 1) {
+    if (DAT_002cfc8c->byte8b.st1 == 0 && DAT_002cfc8c->byte8b.st3 == 1) {
         FUN_000b8e2c(self, DAT_003313c4);
         FUN_000612dc(self->obj, DAT_003313c4);
     }
-    if (self->mode == 1) {
+    if (self->mode == CAM_FREE) {
         FUN_0015e704(self->obj);
         self->obj->Apply(DAT_003313c4);
         return;
     }
     FUN_00131198(&saved, DAT_00340284, self->preset, -1);
-    float rx = 0.0f;
-    float ry = 0.0f;
-    float sx = 0.0f;
-    int sel = DAT_002cfc8c->a0;
-    float sy = 0.0f;
-    float mx = 0.0f;
-    float my = 0.0f;
-    float mz = 0.0f;
-    if (sel == 1 && DAT_002cfc8c->b3 == 1) {
-        mz = DAT_002cfc8c->y;
-    } else if (sel == 1) {
-        sx = DAT_002cfc8c->x;
-        sy = DAT_002cfc8c->y;
-    } else if (DAT_002cfc8c->b3 == -2) {
-        rx = DAT_002cfc8c->x;
-        ry = DAT_002cfc8c->y;
+    float lookX = 0.0f;
+    float lookY = 0.0f;
+    float stepX = 0.0f;
+    int padSel = DAT_002cfc8c->byte8a.st0;
+    float fovStep = 0.0f;
+    float moveX = 0.0f;
+    float moveY = 0.0f;
+    float moveZ = 0.0f;
+    if (padSel == 1 && DAT_002cfc8c->byte8b.st3 == 1) {
+        moveZ = DAT_002cfc8c->stickY;
+    } else if (padSel == 1) {
+        stepX = DAT_002cfc8c->stickX;
+        fovStep = DAT_002cfc8c->stickY;
+    } else if (DAT_002cfc8c->byte8b.st3 == -2) {
+        lookX = DAT_002cfc8c->stickX;
+        lookY = DAT_002cfc8c->stickY;
     } else {
-        mx = DAT_002cfc8c->x;
-        my = DAT_002cfc8c->y;
+        moveX = DAT_002cfc8c->stickX;
+        moveY = DAT_002cfc8c->stickY;
     }
     switch (self->mode) {
-    case 1: {
-        self->pitch += 0.06981317f * ry;
+    case CAM_FREE: {
+        self->pitch += 0.06981317f * lookY;
         if (self->pitch < -1.5707964f)
             self->pitch = -1.5707964f;
         if (self->pitch > 1.5707964f)
             self->pitch = 1.5707964f;
-        self->yaw += 0.06981317f * rx;
+        self->yaw += 0.06981317f * lookX;
         while (self->yaw < -3.1415927f)
             self->yaw += 6.2831855f;
         while (self->yaw > 3.1415927f)
@@ -141,38 +130,38 @@ extern "C" void FUN_000b94b8(DebugCam *self)
         float speed = 0.5f;
         float down = -1.0f;
         int sign;
-        if (my < 0.0f)
+        if (moveY < 0.0f)
             sign = -1;
         else
             sign = 1;
-        float p = FUN_0000ce3c(my, 6.0f);
+        float p = FUN_0000ce3c(moveY, 6.0f);
         p *= sign;
-        if (DAT_002cfc8c->a2 == 1)
+        if (DAT_002cfc8c->byte8a.st2 == 1)
             move.y = p * speed;
         else
             move.z = p * down;
-        if (fabsf(mx) < 0.8f)
-            mx *= 0.125f;
-        move.x = mx * speed;
-        if (fabsf(mz) < 0.8f)
-            mz *= 0.125f;
-        move.y = mz * speed;
+        if (fabsf(moveX) < 0.8f)
+            moveX *= 0.125f;
+        move.x = moveX * speed;
+        if (fabsf(moveZ) < 0.8f)
+            moveZ *= 0.125f;
+        move.y = moveZ * speed;
         FUN_00022498(&move, &move, speed);
         move.w = 1.0f;
-        self->fov += 0.5f * sy;
+        self->fov += 0.5f * fovStep;
         self->fov = Clamp(self->fov, DAT_002d4a5c, DAT_002d4a60);
         Camera *cam = DAT_003313c4;
         cam->fov = self->fov;
         cam->tanHalf = FUN_0000c000(0.008726646f * cam->fov);
-        if (fabsf(s_prevSel) != 1.0f) {
-            if (sx == 1.0f) {
+        if (fabsf(s_prevStep) != 1.0f) {
+            if (stepX == 1.0f) {
                 Vec4 q;
-                self->preset = (self->preset + 17) % 16;
+                self->preset = (self->preset + PRESET_COUNT + 1) % PRESET_COUNT;
                 FUN_00131198(&q, DAT_00340284, self->preset, -1);
                 self->rot = q;
-            } else if (sx == -1.0f) {
+            } else if (stepX == -1.0f) {
                 Vec4 q;
-                self->preset = (self->preset + 15) % 16;
+                self->preset = (self->preset + PRESET_COUNT - 1) % PRESET_COUNT;
                 FUN_00131198(&q, DAT_00340284, self->preset, -1);
                 self->rot = q;
             }
@@ -181,19 +170,19 @@ extern "C" void FUN_000b94b8(DebugCam *self)
         DAT_003313c4->pos = pos;
         break;
     }
-    case 2: {
-        self->pitch += 0.06981317f * ry;
+    case CAM_ORBIT: {
+        self->pitch += 0.06981317f * lookY;
         if (self->pitch < -1.5707964f)
             self->pitch = -1.5707964f;
         if (self->pitch > 1.5707964f)
             self->pitch = 1.5707964f;
-        self->yaw -= 0.06981317f * rx;
+        self->yaw -= 0.06981317f * lookX;
         while (self->yaw < -3.1415927f)
             self->yaw += 6.2831855f;
         while (self->yaw > 3.1415927f)
             self->yaw -= 6.2831855f;
         float rate = 1.0f;
-        float dz = 12.0f * my / 30.0f * rate;
+        float dz = 12.0f * moveY / 30.0f * rate;
         if (dz != 0.0f) {
             if (fabsf(self->dist) > 10.0f)
                 dz *= fabsf(self->dist) / 10.0f;
@@ -206,12 +195,12 @@ extern "C" void FUN_000b94b8(DebugCam *self)
     }
     m = DAT_002bc410;
     switch (self->mode) {
-    case 1:
+    case CAM_FREE:
         FUN_0004d2d4(&m, &m, self->yaw);
         FUN_0004d280(&m, &m, self->pitch);
         m.r[3] = DAT_003313c4->pos;
         break;
-    case 2: {
+    case CAM_ORBIT: {
         FUN_0004d2d4(&m, &m, self->yaw);
         FUN_0004d280(&m, &m, self->pitch);
         Vec4 off(0.0f, 0.0f, self->dist, 1.0f);
@@ -222,6 +211,6 @@ extern "C" void FUN_000b94b8(DebugCam *self)
     DAT_003313c4->pos = m.r[3];
     DAT_003313c4->at = m.r[2];
     DAT_003313c4->up = m.r[1];
-    s_prevSel = sx;
+    s_prevStep = stepX;
     self->rot = saved;
 }

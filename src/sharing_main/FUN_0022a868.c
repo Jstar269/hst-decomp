@@ -4,9 +4,10 @@
 
 extern void FUN_00108aec();
 
-void FUN_0022a868(int param_1)
+/* Runs the base action while the tick count at 0x8c is positive and the flag at 0x5c is clear. */
+void FUN_0022a868(int self)
 {
-  if ((0 < *(int *)(param_1 + 0x8c)) && (*(u8 *)(param_1 + 0x5c) == '\0')) {
+  if ((0 < *(int *)(self + 0x8c)) && (*(u8 *)(self + 0x5c) == '\0')) {
     FUN_00108aec();
   }
 }

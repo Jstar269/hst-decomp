@@ -1,6 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0027028c end=0x002704c0 symbol=FUN_0027028c lang=c++ data=0x002fe2d4 */
 /* Hand-written reconstruction from the disassembly (continued from lane fm8 near-miss wip/mode_replace_c_0027028c.cpp); exact match verified; matching idiom: `return;` ending the `cVar1 == 0` arm (puts MWCC's branch cleanup in retail's unthreaded mode) and `base + iVar2 + 0x14` addressing; names and types await human review. Data: its string literals (3 strings, 0x002fe2d4-0x002fe323) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 #include "hst/types.h"
+#include "hst/replace_screen.h"
+
+#define FACE_KIND 2 /* record kind that gets the face animation set up */
 
 extern "C" {
 extern u8 DAT_002fe2ac;
@@ -21,69 +24,81 @@ extern void FUN_00058ec4(void *, float, int);
 extern void FUN_00058ddc(void *, int, int);
 extern void FUN_00059084(void *, int);
 }
-struct VC_0 { virtual ~VC_0(); };
-struct VC_1 { virtual ~VC_1(); };
+/* Two views of the model for its virtual destructor (separate classes keep the two deletes apart). */
+struct ModelA { virtual ~ModelA(); };
+struct ModelB { virtual ~ModelB(); };
 
-extern "C" void FUN_0027028c(int param_1)
+/* Model fields set while its animation is started. */
+struct AnimModel {
+  char pad00[0xc0];
+  u8 unkc0;             /* 0xc0 */
+  char padc1[3];
+  float unkc4;          /* 0xc4 */
+  char padc8[8];
+  float unkd0;          /* 0xd0 */
+};
+
+/* Replace the screen's model with the one from record table 2; for FACE_KIND records also load and start the face animation. */
+extern "C" void FUN_0027028c(ReplaceScreen *self)
 {
-  char buf1[256];
-  char buf2[256];
-  int cVar1;
-  int iVar2;
-  int iVar3;
-  int obj;
-  int *piVar5;
+  char motion_name[256];
+  char motion_path[256];
+  int loaded;
+  int rec_off;
+  int model;
+  AnimModel *anim;
+  int *old;
 
-  iVar2 = FUN_002791a4(param_1,2);
-  iVar3 = FUN_00279578(param_1,2);
-  iVar2 = iVar2 + iVar3 * 4;
-  if (*(int *)(param_1 + 0x180) < 0) {
+  rec_off = FUN_002791a4(self,2);
+  model = FUN_00279578(self,2);
+  rec_off = rec_off + model * 4;
+  if (self->unk180 < 0) {
     return;
   }
   {
-    iVar2 = iVar2 * 0x30;
+    rec_off = rec_off * REPLACE_REC_SIZE;
     {
       void *dup;
 
       dup = &DAT_002fe2ac;
       FUN_0001ca58(&DAT_0030ebf4,DAT_002fe2b4,dup,dup,
-                   *(u32 *)(*(int *)(param_1 + 0xa8) + iVar2 + 8),&DAT_002fe2d0);
+                   *(u32 *)((char *)self->recs2.data + rec_off + 8),&DAT_002fe2d0);
     }
-    piVar5 = *(int **)(param_1 + 0xf0);
-    if (piVar5 != (int *)0x0) {
-      delete ((VC_0 *)(piVar5));
-      *(u32 *)(param_1 + 0xf0) = 0;
+    old = (int *)self->model;
+    if (old != (int *)0x0) {
+      delete ((ModelA *)(old));
+      self->model = 0;
     }
-    iVar3 = FUN_00000bcc(0x1c0);
-    if (iVar3 != 0) {
-      iVar3 = FUN_00094fa4(iVar3);
+    model = FUN_00000bcc(REPLACE_MODEL_SIZE);
+    if (model != 0) {
+      model = FUN_00094fa4(model);
     }
-    *(u32 *)(param_1 + 0xf0) = iVar3;
-    cVar1 = FUN_00095104(iVar3,2,*(u32 *)(*(int *)(param_1 + 0xa8) + iVar2 + 8),0,0);
+    self->model = (void *)model;
+    loaded = FUN_00095104(model,2,*(u32 *)((char *)self->recs2.data + rec_off + 8),0,0);
     FUN_0001cb88(&DAT_0030ebf4);
-    if (cVar1 == '\0') {
-      piVar5 = *(int **)(param_1 + 0xf0);
-      if (piVar5 != (int *)0x0) {
-        delete ((VC_1 *)(piVar5));
-        *(u32 *)(param_1 + 0xf0) = 0;
+    if (loaded == '\0') {
+      old = (int *)self->model;
+      if (old != (int *)0x0) {
+        delete ((ModelB *)(old));
+        self->model = 0;
       }
       return;
     }
-    else if (*(int *)(*(int *)(param_1 + 0xa8) + iVar2 + 0x14) == 2) {
+    else if (*(int *)((char *)self->recs2.data + rec_off + 0x14) == FACE_KIND) {
       FUN_0001ca58(&DAT_0030ebf4,"menu/pc/face/anim%03d.xb",0);
-      FUN_000143b0(buf1,"chrm_pc%02d_00",0);
-      FUN_000143b0(buf2,"data/chara/menu_motion/%02d/%s.i3m",0,buf1);
-      FUN_000573a0(*(void **)(param_1 + 0xf0),0,buf2,0,0);
-      FUN_00057b58(*(void **)(param_1 + 0xf0),0.0f,0,0);
-      obj = *(int *)(param_1 + 0xf0);
-      FUN_00058ec4((void *)obj,1.0f,-1);
-      *(float *)(obj + 0xc4) = 1.0f;
-      obj = *(int *)(param_1 + 0xf0);
-      FUN_00058ddc((void *)obj,1,-1);
-      *(unsigned char *)(obj + 0xc0) = 1;
-      obj = *(int *)(param_1 + 0xf0);
-      FUN_00059084((void *)obj,-1);
-      *(float *)(obj + 0xd0) = *(float *)(obj + 0xc4);
+      FUN_000143b0(motion_name,"chrm_pc%02d_00",0);
+      FUN_000143b0(motion_path,"data/chara/menu_motion/%02d/%s.i3m",0,motion_name);
+      FUN_000573a0(self->model,0,motion_path,0,0);
+      FUN_00057b58(self->model,0.0f,0,0);
+      anim = (AnimModel *)self->model;
+      FUN_00058ec4(anim,1.0f,-1);
+      anim->unkc4 = 1.0f;
+      anim = (AnimModel *)self->model;
+      FUN_00058ddc(anim,1,-1);
+      anim->unkc0 = 1;
+      anim = (AnimModel *)self->model;
+      FUN_00059084(anim,-1);
+      anim->unkd0 = anim->unkc4;
       FUN_0001cb88(&DAT_0030ebf4);
     }
   }

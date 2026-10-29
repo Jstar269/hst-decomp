@@ -1,23 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002190e4 end=0x00219150 symbol=FUN_002190e4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/vtable_obj.h"
 
-extern u8 DAT_0030702c;
-extern u8 DAT_003095d8;
+extern char DAT_0030702c;
+extern char DAT_003095d8;
 extern void FUN_00000a00();
-extern u32 * FUN_0005a410();
+extern void * FUN_0005a410();
 
-u32 * FUN_002190e4(u32 *param_1,short param_2)
+/* Deleting destructor of one particle. */
+VtableObj * FUN_002190e4(VtableObj *particle,short flags)
 {
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003095d8);
-    if (param_1 != (u32 *)0x0) {
-      *param_1 = (unsigned int)(&DAT_0030702c);
-      FUN_0005a410(param_1,0);
+  if (particle != (VtableObj *)0x0) {
+    particle->vtable = &DAT_003095d8;
+    if (particle != (VtableObj *)0x0) {
+      particle->vtable = &DAT_0030702c;
+      FUN_0005a410(particle,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(particle);
     }
   }
-  return param_1;
+  return particle;
 }

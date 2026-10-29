@@ -2,26 +2,41 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 typedef unsigned char u8;
 
+enum { STREAM_BLOCK_SIZE = 0x10000 };
+
+typedef struct StreamBuf {
+    char pad00[4];
+    void *source;                       /* 0x4 */
+    char pad08[0x1b4 - 0x8];
+    int sink;                           /* 0x1b4 */
+    char block[STREAM_BLOCK_SIZE];      /* 0x1b8 */
+    int block_len;                      /* 0x101b8 */
+    char leftover[STREAM_BLOCK_SIZE];   /* 0x101bc */
+    char *pending;                      /* 0x201bc: unconsumed bytes of the last block */
+    int pending_len;                    /* 0x201c0 */
+} StreamBuf;
+
 extern void *FUN_00011090(void *dest, const void *src, int n);
 extern void FUN_000c067c(void *, void *, void *);
 extern int FUN_000ff5b0(int, const void *, int);
 
-void FUN_0029f818(char *param_1)
+/* Feeds the sink with the leftover bytes, or with a freshly read block; keeps whatever the sink did not take. */
+void FUN_0029f818(StreamBuf *self)
 {
     int consumed;
 
-    if (*(int *)(param_1 + 0x201c0) > 0) {
-        consumed = FUN_000ff5b0(*(int *)(param_1 + 0x1b4), *(void **)(param_1 + 0x201bc), *(int *)(param_1 + 0x201c0));
-        *(int *)(param_1 + 0x201c0) -= consumed;
-        *(char **)(param_1 + 0x201bc) += consumed;
+    if (self->pending_len > 0) {
+        consumed = FUN_000ff5b0(self->sink, self->pending, self->pending_len);
+        self->pending_len -= consumed;
+        self->pending += consumed;
     } else {
-        *(int *)(param_1 + 0x101b8) = 0x10000;
-        FUN_000c067c(*(void **)(param_1 + 4), param_1 + 0x1b8, param_1 + 0x101b8);
-        consumed = FUN_000ff5b0(*(int *)(param_1 + 0x1b4), param_1 + 0x1b8, *(int *)(param_1 + 0x101b8));
-        if (consumed < *(int *)(param_1 + 0x101b8)) {
-            *(int *)(param_1 + 0x201c0) = *(int *)(param_1 + 0x101b8) - consumed;
-            *(char **)(param_1 + 0x201bc) = param_1 + 0x101bc;
-            FUN_00011090(param_1 + 0x101bc, param_1 + 0x1b8 + consumed, *(int *)(param_1 + 0x201c0));
+        self->block_len = STREAM_BLOCK_SIZE;
+        FUN_000c067c(self->source, self->block, &self->block_len);
+        consumed = FUN_000ff5b0(self->sink, self->block, self->block_len);
+        if (consumed < self->block_len) {
+            self->pending_len = self->block_len - consumed;
+            self->pending = self->leftover;
+            FUN_00011090(self->leftover, self->block + consumed, self->pending_len);
         }
     }
 }

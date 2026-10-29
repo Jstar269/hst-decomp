@@ -4,15 +4,16 @@
 extern void FUN_00000a00();
 extern int FUN_000df4ac();
 
-int FUN_000df55c(int param_1,short param_2)
+/* Deleting destructor: run the destructor body, free the memory when delete_flag is positive. */
+int FUN_000df55c(int self,short delete_flag)
 {
-  if (param_1 != 0) {
-    if (param_1 != 0) {
-      FUN_000df4ac(param_1,0xffffffff);
+  if (self != 0) {
+    if (self != 0) {
+      FUN_000df4ac(self,-1);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

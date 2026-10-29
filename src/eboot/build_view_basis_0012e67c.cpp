@@ -30,33 +30,35 @@ static inline Vec4 Cross(const Vec4 &a, const Vec4 &b)
   return r;
 }
 
-struct Obj {
+/* Camera: target, eye and the basis vectors derived from them. */
+struct CameraObj {
   char pad00[0x90];
-  Vec4 v90;
-  Vec4 va0;
-  Vec4 vb0;
-  Vec4 vc0;
+  Vec4 target;
+  Vec4 eye;
+  Vec4 forward;
+  Vec4 right;
 };
 
-extern "C" void FUN_0012e67c(Obj *o)
+/* Builds the forward vector (eye to target, normalised) and the right vector from it. */
+extern "C" void FUN_0012e67c(CameraObj *cam)
 {
-  o->vb0 = Sub(o->v90, o->va0);
-  if (FUN_000224d8(&o->vb0, &o->vb0) < 1e-05f) {
-    o->vb0.x = DAT_002bc430.x;
-    o->vb0.y = DAT_002bc430.y;
-    o->vb0.z = DAT_002bc430.z;
-    o->vb0.w = DAT_002bc430.w;
+  cam->forward = Sub(cam->target, cam->eye);
+  if (FUN_000224d8(&cam->forward, &cam->forward) < 1e-05f) {
+    cam->forward.x = DAT_002bc430.x;
+    cam->forward.y = DAT_002bc430.y;
+    cam->forward.z = DAT_002bc430.z;
+    cam->forward.w = DAT_002bc430.w;
   } else {
-    FUN_00022518(&o->vb0, &o->vb0);
-    o->vb0.w = 0.0f;
+    FUN_00022518(&cam->forward, &cam->forward);
+    cam->forward.w = 0.0f;
   }
   Vec4 t;
-  Vec4 n;
+  Vec4 n;  /* negated up vector */
   n.x = -DAT_002bc420.x;
   n.y = -DAT_002bc420.y;
   n.z = -DAT_002bc420.z;
   n.w = -DAT_002bc420.w;
-  t = Cross(n, o->vb0);
-  FUN_00022518(&o->vc0, &t);
-  o->vc0.w = 0.0f;
+  t = Cross(n, cam->forward);
+  FUN_00022518(&cam->right, &t);
+  cam->right.w = 0.0f;
 }

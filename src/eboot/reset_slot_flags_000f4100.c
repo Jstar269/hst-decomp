@@ -2,12 +2,12 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 typedef struct {
   char pad00[0x68];
-  void *f68[2];
+  void *pane[2];          /* 0x68 */
   char pad70[0x1f0 - 0x70];
-  unsigned char f1f0[2];
-  unsigned char f1f2[2];
-  unsigned char f1f4[2];
-  unsigned char f1f6[2];
+  unsigned char flagsA[2]; /* 0x1f0 per-slot flags */
+  unsigned char flagsB[2];
+  unsigned char flagsC[2];
+  unsigned char flagsD[2];
 } Obj;
 
 extern int FUN_000dea20(void *p, int i);
@@ -25,21 +25,21 @@ void FUN_000f4100(Obj *self)
     /* matching idiom: each flag byte is cleared when its helper returns 0; the
        four checks are && chains (the byte test and the helper call), and the
        final test is one && chain over the four bytes. */
-    if (self->f1f0[i] != 0 && FUN_000dea20(DAT_00338b44, i) == 0) {
-      self->f1f0[i] = 0;
+    if (self->flagsA[i] != 0 && FUN_000dea20(DAT_00338b44, i) == 0) {
+      self->flagsA[i] = 0;
     }
-    if (self->f1f2[i] != 0 && FUN_000de51c(DAT_00338b44, i) == 0) {
-      self->f1f2[i] = 0;
+    if (self->flagsB[i] != 0 && FUN_000de51c(DAT_00338b44, i) == 0) {
+      self->flagsB[i] = 0;
     }
-    if (self->f1f4[i] != 0 && FUN_000de2c8(DAT_00338b44, i) == 0) {
-      self->f1f4[i] = 0;
+    if (self->flagsC[i] != 0 && FUN_000de2c8(DAT_00338b44, i) == 0) {
+      self->flagsC[i] = 0;
     }
-    if (self->f1f6[i] != 0 && FUN_000de3f0(DAT_00338b44, i) == 0) {
-      self->f1f6[i] = 0;
+    if (self->flagsD[i] != 0 && FUN_000de3f0(DAT_00338b44, i) == 0) {
+      self->flagsD[i] = 0;
     }
-    if (self->f1f0[i] == 0 && self->f1f2[i] == 0 && self->f1f4[i] == 0 && self->f1f6[i] == 0) {
-      FUN_000ffb3c(self->f68[i], 1);
-      *(int *)self->f68[i] = 0x808080;
+    if (self->flagsA[i] == 0 && self->flagsB[i] == 0 && self->flagsC[i] == 0 && self->flagsD[i] == 0) {
+      FUN_000ffb3c(self->pane[i], 1);
+      *(int *)self->pane[i] = 0x808080;
     }
   }
 }

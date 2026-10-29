@@ -1,35 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0023302c end=0x00233378 symbol=FUN_0023302c lang=c++ rodata=0x002c9c80 */
 /* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: flag-table address as an int offset accumulated onto the global (`off = idx; off += (int)G;`) for retail's index-first addu; names and types await human review. */
-struct Menu {
+#include "hst/challenge_lobby.h"
+#include "hst/game_record.h"
+
+/* The challenge menu, seen through the fields and virtual calls used here. */
+struct LobbyMenu {
     virtual void m0();
     virtual void m1();
     virtual void m2();
     virtual void m3();
     char pad[0x1da - 4];
-    unsigned char f1da;
+    unsigned char unk1da;
     char pad1db;
-    int f1dc;
-    int f1e0;
-    int f1e4;
+    int mode;
+    int selected;
+    int unk1e4;
 };
-
-struct State {
-    Menu *menu;
-    int f4;
-    int f8;
-    int state;
-    unsigned char f10;
-    unsigned char f11;
-    unsigned char f12;
-};
-
-struct Glob { char pad[0xc200]; unsigned char flags[0x1e24]; int cnt; };
 
 extern "C" {
 extern int DAT_002f3668;
 extern int DAT_002f3664;
 extern int DAT_002f3ed4;
-extern Glob *DAT_003415a8;
+extern GameRecord *DAT_003415a8;
 extern void *DAT_003415ac;
 extern int DAT_0034a120;
 extern char DAT_0034a678[];
@@ -39,96 +31,97 @@ void FUN_000143b0(char *buf, char *a, char *b, char *c);
 void FUN_00114168(void *a, int b, char *s, int c, int d);
 int FUN_0022c988(int n);
 int FUN_0022c9ac(void);
-void FUN_00233384(State *s, int a, int b);
-void FUN_0022101c(int a, int b);
+void FUN_00233384(ChallengeLobby *s, int a, int b);
+void FUN_0022101c(LobbyHelper8 *a, int b);
 void FUN_001b1c44(void *p, int n);
-void FUN_00232558(Menu *m, int n);
-void FUN_002323e0(Menu *m);
-void FUN_002321f0(Menu *m, int n);
-void FUN_00220238(int a, unsigned char b);
-void FUN_0022115c(int a);
+void FUN_00232558(LobbyMenu *m, int n);
+void FUN_002323e0(LobbyMenu *m);
+void FUN_002321f0(LobbyMenu *m, int n);
+void FUN_00220238(LobbyHelper4 *a, unsigned char b);
+void FUN_0022115c(LobbyHelper8 *a);
 void FUN_0022c4ac(int a, int b);
 int FUN_00233378(void);
 void FUN_00234158(void *p, int n);
 void FUN_001d9c78(int n);
-void FUN_00232084(Menu *m, int n);
-void FUN_0023302c(State *s, int n);
+void FUN_00232084(LobbyMenu *m, int n);
+void FUN_0023302c(ChallengeLobby *s, int n);
 }
 
-extern "C" void FUN_0023302c(State *s, int n)
+/* Enters lobby state n and runs that state's entry action. */
+extern "C" void FUN_0023302c(ChallengeLobby *lobby, int n)
 {
-    s->state = n;
+    lobby->state = n;
     switch (n) {
     case 4:
-        FUN_002321f0(s->menu, 0);
+        FUN_002321f0(lobby->menu, 0);
         if (FUN_0022c9ac())
-            s->f11 = 1;
+            lobby->unk11 = 1;
         else
-            s->f11 = 0;
+            lobby->unk11 = 0;
         {
-            Menu *m = s->menu;
-            m->f1da = s->f11;
-            FUN_002321f0(m, m->f1dc);
+            LobbyMenu *m = lobby->menu;
+            m->unk1da = lobby->unk11;
+            FUN_002321f0(m, m->mode);
         }
-        s->f12 = 0;
+        lobby->unk12 = 0;
         break;
     case 5:
-        FUN_002321f0(s->menu, 1);
+        FUN_002321f0(lobby->menu, 1);
         goto tail;
     case 6:
     case 7: {
-        int off = s->menu->f1e0;
+        int off = lobby->menu->selected;
         off += (int)DAT_003415a8;
-        ((Glob *)off)->flags[0] |= 0x80;
-        FUN_0022c4ac(s->menu->f1e0, s->menu->f1e4);
+        ((GameRecord *)off)->slots.slot_flags[0] |= SLOT_FLAG_BIT7;
+        FUN_0022c4ac(lobby->menu->selected, lobby->menu->unk1e4);
         break;
     }
     case 0: {
-        int idx = s->menu->f1e0;
-        char *a = FUN_001fea10(0x11, 0x11, 0);
-        char *b = FUN_001fea10(6, 0, idx + 1);
-        char *c = FUN_001fea10(6, idx + 1, DAT_003415a8->cnt + 1);
+        int idx = lobby->menu->selected;
+        char *text_a = FUN_001fea10(0x11, 0x11, 0);
+        char *text_b = FUN_001fea10(6, 0, idx + 1);
+        char *text_c = FUN_001fea10(6, idx + 1, DAT_003415a8->slots.unkab24 + 1);
         char buf[512];
-        FUN_000143b0(buf, a, b, c);
+        FUN_000143b0(buf, text_a, text_b, text_c);
         FUN_00114168(DAT_003415ac, 2, buf, 0, 0);
         bool ok = FUN_0022c988(7) != 0 && !FUN_0022c988(8);
         if (ok)
-            FUN_00233384(s, 0xf0, 0x88);
+            FUN_00233384(lobby, 0xf0, 0x88);
         else
-            FUN_00233384(s, DAT_002f3ed4, 0x88);
+            FUN_00233384(lobby, DAT_002f3ed4, 0x88);
         break;
     }
     case 2: {
-        int cur = DAT_002f3668;
-        if (cur >= 0) {
-            FUN_0022101c(s->f8, cur);
-            Menu *m = s->menu;
-            if (m->f1e0 != cur - 1)
+        int requested = DAT_002f3668;
+        if (requested >= 0) {
+            FUN_0022101c(lobby->unk8, requested);
+            LobbyMenu *m = lobby->menu;
+            if (m->selected != requested - 1)
                 FUN_001b1c44(DAT_0034179c, 1);
-            m->f1e0 = cur - 1;
-            switch (m->f1dc) {
+            m->selected = requested - 1;
+            switch (m->mode) {
             case 0:
                 break;
             case 1:
-                FUN_00232558(m, m->f1e0);
+                FUN_00232558(m, m->selected);
                 break;
             }
-            DAT_002f3664 = cur - 1;
+            DAT_002f3664 = requested - 1;
             DAT_002f3668 = -1;
-            FUN_002323e0(s->menu);
-            FUN_002321f0(s->menu, 0);
-            s->menu->m1();
-            s->menu->m2();
-            DAT_002f3664 = cur - 1;
+            FUN_002323e0(lobby->menu);
+            FUN_002321f0(lobby->menu, 0);
+            lobby->menu->m1();
+            lobby->menu->m2();
+            DAT_002f3664 = requested - 1;
         } else {
-            FUN_0023302c(s, 4);
-            s->menu->m1();
-            FUN_00220238(s->f4, s->f10);
+            FUN_0023302c(lobby, 4);
+            lobby->menu->m1();
+            FUN_00220238(lobby->unk4, lobby->unk10);
         }
         break;
     }
     case 3:
-        FUN_0022115c(s->f8);
+        FUN_0022115c(lobby->unk8);
         break;
     case 8:
         DAT_002f3664 = FUN_00233378();
@@ -139,6 +132,6 @@ extern "C" void FUN_0023302c(State *s, int n)
         break;
     }
 tail:
-    if (s->state != 4 && s->state != 5)
-        FUN_00232084(s->menu, 1);
+    if (lobby->state != 4 && lobby->state != 5)
+        FUN_00232084(lobby->menu, 1);
 }

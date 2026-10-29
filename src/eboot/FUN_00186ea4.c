@@ -1,12 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00186ea4 end=0x00186ee8 symbol=FUN_00186ea4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/slide_screen.h"
 
-void FUN_00186ea4(int param_1,int param_2,int param_3)
+/* Sets the flag and derives two offsets from base - step * index; clears the two trailing words. */
+void FUN_00186ea4(SlideScreen *self,int first,int second)
 {
-  *(u8 *)(param_1 + 0x1250) = 1;
-  *(int *)(param_1 + 0x1240) = *(int *)(param_1 + 0x1238) - *(int *)(param_1 + 0x123c) * param_2;
-  *(int *)(param_1 + 0x1244) = *(int *)(param_1 + 0x1238) - *(int *)(param_1 + 0x123c) * param_3;
-  *(u32 *)(param_1 + 0x124c) = 0;
-  *(u32 *)(param_1 + 0x1248) = 0;
+  self->unk1250 = 1;
+  self->unk1240 = self->base - self->step * first;
+  self->unk1244 = self->base - self->step * second;
+  self->unk124c = 0;
+  self->unk1248 = 0;
 }

@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0018a468 end=0x0018a4f4 symbol=FUN_0018a468 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/layout_list.h"
 
 extern u8 DAT_0030779c;
 extern u8 DAT_003090e0;
@@ -9,19 +10,20 @@ extern void FUN_00000a00();
 extern u32 * FUN_00100b24();
 extern u32 * FUN_00217474();
 
-u32 * FUN_0018a468(u32 *param_1,short param_2)
+/* Deleting destructor of the layout list: destroy the list member, then the base; free when flags > 0. */
+LayoutList * FUN_0018a468(LayoutList *self,short flags)
 {
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003090e0);
-    param_1[0x34] = (unsigned int)(&DAT_00309124);
-    FUN_00217474(param_1 + 0x34,0);
-    if (param_1 != (u32 *)0x0) {
-      *param_1 = (unsigned int)(&DAT_0030779c);
-      FUN_00100b24(param_1,0);
+  if (self != (LayoutList *)0x0) {
+    self->vtable = (unsigned int)(&DAT_003090e0);
+    self->vtableD0 = (unsigned int)(&DAT_00309124);
+    FUN_00217474(&self->vtableD0,0);
+    if (self != (LayoutList *)0x0) {
+      self->vtable = (unsigned int)(&DAT_0030779c);
+      FUN_00100b24(self,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

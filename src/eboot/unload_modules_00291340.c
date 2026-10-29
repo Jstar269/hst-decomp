@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00291340 end=0x00291434 symbol=FUN_00291340 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-/* Ghidra pseudocode (lane fm2 near miss wip/clear_handle_table_00291340.c) corrected by hand: stop/unload moved into an inline returning unsigned char, matching idiom: the flag is copied through a temporary (`t = ok; if (ok) t = StopUnload(*p); ok = t;`), which puts the else copy in retail's non-likely beqz slot; exact match verified; names and types await human review. */
-extern unsigned char DAT_0034a7f8;
+/* Ghidra pseudocode (lane fm2 near miss wip/clear_handle_table_00291340.c) corrected by hand: stop/unload moved into an inline returning unsigned char, matching idiom: the flag is copied through a temporary (`t = ok; if (ok) t = StopUnload(*p); ok = t;`), which puts the else copy in retail's non-likely beqz slot; readability pass; exact match verified; names and types await human review. */
+extern unsigned char DAT_0034a7f8; /* nonzero while modules are loaded */
 extern int DAT_0034a7fc;
 extern char DAT_002ff4e4[]; /* "ERROR: sceKernelStopModule(): 0x%08x\n" */
 extern char DAT_002ff50c[]; /* "ERROR: sceKernelUnloadModule(): 0x%08x\n" */
@@ -9,14 +9,15 @@ extern void FUN_0028fb44(const char *, int);
 extern int FUN_002b7800(int);
 extern int FUN_002b7808(int, int, int, int, int);
 
-static inline unsigned char StopUnload(int id)
+/* Stops then unloads one module; returns 1 on success, 0 after logging a failure. */
+static inline unsigned char StopUnload(int module_id)
 {
-  int r = FUN_002b7808(id, 0, 0, 0, 0);
+  int r = FUN_002b7808(module_id, 0, 0, 0, 0);
   if (r < 0) {
     FUN_0028fb44(DAT_002ff4e4, r);
     return 0;
   }
-  r = FUN_002b7800(id);
+  r = FUN_002b7800(module_id);
   if (r < 0) {
     FUN_0028fb44(DAT_002ff50c, r);
     return 0;
@@ -24,9 +25,10 @@ static inline unsigned char StopUnload(int id)
   return 1;
 }
 
+/* Stops and unloads every loaded module, clearing the table; returns 0 if any step failed. */
 int FUN_00291340(void)
 {
-  int *p;
+  int *entry;
   int i;
   unsigned char ok;
 
@@ -34,16 +36,16 @@ int FUN_00291340(void)
   ok = 1;
   i = 0;
   if (DAT_0034a7fc > 0) {
-    p = &DAT_0034a7fc;
+    entry = &DAT_0034a7fc;
     do {
       unsigned char t = ok;
       if (ok)
-        t = StopUnload(*p);
+        t = StopUnload(*entry);
       ok = t;
-      *p = 0;
-      p++;
+      *entry = 0;
+      entry++;
       i++;
-    } while (i < *p);
+    } while (i < *entry);
   }
   DAT_0034a7f8 = 0;
   return ok;

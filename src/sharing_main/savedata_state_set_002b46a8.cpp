@@ -1,46 +1,38 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x002b46a8 end=0x002b497c symbol=FUN_002b46a8 lang=c++ */
 /* Hand-written reconstruction (port of src/eboot/savedata_state_set_002a4f18.cpp, its twin: addresses substituted by try/twins-20261026/port.py; no other change); exact match verified; names and types await human review. */
-struct Sub8 {
+#include "hst/savedata_screen.h"
+
+/* Limits record that the info object points at. */
+struct InfoLimits {
   int pad0[2];
-  int f8;
+  int level;              /* 0x08 selects whether the text lists are available */
 };
 
-struct Lists {
+/* Two string lists: the second (A) at +0xf0 and the first (B) at +0x90, each with its length. */
+struct TextLists {
   char pad0[0x90];
-  const char **a90;
-  int c94;
+  const char **textsB;    /* 0x90 */
+  int countB;             /* 0x94 */
   char pad1[0xf0 - 0x98];
-  const char **af0;
-  int cf4;
+  const char **textsA;    /* 0xf0 */
+  int countA;             /* 0xf4 */
 };
 
 struct Info {
   int pad0;
-  int f4;
-  Sub8 *f8;
-  Lists *fc;
+  int enabled;            /* 0x04 zero selects the placeholder string */
+  InfoLimits *limits;     /* 0x08 */
+  TextLists *lists;       /* 0x0c */
 };
 
-struct Loc {
-  const char *a;
-  const char *b;
-  int c;
-  int d;
-  int e;
-  unsigned char f;
-};
-
-struct Self {
-  char pad0[0x40];
-  char sub[0x5d0 - 0x40];
-  int state;
-  int f5d4;
-  char buf0[0x180];
-  char buf1[0x180];
-  char buf2[0x180];
-  char buf3[0x180];
-  char buf4[0x180];
-  char buf5[0x180];
+/* Parameter block handed to the worker: defaults copied from .data, then the message handles filled in. */
+struct RunParams {
+  const char *gameId;
+  const char *dirName;
+  int msgA;
+  int msgB;
+  int msgC;
+  unsigned char flag;
 };
 
 extern const char *DAT_003a98a8;
@@ -61,64 +53,73 @@ struct Dev {
 };
 extern Dev *DAT_003e1a00;
 
+enum {
+  INFO_SET_ID = 17,       /* argument that selects the info object */
+  TEXTS_A_MIN_LEVEL = 0x15,
+  TEXTS_B_MIN_LEVEL = 13
+};
+
 extern "C" {
 void FUN_0001b584(void);
 Info *FUN_001991d4(int);
 int FUN_001a4bcc(void *, const char *, int, void *);
 void FUN_0011fe78(void *, int, int, int, int);
-int FUN_001108a4(void *, Loc *);
-void FUN_002b46a8(Self *, int);
+int FUN_001108a4(void *, RunParams *);
+void FUN_002b46a8(SaveScreen *, int);
 }
 
+/* String idx of list A, or a placeholder when the lists are unavailable or too short. */
 static inline const char *PickA(Info *o, int idx)
 {
-  if (o->f4 == 0) return DAT_002d10d4;
-  if (o->f8->f8 < 0x15) return DAT_002d10d0;
-  if (o->fc->cf4 <= idx) return DAT_002d10cc;
-  return o->fc->af0[idx];
+  if (o->enabled == 0) return DAT_002d10d4;
+  if (o->limits->level < TEXTS_A_MIN_LEVEL) return DAT_002d10d0;
+  if (o->lists->countA <= idx) return DAT_002d10cc;
+  return o->lists->textsA[idx];
 }
 
+/* String idx of list B, with the same fallbacks. */
 static inline const char *PickB(Info *o, int idx)
 {
-  if (o->f4 == 0) return DAT_002d10d4;
-  if (o->f8->f8 < 13) return DAT_002d10d0;
-  if (o->fc->c94 <= idx) return DAT_002d10cc;
-  return o->fc->a90[idx];
+  if (o->enabled == 0) return DAT_002d10d4;
+  if (o->limits->level < TEXTS_B_MIN_LEVEL) return DAT_002d10d0;
+  if (o->lists->countB <= idx) return DAT_002d10cc;
+  return o->lists->textsB[idx];
 }
 
-extern "C" void FUN_002b46a8(Self *self, int state)
+/* Enter a state: 1 queues one message, 2 starts the operation (falling through to DONE on success). */
+extern "C" void FUN_002b46a8(SaveScreen *self, int state)
 {
   self->state = state;
   switch (state) {
-  case 0:
+  case SAVE_STATE_IDLE:
     break;
-  case 1: {
-    const char *p = PickA(FUN_001991d4(17), 6);
-    int h = FUN_001a4bcc(DAT_003eaaac, p, 0x180, self->buf4);
+  case SAVE_STATE_MESSAGE: {
+    const char *p = PickA(FUN_001991d4(INFO_SET_ID), 6);
+    int h = FUN_001a4bcc(DAT_003eaaac, p, SAVE_TEXT_SIZE, self->text[4]);
     FUN_0011fe78(DAT_003ea8ec, 1, h, 0, 0);
     break;
   }
-  case 2: {
+  case SAVE_STATE_RUN: {
     FUN_0001b584();
     if (DAT_003e1a00 != 0) DAT_003e1a00->m1(0);
-    Loc loc;
-    loc.a = DAT_003a98a8;
-    loc.b = DAT_003a98ac;
-    loc.c = DAT_003a98b0;
-    loc.d = DAT_003a98b4;
-    loc.e = DAT_003a98b8;
-    loc.f = DAT_003a98bc;
-    loc.c = FUN_001a4bcc(DAT_003eaaac, PickB(FUN_001991d4(17), 32), 0x180, self->buf0);
-    loc.d = FUN_001a4bcc(DAT_003eaaac, PickA(FUN_001991d4(17), 1), 0x180, self->buf1);
-    loc.e = FUN_001a4bcc(DAT_003eaaac, PickA(FUN_001991d4(17), 0), 0x180, self->buf2);
-    if (FUN_001108a4(self->sub, &loc) == 0) {
-      self->f5d4 = 0;
+    RunParams loc;
+    loc.gameId = DAT_003a98a8;
+    loc.dirName = DAT_003a98ac;
+    loc.msgA = DAT_003a98b0;
+    loc.msgB = DAT_003a98b4;
+    loc.msgC = DAT_003a98b8;
+    loc.flag = DAT_003a98bc;
+    loc.msgA = FUN_001a4bcc(DAT_003eaaac, PickB(FUN_001991d4(INFO_SET_ID), 32), SAVE_TEXT_SIZE, self->text[0]);
+    loc.msgB = FUN_001a4bcc(DAT_003eaaac, PickA(FUN_001991d4(INFO_SET_ID), 1), SAVE_TEXT_SIZE, self->text[1]);
+    loc.msgC = FUN_001a4bcc(DAT_003eaaac, PickA(FUN_001991d4(INFO_SET_ID), 0), SAVE_TEXT_SIZE, self->text[2]);
+    if (FUN_001108a4(self->worker, &loc) == 0) {
+      self->unk5d4 = 0;
     } else {
-      FUN_002b46a8(self, 3);
+      FUN_002b46a8(self, SAVE_STATE_DONE);
     }
     break;
   }
-  case 3:
+  case SAVE_STATE_DONE:
     break;
   }
 }

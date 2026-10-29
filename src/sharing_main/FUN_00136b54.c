@@ -1,36 +1,25 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00136b54 end=0x00136b90 symbol=FUN_00136b54 lang=c99 */
 /* Clone of src/eboot/FUN_0012b6e8.c (hstclone.py tag x14): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef float undefined4;
+extern float DAT_00381ac0; /* lower bound */
 
-extern undefined4 DAT_00381ac0;
+typedef struct FloatHolder {
+  char pad00[0x400];
+  float value;              /* 0x400 */
+} FloatHolder;
 
-void FUN_00136b54(float param_1,int param_2)
+/* Stores `value`, raised to the lower bound when below it. */
+void FUN_00136b54(float value,FloatHolder *self)
 {
-  float *pfVar1;
-  float local_4;
+  float *chosen;
+  float valueCopy;
   
-  local_4 = param_1;
-  if (param_1 < DAT_00381ac0) {
-    pfVar1 = &DAT_00381ac0;
+  valueCopy = value;
+  if (value < DAT_00381ac0) {
+    chosen = &DAT_00381ac0;
   }
   else {
-    pfVar1 = &local_4;
+    chosen = &valueCopy;
   }
-  *(float *)(param_2 + 0x400) = *pfVar1;
+  self->value = *chosen;
   return;
 }

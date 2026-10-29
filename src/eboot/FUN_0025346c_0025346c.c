@@ -1,24 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025346c end=0x002534b4 symbol=FUN_0025346c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reversed the nested mode and byte arms and made the byte unsigned; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reversed the nested mode and byte arms and made the byte unsigned; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/sel_obj.h"
 
-extern int FUN_001d9cfc();
+extern int FUN_001d9cfc(char *, int);
 
-void FUN_0025346c(int param_1,int param_2)
+/* Refreshes the handle: mode 0 when `enable` is 0, otherwise 2 if unk34 is set and 1 if not. */
+void FUN_0025346c(SelObj *obj,int enable)
 {
-  u32 uVar1;
+  u32 mode;
   
-  if (param_2 != 0) {
-    if (*(unsigned char *)(param_1 + 0x34) != 0) {
-      uVar1 = 2;
+  if (enable != 0) {
+    if (obj->unk34 != 0) {
+      mode = 2;
     }
     else {
-      uVar1 = 1;
+      mode = 1;
     }
   }
   else {
-    uVar1 = 0;
+    mode = 0;
   }
-  uVar1 = FUN_001d9cfc(param_1 + 0x3c,uVar1);
-  *(u32 *)(param_1 + 0x38) = uVar1;
+  mode = FUN_001d9cfc(obj->sub3c,mode);
+  obj->handle = mode;
 }

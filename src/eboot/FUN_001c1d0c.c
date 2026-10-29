@@ -15,12 +15,13 @@ static void FUN_001be424(...)
 {
 }
 
-void FUN_001c1d0c(int param_1, int param_2, int param_3, int param_4, int param_5)
+/* Store five values in globals, then pass them to the variadic callee (note the c/d swap). */
+void FUN_001c1d0c(int first, int second, int third, int fourth, int fifth)
 {
-  DAT_003417c4 = param_1;
-  DAT_003418d4 = param_2;
-  DAT_00341b14 = param_3;
-  DAT_003419f4 = param_4;
-  DAT_00341c34 = param_5;
-  FUN_001be424(DAT_002ea2b0, param_1, param_2, param_4, param_3, param_5);
+  DAT_003417c4 = first;
+  DAT_003418d4 = second;
+  DAT_00341b14 = third;
+  DAT_003419f4 = fourth;
+  DAT_00341c34 = fifth;
+  FUN_001be424(DAT_002ea2b0, first, second, fourth, third, fifth);
 }

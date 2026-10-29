@@ -6,26 +6,28 @@
    init(t, ctx) and on failure delete it (explicit null test plus delete's own) and return 0. The float is
    declared before the context pointer: EABI gives the same registers either way, but the order of the
    prologue moves and of the call-argument setup follows the declaration order. Names provisional. */
-struct Ctx_001532e4;
+#include "hst/script_cmd.h"
+
 struct Mgr_001532e4;
 extern "C" {
-extern unsigned char DAT_003402f0;
+extern unsigned char DAT_003402f0; /* script trace flag */
 extern Mgr_001532e4 *DAT_0034a114;
-void FUN_0014d044(Ctx_001532e4 *ctx);
+void FUN_0014d044(ScriptCtx *ctx);
 void FUN_0014fd94(char *fmt, ...);
 void FUN_001ccf40(Mgr_001532e4 *m);
 }
 class C_0014c8cc {
 public:
     virtual ~C_0014c8cc();
-    virtual int Init(float t, Ctx_001532e4 *ctx) = 0;
+    virtual int Init(float t, ScriptCtx *ctx) = 0;
 };
 class C_001533b4 : public C_0014c8cc {
 public:
     virtual ~C_001533b4();
-    virtual int Init(float t, Ctx_001532e4 *ctx);
+    virtual int Init(float t, ScriptCtx *ctx);
 };
-extern "C" C_0014c8cc *FUN_001532e4(void *self, float t, Ctx_001532e4 *ctx)
+/* Script command "CompleteStage": notify the manager, then build the command object and run its init. */
+extern "C" C_0014c8cc *FUN_001532e4(ScriptCmd *cmd, float t, ScriptCtx *ctx)
 {
     if (DAT_003402f0) {
         FUN_0014d044(ctx);

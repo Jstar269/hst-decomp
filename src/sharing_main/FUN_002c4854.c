@@ -2,9 +2,10 @@
 /* Clone of src/eboot/FUN_001fba70.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u32 * FUN_002bf968(u32 *param_1,short param_2);
+extern u32 * FUN_002bf968(u32 *self,short flag);
 
-void FUN_002c4854(int param_1,short param_2)
+/* Destructor thunk: adjusts this by -0x3c (secondary base to full object) and forwards. */
+void FUN_002c4854(int sub_object,short flag)
 {
-  FUN_002bf968((u32 *)((u32 *)(param_1 + -0x3c)),(short)(param_2));
+  FUN_002bf968((u32 *)((u32 *)(sub_object + -0x3c)),(short)(flag));
 }

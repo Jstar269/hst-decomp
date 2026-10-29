@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0026665c end=0x002666d4 symbol=FUN_0026665c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/mover.h"
+
 struct Vec4 {
   float f[4];
   Vec4() {}
@@ -22,10 +24,11 @@ static inline Vec4 MakeVec4(void *param_1, void *param_2)
   return result;
 }
 
-extern "C" void FUN_0026665c(char *self)
+/* Steps the heading from the latched vector difference (when enabled), updates the body and remembers the heading. */
+extern "C" void FUN_0026665c(Mover *self)
 {
-  if (*(unsigned char *)(self + 0x160) != 0)
-    FUN_00266a24(self, MakeVec4(self + 0x150, self + 0x130), 0);
+  if (self->unk160 != 0)
+    FUN_00266a24(self, MakeVec4(self->unk150, self->unk130), 0);
   FUN_00266b1c(self);
-  *(float *)(self + 0x168) = *(float *)(self + 0x164);
+  self->prevHeading = self->heading;
 }

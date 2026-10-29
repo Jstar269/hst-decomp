@@ -22,20 +22,21 @@ struct Game {
   char pad0[4];
   Holder *h;
   char pad1[0x74 - 8];
-  float f74;
-  float f78;
+  float scale_x;
+  float scale_y;
   void SetOrigin(float x, float y)
   {
     h->obj->m.r3.x = x;
     h->obj->m.r3.y = y;
   }
-  void SetScale(float s) { f74 = s; f78 = s; }
+  void SetScale(float s) { scale_x = s; scale_y = s; }
 };
 extern "C" {
 extern Game *DAT_003ea8ec;
 extern const M4 DAT_002cc260;
 }
 
+/* Reset the view: default matrix, centred origin and unit scale. */
 extern "C" void FUN_001fadcc(void)
 {
   Game *g = DAT_003ea8ec;

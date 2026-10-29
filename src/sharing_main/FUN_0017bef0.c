@@ -1,22 +1,20 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0017bef0 end=0x0017bf54 symbol=FUN_0017bef0 lang=c99 */
 /* Clone of src/eboot/FUN_0016fca4.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
-typedef int code();
+#include "hst/table_page.h"
 
-void FUN_0017bef0(int param_1)
+/* When the page is active, copies each slot's short value into halfword 1 of its entry record. */
+void FUN_0017bef0(TablePage *self)
 {
-  u32 iVar1;
-  int iVar3;
-  int iVar2;
+  u32 record;
+  int slot;
   
-  if (*(u8 *)(param_1 + 0x46) != '\0') {
-    iVar3 = 0;
-    iVar2 = param_1;
+  if (self->active != '\0') {
+    slot = 0;
     do {
-      iVar1 = (**(code **)(param_1 + 1000))(iVar3);
-      iVar3 = iVar3 + 1;
-      *(short *)(iVar1 + 2) = (short)*(u32 *)(iVar2 + 0xfc);
-      iVar2 = iVar2 + 4;
-    } while (iVar3 < 0xf);
+      record = self->getEntry(slot);
+      *(short *)(record + 2) = (short)self->shortValues[slot];
+      slot = slot + 1;
+    } while (slot < TABLE_PAGE_SLOTS);
   }
 }

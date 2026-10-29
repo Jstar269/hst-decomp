@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000b37dc end=0x000b3b90 symbol=FUN_000b37dc lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idioms: the sound id lives in a one-int struct (SoundId) so MWCC keeps the default-case `id == 0xd0` test unfolded (`move v0,s0; bne s0,v0`), and the two clamp operands are named floats declared first so their const& temporaries take the top frame slots. */
+enum { SOUND_NONE = 0xd0 };  /* no sound selected */
+
 struct CVec {
     float x, y, z, w;
     CVec() {}
@@ -52,19 +54,21 @@ int FUN_000ddd64(void *, const CVec *, int);
 static inline CVec Sub(const CVec &a, const CVec &b) { CVec r; FUN_00022450(&r, &a, &b); return r; }
 
 struct SoundId { int id; };
+
+/* Pick a sound id for the event `kind` (1, 2, 11, 12 or other): ball speed and landing spot checks, with a random fallback. */
 extern "C" int FUN_000b37dc(Player *pl, int unused, int kind, int flag)
 {
     float za, zc;
     SoundId r;
-    r.id = 0xd0;
+    r.id = SOUND_NONE;
     CVec v = DAT_003386b0->ball->vel;
-    float spd = FUN_00022e44(FUN_000224d8(&v, &v));
+    float spd = FUN_00022e44(FUN_000224d8(&v, &v)); /* ball speed in m/s */
     switch (kind) {
     case 1:
         r.id = 0x5c;
         break;
     case 2:
-        if (spd * 3.6f >= 130.0f)
+        if (spd * 3.6f >= 130.0f)  /* km/h */
             r.id = 0x5c;
         break;
     case 11:
@@ -74,10 +78,10 @@ extern "C" int FUN_000b37dc(Player *pl, int unused, int kind, int flag)
         r.id = 0x5e;
         break;
     default: {
-        SampleList &h = DAT_003386b0->ball->samples;
-        if (r.id == 0xd0) {
-            if (h.Count() > 0) {
-                CVec d = Sub(h.at(0).pos, pl->m5a0);
+        SampleList &samples = DAT_003386b0->ball->samples;
+        if (r.id == SOUND_NONE) {
+            if (samples.Count() > 0) {
+                CVec d = Sub(samples.at(0).pos, pl->m5a0);
                 CVec a = d;
                 float k = -0.199999988f;
                 float s = a.x < 0.0f ? -1 : 1;
@@ -100,7 +104,7 @@ extern "C" int FUN_000b37dc(Player *pl, int unused, int kind, int flag)
         break;
     }
     }
-    if (r.id == 0xd0) {
+    if (r.id == SOUND_NONE) {
         if (flag || pl->Rand() < 1.0f / 3.0f)
             r.id = 0x5d;
     }

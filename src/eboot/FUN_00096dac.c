@@ -1,26 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00096dac end=0x00096e18 symbol=FUN_00096dac lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag p1), refined by hstperm.py random mutation (perm-p1/r00/f0402_00096dac_m05.c); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag p1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/player_record.h"
 
-extern u32 DAT_003386b0;
+extern PlayerList * DAT_003386b0;
 extern void FUN_00097110();
 
+/* Calls FUN_00097110 on every player in the list. */
 void FUN_00096dac(void)
 {
-  int iVar1;
-  int iVar3;
-  int iVar2;
+  SlotPlayer *player;
+  int i;
+  int offset;
   
   if (DAT_003386b0 != 0) {
-    iVar3 = 0;
-    iVar2 = 0;
+    i = 0;
+    offset = 0;
     do {
-      iVar1 = *(int *)(DAT_003386b0 + iVar2 + 0x70);
-      if (iVar1 != 0) {
-        FUN_00097110(iVar1);
+      player = *(SlotPlayer **)((char *)DAT_003386b0 + offset + 0x70);
+      if (player != 0) {
+        FUN_00097110(player);
       }
-      iVar3 = iVar3 + 1;
-      iVar2 = iVar2 + 4;
-    } while (iVar3 < 4);
+      i = i + 1;
+      offset = offset + 4;
+    } while (i < PLAYER_SLOTS);
   }
 }

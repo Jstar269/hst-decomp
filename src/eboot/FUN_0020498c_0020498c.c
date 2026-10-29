@@ -1,64 +1,68 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0020498c end=0x00204ac8 symbol=FUN_0020498c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: shared the allocation and table store across the null path and used a zeroed four-word local array; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: shared the allocation and table store across the null path and used a zeroed four-word local array; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/chrsel_unit.h"
+
+#define SHARED_OBJECT_SIZE 0xe0 /* size of one shared object */
 
 extern u8 DAT_002bc410;
-extern u8 DAT_0034b340;
+extern void *DAT_0034b340[]; /* shared object per kind, created on first use */
 extern int FUN_00000bcc();
 extern u32 * FUN_00091830(void *);
 extern void FUN_00093434();
 extern void FUN_0009345c();
 extern void FUN_00093484(float param_1,int param_2);
 
-int * FUN_0020498c(int *param_1,int param_2,u8 param_3)
+/* Unit constructor: attaches the shared object of the given kind (creating it the first time), resets its
+   transform and clears the unit's own state. */
+ChrSelUnit * FUN_0020498c(ChrSelUnit *self,int kind,u8 flag)
 {
-  u32 *puVar1;
-  int iVar2;
+  u32 *shared;
   u32 local_values[4];
   
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[8] = 0;
-  param_1[9] = 0;
-  param_1[10] = 0;
-  param_1[0xb] = 0;
-  param_1[0xc] = 0;
-  param_1[0xd] = 0;
-  param_1[0xe] = 0;
-  param_1[0xf] = 0;
-  *(u8 *)(param_1 + 2) = param_3;
-  *(u8 *)((int)param_1 + 9) = 0;
-  param_1[1] = param_2;
-  if (*(int *)(&DAT_0034b340 + param_2 * 4) == 0) {
-    puVar1 = (u32 *)FUN_00000bcc(0xe0);
-    if (puVar1 != (u32 *)0x0) {
-      puVar1 = FUN_00091830(puVar1);
+  self->unk0c = 0;
+  self->unk10 = 0;
+  self->unk14 = 0;
+  self->unk20 = 0;
+  self->unk24 = 0;
+  self->unk28 = 0;
+  self->unk2c = 0;
+  self->unk30 = 0;
+  self->unk34 = 0;
+  self->unk38 = 0;
+  self->unk3c = 0;
+  self->unk08 = flag;
+  self->unk09 = 0;
+  self->kind = kind;
+  if (DAT_0034b340[kind] == 0) {
+    shared = (u32 *)FUN_00000bcc(SHARED_OBJECT_SIZE);
+    if (shared != (u32 *)0x0) {
+      shared = FUN_00091830(shared);
     }
-    *(u32 **)(&DAT_0034b340 + param_1[1] * 4) = puVar1;
+    DAT_0034b340[self->kind] = shared;
   }
-  *param_1 = *(int *)(&DAT_0034b340 + param_1[1] * 4);
+  self->handle = DAT_0034b340[self->kind];
   local_values[0] = 0;
   local_values[1] = 0;
   local_values[2] = 0;
   local_values[3] = 0;
-  FUN_0009345c(*param_1,local_values);
-  FUN_00093484(1.0f,*param_1);
-  FUN_00093434(*param_1,&DAT_002bc410);
-  param_1[0x11] = 0;
-  param_1[0x12] = 0;
-  param_1[0x13] = 0;
-  param_1[0x14] = 0;
-  param_1[0x10] = 0x3f800000;
-  param_1[8] = 0;
-  param_1[9] = 0;
-  param_1[10] = 0;
-  param_1[0xb] = 0x3f800000;
-  *(u8 *)(param_1 + 0x1b) = 0;
-  *(u8 *)(param_1 + 0x1d) = 0;
-  *(u8 *)((int)param_1 + 0x75) = 0;
-  *(u8 *)((int)param_1 + 0x76) = 0;
-  *(u8 *)((int)param_1 + 0x77) = 0;
-  *(u8 *)(param_1 + 0x1e) = 0;
-  return param_1;
+  FUN_0009345c(self->handle,local_values);
+  FUN_00093484(1.0f,(int)self->handle);
+  FUN_00093434(self->handle,&DAT_002bc410);
+  self->unk44 = 0;
+  self->unk48 = 0;
+  self->unk4c = 0;
+  self->unk50 = 0;
+  self->unk40 = 1.0f;
+  self->unk20 = 0;
+  self->unk24 = 0;
+  self->unk28 = 0;
+  self->unk2c = 1.0f;
+  self->unk6c = 0;
+  self->flag = 0;
+  self->unk75 = 0;
+  self->unk76 = 0;
+  self->unk77 = 0;
+  self->unk78 = 0;
+  return self;
 }

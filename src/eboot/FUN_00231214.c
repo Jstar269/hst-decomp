@@ -1,11 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00231214 end=0x00231240 symbol=FUN_00231214 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/singleton_holder.h"
 
 extern void FUN_00231248();
 
-void FUN_00231214(int param_1)
+/* If the holder is pending, clear it (which notifies the target). */
+void FUN_00231214(SingletonHolder *self)
 {
-  if (*(int *)(param_1 + 4) == 1) {
-    FUN_00231248(param_1,0);
+  if (self->pending == HOLDER_PENDING_SET) {
+    FUN_00231248(self,0);
   }
 }

@@ -1,9 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00130b3c end=0x00130b48 symbol=FUN_00130b3c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/timed_obj.h"
 
-void FUN_00130b3c(int param_1,u32 param_2)
+/* Restarts the timer with a new limit. */
+void FUN_00130b3c(TimedObj *self,u32 limit)
 {
-  *(u32 *)(param_1 + 0x3c) = 0;
-  *(u32 *)(param_1 + 0x40) = param_2;
+  self->elapsed = 0;
+  self->limit = limit;
 }

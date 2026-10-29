@@ -10,18 +10,20 @@ struct Mat {
   float m[16];
 } __attribute__((aligned(16)));
 
+/* Level bounds the camera focus is kept inside. */
 struct Limits {
   char pad[0x1300];
   float xmin, xmax, zmin, zmax;
 };
-struct Obj {
+/* Camera: focus point, smoothed target and the eye orbiting it. */
+struct CameraObj {
   char pad00[0x70];
-  Vec4 v70;
-  Vec4 v80;
-  Vec4 v90;
-  Vec4 va0;
-  char pad_b0[0x38];
-  float fe8;
+  Vec4 focus;
+  Vec4 prev_focus;
+  Vec4 target;
+  Vec4 eye;
+  char padb0[0x38];
+  float angle_deg;
 };
 
 extern "C" {
@@ -49,25 +51,26 @@ static inline Vec4 Add(const Vec4 &a, const Vec4 &b)
   return r;
 }
 
-extern "C" void FUN_0012e028(Obj *o)
+/* Clamps the focus to the level bounds, eases the target toward it and places the eye at a rotated offset from the target. */
+extern "C" void FUN_0012e028(CameraObj *cam)
 {
-  o->v80.x = o->v70.x;
-  o->v80.y = o->v70.y;
-  o->v80.z = o->v70.z;
-  o->v80.w = o->v70.w;
-  Vec4 p = o->v70;
+  cam->prev_focus.x = cam->focus.x;
+  cam->prev_focus.y = cam->focus.y;
+  cam->prev_focus.z = cam->focus.z;
+  cam->prev_focus.w = cam->focus.w;
+  Vec4 p = cam->focus;
   p.x = Clamp(p.x, DAT_0033b574->xmin, DAT_0033b574->xmax);
   p.z = Clamp(p.z, DAT_0033b574->zmin, DAT_0033b574->zmax);
-  o->v70 = p;
-  FUN_0002246c(DAT_002dade4, &o->v90, &o->v70, &o->v90);
-  Vec4 d;
+  cam->focus = p;
+  FUN_0002246c(DAT_002dade4, &cam->target, &cam->focus, &cam->target);
+  Vec4 d;  /* offset from the target, rotated below */
   d.x = 0.0f;
   d.y = 0.0f;
   d.z = DAT_002daddc;
   d.w = 0.0f;
   Mat m;
   FUN_0004d278(&m, &DAT_002bc410, DAT_002dade0 * 0.017453292f);
-  FUN_0004d2cc(&m, &m, o->fe8 * 0.017453292f);
+  FUN_0004d2cc(&m, &m, cam->angle_deg * 0.017453292f);
   FUN_00022548(&d, &m, &d);
-  o->va0 = Add(o->v90, d);
+  cam->eye = Add(cam->target, d);
 }

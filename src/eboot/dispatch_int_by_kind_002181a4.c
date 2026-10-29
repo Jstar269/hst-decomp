@@ -1,39 +1,41 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002181a4 end=0x002182a0 symbol=FUN_002181a4 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-/* Ghidra pseudocode (inputs/pseudocode/ram-0x002181a4.c, no hstgen tag) corrected by hand: the if-chain rewritten as a switch with cases in source order and the result initialised after the pointer computation; exact match verified; names and types await human review. */
-extern char *DAT_00341508;
-extern int FUN_00165004(char *, int);
-extern int FUN_00164c60(int, int);
-extern int FUN_00164d00(int, int);
-extern int FUN_00164e24(int, int);
-extern int FUN_00164f64(int, int);
-extern int FUN_00164ec4(int, int);
+/* Ghidra pseudocode (inputs/pseudocode/ram-0x002181a4.c, no hstgen tag) corrected by hand: the if-chain rewritten as a switch with cases in source order and the result initialised after the pointer computation; readability pass; exact match verified; names and types await human review. */
+#include "hst/row_tables.h"
 
-int FUN_002181a4(int param_1, int param_2, int param_3, int param_4, int param_5)
+extern RowTables *DAT_00341508;
+extern int FUN_00165004(void *, int);
+extern int FUN_00164c60(RowEntry *, int);
+extern int FUN_00164d00(RowEntry *, int);
+extern int FUN_00164e24(RowEntry *, int);
+extern int FUN_00164f64(RowEntry *, int);
+extern int FUN_00164ec4(RowEntry *, int);
+
+int FUN_002181a4(int unused, int table_index, int row_key, int kind, int arg)
 {
-  int n;
-  int ptr;
-  int r;
+  int row_index;
+  RowEntry *row;
+  int result;
 
-  n = FUN_00165004(DAT_00341508 + param_2 * 24, param_3);
-  ptr = *(int *)(DAT_00341508 + param_2 * 24) + n * 556;
-  r = 0;
-  switch (param_4) {
+  row_index = FUN_00165004(&DAT_00341508->tables[table_index], row_key);
+  row = (RowEntry *)((char *)DAT_00341508->tables[table_index].rows + row_index * sizeof(RowEntry));
+  result = 0;
+  switch (kind) {
   case 0:
-    r = FUN_00164c60(ptr, param_5);
+    result = FUN_00164c60(row, arg);
     break;
   case 1:
-    r = FUN_00164d00(ptr, param_5);
+    result = FUN_00164d00(row, arg);
     break;
   case 2:
-    r = FUN_00164e24(ptr, param_5);
+    result = FUN_00164e24(row, arg);
     break;
   case 3:
-    r = FUN_00164f64(ptr, param_5);
+    result = FUN_00164f64(row, arg);
     break;
   case 4:
-    r = FUN_00164ec4(ptr, param_5);
+    result = FUN_00164ec4(row, arg);
     break;
   }
-  return r;
+  return result;
 }

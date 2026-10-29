@@ -1,33 +1,36 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001392d0 end=0x0013936c symbol=FUN_001392d0 lang=c++ */
 /* Clone of src/eboot/FUN_0012ddd0.cpp (hstclone.py tag c39): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/stage_obj.h"
 
 extern "C" {
 extern u8 DAT_003b1460;
-extern u32 DAT_003e48c0;
+extern StageObj * DAT_003e48c0;  /* the live instance */
 extern void FUN_00000a00(...);
 extern int * FUN_000658cc(...);
 extern u32 * FUN_00297f98(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" u32 * FUN_001392d0(u32 *param_1,short param_2)
+/* Destructor: delete the owned object, forget the live instance, destroy the sub-container and the base;
+   free the object itself when deleteFlag is positive. */
+extern "C" StageObj * FUN_001392d0(StageObj *self,short deleteFlag)
 {
-  int *piVar1;
+  VC_0 *owned;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b1460);
-    piVar1 = (int *)param_1[0x38];
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      param_1[0x38] = 0;
+  if (self != (StageObj *)0x0) {
+    self->vtbl = &DAT_003b1460;
+    owned = (VC_0 *)self->owned;
+    if (owned != (VC_0 *)0x0) {
+      delete owned;
+      self->owned = 0;
     }
     DAT_003e48c0 = 0;
-    FUN_000658cc(param_1 + 0x34,0xffffffff);
-    FUN_00297f98(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_000658cc(self->sub,0xffffffff);
+    FUN_00297f98(self,0);
+    if (0 < deleteFlag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

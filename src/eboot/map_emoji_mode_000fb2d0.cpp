@@ -14,14 +14,16 @@
    compares with c.nge.s/bc1t and not with c.le.s/bc1f; the length is the square root of the dot
    product of the third argument with itself (FUN_000224d8 is a vdot.t helper, FUN_00022e44 a
    sqrt.s helper). */
-struct Obj {
+/* Owner of the emoji display; only its wait counter is touched here. */
+struct EmojiOwner {
   char pad[0x48];
-  int f48;
+  int waitTime;           /* 0x48 positive while an emoji is still showing */
 };
 
-struct Thing {
+/* Source object: current mode id at +0x38 and a position vector at +0x10. */
+struct EmojiSource {
   char pad[0x38];
-  int f38;
+  int mode;               /* 0x38 */
 };
 
 extern "C" {
@@ -29,43 +31,44 @@ extern float DAT_002d8260;
 extern float DAT_002d8264;
 extern int DAT_002d8268;
 void FUN_000fb44c(char *msg);
-void FUN_000fb478(Obj *owner, int r, float *p);
+void FUN_000fb478(EmojiOwner *owner, int rank, float *pos);
 float FUN_000224d8(float *a, float *b);
 float FUN_00022e44(float v);
 }
 
-extern "C" void FUN_000fb2d0(Obj *self, Thing *a1, float *a2)
+/* Show the emoji for the source's mode when the speed passes the thresholds and the owner is idle. */
+extern "C" void FUN_000fb2d0(EmojiOwner *self, EmojiSource *source, float *velocity)
 {
-  int r = -1;
-  int mode = a1->f38;
+  int rank = -1;
+  int mode = source->mode;
 
-  if (self->f48 > 0) {
+  if (self->waitTime > 0) {
     FUN_000fb44c("EmojiWait!\n");
   } else {
     switch (mode) {
-    case 22: r = 0; break;
-    case 2: r = 1; break;
-    case 26: r = 2; break;
-    case 13: r = 3; break;
-    case 32: r = 4; break;
-    case 43: r = 5; break;
-    case 48: r = 6; break;
-    case 25: r = 7; break;
-    case 14: r = 8; break;
-    case 24: r = 9; break;
-    case 21: r = 10; break;
-    case 23: r = 11; break;
-    case 28: r = 12; break;
-    case 31: r = 14; break;
+    case 22: rank = 0; break;
+    case 2: rank = 1; break;
+    case 26: rank = 2; break;
+    case 13: rank = 3; break;
+    case 32: rank = 4; break;
+    case 43: rank = 5; break;
+    case 48: rank = 6; break;
+    case 25: rank = 7; break;
+    case 14: rank = 8; break;
+    case 24: rank = 9; break;
+    case 21: rank = 10; break;
+    case 23: rank = 11; break;
+    case 28: rank = 12; break;
+    case 31: rank = 14; break;
     }
-    if (r >= 0) {
-      float f = FUN_00022e44(FUN_000224d8(a2, a2));
-      if (f * 3.6f >= DAT_002d8260) {
-        r += 15;
+    if (rank >= 0) {
+      float speed = FUN_00022e44(FUN_000224d8(velocity, velocity));
+      if (speed * 3.6f >= DAT_002d8260) {
+        rank += 15;
       }
-      if (f * 3.6f >= DAT_002d8264) {
-        FUN_000fb478(self, r, (float *)((char *)a1 + 16));
-        self->f48 = DAT_002d8268;
+      if (speed * 3.6f >= DAT_002d8264) {
+        FUN_000fb478(self, rank, (float *)((char *)source + 16));
+        self->waitTime = DAT_002d8268;
       }
     }
   }

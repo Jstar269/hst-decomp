@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00221298 end=0x00221314 symbol=FUN_00221298 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/lay_pane.h"
 
 extern "C" {
 extern void FUN_00103628(...);
@@ -10,12 +11,13 @@ struct VC_1 { virtual void d0(); virtual void m(int); };
 struct VC_2 { virtual void d0(); virtual void m(int); };
 struct VC_3 { virtual void d0(); virtual void m(int); };
 
-extern "C" void FUN_00221298(int param_1)
+/* Clear the base state and the flag, then call virtual slot 1 with 1 on four of the pane entries. */
+extern "C" void FUN_00221298(PaneA *self)
 {
-  FUN_00103628(param_1,0);
-  *(u8 *)(param_1 + 0x58) = 0;
-  ((VC_0 *)(*(int **)(param_1 + 100)))->m((int)(1));
-  ((VC_1 *)(*(int **)(param_1 + 0x6c)))->m((int)(1));
-  ((VC_2 *)(*(int **)(param_1 + 0x70)))->m((int)(1));
-  ((VC_3 *)(*(int **)(param_1 + 0x74)))->m((int)(1));
+  FUN_00103628(self,0);
+  self->unk58 = 0;
+  ((VC_0 *)self->ent[0])->m(1);
+  ((VC_1 *)self->ent[2])->m(1);
+  ((VC_2 *)self->ent[3])->m(1);
+  ((VC_3 *)self->ent[4])->m(1);
 }

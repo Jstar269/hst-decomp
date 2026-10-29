@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00261884 end=0x00261a18 symbol=FUN_00261884 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Hand-decompiled: declaration order vy/vx/t, 4x4 float matrix copy from DAT_002bc410 with null-checked offset, -240.0f translation store, 3-iteration do-while loop; exact match verified. */
+#include "hst/target_items.h"
 
 typedef struct Vec4 {
     float x, y, z, w;
@@ -10,44 +11,14 @@ typedef struct Mat4 {
     Vec4 r0, r1, r2, r3;
 } Mat4;
 
-typedef struct Target {
-    int pad0;
-    short x;
-    short y;
-    short sum_x;
-    short sum_y;
-} Target;
-
-typedef struct FloatTarget {
-    char pad[0x60];
-    float fx;
-    float fy;
-} FloatTarget;
-
-typedef struct Item {
-    Target *target;
-    FloatTarget *f4;
-    short val_x;
-    short val_y;
-    char pad[0x20 - 12];
-    char inner[0x30];
-    Mat4 matrix;
-    char pad3[240 - 0x90];
-} Item;
-
-typedef struct Context {
-    Item items[3];
-    int pad[2];
-    int f2d8;
-} Context;
-
 extern Mat4 DAT_002bc410;
 extern void FUN_00102c54(void *p);
 
-void FUN_00261884(Context *param_1)
+/* Moves every item's target to the item's own value position and resets each item's matrix. */
+void FUN_00261884(TargetCtx *ctx)
 {
     unsigned int i = 0;
-    Item *item = param_1->items;
+    TargetItem *item = ctx->items;
     do {
         short vy = item->val_y;
         short vx = item->val_x;
@@ -62,8 +33,8 @@ void FUN_00261884(Context *param_1)
         t->y = vy;
         t->sum_y += (short)dy;
 
-        item->f4->fx = (float)(int)item->val_x;
-        item->f4->fy = (float)(int)item->val_y;
+        item->view->fx = (float)(int)item->val_x;
+        item->view->fy = (float)(int)item->val_y;
 
         if (m != 0) {
             m = (Mat4 *)((char *)m + 48);
@@ -73,10 +44,10 @@ void FUN_00261884(Context *param_1)
         m->r2 = DAT_002bc410.r2;
         m->r3 = DAT_002bc410.r3;
 
-        *(int *)((char *)item + 128) = -0x3c900000;
+        item->matrix[12] = -240.0f;
         FUN_00102c54(&item->inner);
         i++;
         item++;
-    } while (i < 3);
-    param_1->f2d8 = 0;
+    } while (i < TARGET_ITEM_COUNT);
+    ctx->unk2d8 = 0;
 }

@@ -1,41 +1,27 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001b1a70 end=0x001b1af8 symbol=FUN_001b1a70 lang=c99 data=0x003895cc */
 /* Clone of src/eboot/FUN_001a44a4.c (hstclone.py tag c30): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003895cc-0x003895dd) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef int bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef unsigned int undefined4;
+#include "hst/slot_select.h"
 
 extern void FUN_00177c64();
 extern int FUN_001aabec();
 extern int FUN_001b1900();
 
-void FUN_001b1a70(int param_1)
+/* Apply the second list's selected id (logging a random pick when unset), then remember its cursor. */
+void FUN_001b1a70(SlotSelect *self)
 {
-  bool bVar1;
-  int iVar2;
-  undefined4 uVar3;
+  int wasUnset;
+  int id;
+  int randomId;
   
-  iVar2 = **(int **)(*(int *)(param_1 + 900) + *(int *)(param_1 + 0x300) * 4);
-  bVar1 = iVar2 == -1;
-  if (bVar1) {
-    uVar3 = FUN_001b1900();
-    iVar2 = FUN_001aabec("RandomSinpan=%d\n",uVar3);
+  id = *self->idTable[self->listCursor.index];
+  wasUnset = id == SLOT_SELECT_ID_NONE;
+  if (wasUnset) {
+    randomId = FUN_001b1900();
+    id = FUN_001aabec("RandomSinpan=%d\n",randomId);
   }
-  FUN_00177c64(iVar2,bVar1);
-  *(undefined4 *)(param_1 + 0x308) = *(undefined4 *)(param_1 + 0x2fc);
-  *(undefined4 *)(param_1 + 0x30c) = *(undefined4 *)(param_1 + 0x300);
-  *(undefined4 *)(param_1 + 0x310) = *(undefined4 *)(param_1 + 0x304);
+  FUN_00177c64(id,wasUnset);
+  self->listCursorSaved.row = self->listCursor.row;
+  self->listCursorSaved.index = self->listCursor.index;
+  self->listCursorSaved.top = self->listCursor.top;
   return;
 }

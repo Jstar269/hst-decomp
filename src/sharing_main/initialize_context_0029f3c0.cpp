@@ -33,33 +33,43 @@ struct Finalizer {
   virtual void finalize();
 };
 
-extern "C" u32 * FUN_0029f3c0(u32 *param_1)
+/* Scratch arena size, alignment, and size of the object built inside it. */
+enum { SCRATCH_SIZE = 0x300000, SCRATCH_ALIGN = 0x40, CONTEXT_OBJ_SIZE = 0x1bc0 };
+
+struct ContextHolder {
+  void *vtable;             /* 0x00 */
+  char pad04[0x38];
+  Finalizer *context;       /* 0x3c: the object built below */
+};
+
+/* Constructor: builds the context object (FUN_0029f4e4) with a temporary scratch arena installed,
+   restores the previous arena, then calls the object's finalize slot. */
+extern "C" ContextHolder * FUN_0029f3c0(ContextHolder *self)
 {
-  int iVar1;
-  int iVar2;
-  u32 uVar3;
-  u32 uVar4;
+  int scratch;
+  int obj;
+  u32 prev_a;
+  u32 prev_b;
   
   FUN_0001ec44();
-  *param_1 = (unsigned int)(&DAT_003b3080);
-  param_1[0xf] = 0;
-  iVar1 = FUN_00010184(0x40,0x300000);
-  FUN_0001bb2c(&DAT_003b3e6c,iVar1,0x300000);
+  self->vtable = &DAT_003b3080;
+  self->context = 0;
+  scratch = FUN_00010184(SCRATCH_ALIGN,SCRATCH_SIZE);
+  FUN_0001bb2c(&DAT_003b3e6c,scratch,SCRATCH_SIZE);
   FUN_0001c684(&DAT_003b7ebc,1,DAT_003a7e58);
   *(u32 *)(*(int *)(DAT_003e1a08 + 0x40) + 0x5c) = 1;
-  iVar2 = FUN_00000bcc(0x1bc0);
-  if (iVar2 != 0) iVar2 = (int)FUN_0029f4e4(iVar2,DAT_003a7e6c);
-  param_1[0xf] = iVar2;
+  obj = FUN_00000bcc(CONTEXT_OBJ_SIZE);
+  if (obj != 0) obj = (int)FUN_0029f4e4(obj,DAT_003a7e6c);
+  self->context = (Finalizer *)obj;
   FUN_00264244();
   FUN_0001c73c(&DAT_003b7ebc);
-  uVar3 = FUN_0001c848();
-  uVar4 = FUN_0001c8a0();
-  FUN_0001bb2c(&DAT_003b3e6c,uVar3,uVar4);
-  if (iVar1 != 0) {
-    FUN_000104e0(iVar1);
+  prev_a = FUN_0001c848();
+  prev_b = FUN_0001c8a0();
+  FUN_0001bb2c(&DAT_003b3e6c,prev_a,prev_b);
+  if (scratch != 0) {
+    FUN_000104e0(scratch);
   }
-  uVar3 = param_1[0xf];
-  FUN_00268744(uVar3);
-  ((Finalizer *)param_1[0xf])->finalize();
-  return param_1;
+  FUN_00268744((int)self->context);
+  self->context->finalize();
+  return self;
 }

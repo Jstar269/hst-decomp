@@ -2,6 +2,7 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+/* Object with a virtual Kind() query (slot 11); slots 1..10 are unused here. */
 struct ResultMethods {
   virtual ~ResultMethods();
   virtual int F0();
@@ -14,19 +15,20 @@ struct ResultMethods {
   virtual int F7();
   virtual int F8();
   virtual int F9();
-  virtual int F10();
+  virtual int Kind();
 };
 
-extern "C" bool FUN_001cdd14(ResultMethods *param_1)
+/* True when the object's kind is 2 or 3. */
+extern "C" bool FUN_001cdd14(ResultMethods *obj)
 {
-  int iVar2;
-  bool bVar1;
+  int kind;
+  bool match;
 
-  iVar2 = param_1->F10();
-  bVar1 = iVar2 == 2;
-  if (!bVar1) {
-    iVar2 = param_1->F10();
-    bVar1 = iVar2 == 3;
+  kind = obj->Kind();
+  match = kind == 2;
+  if (!match) {
+    kind = obj->Kind();
+    match = kind == 3;
   }
-  return bVar1;
+  return match;
 }

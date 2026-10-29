@@ -1,9 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011a57c end=0x0011a7d8 symbol=FUN_0011a57c lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; earlier declaration order int s1, s0 assigns s1=$17 and s0=$16; int off=f50*4, base=(int)DAT_003386b0 gives addu v1, a0, v1; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; earlier declaration order int other_side, side_now assigns other_side=$17 and side_now=$16; int index_bytes=cur_player*4, players_base=(int)DAT_003386b0 gives addu v1, a0, v1; names and types await human review. */
+
+#include "hst/action_pair_obj.h"
 
 struct Player {
     char pad[0x144];
-    int f144;
+    int side;
 };
 
 struct Game {
@@ -13,18 +15,11 @@ struct Game {
 
 struct GlobB {
     char pad[0x50];
-    int f50;
+    int cur_player;
 };
 
-struct Obj {
-    char pad[0x2d0];
-    int f2d0;
-    int f2d4;
-    int f2d8;
-    char pad2[0x314 - 0x2dc];
-    int f314;
-    int f318;
-};
+/* Priority levels: a side only takes over when it outranks the stored level. */
+enum { PRIO_LOW = 100, PRIO_MID = 110, PRIO_HIGH = 200, PRIO_HIGHER = 210, PRIO_TOP = 300, PRIO_TOP_ALT = 310 };
 
 extern "C" {
 extern Game *DAT_003386b0;
@@ -35,63 +30,63 @@ extern int FUN_000de3f0(GlobB *, int);
 extern int FUN_000de51c(GlobB *, int);
 extern int FUN_000dea20(GlobB *, int);
 
-void FUN_0011a57c(Obj *self);
+void FUN_0011a57c(ActionPairObj *self);
 }
 
-void FUN_0011a57c(Obj *self) {
-    self->f314 = 27;
-    self->f318 = 27;
+void FUN_0011a57c(ActionPairObj *self) {
+    self->action[0] = 27;
+    self->action[1] = 27;
 
-    int s1;
-    int s0 = self->f2d0;
-    int v1 = self->f2d4;
-    s1 = !s0;
+    int other_side;
+    int side_now = self->side;
+    int claimed = self->claimed_side;
+    other_side = !side_now;
 
-    if (v1 != s0) {
-        if (FUN_000dea20(DAT_00338b44, s0) && self->f2d8 < 310) {
-            self->f2d4 = s0;
-            self->f2d8 = 310;
-            self->f314 = 11;
-            self->f318 = 23;
+    if (claimed != side_now) {
+        if (FUN_000dea20(DAT_00338b44, side_now) && self->priority < PRIO_TOP_ALT) {
+            self->claimed_side = side_now;
+            self->priority = PRIO_TOP_ALT;
+            self->action[0] = 11;
+            self->action[1] = 23;
             return;
         }
-        if (FUN_000de51c(DAT_00338b44, s0) && self->f2d8 < 210) {
-            self->f2d4 = s0;
-            self->f2d8 = 210;
-            self->f314 = 17;
-            self->f318 = 22;
+        if (FUN_000de51c(DAT_00338b44, side_now) && self->priority < PRIO_HIGHER) {
+            self->claimed_side = side_now;
+            self->priority = PRIO_HIGHER;
+            self->action[0] = 17;
+            self->action[1] = 22;
             return;
         }
-        if ((FUN_000de2c8(DAT_00338b44, s0) || FUN_000de3f0(DAT_00338b44, s0)) && self->f2d8 < 110) {
-            self->f2d4 = s0;
-            self->f2d8 = 110;
-            self->f314 = 5;
-            int off = DAT_00338b44->f50 * 4;
-            int base = (int)DAT_003386b0;
-            Player *p = *(Player **)(off + base + 0x70);
-            self->f318 = (self->f2d0 == p->f144) ? 21 : 24;
+        if ((FUN_000de2c8(DAT_00338b44, side_now) || FUN_000de3f0(DAT_00338b44, side_now)) && self->priority < PRIO_MID) {
+            self->claimed_side = side_now;
+            self->priority = PRIO_MID;
+            self->action[0] = 5;
+            int index_bytes = DAT_00338b44->cur_player * 4;
+            int players_base = (int)DAT_003386b0;
+            Player *cur = *(Player **)(index_bytes + players_base + 0x70);
+            self->action[1] = (self->side == cur->side) ? 21 : 24;
             return;
         }
     }
 
-    if (self->f2d4 != s1) {
-        if (FUN_000dea20(DAT_00338b44, s1) && self->f2d8 < 300) {
-            self->f2d4 = s1;
-            self->f2d8 = 300;
-            self->f314 = 11;
-            self->f318 = 25;
+    if (self->claimed_side != other_side) {
+        if (FUN_000dea20(DAT_00338b44, other_side) && self->priority < PRIO_TOP) {
+            self->claimed_side = other_side;
+            self->priority = PRIO_TOP;
+            self->action[0] = 11;
+            self->action[1] = 25;
             return;
         }
-        if (FUN_000de51c(DAT_00338b44, s1) && self->f2d8 < 200) {
-            self->f2d4 = s1;
-            self->f2d8 = 200;
-            self->f314 = 17;
+        if (FUN_000de51c(DAT_00338b44, other_side) && self->priority < PRIO_HIGH) {
+            self->claimed_side = other_side;
+            self->priority = PRIO_HIGH;
+            self->action[0] = 17;
             return;
         }
-        if ((FUN_000de2c8(DAT_00338b44, s1) || FUN_000de3f0(DAT_00338b44, s1)) && self->f2d8 < 100) {
-            self->f2d4 = s1;
-            self->f2d8 = 100;
-            self->f314 = 5;
+        if ((FUN_000de2c8(DAT_00338b44, other_side) || FUN_000de3f0(DAT_00338b44, other_side)) && self->priority < PRIO_LOW) {
+            self->claimed_side = other_side;
+            self->priority = PRIO_LOW;
+            self->action[0] = 5;
             return;
         }
     }

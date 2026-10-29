@@ -1,18 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002298e8 end=0x0022995c symbol=FUN_002298e8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/tree_map.h"
 
 extern u32 * FUN_00229d60();
 
-void FUN_002298e8(int *param_1,char *param_2,u32 *param_3)
+/* Finds the node for *key in the tree; stores the end iterator when there is none. */
+void FUN_002298e8(TreeNode **result,TreeMap *map,u32 *key)
 {
-  u32 *puVar1;
+  TreeNode *node;
   
-  puVar1 = FUN_00229d60(param_2,param_3,*(u32 **)(param_2 + 4),(u32 *)(param_2 + 4));
-  if ((puVar1 == (u32 *)(param_2 + 4)) || (*param_3 < (u32)puVar1[3])) {
-    *param_1 = (int)(param_2 + 4);
+  node = (TreeNode *)FUN_00229d60(map,key,map->root,(TreeNode *)&map->root);
+  if ((node == (TreeNode *)&map->root) || (*key < node->key)) {
+    *result = (TreeNode *)&map->root;
   }
   else {
-    *param_1 = (int)puVar1;
+    *result = node;
   }
 }

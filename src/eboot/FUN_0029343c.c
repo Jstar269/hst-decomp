@@ -1,18 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0029343c end=0x00293488 symbol=FUN_0029343c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/komono_obj.h"
 
-extern u8 DAT_00309dec;
-extern u32 * FUN_00286790();
+extern char DAT_00309dec;
+extern void * FUN_00286790();
 
-u32 * FUN_0029343c(u32 *param_1)
+/* Constructor: base init, then clears the owned pointers and the target. */
+KomonoObj * FUN_0029343c(KomonoObj *obj)
 {
   FUN_00286790();
-  *param_1 = (unsigned int)(&DAT_00309dec);
-  param_1[0x1c] = 0;
-  param_1[0x1d] = 0;
-  param_1[0x1e] = 0;
-  param_1[0x1f] = 0;
-  param_1[0x20] = 0xffffffff;
-  return param_1;
+  obj->vtable = &DAT_00309dec;
+  obj->stream = 0;
+  obj->unk74 = 0;
+  obj->sub = 0;
+  obj->target = 0;
+  obj->unk80 = -1;
+  return obj;
 }

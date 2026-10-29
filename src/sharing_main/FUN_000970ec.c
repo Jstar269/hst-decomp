@@ -1,16 +1,18 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x000970ec end=0x00097110 symbol=FUN_000970ec lang=c99 */
 /* Clone of src/eboot/FUN_000950e0.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/keyed_state.h"
 
-bool FUN_000970ec(int param_1,int param_2)
+/* True when the frame matches, or when the mode is 3 or above (frame not compared). */
+bool FUN_000970ec(KeyedState *self,int frame)
 {
-  bool bVar1;
+  bool same;
   
-  if (*(u32 *)(param_1 + 0x1b0) < 3) {
-    bVar1 = *(short *)(param_1 + 0x1b8) == param_2;
+  if (self->mode < 3) {
+    same = self->frame == frame;
   }
   else {
-    bVar1 = true;
+    same = true;
   }
-  return bVar1;
+  return same;
 }

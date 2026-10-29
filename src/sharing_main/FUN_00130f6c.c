@@ -2,14 +2,23 @@
 /* Clone of src/eboot/FUN_00125d38.c (hstclone.py tag x14): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+/* Object built on the base class; only the vtable pointer and two cleared words are touched. */
+typedef struct BaseDerived {
+  const void *vtable; /* 0x00 */
+  char pad04[0x8c];
+  u32 unk90;          /* 0x90 */
+  u32 unk94;          /* 0x94 */
+} BaseDerived;
+
 extern u8 DAT_003b12e4;
 extern u32 * FUN_00061cb0();
 
-u32 * FUN_00130f6c(u32 *param_1)
+/* Constructor: runs the base constructor, sets the vtable and clears the two trailing words. */
+BaseDerived * FUN_00130f6c(BaseDerived *self)
 {
   FUN_00061cb0();
-  *param_1 = (unsigned int)(&DAT_003b12e4);
-  param_1[0x24] = 0;
-  param_1[0x25] = 0;
-  return param_1;
+  self->vtable = &DAT_003b12e4;
+  self->unk90 = 0;
+  self->unk94 = 0;
+  return self;
 }

@@ -1,81 +1,86 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002ab724 end=0x002ab8fc symbol=FUN_002ab724 lang=c++ */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/vshistory.h"
+
+struct CommonPanel { virtual ~CommonPanel(); };
+struct Page1 { virtual ~Page1(); };
+struct Page2 { virtual ~Page2(); };
+struct Page3 { virtual ~Page3(); };
+struct HistoryEntry { virtual ~HistoryEntry(); };
+
+struct EntryInfo {
+  char pad00[0x24];
+  u32 unk24; /* 0x24 */
+  u32 unk28; /* 0x28 */
+};
+struct EntryOwner {
+  char pad00[0x70];
+  EntryInfo *info; /* 0x70 */
+};
 
 extern "C" {
 extern u8 DAT_00309efc;
 extern u32 DAT_003415d4;
 extern u32 DAT_0034179c;
 extern void FUN_00000a00(...);
-extern int FUN_00004138(...);
 extern u32 * FUN_0001f0f0(...);
-extern u32 * FUN_000462a0(...);
-extern int FUN_00190830(u32);
+extern EntryOwner * FUN_00190830(u32);
 extern int FUN_0019083c(...);
 extern void FUN_001b338c(...);
 extern void FUN_001b3e2c(...);
 }
-struct VC_0 { virtual ~VC_0(); };
-struct VC_1 { virtual ~VC_1(); };
-struct VC_2 { virtual ~VC_2(); };
-struct VC_3 { virtual ~VC_3(); };
-struct VC_4 { virtual ~VC_4(); };
 
-extern "C" u32 * FUN_002ab724(u32 *param_1,short param_2)
+/* Deleting destructor of the screen: stop its sounds, delete the four parts and the entry, then the base. */
+extern "C" HistoryScreen * FUN_002ab724(HistoryScreen *self,short delete_flag)
 {
-  int iVar1;
-  u32 uVar2;
-  int *piVar3;
+  EntryOwner *owner;
+  u32 value;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00309efc);
+  if (self != (HistoryScreen *)0x0) {
+    self->vtbl = &DAT_00309efc;
     FUN_001b3e2c(&DAT_0034179c);
     FUN_001b338c(&DAT_0034179c,4);
-    piVar3 = (int *)param_1[0xf];
-    if (piVar3 != (int *)0x0) {
-      delete ((VC_0 *)(piVar3));
-      param_1[0xf] = 0;
+    if (self->common != (CommonPanel *)0x0) {
+      delete self->common;
+      self->common = 0;
     }
-    piVar3 = (int *)param_1[0x10];
-    if (piVar3 != (int *)0x0) {
-      delete ((VC_1 *)(piVar3));
-      param_1[0x10] = 0;
+    if (self->page1 != (Page1 *)0x0) {
+      delete self->page1;
+      self->page1 = 0;
     }
-    piVar3 = (int *)param_1[0x11];
-    if (piVar3 != (int *)0x0) {
-      delete ((VC_2 *)(piVar3));
-      param_1[0x11] = 0;
+    if (self->page2 != (Page2 *)0x0) {
+      delete self->page2;
+      self->page2 = 0;
     }
-    piVar3 = (int *)param_1[0x12];
-    if (piVar3 != (int *)0x0) {
-      delete ((VC_3 *)(piVar3));
-      param_1[0x12] = 0;
+    if (self->page3 != (Page3 *)0x0) {
+      delete self->page3;
+      self->page3 = 0;
     }
     if (DAT_003415d4 != 0) {
-      iVar1 = FUN_00190830(DAT_003415d4);
-      uVar2 = FUN_0019083c(DAT_003415d4);
-      if (iVar1 != 0) {
-        *(u32 *)(*(int *)(iVar1 + 0x70) + 0x24) = 0x3f;
-        *(u32 *)(*(int *)(iVar1 + 0x70) + 0x28) = uVar2;
+      owner = FUN_00190830(DAT_003415d4);
+      value = FUN_0019083c(DAT_003415d4);
+      if (owner != 0) {
+        owner->info->unk24 = 0x3f;
+        owner->info->unk28 = value;
       }
     }
-    piVar3 = (int *)param_1[0x23];
-    if (piVar3 != (int *)0x0) {
-      delete ((VC_4 *)(piVar3));
-      param_1[0x23] = 0;
+    if (self->entry != (HistoryEntry *)0x0) {
+      delete self->entry;
+      self->entry = 0;
     }
-    if ((char *)param_1 + 0x74 != (char *)0) {
-      FUN_000462a0(param_1 + 0x20,0xffffffff);
-      FUN_00004138(param_1 + 0x1d,0);
+    if ((char *)self + 0x74 != (char *)0) {
+      FUN_000462a0(&self->label.r,0xffffffff);
+      FUN_00004138(&self->label.s,0);
     }
-    if ((char *)param_1 + 0x5c != (char *)0) {
-      FUN_000462a0(param_1 + 0x1a,0xffffffff);
-      FUN_00004138(param_1 + 0x17,0);
+    if ((char *)self + 0x5c != (char *)0) {
+      FUN_000462a0(&self->text.r,0xffffffff);
+      FUN_00004138(&self->text.s,0);
     }
-    FUN_0001f0f0(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0001f0f0(self,0);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

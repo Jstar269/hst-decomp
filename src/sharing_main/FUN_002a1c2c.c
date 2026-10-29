@@ -1,6 +1,9 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x002a1c2c end=0x002a1d14 symbol=FUN_002a1c2c lang=c99 data=0x003a845c */
 /* Clone of src/eboot/FUN_002904d4.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x003a845c-0x003a8476) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 #include "hst/types.h"
+#include "hst/psmf_player.h"
+
+#define ERR_PIPE_FULL (-0x7ffdfe4d) /* send call result when the pipe has no room */
 
 extern char DAT_003a8440[];
 extern char DAT_003a8478[];
@@ -9,31 +12,32 @@ extern u8 * FUN_00022da4();
 extern void FUN_002a130c();
 extern int FUN_002c7728();
 
-u32 FUN_002a1c2c(int param_1,u32 param_2,u32 param_3)
+/* Queues a start request (type, argument and file name) on the player's message pipe; returns 1 when it was sent. */
+u32 FUN_002a1c2c(PsmfPlayer *player,u32 file_name,u32 arg)
 {
-  u32 uVar1;
-  int iVar2;
-  int local_4;
+  u32 ok;
+  int result;
+  int sent;
   
-  if (*(u8 *)(param_1 + 0x28) == '\0') {
+  if (player->ready == '\0') {
     FUN_002a130c(DAT_003a8440);
-    uVar1 = 0;
+    ok = 0;
   }
   else {
-    *(u32 *)(param_1 + 0x8c) = 1;
-    FUN_000149a8(param_1 + 0x94);
-    *(u32 *)(param_1 + 0x90) = param_3;
-    FUN_00022da4(*(u32 *)(param_1 + 0x2c),0,0x88000);
-    iVar2 = FUN_002c7728(*(u32 *)(param_1 + 0x88),param_1 + 0x8c,0x48,0,&local_4);
-    if (iVar2 == -0x7ffdfe4d) {
+    player->msg.type = PSMF_MSG_START;
+    FUN_000149a8(player->msg.data,file_name);
+    player->msg.arg = arg;
+    FUN_00022da4(player->work_buf,0,PSMF_WORK_SIZE);
+    result = FUN_002c7728(player->pipe,&player->msg,SERVICE_REQUEST_SIZE,0,&sent);
+    if (result == ERR_PIPE_FULL) {
       FUN_002a130c("Play(): request is full.\n");
     }
-    else if ((iVar2 != 0) || (local_4 != 0x48)) {
-      FUN_002a130c(DAT_003a8478,iVar2,local_4);
+    else if ((result != 0) || (sent != SERVICE_REQUEST_SIZE)) {
+      FUN_002a130c(DAT_003a8478,result,sent);
       return 0;
     }
-    uVar1 = 1;
-    *(u8 *)(param_1 + 0x29) = 1;
+    ok = 1;
+    player->started = 1;
   }
-  return uVar1;
+  return ok;
 }

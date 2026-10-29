@@ -1,27 +1,29 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001c1138 end=0x001c1198 symbol=FUN_001c1138 lang=c99 */
 /* Clone of src/eboot/FUN_001b3008.c (hstclone.py tag c45): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/slot_table.h"
 
 extern int FUN_00063304();
 
-void FUN_001c1138(int *param_1)
+/* Release the two slot objects (slot 4 and slot 173), clearing each slot. */
+void FUN_001c1138(SlotTable **ref)
 {
-  int iVar1;
-  u32 iVar2;
-  
-  iVar2 = *param_1;
-  iVar1 = *(int *)(iVar2 + 0x2b4);
-  if (iVar1 == 0) {
-    iVar1 = *(int *)(iVar2 + 0x10);
+  void *obj;
+  SlotTable *table;
+
+  table = *ref;
+  obj = table->slot[173];
+  if (obj == 0) {
+    obj = table->slot[4];
   }
   else {
-    if (iVar1 != 0) {
-      FUN_00063304(iVar1,1);
-      *(u32 *)(iVar2 + 0x2b4) = 0;
+    if (obj != 0) {
+      FUN_00063304(obj,1);
+      table->slot[173] = 0;
     }
   }
-  if (((*(int *)(iVar2 + 0x10)) != 0) && ((*(int *)(iVar2 + 0x10)) != 0)) {
-    FUN_00063304((*(int *)(iVar2 + 0x10)),1);
-    *(u32 *)(iVar2 + 0x10) = 0;
+  if ((table->slot[4] != 0) && (table->slot[4] != 0)) {
+    FUN_00063304(table->slot[4],1);
+    table->slot[4] = 0;
   }
 }

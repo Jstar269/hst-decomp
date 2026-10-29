@@ -2,6 +2,7 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
 #include "hst/types.h"
+#include "hst/item_table.h"
 
 extern u8 DAT_002e9fec;
 extern u8 DAT_002e9ff4;
@@ -13,32 +14,33 @@ int FUN_0000d62c(int);
 int FUN_00014d64(int, void *);
 int FUN_000650e0(int);
 int FUN_0006517c(int, int, int);
-int FUN_001bfbe8(int param_1, int param_2);
+int FUN_001bfbe8(ItemTable *table, int entry);
 }
 
-int FUN_001bfbe8(int param_1, int param_2)
+/* True when every item of entry `entry` has its flag in state A or B. */
+int FUN_001bfbe8(ItemTable *table, int entry)
 {
-    int ret;
-    int g;
+    int ok;
+    int list;
     int i;
     int item;
-    int idx;
+    int id;
     char *p;
     unsigned char val;
 
-    ret = 0;
-    g = DAT_0034174c;
-    if (g != 0 && param_2 >= 0 && param_2 < FUN_000650e0(g)) {
-        ret = 1;
+    ok = 0;
+    list = DAT_0034174c;
+    if (list != 0 && entry >= 0 && entry < FUN_000650e0(list)) {
+        ok = 1;
         for (i = 0; i < 4; i++) {
-            item = FUN_0006517c(g, param_2 + 1, i + 1);
+            item = FUN_0006517c(list, entry + 1, i + 1);
             if (item != 0) {
                 if (FUN_00014d64(item, &DAT_002e9fec) != 0) {
-                    idx = FUN_0000d62c(item + 5);
+                    id = FUN_0000d62c(item + 5);
                     val = 0;
-                    if (idx >= 0) {
-                        if (idx < 640) {
-                            p = (char *)param_1 + idx + 0x84c;
+                    if (id >= 0) {
+                        if (id < ITEM_FLAG_COUNT) {
+                            p = (char *)&table->flag_a[id];
                         } else {
                             p = 0;
                         }
@@ -47,14 +49,14 @@ int FUN_001bfbe8(int param_1, int param_2)
                     }
                     if (p != 0)
                         val = *p;
-                    if ((val - 4U) > 1)
-                        ret = 0;
+                    if ((val - ITEM_STATE_A) > 1)
+                        ok = 0;
                 } else if (FUN_00014d64(item, &DAT_002e9ff4) != 0) {
-                    idx = FUN_0000d62c(item + 5);
+                    id = FUN_0000d62c(item + 5);
                     val = 0;
-                    if (idx >= 0) {
-                        if (idx < 640) {
-                            p = (char *)param_1 + idx + 0xacc;
+                    if (id >= 0) {
+                        if (id < ITEM_FLAG_COUNT) {
+                            p = (char *)&table->flag_b[id];
                         } else {
                             p = 0;
                         }
@@ -63,14 +65,14 @@ int FUN_001bfbe8(int param_1, int param_2)
                     }
                     if (p != 0)
                         val = *p;
-                    if ((val - 4U) > 1)
-                        ret = 0;
+                    if ((val - ITEM_STATE_A) > 1)
+                        ok = 0;
                 } else if (FUN_00014d64(item, &DAT_002e9ffc) != 0) {
-                    idx = FUN_0000d62c(item + 5);
+                    id = FUN_0000d62c(item + 5);
                     val = 0;
-                    if (idx >= 0) {
-                        if (idx < 640) {
-                            p = (char *)param_1 + idx + 0xd4c;
+                    if (id >= 0) {
+                        if (id < ITEM_FLAG_COUNT) {
+                            p = (char *)&table->flag_c[id];
                         } else {
                             p = 0;
                         }
@@ -79,11 +81,11 @@ int FUN_001bfbe8(int param_1, int param_2)
                     }
                     if (p != 0)
                         val = *p;
-                    if ((val - 4U) > 1)
-                        ret = 0;
+                    if ((val - ITEM_STATE_A) > 1)
+                        ok = 0;
                 }
             }
         }
     }
-    return ret;
+    return ok;
 }

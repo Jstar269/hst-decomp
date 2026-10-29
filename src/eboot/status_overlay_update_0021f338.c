@@ -1,7 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021f338 end=0x0021f59c symbol=FUN_0021f338 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag km4 near miss, wip/near_0021f338.cpp) corrected by hand: FUN_001b1f7c takes the status value as a second argument (retail loads it into a1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag km4 near miss, wip/near_0021f338.cpp) corrected by hand: FUN_001b1f7c takes the sound handle (self->sound) as a second argument (retail loads it into a1); readability pass; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction on
 #include "hst/types.h"
+#include "hst/status_overlay.h"
 
 extern u8 * DAT_002cfc8c;
 extern int DAT_002eff90;
@@ -11,68 +12,71 @@ extern float DAT_0034a1c0;
 extern float DAT_0034a1c4;
 extern float DAT_0034a1d0;
 extern u8 DAT_0034179c;
-extern float FUN_0000bd2c(float param_1);
-extern float FUN_000ede98(float param_1,float param_2,float param_3,float param_4);
-extern void FUN_000ffb3c(int, int);
+extern float FUN_0000bd2c(float value);
+extern float FUN_000ede98(float current,float target,float rate,float eps);
+extern void FUN_000ffb3c(void *, int);
 extern void FUN_00103128(int);
 extern void FUN_00103480(int);
 extern void FUN_00103628(int, int);
 extern int FUN_001b1c44(int *, int);
 extern int FUN_001b1f7c(void *, int);
 
-void FUN_0021f338(register char *param_1)
+/* Per-frame update: drop a finished sound handle, ease the entity toward its target values, advance the
+   timer (or hold it) and finish the overlay when the timer reaches its limit. */
+void FUN_0021f338(register StatusOverlay *self)
 {
-  int iVar1;
-  int iVar2;
-  float uVar3;
-  float uVar4;
-  float uVar5;
-  float input;
+  int timer;
+  int sound;
+  volatile OverlayEntity *src;
+  float next60;
+  float v64;
+  float v78;
+  float v60;
   
-  iVar2 = *(int *)(param_1 + 0x60);
-  if (iVar2 < 0) goto LAB_0021f378;
-  if (FUN_001b1f7c(&DAT_0034179c, iVar2) == 0) {
-    *(int *)(param_1 + 0x60) = -1;
+  sound = self->sound;
+  if (sound < 0) goto check_timer;
+  if (FUN_001b1f7c(&DAT_0034179c, sound) == 0) {
+    self->sound = -1;
   }
-LAB_0021f378:
-  iVar1 = *(int *)(param_1 + 0x5c);
-  if (iVar1 < 0) goto LAB_0021f578;
-  iVar2 = *(int *)(param_1 + 100);
-  uVar4 = *(volatile float *)(iVar2 + 100);
-  uVar5 = *(volatile float *)(iVar2 + 0x78);
-  input = *(volatile float *)(iVar2 + 0x60);
-  if (iVar1 < 100) {
-    uVar3 = FUN_000ede98(input,0.0f,DAT_002f091c,0.01f);
-    uVar4 = FUN_000ede98(uVar4,0.0f,DAT_002f091c,0.01f);
-    uVar5 = FUN_000ede98(uVar5,1.0f,DAT_002f091c,0.01f);
+check_timer:
+  timer = self->timer;
+  if (timer < 0) goto done;
+  src = self->ent;
+  v64 = src->unk64;
+  v78 = src->unk78;
+  v60 = src->unk60;
+  if (timer < OVERLAY_OUT_PHASE) {
+    next60 = FUN_000ede98(v60,0.0f,DAT_002f091c,0.01f);
+    v64 = FUN_000ede98(v64,0.0f,DAT_002f091c,0.01f);
+    v78 = FUN_000ede98(v78,1.0f,DAT_002f091c,0.01f);
   }
   else {
-    uVar3 = FUN_000ede98(input,-DAT_0034a1c0,DAT_002f091c,0.01f);
-    uVar4 = FUN_000ede98(uVar4,-DAT_0034a1c4,DAT_002f091c,0.01f);
-    uVar5 = FUN_000ede98(uVar5,DAT_0034a1d0,DAT_002f091c,0.01f);
+    next60 = FUN_000ede98(v60,-DAT_0034a1c0,DAT_002f091c,0.01f);
+    v64 = FUN_000ede98(v64,-DAT_0034a1c4,DAT_002f091c,0.01f);
+    v78 = FUN_000ede98(v78,DAT_0034a1d0,DAT_002f091c,0.01f);
   }
-  uVar3 = FUN_0000bd2c(uVar3);
-  *(float *)(*(int *)(param_1 + 100) + 0x60) = uVar3;
-  uVar4 = FUN_0000bd2c(uVar4);
-  *(float *)(*(int *)(param_1 + 100) + 100) = uVar4;
-  *(float *)(*(int *)(param_1 + 100) + 0x78) = uVar5;
-  FUN_00103480((int)param_1);
-  if (*(int *)(param_1 + 0x5c) >= DAT_002eff90 + 0x14 && *(unsigned char *)(param_1 + 0x70) != 0) {
-    FUN_000ffb3c(*(u32 *)(param_1 + 0x68),0);
+  next60 = FUN_0000bd2c(next60);
+  self->ent->unk60 = next60;
+  v64 = FUN_0000bd2c(v64);
+  self->ent->unk64 = v64;
+  self->ent->unk78 = v78;
+  FUN_00103480((int)self);
+  if (self->timer >= DAT_002eff90 + OVERLAY_HOLD_DELAY && self->hold != 0) {
+    FUN_000ffb3c(self->widget,0);
     if (((int)*(char *)(DAT_002cfc8c + 0x8b) << 0x1c) >> 0x1e == 0) {
       FUN_001b1c44((int *)&DAT_0034179c,3);
-      *(u8 *)(param_1 + 0x70) = 0;
-      *(u32 *)(param_1 + 0x5c) = 100;
+      self->hold = 0;
+      self->timer = OVERLAY_OUT_PHASE;
     }
   } else {
-    FUN_000ffb3c(*(u32 *)(param_1 + 0x68),1);
-    *(int *)(param_1 + 0x5c) = *(int *)(param_1 + 0x5c) + 1;
+    FUN_000ffb3c(self->widget,1);
+    self->timer = self->timer + 1;
   }
-  if (!(*(int *)(param_1 + 0x5c) < DAT_002eff94)) {
-    FUN_00103628((int)param_1,1);
-    *(u8 *)(param_1 + 0x54) = 1;
-    *(u32 *)(param_1 + 0x5c) = 0xffffffff;
+  if (!(self->timer < DAT_002eff94)) {
+    FUN_00103628((int)self,1);
+    self->done = 1;
+    self->timer = -1;
   }
-LAB_0021f578:
-  FUN_00103128((int)param_1);
+done:
+  FUN_00103128((int)self);
 }

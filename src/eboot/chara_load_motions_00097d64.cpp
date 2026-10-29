@@ -1,6 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00097d64 end=0x00098870 symbol=FUN_00097d64 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
+enum {
+    MOTION_COUNT = 0x115,      /* entries in the motion table */
+    FACE_MOTION_FIRST = 248,   /* first entry played on the face animation */
+    COMMON_SET_COUNT = 2,      /* common motion sets (two variants) */
+    SKIN_KEY_OFFSET = 0x2d     /* offset of the skin key string in the face record */
+};
+
 struct Motion { int data; int pad[3]; };
 
 struct MotionEntry {        /* 16 bytes, table at DAT_002beb78 */
@@ -68,7 +75,7 @@ extern int DAT_00338770;
 extern int DAT_00338b08;
 extern Opts *DAT_00338b44;
 extern Slot DAT_003417b8[];
-extern Motion **DAT_00338774[2];
+extern Motion **DAT_00338774[COMMON_SET_COUNT];
 extern unsigned char DAT_0033877c;
 extern unsigned char DAT_003386b8;
 extern char DAT_0030ebf4[];
@@ -182,15 +189,15 @@ extern "C" void FUN_00097d64(Chara *self)
         int j;
         int base;
         HST_ASSERT(DAT_00338770 == 0, "s_CommonMotionRefCount == 0", 1984);
-        for (unsigned k = 0; k < 2; k++) {
+        for (unsigned k = 0; k < COMMON_SET_COUNT; k++) {
             DAT_00338774[k] = (Motion **)FUN_00000a90(0x454);
             FUN_000114c0(DAT_00338774[k], 0, 0x454);
         }
-        for (j = 0, base = 0; j < 4; base += 0x115, j++) {
+        for (j = 0, base = 0; j < 4; base += MOTION_COUNT, j++) {
             int end;
             int idx;
             FUN_0001ca58(DAT_0030ebf4, DAT_002d4440, IsAdhoc() ? DAT_002d4468 : DAT_002d435c, j);
-            end = (base + 0x115) / 4;
+            end = (base + MOTION_COUNT) / 4;
             for (idx = base / 4; idx < end; idx++) {
                 MotionEntry *m = &DAT_002beb78[idx];
                 if ((idx < 174 || idx >= 198 || busy) && m->common) {
@@ -256,7 +263,7 @@ extern "C" void FUN_00097d64(Chara *self)
     else
         sex = DAT_002d4434;
 
-    for (int j = 0; j < 0x115; j++) {
+    for (int j = 0; j < MOTION_COUNT; j++) {
         MotionEntry *e = &DAT_002beb78[j];
         Motion *mot = 0;
         if (e->kind != 0) {
@@ -290,7 +297,7 @@ extern "C" void FUN_00097d64(Chara *self)
                     t = female;
                 mot = DAT_00338774[t][j];
             } else {
-                if (j >= 248 && j < 248) {
+                if (j >= FACE_MOTION_FIRST && j < FACE_MOTION_FIRST) {
                     FUN_000143b0(name, DAT_002d44e4);
                     FUN_000143b0(motion, e->name);
                 } else {
@@ -310,7 +317,7 @@ extern "C" void FUN_00097d64(Chara *self)
                     mot = mem;
                     FUN_00055eac(mot, path, 0);
                     if (mot->data == 0) {
-                        if (j < 248 || j >= 0x115)
+                        if (j < FACE_MOTION_FIRST || j >= MOTION_COUNT)
                             HST_ASSERT(false, "false", 2218);
                         if (mot) {
                             FUN_00055e48(mot, 1);
@@ -319,14 +326,14 @@ extern "C" void FUN_00097d64(Chara *self)
                     }
                 }
             }
-            if (j >= 248 && j < 0x115) {
+            if (j >= FACE_MOTION_FIRST && j < MOTION_COUNT) {
                 if (mot) {
                     if (self->noface == 0) {
                         char path2[128];
                         FUN_000143b0(path2, DAT_002d44f8, IsAdhoc() ? DAT_002d4490 : DAT_002d44ac, name, motion);
                         self->anim.Load(path2, 0, 0, 0, 0, 0);
                     }
-                    FUN_0005743c(&self->anim, j - 248, mot, 0);
+                    FUN_0005743c(&self->anim, j - FACE_MOTION_FIRST, mot, 0);
                 }
                 load = 0;
             }
@@ -351,7 +358,7 @@ extern "C" void FUN_00097d64(Chara *self)
     FUN_0001cb88(DAT_0030ebf4);
 
     {
-        char *key = (char *)self->face + 0x2d;
+        char *key = (char *)self->face + SKIN_KEY_OFFSET;
         if (!self->locked && FUN_0024de88(DAT_0034a77c, 10, DAT_003417b8[self->slot].team) == 0 && !DAT_003386b8)
             self->skin = 0;
         else

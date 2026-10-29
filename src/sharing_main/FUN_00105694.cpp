@@ -5,16 +5,23 @@
 extern "C" {
 extern void FUN_00000a00(...);
 }
-struct VC_0 { virtual ~VC_0(); };
+struct OwnedObj { virtual ~OwnedObj(); };
 
-extern "C" void FUN_00105694(int param_1)
+/* Object that owns one virtual-destructor object at 0x20. */
+struct OwnerObj {
+  char pad0[0x20];
+  OwnedObj *owned; /* 0x20 */
+};
+
+/* Deletes the owned object (clearing the pointer), then frees the owner. */
+extern "C" void FUN_00105694(OwnerObj *self)
 {
-  int *piVar1;
+  OwnedObj *owned;
   
-  piVar1 = *(int **)(param_1 + 0x20);
-  if (piVar1 != (int *)0x0) {
-    delete ((VC_0 *)(piVar1));
-    *(u32 *)(param_1 + 0x20) = 0;
+  owned = self->owned;
+  if (owned != (OwnedObj *)0x0) {
+    delete owned;
+    self->owned = 0;
   }
-  FUN_00000a00(param_1);
+  FUN_00000a00(self);
 }

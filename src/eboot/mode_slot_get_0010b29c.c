@@ -1,19 +1,21 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0010b29c end=0x0010b308 symbol=FUN_0010b29c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/mode_list.h"
 
-u32 FUN_0010b29c(int param_1)
+/* Return the highlighted one of the three shown items. */
+ModeItem * FUN_0010b29c(ModeList *self)
 {
-  int i;
+  int first;
 
-  i = *(int *)(param_1 + 0xd4);
-  switch (*(int *)(param_1 + 0x118)) {
+  first = self->first;
+  switch (self->mode) {
   case 1:
-    return *(u32 *)(*(int *)(param_1 + 0x10) + i * 4);
+    return self->items[first];
   case 2:
-    return *(u32 *)(*(int *)(param_1 + 0x10) + (i + 2) * 4);
+    return *(ModeItem **)((char *)self->items + (first + 2) * 4);
   case 0:
   default:
-    return *(u32 *)(*(int *)(param_1 + 0x10) + (i + 1) * 4);
+    return *(ModeItem **)((char *)self->items + (first + 1) * 4);
   }
 }

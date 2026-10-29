@@ -1,31 +1,46 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001542dc end=0x0015435c symbol=FUN_001542dc lang=c99 data=0x002dc8a0 */
-/* Ghidra pseudocode (hstgen.py tag a1v0) corrected by hand: DAT_003402f0 is unsigned char (lbu), the *param_2 load is hoisted into a local before the value test, and the value is selected with if (x != 0) val else 0 so the branch stays non-likely; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc8a0-0x002dc8b2) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a1v0) corrected by hand: DAT_003402f0 is unsigned char (lbu), the ctx->regs load is hoisted into a local before the value test, and the value is selected with if (x != 0) val else 0 so the branch stays non-likely; readability pass; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002dc8a0-0x002dc8b2) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+#include "hst/script_cmd.h"
 
-typedef struct { int pad0; int pad4; int f8; int fc; } S154;
-extern unsigned char DAT_003402f0;
-extern u8 * DAT_0034a118;
-extern int FUN_0014c384(int a,int b);
-extern void FUN_0014d044(void *p);
-extern void FUN_0014fd94(const char *fmt,int b);
+typedef struct GetPcNumberCmd {
+  char pad00[8];
+  int reg; /* 0x08 script register that receives the result */
+} GetPcNumberCmd;
 
-u32 FUN_001542dc(S154 *s,int *p)
+typedef struct PcObj {
+  char pad00[0x1b4];
+  u32 number; /* 0x1b4 */
+} PcObj;
+
+typedef struct PcOwner {
+  char pad00[0x50];
+  PcObj *pc; /* 0x50 */
+} PcOwner;
+
+extern unsigned char DAT_003402f0; /* script trace flag */
+extern PcOwner *DAT_0034a118;
+extern u32 *FUN_0014c384(u32 regs, int reg);
+extern void FUN_0014d044(ScriptCtx *ctx);
+extern void FUN_0014fd94(const char *fmt, int b);
+
+/* Script command "GetPcNumber": store the number of the current PC (0 when there is none) in a register. */
+u32 FUN_001542dc(GetPcNumberCmd *cmd, ScriptCtx *ctx)
 {
-  u32 *puVar1;
-  u32 uVar2;
+  u32 *slot;
+  u32 number;
 
   if (DAT_003402f0 != '\0') {
-    FUN_0014d044(p);
-    FUN_0014fd94("GetPcNumber [%d]\n",s->f8);
+    FUN_0014d044(ctx);
+    FUN_0014fd94("GetPcNumber [%d]\n", cmd->reg);
   }
-  int a = *p;
-  if (*(int *)(DAT_0034a118 + 0x50) != 0) {
-    uVar2 = *(u32 *)(*(int *)(DAT_0034a118 + 0x50) + 0x1b4);
+  u32 regs = ctx->regs;
+  if (DAT_0034a118->pc != 0) {
+    number = DAT_0034a118->pc->number;
   }
   else {
-    uVar2 = 0;
+    number = 0;
   }
-  puVar1 = (u32 *)FUN_0014c384(a,s->f8);
-  *puVar1 = uVar2;
+  slot = FUN_0014c384(regs, cmd->reg);
+  *slot = number;
   return 0;
 }

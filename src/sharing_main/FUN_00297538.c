@@ -2,10 +2,17 @@
 /* Clone of src/eboot/FUN_00285f28.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-u32 * FUN_00297538(u32 *param_1)
+typedef struct ClearedObj {
+  u32 unk00;            /* 0x00 */
+  u8 unk04;             /* 0x04 */
+  char pad05[0xc5 - 0x5];
+  u8 unkc5;             /* 0xc5 */
+} ClearedObj;
+
+ClearedObj * FUN_00297538(ClearedObj *self)
 {
-  *param_1 = 0;
-  *(u8 *)(param_1 + 1) = 0;
-  *(u8 *)((int)param_1 + 0xc5) = 0;
-  return param_1;
+  self->unk00 = 0;
+  self->unk04 = 0;
+  self->unkc5 = 0;
+  return self;
 }

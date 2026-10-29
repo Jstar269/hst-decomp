@@ -9,6 +9,7 @@
      store into both paths and encodes the null path as `beqzl v0` with `sw v0,240(s0)` in the delay
      slot. Writing the store twice by hand gives a plain `beqz` and stays one word off. */
 #include "hst/types.h"
+#include "hst/replace_screen.h"
 
 extern "C" {
 extern u8 DAT_002fe2d0;
@@ -23,48 +24,50 @@ extern unsigned char FUN_00095104(...);
 extern int FUN_002791a4(...);
 extern u32 FUN_00279578(...);
 }
-struct VC_0 { virtual ~VC_0(); };
-struct VC_1 { virtual ~VC_1(); };
+/* Two views of the model for its virtual destructor (separate classes keep the two deletes apart). */
+struct ModelA { virtual ~ModelA(); };
+struct ModelB { virtual ~ModelB(); };
 
-extern "C" void FUN_002704c0(int param_1)
+/* Replace the screen's model with the one from record table recs1: load it, and drop it again if loading fails. */
+extern "C" void FUN_002704c0(ReplaceScreen *self)
 {
-  int cVar1;
-  int iVar2;
-  int iVar3;
-  u32 uVar4;
-  int *piVar5;
+  int loaded;
+  int rec_off;
+  int model;
+  u32 model_arg;
+  int *old;
   
-  iVar2 = FUN_002791a4(param_1,1);
-  iVar3 = FUN_00279578(param_1,1);
-  iVar2 = iVar2 + iVar3 * 4;
-  if (*(int *)(param_1 + 0x180) < 0) {
+  rec_off = FUN_002791a4(self,1);
+  model = FUN_00279578(self,1);
+  rec_off = rec_off + model * 4;
+  if (self->unk180 < 0) {
     return;
   }
   {
-    iVar2 = iVar2 * 0x30;
+    rec_off = rec_off * REPLACE_REC_SIZE;
     {
       void *dup;
 
       dup = &DAT_002fe324;
       FUN_0001ca58(&DAT_0030ebf4,DAT_002fe2b4,dup,dup,
-                   *(u32 *)(*(int *)(param_1 + 0xb4) + iVar2 + 8),&DAT_002fe2d0);
+                   *(u32 *)((char *)self->recs1.data + rec_off + 8),&DAT_002fe2d0);
     }
-    piVar5 = *(int **)(param_1 + 0xf0);
-    if (piVar5 != (int *)0x0) {
-      delete ((VC_0 *)(piVar5));
-      *(u32 *)(param_1 + 0xf0) = 0;
+    old = (int *)self->model;
+    if (old != (int *)0x0) {
+      delete ((ModelA *)(old));
+      self->model = 0;
     }
-    iVar3 = FUN_00000bcc(0x1c0);
-    if (iVar3 != 0) {
-      iVar3 = FUN_00094fa4(iVar3);
+    model = FUN_00000bcc(REPLACE_MODEL_SIZE);
+    if (model != 0) {
+      model = FUN_00094fa4(model);
     }
-    *(u32 *)(param_1 + 0xf0) = iVar3;
-    uVar4 = iVar3;
-    cVar1 = FUN_00095104(uVar4,1,*(u32 *)(*(int *)(param_1 + 0xb4) + iVar2 + 8),0,0);
+    self->model = (void *)model;
+    model_arg = model;
+    loaded = FUN_00095104(model_arg,1,*(u32 *)((char *)self->recs1.data + rec_off + 8),0,0);
     FUN_0001cb88(&DAT_0030ebf4);
-    if ((cVar1 == '\0') && (piVar5 = *(int **)(param_1 + 0xf0), piVar5 != (int *)0x0)) {
-      delete ((VC_1 *)(piVar5));
-      *(u32 *)(param_1 + 0xf0) = 0;
+    if ((loaded == '\0') && (old = (int *)self->model, old != (int *)0x0)) {
+      delete ((ModelB *)(old));
+      self->model = 0;
     }
   }
 }

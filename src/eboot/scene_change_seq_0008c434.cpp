@@ -3,24 +3,19 @@
 /* Scene change on a pending sequence id: case bodies in retail layout order (jump table follows the values);
    twin: src/sharing_main/scene_change_seq_0008db80.cpp. */
 
+#include "hst/scene_seq.h"
+#include "hst/adhoc_net.h"
+
 struct Scene;
 struct SceneMgr;
 
-struct Seq {
-    char pad0[0x9c0];
-    int next;
-    char pad9c4[4];
-    unsigned char change;
-};
-
-/* Same layout as Seq: retail re-reads next for the error print instead of reusing the switch value, which
+/* Same layout as SceneSeq: retail re-reads next for the error print instead of reusing the switch value, which
    MWCC only does when the two accesses go through different (identical) struct types. */
-struct SeqB { char pad0[0x9c0]; int next; };
-struct Game { char pad0[0x28]; int m28; };
+struct SeqView { char pad0[0x9c0]; int next; };
 
 extern SceneMgr *DAT_003386c8;
 extern int DAT_003386bc;
-extern Game *DAT_00338ac4;
+extern AdhocNet *DAT_00338ac4;
 extern unsigned char DAT_003386b8;
 extern void *DAT_0034a65c;
 extern int DAT_002d2444;
@@ -48,9 +43,9 @@ void FUN_0016bc9c();
 void FUN_0019d4a0(int);
 Scene *FUN_002637c8(void *);
 void FUN_0001f06c(void *);
-Game *FUN_000ba2a8(void *);
-void FUN_000ba48c(Game *);
-void FUN_000ba57c(Game *, int);
+AdhocNet *FUN_000ba2a8(void *);
+void FUN_000ba48c(AdhocNet *);
+void FUN_000ba57c(AdhocNet *, int);
 void FUN_001fd060(SceneMgr *, const char *);
 Scene *FUN_0015d4bc(void *, int);
 Scene *FUN_00262204(void *);
@@ -62,35 +57,36 @@ const char *FUN_00234078(int);
 void FUN_0008cae8(...);
 }
 
+/* Scene for sequence 1: creates the ad-hoc service object, loads the net modules and starts it up. */
 struct Scene01 {
     void *vt;
     char pad4[0x3c - 4];
-    unsigned char m3c, m3d, m3e, m3f, m40, m41;
+    unsigned char unk3c, unk3d, unk3e, unk3f, unk40, unk41;
     char pad42[2];
-    int m44;
-    int m48;
-    int m4c;
-    int m50;
+    int unk44;
+    int unk48;
+    int netState;
+    int unk50;
     Scene01()
     {
         FUN_0001f06c(this);
         vt = DAT_00307210;
-        m3c = 0;
-        m3d = 0;
-        m3e = 0;
-        m3f = 0;
-        m40 = 0;
-        m41 = 0;
-        Game *g = (Game *)operator new(0x288);
-        if (g)
-            g = FUN_000ba2a8(g);
-        DAT_00338ac4 = g;
-        FUN_000ba48c(g);
+        unk3c = 0;
+        unk3d = 0;
+        unk3e = 0;
+        unk3f = 0;
+        unk40 = 0;
+        unk41 = 0;
+        AdhocNet *net = (AdhocNet *)operator new(ADHOC_NET_SIZE);
+        if (net)
+            net = FUN_000ba2a8(net);
+        DAT_00338ac4 = net;
+        FUN_000ba48c(net);
         FUN_000ba57c(DAT_00338ac4, 0);
-        m44 = 0;
-        m48 = 0;
-        m4c = DAT_00338ac4->m28;
-        m50 = 0;
+        unk44 = 0;
+        unk48 = 0;
+        netState = DAT_00338ac4->state;
+        unk50 = 0;
         DAT_003386b8 = 1;
     }
 };
@@ -98,15 +94,16 @@ struct Scene01 {
 /* Release build: assertions compile to nothing (the Sharing build keeps them, see the twin). */
 #define HST_ASSERT(cond, text, line) ((void)0)
 
+/* Allocate a scene of the given size, construct it and push it on the scene manager. */
 #define PUSH(size, ctor)                              \
     {                                                 \
-        Scene *s = (Scene *)operator new(size);       \
-        if (s)                                        \
-            s = ctor(s);                              \
-        FUN_0001f21c(DAT_003386c8, s);                \
+        Scene *scene = (Scene *)operator new(size);   \
+        if (scene)                                    \
+            scene = ctor(scene);                      \
+        FUN_0001f21c(DAT_003386c8, scene);            \
     }
 
-extern "C" void FUN_0008c434(Seq *self)
+extern "C" void FUN_0008c434(SceneSeq *self)
 {
     if (self->change) {
         self->change = 0;
@@ -131,10 +128,10 @@ extern "C" void FUN_0008c434(Seq *self)
             break;
         case 0x21: case 0x4d: {
             FUN_0001f294(DAT_003386c8);
-            Scene *s = (Scene *)operator new(0x3c);
-            if (s)
-                s = FUN_002313c8(s, 0);
-            FUN_0001f21c(DAT_003386c8, s);
+            Scene *scene = (Scene *)operator new(0x3c);
+            if (scene)
+                scene = FUN_002313c8(scene, 0);
+            FUN_0001f21c(DAT_003386c8, scene);
             FUN_00231240(DAT_0034a65c, self->next == 0x21);
             break;
         }
@@ -182,8 +179,8 @@ extern "C" void FUN_0008c434(Seq *self)
             break;
         case 1: {
             FUN_0001f294(DAT_003386c8);
-            Scene01 *p = new Scene01;
-            FUN_0001f21c(DAT_003386c8, (Scene *)p);
+            Scene01 *scene = new Scene01;
+            FUN_0001f21c(DAT_003386c8, (Scene *)scene);
             break;
         }
         case 5:
@@ -192,26 +189,26 @@ extern "C" void FUN_0008c434(Seq *self)
             break;
         case 0xa: case 0x2a: case 0x31: case 0x35: case 0x44: case 0x57: {
             FUN_0001f294(DAT_003386c8);
-            Scene *s = (Scene *)operator new(0x4c);
-            if (s)
-                s = FUN_0015d4bc(s, self->next);
-            FUN_0001f21c(DAT_003386c8, s);
+            Scene *scene = (Scene *)operator new(0x4c);
+            if (scene)
+                scene = FUN_0015d4bc(scene, self->next);
+            FUN_0001f21c(DAT_003386c8, scene);
             break;
         }
         case 0xb: case 0x4b: case 0x4c: case 0x58: {
             FUN_0001f294(DAT_003386c8);
-            Scene *s = (Scene *)operator new(0x4c);
-            if (s)
-                s = FUN_0015d4bc(s, self->next);
-            FUN_0001f21c(DAT_003386c8, s);
+            Scene *scene = (Scene *)operator new(0x4c);
+            if (scene)
+                scene = FUN_0015d4bc(scene, self->next);
+            FUN_0001f21c(DAT_003386c8, scene);
             break;
         }
         case 0xc: {
             FUN_0001f294(DAT_003386c8);
-            Scene *s = (Scene *)operator new(0x3c);
-            if (s)
-                s = FUN_002313c8(s, 0);
-            FUN_0001f21c(DAT_003386c8, s);
+            Scene *scene = (Scene *)operator new(0x3c);
+            if (scene)
+                scene = FUN_002313c8(scene, 0);
+            FUN_0001f21c(DAT_003386c8, scene);
             FUN_00231240(DAT_0034a65c, 0);
             break;
         }
@@ -244,7 +241,7 @@ extern "C" void FUN_0008c434(Seq *self)
             break;
         case 0: case 2: case 0xf: case 0x10: case 0x11: case 0x20:
         default:
-            FUN_0008cae8(DAT_002d2698, FUN_00234078(((SeqB *)self)->next));
+            FUN_0008cae8(DAT_002d2698, FUN_00234078(((SeqView *)self)->next));
             HST_ASSERT(0, "0", 1232);
             break;
         }

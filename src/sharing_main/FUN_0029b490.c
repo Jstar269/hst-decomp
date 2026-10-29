@@ -5,16 +5,17 @@ extern void FUN_00000a00();
 extern void FUN_0029b620();
 extern int * FUN_0029e154();
 
-int FUN_0029b490(int param_1,short param_2)
+/* Deleting destructor of the scene resource table: clear its entries, run the base destructor, free when flags > 0. */
+int FUN_0029b490(int self,short flags)
 {
-  if (param_1 != 0) {
+  if (self != 0) {
     FUN_0029b620();
-    if ((param_1 != 0) && (param_1 != 0)) {
-      FUN_0029e154(param_1,0);
+    if ((self != 0) && (self != 0)) {
+      FUN_0029e154(self,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

@@ -1,42 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00093654 end=0x000936d8 symbol=FUN_00093654 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a1), refined by hstperm.py tag p4 random mutation from try/gen-a1/v2/FUN_00093654.c; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef unsigned char undefined1;
-typedef unsigned short undefined2;
-typedef float undefined4;
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/model_set.h"
 
 extern void FUN_00059084();
 
-void FUN_00093654(int param_1)
+/* For the main, first and last model slots: run the helper with -1, then copy unkc4 into unkd0. */
+void FUN_00093654(ModelSet *self)
 {
-  int iVar1;
-  
-  iVar1 = *(int *)(param_1 + 0x58);
-  if (iVar1 != 0) {
-    FUN_00059084(iVar1,0xffffffff);
-    *(undefined4 *)(0xd0 + iVar1) = *(undefined4 *)(iVar1 + 0xc4);
+  ModelObj *model;
+
+  model = self->model[MODEL_SLOT_MAIN];
+  if (model != 0) {
+    FUN_00059084(model,-1);
+    model->unkd0 = model->unkc4;
   }
-  iVar1 = *(int *)(param_1 + 0x50);
-  if (iVar1 != 0) {
-    FUN_00059084(iVar1,0xffffffff);
-    *(undefined4 *)(iVar1 + 0xd0) = *(undefined4 *)(iVar1 + 0xc4);
+  model = self->model[0];
+  if (model != 0) {
+    FUN_00059084(model,-1);
+    model->unkd0 = model->unkc4;
   }
-  iVar1 = *(int *)(param_1 + 100);
-  if (iVar1 != 0) {
-    FUN_00059084(iVar1,0xffffffff);
-    *(undefined4 *)(iVar1 + 0xd0) = *(undefined4 *)(iVar1 + 0xc4);
+  model = self->model[5];
+  if (model != 0) {
+    FUN_00059084(model,-1);
+    model->unkd0 = model->unkc4;
   }
   return;
 }

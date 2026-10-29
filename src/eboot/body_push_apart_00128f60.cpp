@@ -118,33 +118,39 @@ struct World {
 extern World *DAT_0034a114;
 extern float DAT_002da3c0;
 
+/* Body types that take part in the push (Type() results). */
+#define BODY_TYPE_PUSHABLE_A 2
+#define BODY_TYPE_PUSHABLE_B 3
+
+/* Pushes pos away from every other active body of the pushable types that is within reach (two radii apart),
+   keeping the point `height` above the body's origin for the distance test; returns 1 when any body moved it. */
 extern "C" int FUN_00128f60(Obj *self, Vec4 *pos, float height)
 {
     if (self != 0 && self->active == 0)
         return 0;
-    BodyList &l = DAT_0034a114->bodies;
+    BodyList &bodies = DAT_0034a114->bodies;
     int hit = 0;
-    for (BodyIt it = l.begin(); it != l.end(); ++it) {
+    for (BodyIt it = bodies.begin(); it != bodies.end(); ++it) {
         Body *b = *it;
         if (b == static_cast<Body *>(self))
             continue;
-        if ((b->Type() == 2 || b->Type() == 3) && b->active != 0) {
-            Obj *o = static_cast<Obj *>(b);
-            float r = DAT_002da3c0;
-            Vec4 off(0.0f, height - (r + 0.001f), 0.0f, 0.0f);
-            Vec4 a = *o->Pos() + off;
-            Vec4 d = a - (*pos + off);
-            float lsq = FUN_000224d8(&d, &d);
-            float dia = r * 2.0f;
+        if ((b->Type() == BODY_TYPE_PUSHABLE_A || b->Type() == BODY_TYPE_PUSHABLE_B) && b->active != 0) {
+            Obj *other = static_cast<Obj *>(b);
+            float radius = DAT_002da3c0;
+            Vec4 lift(0.0f, height - (radius + 0.001f), 0.0f, 0.0f);
+            Vec4 other_pos = *other->Pos() + lift;
+            Vec4 delta = other_pos - (*pos + lift);
+            float dist_sq = FUN_000224d8(&delta, &delta);
+            float diameter = radius * 2.0f;
             float reach = 0.001f;
-            reach += dia;
-            if (lsq > reach * reach)
+            reach += diameter;
+            if (dist_sq > reach * reach)
                 continue;
-            FUN_00022518(&d, &d);
-            d.w = 0.0f;
-            FUN_00022498(&d, &d, dia + 0.001f);
-            *pos = a - d;
-            FUN_00022434(pos, pos, &off);
+            FUN_00022518(&delta, &delta);
+            delta.w = 0.0f;
+            FUN_00022498(&delta, &delta, diameter + 0.001f);
+            *pos = other_pos - delta;
+            FUN_00022434(pos, pos, &lift);
             hit = 1;
         }
     }

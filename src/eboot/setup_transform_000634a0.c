@@ -5,28 +5,31 @@
   parameters independent registers, so the mapping is unchanged, but the prologue copies are emitted in
   declaration order, which is the retail order (`move s0,t0` before `mov.s $f20,$f13`).
 */
+#include "hst/ramp_obj.h"
+
 extern void FUN_000513a0();
 
-void FUN_000634a0(int param_1, float *param_4, float *param_5, unsigned param_6, unsigned char param_7,
-                  float param_2, float param_3)
+/* Sets up the ramp: copies the start and end values, sets duration and remaining, handle mode, flag and limit. */
+void FUN_000634a0(RampObj *obj, float *from, float *to, unsigned mode, unsigned char flag,
+                  float duration, float limit)
 {
-  *(float *)(param_1 + 0x20) = param_4[0];
-  *(float *)(param_1 + 0x24) = param_4[1];
-  *(float *)(param_1 + 0x28) = param_4[2];
-  *(float *)(param_1 + 0x2c) = param_4[3];
-  *(float *)(param_1 + 0x30) = param_5[0];
-  *(float *)(param_1 + 0x34) = param_5[1];
-  *(float *)(param_1 + 0x38) = param_5[2];
-  *(float *)(param_1 + 0x3c) = param_5[3];
-  *(float *)(param_1 + 8) = param_2;
-  *(float *)(param_1 + 0xc) = param_2;
-  *(unsigned *)(param_1 + 0x10) = 0xbf800000;
-  FUN_000513a0(*(unsigned *)(param_1 + 4), param_6);
-  *(unsigned char *)(param_1 + 0x40) = param_7;
-  *(unsigned char *)(param_1 + 0x41) = 0;
-  if (param_3 < 0.0f) {
-    param_3 = 4000.0f;
+  obj->from.x = from[0];
+  obj->from.y = from[1];
+  obj->from.z = from[2];
+  obj->from.w = from[3];
+  obj->to.x = to[0];
+  obj->to.y = to[1];
+  obj->to.z = to[2];
+  obj->to.w = to[3];
+  obj->duration = duration;
+  obj->remaining = duration;
+  obj->unk10 = -1.0f;
+  FUN_000513a0(obj->handle, mode);
+  obj->unk40 = flag;
+  obj->unk41 = 0;
+  if (limit < 0.0f) {
+    limit = RAMP_DEFAULT_LIMIT;
   }
-  *(float *)(param_1 + 0x44) = param_3;
+  obj->limit = limit;
   return;
 }

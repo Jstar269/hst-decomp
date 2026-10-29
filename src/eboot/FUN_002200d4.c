@@ -9,49 +9,42 @@ extern void *FUN_001026b8(void *model, const char *name);
 extern void FUN_00220338(void *self);
 extern char DAT_003096e4[];
 extern char DAT_002f0b14[];
+/* Table row: index of the source object to search, the name to look up, and where the result word is stored. */
 struct Entry_002200d4 { int idx; const char *name; int result; };
 extern struct Entry_002200d4 DAT_002f0b28[3];
-struct Obj_002200d4 { int pad[9]; int f24; };
+#define ENTRY_COUNT 3 /* rows in the lookup table */
+
+/* Constructor of a layout pane: loads its layout file, resolves the named parts through the table and
+   leaves the timer idle. */
 void *FUN_002200d4(void *self)
 {
-    int *p = (int *)self;
+    int *words = (int *)self; /* the object viewed as an array of words */
     FUN_00102e38(self);
     *(void **)self = &DAT_003096e4;
-    p[0x1c] = 0;
+    words[0x1c] = 0;
     FUN_00104118(self, "data/menu/lobby/lobby_add/addlayout.lay", 0);
     FUN_00103540(self, 1110.0f);
     FUN_001037c8(self, 18);
     {
-    void **pq = (void **)&DAT_002f0b14;
+    void **src = (void **)&DAT_002f0b14;
     int j;
     for (j = 0; j < 1; j++) {}
-    p[0x18] = (int)FUN_001039d8(self, *pq, 0);
+    words[0x18] = (int)FUN_001039d8(self, *src, 0);
     }
 #pragma opt_strength_reduction off
     int i = 0;
-    struct Entry_002200d4 *e = DAT_002f0b28;
+    struct Entry_002200d4 *entry = DAT_002f0b28;
     int off = 0;
     do {
-        int *h = (int *)FUN_001026b8((void *)p[0x18 + e->idx], e->name);
-        *(int *)((int)self + off + 100) = (int)h;
-        e->result = h[9];
+        int *part = (int *)FUN_001026b8((void *)words[0x18 + entry->idx], entry->name);
+        *(int *)((int)self + off + 100) = (int)part;
+        entry->result = part[9];
         i++;
         off += 4;
-        e++;
-    } while (i < 3);
-    p[0x17] = -1;
+        entry++;
+    } while (i < ENTRY_COUNT);
+    words[0x17] = -1; /* timer: idle */
     *((char *)self + 0x74) = 0;
     FUN_00220338(self);
     return self;
 }
-// NEAR MISS: 63/64 words - one word short, everything else word-for-word exact.
-// Only difference: retail materialises the global at 0x2f0b14 with `lui; addiu v0,0x2f,0xb14; lw a1,0(v0)`,
-// ours folds it to `lui v0,0x2f; lw a1,0xb14(v0)`. Ruled out: char[]/void*/volatile void*, local void**,
-// int-cast address forms (all fold). Loop needed #pragma opt_strength_reduction off.
-// LATER (ds11-00): best is now 64/64 words, 3 differing words, with `extern char **DAT_002f0b14;
-// ... *DAT_002f0b14` -- mwcc then emits `lw v0,0xb14(v0); lw a1,0(v0)` (a real double dereference)
-// where retail emits `addiu v0,v0,0xb14; lw a1,0(v0)`. Every address-taking spelling folds back to
-// `lui; lw a1,0xb14(v0)` (63 words): char[]/void*[]/char*[]/char*const[] array forms, `char *const`
-// and `volatile char *` globals, `char **slot = &DAT` local, unsigned-cast address, `*(char**)&DAT`,
-// a struct with the pointer as its first member (4-byte and 16-byte), and a C++ reference local.
-// So retail's addiu form is NOT reachable from any source spelling tried; open question.

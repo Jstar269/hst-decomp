@@ -4,9 +4,10 @@
 
 extern void FUN_00108f54();
 
-void FUN_0022c934(int param_1)
+/* Puts the screen in its finished state: finished flag set, counter idle (-1). */
+void FUN_0022c934(int self)
 {
-  FUN_00108f54(param_1,1);
-  *(u8 *)(param_1 + 0x54) = 1;
-  *(u32 *)(param_1 + 100) = 0xffffffff;
+  FUN_00108f54(self,1);
+  *(u8 *)(self + 0x54) = 1;
+  *(u32 *)(self + 100) = 0xffffffff;
 }

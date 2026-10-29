@@ -3,6 +3,8 @@
 
 #include "hst/types.h"
 
+#include "hst/xform_host.h"
+
 extern void *DAT_003313c4;
 extern void *DAT_003386cc;
 extern void *DAT_00338714;
@@ -17,65 +19,64 @@ extern void FUN_0005ce2c(void *, float, float, float);
 
 #pragma opt_strength_reduction off
 
-void FUN_00140acc(char *param_1)
+/* Pulls transform data from the three global sources into the owner, then uploads its entry table. */
+void FUN_00140acc(XformHost *self)
 {
-    FUN_0005c780(DAT_003313c4, param_1 + 0xdf0);
-    FUN_0005c854(DAT_003313c4, 0, param_1 + 0xe00, param_1 + 0xe10);
-    FUN_0005c854(DAT_003313c4, 1, param_1 + 0xe20, param_1 + 0xe30);
+    FUN_0005c780(DAT_003313c4, self->unkdf0);
+    FUN_0005c854(DAT_003313c4, 0, self->unke00, self->unke10);
+    FUN_0005c854(DAT_003313c4, 1, self->unke20, self->unke30);
 
-    *(float *)(param_1 + 0xe50) = *(float *)(param_1 + 0xe00);
-    *(float *)(param_1 + 0xe54) = *(float *)(param_1 + 0xe04);
-    *(float *)(param_1 + 0xe58) = *(float *)(param_1 + 0xe08);
-    *(float *)(param_1 + 0xe5c) = *(float *)(param_1 + 0xe0c);
-    *(float *)(param_1 + 0xe70) = *(float *)(param_1 + 0xe20);
-    *(float *)(param_1 + 0xe74) = *(float *)(param_1 + 0xe24);
-    *(float *)(param_1 + 0xe78) = *(float *)(param_1 + 0xe28);
-    *(float *)(param_1 + 0xe7c) = *(float *)(param_1 + 0xe2c);
-    *(float *)(param_1 + 0xea0) = *(float *)(param_1 + 0xe00);
-    *(float *)(param_1 + 0xea4) = *(float *)(param_1 + 0xe04);
-    *(float *)(param_1 + 0xea8) = *(float *)(param_1 + 0xe08);
-    *(float *)(param_1 + 0xeac) = *(float *)(param_1 + 0xe0c);
-    *(float *)(param_1 + 0xec0) = *(float *)(param_1 + 0xe20);
-    *(float *)(param_1 + 0xec4) = *(float *)(param_1 + 0xe24);
-    *(float *)(param_1 + 0xec8) = *(float *)(param_1 + 0xe28);
-    *(float *)(param_1 + 0xecc) = *(float *)(param_1 + 0xe2c);
+    self->unke50[0] = self->unke00[0];
+    self->unke50[1] = self->unke00[1];
+    self->unke50[2] = self->unke00[2];
+    self->unke50[3] = self->unke00[3];
+    self->unke70[0] = self->unke20[0];
+    self->unke70[1] = self->unke20[1];
+    self->unke70[2] = self->unke20[2];
+    self->unke70[3] = self->unke20[3];
+    self->unkea0[0] = self->unke00[0];
+    self->unkea0[1] = self->unke00[1];
+    self->unkea0[2] = self->unke00[2];
+    self->unkea0[3] = self->unke00[3];
+    self->unkec0[0] = self->unke20[0];
+    self->unkec0[1] = self->unke20[1];
+    self->unkec0[2] = self->unke20[2];
+    self->unkec0[3] = self->unke20[3];
 
     if (DAT_003386cc != 0) {
-        FUN_0005c780(DAT_003386cc, param_1 + 0xe40);
-        FUN_0005c854(DAT_003386cc, 0, param_1 + 0xe50, param_1 + 0xe60);
-        FUN_0005c854(DAT_003386cc, 1, param_1 + 0xe70, param_1 + 0xe80);
+        FUN_0005c780(DAT_003386cc, self->unke40);
+        FUN_0005c854(DAT_003386cc, 0, self->unke50, self->unke60);
+        FUN_0005c854(DAT_003386cc, 1, self->unke70, self->unke80);
     }
 
     if (DAT_00338714 != 0) {
-        FUN_0005c780(DAT_00338714, param_1 + 0xe90);
-        FUN_0005c854(DAT_00338714, 0, param_1 + 0xea0, param_1 + 0xeb0);
-        FUN_0005c854(DAT_00338714, 1, param_1 + 0xec0, param_1 + 0xed0);
+        FUN_0005c780(DAT_00338714, self->unke90);
+        FUN_0005c854(DAT_00338714, 0, self->unkea0, self->unkeb0);
+        FUN_0005c854(DAT_00338714, 1, self->unkec0, self->unked0);
     }
 
-    FUN_0005c900(DAT_003313c4, (int)*(int *)(param_1 + 0xd14));
-    u32 uVar1 = 0;
-    if (*(int *)(param_1 + 0xd14) != 0) {
+    FUN_0005c900(DAT_003313c4, self->entryCount);
+    u32 i = 0;
+    if (self->entryCount != 0) {
         do {
-            FUN_0005c954(DAT_003313c4, uVar1, (char *)*(int *)(param_1 + 0xd10) + (uVar1 << 5));
-            FUN_0005c998(DAT_003313c4, uVar1, (char *)*(int *)(param_1 + 0xd10) + (uVar1 << 5) + 0x10);
-            uVar1 = uVar1 + 1;
-        } while (uVar1 < *(u32 *)(param_1 + 0xd14));
+            FUN_0005c954(DAT_003313c4, i, self->entries[i].unk00);
+            FUN_0005c998(DAT_003313c4, i, self->entries[i].unk10);
+            i = i + 1;
+        } while (i < *(u32 *)&self->entryCount);
     }
 
     if (DAT_00338714 != 0) {
-        FUN_0005c900(DAT_00338714, *(u32 *)(param_1 + 0xd14));
-        u32 uVar2 = 0;
-        if (*(int *)(param_1 + 0xd14) != 0) {
+        FUN_0005c900(DAT_00338714, *(u32 *)&self->entryCount);
+        u32 j = 0;
+        if (self->entryCount != 0) {
             do {
-                FUN_0005c954(DAT_00338714, uVar2, (char *)*(int *)(param_1 + 0xd10) + (uVar2 << 5));
-                FUN_0005c998(DAT_00338714, uVar2, (char *)*(int *)(param_1 + 0xd10) + (uVar2 << 5) + 0x10);
-                uVar2 = uVar2 + 1;
-            } while (uVar2 < *(u32 *)(param_1 + 0xd14));
+                FUN_0005c954(DAT_00338714, j, self->entries[j].unk00);
+                FUN_0005c998(DAT_00338714, j, self->entries[j].unk10);
+                j = j + 1;
+            } while (j < *(u32 *)&self->entryCount);
         }
     }
 
-    FUN_0005ce18(DAT_003313c4, *(float *)(param_1 + 0x12e0), *(float *)(param_1 + 0x12e4),
-                 *(float *)(param_1 + 0x12e8), *(float *)(param_1 + 0x12ec));
-    FUN_0005ce2c(DAT_003313c4, *(float *)(param_1 + 0x12f0), *(float *)(param_1 + 0x12f4),
-                 *(float *)(param_1 + 0x12f8));
+    FUN_0005ce18(DAT_003313c4, self->unk12e0[0], self->unk12e0[1], self->unk12e0[2], self->unk12e0[3]);
+    FUN_0005ce2c(DAT_003313c4, self->unk12f0[0], self->unk12f0[1], self->unk12f0[2]);
 }

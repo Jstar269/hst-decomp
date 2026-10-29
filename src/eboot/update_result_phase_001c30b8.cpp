@@ -1,30 +1,33 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c30b8 end=0x001c3280 symbol=FUN_001c30b8 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-/* Matching idioms: the phase < 16 arm ends in an early return (the nested if/else form leaves retail's duplicated lw a0,84(s0) out); the flag is int b = (f60 < 0); if (b == 0) { b = 1; if (!(x <= 0.0f)) b = 0; } (c.le.s + bc1t with the preset in the slot); the 0x2879e0 call declares its float after the pointer (F(void *, float, int, int, int, int)), which puts addiu a0 before li a2. */
+/* Matching idioms: the time < 16 arm ends in an early return (the nested if/else form leaves retail's duplicated lw a0,84(s0) out); the flag is int b = (f60 < 0); if (b == 0) { b = 1; if (!(x <= 0.0f)) b = 0; } (c.le.s + bc1t with the preset in the slot); the 0x2879e0 call declares its float after the pointer (F(void *, float, int, int, int, int)), which puts addiu a0 before li a2. */
+/* Object whose float at 0x78 decides when the target is finished. */
 struct Inner {
   char pad[0x78];
   float f78;
 };
+/* Target whose sign word and inner object are polled. */
 struct Target {
   char pad[0x60];
   int f60;
   int pad64;
   Inner *f68;
 };
+/* State object (same layout as MenuState in menu_state.h, trimmed to the fields used). */
 struct Self {
   char pad0[8];
-  int phase;
+  int time;
   char pad0c[0xc];
-  void *f18;
+  void *parent;
   char pad1c[0x38];
-  Target *f54;
+  Target *target;
   char pad58[0x88];
-  int fe0;
-  unsigned char fe4;
+  int index;
+  unsigned char unke4;
   char pade5[3];
-  int fe8;
+  int unke8;
   char padec[4];
-  unsigned char ff0;
+  unsigned char unkf0;
 };
 struct Game {
   char pad[0x1320];
@@ -50,46 +53,46 @@ void FUN_001cd3d8(void *);
 
 void FUN_001c30b8(Self *self)
 {
-  if (self->phase == 0) {
+  if (self->time == 0) {
     FUN_002879e0((char *)DAT_0033b574 + 0x1320, 0.0f, 0, 15, 0, 0);
     FUN_001b4848(0.5f, DAT_0034179c);
   }
-  if (self->phase < 16) {
-    if (self->phase == 15) {
+  if (self->time < 16) {
+    if (self->time == 15) {
       FUN_001b2430(DAT_0034179c);
     }
     return;
   }
-  int b = self->f54->f60 < 0;
+  int b = self->target->f60 < 0;
   if (b == 0) {
     b = 1;
-    if (!(self->f54->f68->f78 <= 0.0f)) {
+    if (!(self->target->f68->f78 <= 0.0f)) {
       b = 0;
     }
   }
   if (b) {
-    if (self->fe0 < DAT_0034b590) {
+    if (self->index < DAT_0034b590) {
       FUN_002230dc(110.0f, 50.0f);
-      FUN_00222bb8(self->f54, DAT_0034b4f0[self->fe0], 1);
-      self->fe0 = self->fe0 + 1;
+      FUN_00222bb8(self->target, DAT_0034b4f0[self->index], 1);
+      self->index = self->index + 1;
     } else {
       FUN_002ad9e8();
-      if (self->fe4 != 0) {
-        FUN_001ca8f0(self->f18);
-        self->fe8 = 1;
-        self->ff0 = 1;
+      if (self->unke4 != 0) {
+        FUN_001ca8f0(self->parent);
+        self->unke8 = 1;
+        self->unkf0 = 1;
         FUN_001905b8(DAT_003415d4, 3);
         FUN_001cd88c(self, 8, 1);
-        FUN_001cd3d8(self->f18);
-        self->fe0 = 0;
+        FUN_001cd3d8(self->parent);
+        self->index = 0;
       } else {
-        FUN_001ca8e8(self->f18);
-        self->fe8 = 0;
-        self->ff0 = 1;
+        FUN_001ca8e8(self->parent);
+        self->unke8 = 0;
+        self->unkf0 = 1;
         FUN_001905b8(DAT_003415d4, 3);
         FUN_001cd88c(self, 8, 1);
-        FUN_001cd3d8(self->f18);
-        self->fe0 = 0;
+        FUN_001cd3d8(self->parent);
+        self->index = 0;
       }
     }
   }

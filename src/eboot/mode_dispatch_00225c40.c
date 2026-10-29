@@ -1,34 +1,45 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00225c40 end=0x00225d40 symbol=FUN_00225c40 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/mode_parts.h"
+
+#define LINK_COUNT 2
+#define MODE_PART10_CMD 0xe /* forward the vector to the +0x10 part */
+#define MODE_PART18_RESET 0xf /* reset the +0x18 part's links */
+
 typedef struct { float x, y, z, w; } Vec4;
-typedef struct { char pad[0x60]; float f60; float f64; } Link;
-typedef struct { char pad[0x68]; Link *links[2]; char pad70[0xb4 - 0x70]; float fb4; float fb8; } Inner;
-typedef struct { char pad[0xc]; void *fc; void *f10; char pad14[4]; Inner *f18; } Sub;
-typedef struct { char pad[0x3c]; Sub *p3c; } Self;
-extern void FUN_00103480(Inner *);
+struct ModePart18 {
+    char pad00[0x68];
+    ModeNode *links[LINK_COUNT]; /* 0x68 */
+    char pad70[0xb4 - 0x70];
+    float unkb4; /* 0xb4 */
+    float unkb8; /* 0xb8 */
+};
+typedef struct ModePart18 ModePart18;
+extern void FUN_00103480(ModePart18 *);
 extern void FUN_0021bf24(void *, int, int);
 extern void FUN_0021f7e0(void *, int, Vec4);
-extern void FUN_00222bb8(Inner *, int, int);
+extern void FUN_00222bb8(ModePart18 *, int, int);
 
-void FUN_00225c40(Self *self, int mode, int arg, Vec4 v)
+/* Dispatch a mode request to the part that handles it. */
+void FUN_00225c40(ModeObj *self, int mode, int arg, Vec4 v)
 {
-    if (mode == 0xe) {
-        FUN_0021f7e0(self->p3c->f10, arg, v);
-    } else if (mode == 0xf) {
+    if (mode == MODE_PART10_CMD) {
+        FUN_0021f7e0(self->parts->part10, arg, v);
+    } else if (mode == MODE_PART18_RESET) {
         int i = 0;
-        Inner *in = self->p3c->f18;
-        in->fb4 = -74.0f;
-        in->fb8 = 0.0f;
+        ModePart18 *part = self->parts->part18;
+        part->unkb4 = -74.0f;
+        part->unkb8 = 0.0f;
         do {
-            if (in->links[i] != 0 && i == 0) {
-                in->links[i]->f60 = in->fb4;
-                in->links[i]->f64 = in->fb8;
+            if (part->links[i] != 0 && i == 0) {
+                part->links[i]->x = part->unkb4;
+                part->links[i]->y = part->unkb8;
             }
             i++;
-        } while (i < 2);
-        FUN_00103480(in);
-        FUN_00222bb8(self->p3c->f18, arg, 0);
+        } while (i < LINK_COUNT);
+        FUN_00103480(part);
+        FUN_00222bb8(self->parts->part18, arg, 0);
     } else {
-        FUN_0021bf24(self->p3c->fc, mode, arg);
+        FUN_0021bf24(self->parts->part0c, mode, arg);
     }
 }

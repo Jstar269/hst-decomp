@@ -1,29 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021d3f8 end=0x0021d478 symbol=FUN_0021d3f8 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5/v17) corrected by hand: declared the loop index before the cursor and materialized the lookup offset before adding the base; exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a5/v17) corrected by hand: declared the loop index before the cursor and materialized the lookup offset before adding the base; readability pass; exact match verified; names and types await human review. */
+#include "hst/parts_pane.h"
 
-extern "C" {
-}
-struct VC_0 { virtual void d0(); virtual void m(int); };
-struct VC_1 { virtual void d0(); virtual void m(int); };
+/* Virtual view of a PartsLayer: slot 1 takes an int (called with 1 for every layer, then 0 for the selected one). */
+struct LayerV { virtual void d0(); virtual void Show(int on); };
 
-extern "C" void FUN_0021d3f8(int param_1)
+/* Re-applies the current selection to the layers and clears the shown flag. */
+extern "C" void FUN_0021d3f8(PartsPane *self)
 {
-  int *piVar1;
-  int iVar3;
-  int iVar2;
-  int iVar4;
-  
-  iVar3 = 0;
-  iVar2 = param_1;
-  do {
-    ((VC_0 *)(*(int **)(iVar2 + 0x70)))->m((int)(1));
-    iVar3 = iVar3 + 1;
-    iVar2 = iVar2 + 4;
-  } while (iVar3 < 3);
-  iVar4 = *(int *)(param_1 + 0x68) * 4;
-  piVar1 = *(int **)(iVar4 + param_1 + 0x70);
-  ((VC_1 *)(piVar1))->m((int)(0));
-  *(u8 *)(param_1 + 0x54) = 0;
-}
+  LayerV *layer;
+  int i;
+  char *cursor; /* walks the pane in steps of one array slot; the layers start 0x70 bytes in */
+  int offset;
 
+  i = 0;
+  cursor = (char *)self;
+  do {
+    ((LayerV *)(*(PartsLayer **)(cursor + 0x70)))->Show(1);
+    i = i + 1;
+    cursor = cursor + 4;
+  } while (i < PARTS_LAYER_COUNT);
+  offset = self->selected * 4;
+  layer = *(LayerV **)((char *)self->layer + offset);
+  layer->Show(0);
+  self->base.shown = 0;
+}

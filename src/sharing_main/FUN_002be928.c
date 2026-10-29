@@ -2,13 +2,19 @@
 /* Clone of src/eboot/FUN_002af0a4.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u32 DAT_003ea8e8;
-extern u64 FUN_001ca418(float param_1);
+typedef struct GlobalBlock {
+  char pad0000[0x1414];
+  float value;          /* 0x1414 */
+} GlobalBlock;
 
+extern GlobalBlock * DAT_003ea8e8;
+extern u64 FUN_001ca418(float value);
+
+/* Call the helper with the float at +0x1414 of the global block and return its result. */
 u64 FUN_002be928(void)
 {
-  u64 uVar1;
+  u64 result;
   
-  uVar1 = FUN_001ca418(*(float *)(DAT_003ea8e8 + 0x1414));
-  return uVar1;
+  result = FUN_001ca418(DAT_003ea8e8->value);
+  return result;
 }

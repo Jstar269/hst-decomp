@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001407f0 end=0x00140acc symbol=FUN_001407f0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/xform_host.h"
 
 extern u8 DAT_00308244;
 extern void FUN_00000788();
@@ -23,100 +24,101 @@ extern int * FUN_0014757c();
 extern void FUN_00132390();
 extern void FUN_00140770();
 
-u32 * FUN_001407f0(u32 *param_1,short param_2)
+/* Destroys the sub-objects in reverse order; deletes the object itself when flag > 0. */
+XformHost * FUN_001407f0(XformHost *self, short flag)
 {
-  u32 *puVar1;
-  
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00308244);
+  void *sub;
+
+  if (self != 0) {
+    self->vtable = &DAT_00308244;
     FUN_00140d58();
-    puVar1 = param_1 + 0x344;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_0014757c(puVar1,0);
+    sub = (void *)&self->entries;
+    if (sub != 0 && sub != 0) {
+      FUN_0014757c(sub, 0);
     }
-    puVar1 = param_1 + 0x301;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001474d0(puVar1,0);
+    sub = (void *)&self->subc04;
+    if (sub != 0 && sub != 0) {
+      FUN_001474d0(sub, 0);
     }
-    puVar1 = param_1 + 0x2be;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001474d0(puVar1,0);
+    sub = (void *)&self->subaf8;
+    if (sub != 0 && sub != 0) {
+      FUN_001474d0(sub, 0);
     }
-    puVar1 = param_1 + 0x27b;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001474d0(puVar1,0);
+    sub = (void *)&self->sub9ec;
+    if (sub != 0 && sub != 0) {
+      FUN_001474d0(sub, 0);
     }
-    puVar1 = param_1 + 0x238;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00147384(puVar1,0);
+    sub = (void *)&self->sub8e0;
+    if (sub != 0 && sub != 0) {
+      FUN_00147384(sub, 0);
     }
-    puVar1 = param_1 + 0x235;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001472c8(puVar1,0);
+    sub = (void *)&self->sub8d4;
+    if (sub != 0 && sub != 0) {
+      FUN_001472c8(sub, 0);
     }
-    puVar1 = param_1 + 0x232;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00147188(puVar1,0);
+    sub = (void *)&self->sub8c8;
+    if (sub != 0 && sub != 0) {
+      FUN_00147188(sub, 0);
     }
-    puVar1 = param_1 + 0x1ef;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00146ce0(puVar1,0);
+    sub = (void *)&self->sub7bc;
+    if (sub != 0 && sub != 0) {
+      FUN_00146ce0(sub, 0);
     }
-    puVar1 = param_1 + 0x1ec;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_000e88e4(puVar1,0);
+    sub = (void *)&self->sub7b0;
+    if (sub != 0 && sub != 0) {
+      FUN_000e88e4(sub, 0);
     }
-    puVar1 = param_1 + 0x1e9;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00146adc(puVar1,0);
+    sub = (void *)&self->sub7a4;
+    if (sub != 0 && sub != 0) {
+      FUN_00146adc(sub, 0);
     }
-    FUN_00049350(param_1 + 0x58,0xffffffff);
-    puVar1 = param_1 + 0x55;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00146990(puVar1,0);
+    FUN_00049350(self->sub160, 0xffffffff);
+    sub = (void *)&self->sub154;
+    if (sub != 0 && sub != 0) {
+      FUN_00146990(sub, 0);
     }
-    puVar1 = param_1 + 0x52;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001468e4(puVar1,0);
+    sub = (void *)&self->sub148;
+    if (sub != 0 && sub != 0) {
+      FUN_001468e4(sub, 0);
     }
-    puVar1 = param_1 + 0x4f;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001468e4(puVar1,0);
+    sub = (void *)&self->sub13c;
+    if (sub != 0 && sub != 0) {
+      FUN_001468e4(sub, 0);
     }
-    puVar1 = param_1 + 0x4c;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001468e4(puVar1,0);
+    sub = (void *)&self->sub130;
+    if (sub != 0 && sub != 0) {
+      FUN_001468e4(sub, 0);
     }
-    puVar1 = param_1 + 0x49;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001468e4(puVar1,0);
+    sub = (void *)&self->sub124;
+    if (sub != 0 && sub != 0) {
+      FUN_001468e4(sub, 0);
     }
-    puVar1 = param_1 + 0x46;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001468e4(puVar1,0);
+    sub = (void *)&self->sub118;
+    if (sub != 0 && sub != 0) {
+      FUN_001468e4(sub, 0);
     }
-    FUN_00000788(param_1 + 0x34,FUN_00132390,0xc,6);
-    FUN_00000788(param_1 + 0x22,FUN_00140770,0xc,6);
-    FUN_00000788(param_1 + 0x10,FUN_00132390,0xc,6);
-    puVar1 = param_1 + 0xd;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_0005f688(puVar1,0);
+    FUN_00000788(self->arrd0, FUN_00132390, 0xc, 6);
+    FUN_00000788(self->arr88, FUN_00140770, 0xc, 6);
+    FUN_00000788(self->arr40, FUN_00132390, 0xc, 6);
+    sub = (void *)&self->sub34;
+    if (sub != 0 && sub != 0) {
+      FUN_0005f688(sub, 0);
     }
-    puVar1 = param_1 + 10;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00146788(puVar1,0);
+    sub = (void *)&self->sub28;
+    if (sub != 0 && sub != 0) {
+      FUN_00146788(sub, 0);
     }
-    puVar1 = param_1 + 7;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001466dc(puVar1,0);
+    sub = (void *)&self->sub1c;
+    if (sub != 0 && sub != 0) {
+      FUN_001466dc(sub, 0);
     }
-    puVar1 = param_1 + 4;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001466dc(puVar1,0);
+    sub = (void *)&self->sub10;
+    if (sub != 0 && sub != 0) {
+      FUN_001466dc(sub, 0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

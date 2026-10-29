@@ -1,32 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0010b5a4 end=0x0010b614 symbol=FUN_0010b5a4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/types.h"
+#include "hst/mode_list.h"
 
 extern void FUN_0010b150();
 extern void FUN_0010b368();
 
-void FUN_0010b5a4(int param_1)
+/* Reset the list (keep_position = 0), load the first two halfwords of the current record, refresh the shown items. */
+void FUN_0010b5a4(ModeList *self)
 {
-  FUN_0010b368(param_1,0);
-  *(undefined2 *)(param_1 + 0xec) =
-       *(undefined2 *)(*(int *)(param_1 + 0x120) + *(int *)(param_1 + 0xdc) * 0xc);
-  *(undefined2 *)(param_1 + 0xee) =
-       *(undefined2 *)(*(int *)(param_1 + 0x120) + *(int *)(param_1 + 0xdc) * 0xc + 2);
-  FUN_0010b150(param_1);
+  FUN_0010b368(self,0);
+  self->unkec = *(short *)((char *)self->recs + self->cur * 0xc);
+  self->unkee = *(short *)((char *)self->recs + self->cur * 0xc + 2);
+  FUN_0010b150(self);
   return;
 }

@@ -30,37 +30,37 @@ struct Vec4 {
 
 struct Player {
     char pad[0x4e8];
-    int f4e8;
+    int mode;
     char pad4ec[0x5a0 - 0x4ec];
     Vec4 v5a0;
 };
 
 struct Sub {
     char pad[4];
-    int f4;
+    int unk4;
     char pad8[0x10 - 8];
     Vec4 v10;
-    Vec4 v20;
+    Vec4 velocity;
     char pad30[0x1d4 - 0x30];
-    int f1d4;
+    int unk1d4;
     char pad1d8[0x234 - 0x1d8];
-    int f234;
+    int target_index;  /* index into the player table */
     char pad238[0x284 - 0x238];
-    unsigned char f284;
+    unsigned char unk284;
 };
 
-extern "C" void FUN_001b7e24(void *param_1)
+extern "C" void FUN_001b7e24(void *self)
 {
-    Mgr *m = *(Mgr *volatile *)&DAT_003386b0;
-    Sub *s0 = m != 0 ? (Sub *)m->players[6] : 0;
-    if (s0 == 0) return;
-    if (s0->f234 < 0) return;
-    if (s0->f4 != 1) return;
-    Player *player = DAT_003386b0->players[s0->f234];
+    Mgr *mgr = *(Mgr *volatile *)&DAT_003386b0;
+    Sub *actor = mgr != 0 ? (Sub *)mgr->players[6] : 0;
+    if (actor == 0) return;
+    if (actor->target_index < 0) return;
+    if (actor->unk4 != 1) return;
+    Player *player = DAT_003386b0->players[actor->target_index];
     if (player == 0) return;
-    if (s0->f1d4 != 1) return;
-    if (s0->f284 != 0) return;
-    if (player->f4e8 != 2) return;
+    if (actor->unk1d4 != 1) return;
+    if (actor->unk284 != 0) return;
+    if (player->mode != 2) return;
 
     Vec4 copy;
     Vec4 v1;
@@ -69,7 +69,7 @@ extern "C" void FUN_001b7e24(void *param_1)
     Vec4 res;
 
     v2 = player->v5a0;
-    v1 = s0->v10;
+    v1 = actor->v10;
     FUN_00022450(&res, &v1, &v2);
 
     copy = res;
@@ -77,11 +77,12 @@ extern "C" void FUN_001b7e24(void *param_1)
         if (!FUN_000de298(DAT_00338b44, -1)) return;
     }
 
-    v3 = s0->v20;
-    float dot = FUN_000224d8(&v3, &v3);
-    float len = FUN_00022e44(dot);
+    v3 = actor->velocity;
+    float speed_sq = FUN_000224d8(&v3, &v3);
+    float speed = FUN_00022e44(speed_sq);
 
-    if (!(len >= (DAT_002e9a6c * 1000.0f) / 3600.0f)) return;
+    /* Speed threshold: km/h converted to m/s. */
+    if (!(speed >= (DAT_002e9a6c * 1000.0f) / 3600.0f)) return;
 
-    FUN_001b8890(param_1, 1.0f);
+    FUN_001b8890(self, 1.0f);
 }

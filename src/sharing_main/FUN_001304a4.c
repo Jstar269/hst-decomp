@@ -2,13 +2,14 @@
 /* Clone of src/eboot/FUN_001252d0.c (hstclone.py tag x14): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u32 DAT_003e95c4;
+extern u32 DAT_003e95c4; /* host object */
 extern int FUN_0013d030();
 
+/* Returns the host's value for query 6 as a float. */
 float FUN_001304a4(void)
 {
-  int iVar1;
+  int value;
   
-  iVar1 = FUN_0013d030(DAT_003e95c4,6);
-  return (float)iVar1;
+  value = FUN_0013d030(DAT_003e95c4,6);
+  return (float)value;
 }

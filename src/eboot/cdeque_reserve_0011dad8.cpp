@@ -4,9 +4,9 @@
 /* MSL-style circular deque (cdeque) of 4-byte elements: reserve(n). When n exceeds capacity (cap - 1),
    check max_size(), build a temporary with an (n + 1)-slot buffer, copy-construct the elements from
    begin() to end() (iterator order compares through the wrap point), swap, and let the temporary's
-   destructor clear (0x11d7e4) and free the old buffer. max_size() is a guarded function-local static
-   in retail (guard byte 0x33b493, value 0x2c1334); the guard is written out against those globals, and
-   the store-then-decrement keeps MWCC from folding 0x3fffffff - 1 (retail computes it at run time).
+   destructor clear and free the old buffer. max_size() is a guarded function-local static
+   in retail; the guard is written out against its two globals, and the store-then-decrement keeps
+   MWCC from folding 0x3fffffff - 1 (retail computes it at run time).
    The iterator constructor takes the buffer end before the logical first and ++ goes through a local;
    both fix the register allocation. Names provisional. */
 extern "C" {
@@ -110,19 +110,20 @@ struct Cdeque_0011dad8 {
         }
     }
 };
+/* Ensure room for n elements, growing into a fresh buffer when needed. */
 extern "C" void FUN_0011dad8(Cdeque_0011dad8 *self, unsigned n)
 {
     if (n > self->capacity()) {
         if (n > self->max_size())
             Error_0011dad8(DAT_002da168);
-        Cdeque_0011dad8 tmp;
-        Alloc_0011dad8 a;
-        Elem_0011dad8 *p = a.allocate(n + 1);
-        tmp.cap_ = n + 1;
-        tmp.data_ = p;
+        Cdeque_0011dad8 grown;
+        Alloc_0011dad8 alloc;
+        Elem_0011dad8 *dst = alloc.allocate(n + 1);
+        grown.cap_ = n + 1;
+        grown.data_ = dst;
         Iter_0011dad8 last = self->end();
-        for (Iter_0011dad8 i = self->begin(); i < last; ++i, ++p, ++tmp.size_)
-            a.construct(p, *i);
-        self->swap(tmp);
+        for (Iter_0011dad8 i = self->begin(); i < last; ++i, ++dst, ++grown.size_)
+            alloc.construct(dst, *i);
+        self->swap(grown);
     }
 }

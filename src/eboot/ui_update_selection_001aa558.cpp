@@ -2,37 +2,24 @@
 /* Hand-written reconstruction from the disassembly (sibling of ui_state_enter_001aa450.cpp and update_slots_001aa770.cpp); exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
 
-struct Single {
-    char pad[0x2c4];
-    int cur;
-};
+#include "hst/slot_select.h"
+#include "hst/selection_panel.h"
 
-struct Info {
+/* Per-choice record: a frame offset and two counts (the row of marks shown for each). */
+struct ChoiceInfo {
     char pad[10];
-    short a;
-    short b;
-    short c;
+    short frame_offset;  /* 0x0a */
+    short count_a;       /* 0x0c marks shown in row A */
+    short count_b;       /* 0x0e marks shown in row B */
 };
 
-struct List {
-    char pad[0x10];
-    void **data;
-    int count;
-};
-
-struct Link {
-    char pad[0x24];
-    int f24;
-    int f28;
-};
-
-struct Obj {
-    char pad[0x3f4];
-    List *list;
-};
-
-struct Slot {
-    void *w;
+enum {
+    MARK_COUNT = 5,          /* marks per row */
+    MARKS_A_FIRST_ITEM = 11, /* items[] index of the first mark in row A */
+    MARKS_B_FIRST_ITEM = 16, /* items[] index of the first mark in row B */
+    FRAME_ITEM = 21,         /* item whose sprite frame follows the selection */
+    ARROW_ITEM_LEFT = 9,
+    ARROW_ITEM_RIGHT = 10
 };
 
 extern "C" {
@@ -40,10 +27,10 @@ extern int DAT_002e20a0;
 extern int DAT_002e20a4;
 extern void *DAT_0034a7ec;
 extern void FUN_000ffb3c(void *, int);
-extern Single *FUN_0019d474();
-extern int FUN_001a49dc(Single *, int);
-extern int FUN_001a4b74(Single *, int);
-extern Info *FUN_0027edbc(void *, int);
+extern SlotSelect *FUN_0019d474();
+extern int FUN_001a49dc(SlotSelect *, int);
+extern int FUN_001a4b74(SlotSelect *, int);
+extern ChoiceInfo *FUN_0027edbc(void *, int);
 }
 
 inline int Clamp(int v, const int &lo, const int &hi)
@@ -51,18 +38,19 @@ inline int Clamp(int v, const int &lo, const int &hi)
     return v < lo ? lo : (hi < v ? hi : v);
 }
 
-extern "C" void FUN_001aa558(Obj *self)
+/* Refreshes the panel for the current choice: highlights the row, shows the marks, sets the frame. */
+extern "C" void FUN_001aa558(SelectionPanel *self)
 {
-    Single *c = FUN_0019d474();
-    int n = FUN_001a49dc(FUN_0019d474(), c->cur);
-    int sel = Clamp(n - 1, DAT_002e20a0, DAT_002e20a4);
+    SlotSelect *state = FUN_0019d474();
+    int choice = FUN_001a49dc(FUN_0019d474(), state->cursor.index);
+    int sel = Clamp(choice - 1, DAT_002e20a0, DAT_002e20a4);
 
-    Info *info = FUN_0027edbc(DAT_0034a7ec, n);
-    int b_val = info->b;
-    int c_val = info->c;
-    int a_val = info->a;
+    ChoiceInfo *info = FUN_0027edbc(DAT_0034a7ec, choice);
+    int count_a = info->count_a;
+    int count_b = info->count_b;
+    int frame_offset = info->frame_offset;
 
-    List *l = self->list;
+    SelList *l = self->list;
     int i = 0;
     if (l->count > 0) {
         do {
@@ -71,37 +59,38 @@ extern "C" void FUN_001aa558(Obj *self)
         } while (i < l->count);
     }
 
-    for (int j = 0, off1 = 0; j < 5; ++j, off1 += 20) {
-        char *p = (char *)self + (off1 + 300);
-        Slot *s = (Slot *)(p + 32);
-        if (j < b_val) {
-            FUN_000ffb3c(s->w, 0);
+    for (int j = 0, offset = 0; j < MARK_COUNT; ++j, offset += 20) {
+        char *row = (char *)self + (offset + 300);
+        EntryItem *item = (EntryItem *)(row + 32);
+        if (j < count_a) {
+            FUN_000ffb3c(item->spr, 0);
         } else {
-            FUN_000ffb3c(s->w, 1);
+            FUN_000ffb3c(item->spr, 1);
         }
     }
 
-    for (int k = 0, off2 = 0; k < 5; ++k, off2 += 20) {
-        char *p = (char *)self + (off2 + 400);
-        Slot *s = (Slot *)(p + 32);
-        if (k < c_val) {
-            FUN_000ffb3c(s->w, 0);
+    for (int k = 0, offset = 0; k < MARK_COUNT; ++k, offset += 20) {
+        char *row = (char *)self + (offset + 400);
+        EntryItem *item = (EntryItem *)(row + 32);
+        if (k < count_b) {
+            FUN_000ffb3c(item->spr, 0);
         } else {
-            FUN_000ffb3c(s->w, 1);
+            FUN_000ffb3c(item->spr, 1);
         }
     }
 
-    FUN_000ffb3c(*(void **)((char *)self + 532), 0);
-    Link *link = *(Link **)((char *)self + 532);
-    void **p1 = (void **)((char *)self + 292);
-    int sum = link->f28 + a_val;
-    void **p2 = (void **)((char *)self + 312);
-    link->f24 = sum;
+    EntryItem *frame_item = &self->items[FRAME_ITEM];
+    FUN_000ffb3c(frame_item->spr, 0);
+    EntrySprite *frame_spr = frame_item->spr;
+    EntryItem *left = &self->items[ARROW_ITEM_LEFT];
+    int sum = frame_spr->baseFrame + frame_offset;
+    EntryItem *right = &self->items[ARROW_ITEM_RIGHT];
+    frame_spr->frame = sum;
     if (FUN_001a4b74(FUN_0019d474(), 2)) {
-        FUN_000ffb3c(*p1, 0);
-        FUN_000ffb3c(*p2, 0);
+        FUN_000ffb3c(left->spr, 0);
+        FUN_000ffb3c(right->spr, 0);
     } else {
-        FUN_000ffb3c(*p1, 1);
-        FUN_000ffb3c(*p2, 1);
+        FUN_000ffb3c(left->spr, 1);
+        FUN_000ffb3c(right->spr, 1);
     }
 }

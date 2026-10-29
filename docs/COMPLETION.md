@@ -60,9 +60,9 @@ denominator.
 
 | Tier | A byte is in this tier when | Measured <!-- hstprogress:begin completion-date -->2026-10-28<!-- hstprogress:end --> (public sources) |
 | --- | --- | --- |
-| T1 | its function matches exactly in isolation (`hstmatch.py`) | <!-- hstprogress:begin completion-t1 -->22.471% (2,084,328 B<!-- hstprogress:end -->; code only, matched one function at a time; data is not counted in this tier) |
-| T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | <!-- hstprogress:begin completion-t2 -->29.370% (2,724,342 B<!-- hstprogress:end -->; code, data and relocation-table bytes the whole-module build produces from source, so it can exceed T1; retail-derived scaffolding is never counted; current public build reports, both game-module images identical and all generated relocation tables equal) |
-| T3 | T2, and the shifted build passes (gate 5) | <!-- hstprogress:begin completion-t3 -->29.347% (2,722,158 B<!-- hstprogress:end -->; shifted static checks and numeric-address scans passed for counted sources; shifted runtime not run) |
+| T1 | its function matches exactly in isolation (`hstmatch.py`) | <!-- hstprogress:begin completion-t1 -->22.535% (2,090,336 B<!-- hstprogress:end -->; code only, matched one function at a time; data is not counted in this tier) |
+| T2 | it is reproduced by the whole-module build from source (gates 1-4, 6) | <!-- hstprogress:begin completion-t2 -->29.403% (2,727,354 B<!-- hstprogress:end -->; code, data and relocation-table bytes the whole-module build produces from source, so it can exceed T1; retail-derived scaffolding is never counted; current public build reports, both game-module images identical and all generated relocation tables equal) |
+| T3 | T2, and the shifted build passes (gate 5) | <!-- hstprogress:begin completion-t3 -->29.379% (2,725,170 B<!-- hstprogress:end -->; shifted static checks and numeric-address scans passed for counted sources; shifted runtime not run) |
 | T4 = strict | T3, and the source is reviewed (gate 7) | <!-- hstprogress:begin completion-t4 -->0.000% (0 B)<!-- hstprogress:end --> |
 
 Current figures are drawn in [`progress.svg`](progress.svg) and [`progress-map.svg`](progress-map.svg) and computed by

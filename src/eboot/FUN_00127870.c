@@ -1,49 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00127870 end=0x00127a20 symbol=FUN_00127870 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag q2) corrected by hand: the return type is int, not bool (no 0xff mask in retail); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+/* Ghidra pseudocode (hstgen.py tag q2) corrected by hand: the return type is int, not bool (no 0xff mask in retail); readability pass; exact match verified; names and types await human review. */
+#include "hst/types.h"
+#include "hst/motion_obj.h"
 
-extern undefined4 DAT_0033b4f0;
-extern undefined4 DAT_0033b4f4;
-extern undefined4 DAT_0033b4f8;
-extern undefined4 DAT_0033b4fc;
-extern undefined4 DAT_0033b500;
-extern undefined4 DAT_0033b504;
-extern undefined4 DAT_0033b508;
-extern undefined4 DAT_0033b50c;
-extern undefined4 DAT_0033b510;
-extern undefined4 DAT_0033b514;
-extern undefined4 DAT_0033b518;
-extern undefined4 DAT_0033b51c;
-extern undefined4 DAT_0033b520;
-extern undefined4 DAT_0033b524;
-extern undefined4 DAT_0033b528;
-extern undefined4 DAT_0033b52c;
-extern undefined4 DAT_0033b530;
-extern undefined4 DAT_0033b534;
+extern int DAT_0033b4f0[ID_TABLE_COUNT];
 
-int FUN_00127870(int param_1)
+/* True when id is none of the ids in the global id table. */
+int FUN_00127870(int id)
 {
-  return ((((((((((((((((param_1 != DAT_0033b4f0 && param_1 != DAT_0033b4f4) &&
-                       param_1 != DAT_0033b4f8) && param_1 != DAT_0033b4fc) &&
-                     param_1 != DAT_0033b500) && param_1 != DAT_0033b504) &&
-                   param_1 != DAT_0033b508) && param_1 != DAT_0033b50c) &&
-                 param_1 != DAT_0033b510) && param_1 != DAT_0033b514) && param_1 != DAT_0033b518)
-              && param_1 != DAT_0033b51c) && param_1 != DAT_0033b520) && param_1 != DAT_0033b524)
-           && param_1 != DAT_0033b528) && param_1 != DAT_0033b52c) && param_1 != DAT_0033b530) &&
-         param_1 != DAT_0033b534;
+  return ((((((((((((((((id != DAT_0033b4f0[0] && id != DAT_0033b4f0[1]) &&
+                       id != DAT_0033b4f0[2]) && id != DAT_0033b4f0[3]) &&
+                     id != DAT_0033b4f0[4]) && id != DAT_0033b4f0[5]) &&
+                   id != DAT_0033b4f0[6]) && id != DAT_0033b4f0[7]) &&
+                 id != DAT_0033b4f0[8]) && id != DAT_0033b4f0[9]) && id != DAT_0033b4f0[10])
+              && id != DAT_0033b4f0[11]) && id != DAT_0033b4f0[12]) && id != DAT_0033b4f0[13])
+           && id != DAT_0033b4f0[14]) && id != DAT_0033b4f0[15]) && id != DAT_0033b4f0[16]) &&
+         id != DAT_0033b4f0[17];
 }

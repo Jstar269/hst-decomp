@@ -1,5 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00261a18 end=0x00261bbc symbol=FUN_00261a18 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/target_items.h"
 
 struct V4 {
     float x, y, z, w;
@@ -10,37 +11,10 @@ struct M4 {
     V4 r0, r1, r2, r3;
 };
 
-struct Target {
-    int pad0;
-    short x;
-    short y;
-    short sum_x;
-    short sum_y;
-};
-
-struct FloatTarget {
+/* Virtual view of the target view: slot 1 takes an int. */
+struct TargetViewVirt {
     virtual void v0();
     virtual void v1(int);
-    char pad[0x60 - 4];
-    float fx;
-    float fy;
-};
-
-struct Item {
-    Target *target;
-    FloatTarget *f4;
-    short val_x;
-    short val_y;
-    char pad[0x20 - 12];
-    char inner[0x30];
-    M4 matrix;
-    char pad3[240 - 0x90];
-};
-
-struct Context {
-    char pad[8];
-    short val_x;
-    short val_y;
 };
 
 extern "C" {
@@ -50,11 +24,12 @@ void FUN_000ffb3c(Target *, int);
 void FUN_00102c54(void *);
 }
 
-extern "C" void FUN_00261a18(Context *param_1, int param_2)
+/* Moves one item (chosen through the index table) to the context's current position and resets its matrix. */
+extern "C" void FUN_00261a18(TargetCtx *ctx, int which)
 {
-    Item *item = (Item *)((char *)param_1 + DAT_002ca818[param_2] * 0xf0);
-    short vy = param_1->val_y;
-    short vx = param_1->val_x;
+    TargetItem *item = (TargetItem *)((char *)ctx + DAT_002ca818[which] * TARGET_ITEM_SIZE);
+    short vy = ctx->items[0].val_y;
+    short vx = ctx->items[0].val_x;
     Target *t = item->target;
     short ox = t->x;
     short dx = vx - ox;
@@ -65,11 +40,11 @@ extern "C" void FUN_00261a18(Context *param_1, int param_2)
     t->y = vy;
     t->sum_y += (short)dy;
 
-    item->f4->fx = (float)(int)param_1->val_x;
-    item->f4->fy = (float)(int)param_1->val_y;
+    item->view->fx = (float)(int)ctx->items[0].val_x;
+    item->view->fy = (float)(int)ctx->items[0].val_y;
 
     FUN_000ffb3c(item->target, 0);
-    item->f4->v1(0);
+    ((TargetViewVirt *)item->view)->v1(0);
 
     M4 *m = (M4 *)&item->inner;
     if (m != 0) {

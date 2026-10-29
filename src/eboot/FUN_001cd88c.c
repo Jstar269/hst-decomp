@@ -1,17 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001cd88c end=0x001cd8cc symbol=FUN_001cd88c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/flow_state.h"
 
 extern void FUN_001ce864();
 
-void FUN_001cd88c(int param_1,u32 param_2,int param_3)
+/* Enter `state`; a timer below 1 clears the timer, otherwise it is stored. */
+void FUN_001cd88c(FlowState *self,u32 state,int timer)
 {
-  *(u32 *)(param_1 + 0x10) = param_2;
-  if (param_3 < 1) {
+  self->state = state;
+  if (timer < 1) {
     FUN_001ce864();
-    *(u32 *)(param_1 + 8) = 0xffffffff;
+    self->unk08 = 0xffffffff;
   }
   else {
-    *(int *)(param_1 + 0xc) = param_3;
+    self->timer = timer;
   }
 }

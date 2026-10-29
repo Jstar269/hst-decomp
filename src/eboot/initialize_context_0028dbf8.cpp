@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0028dbf8 end=0x0028dd1c symbol=FUN_0028dbf8 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: used address globals, returned the allocator result directly, and typed the final virtual call; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: used address globals, returned the allocator result directly, and typed the final virtual call; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern "C" {
@@ -33,33 +33,43 @@ struct Finalizer {
   virtual void finalize();
 };
 
-extern "C" u32 * FUN_0028dbf8(u32 *param_1)
+/* Scratch arena size, alignment, and size of the object built inside it. */
+enum { SCRATCH_SIZE = 0x300000, SCRATCH_ALIGN = 0x40, CONTEXT_OBJ_SIZE = 0x1bc0 };
+
+struct ContextHolder {
+  void *vtable;             /* 0x00 */
+  char pad04[0x38];
+  Finalizer *context;       /* 0x3c: the object built below */
+};
+
+/* Constructor: builds the context object (FUN_0028dd1c) with a temporary scratch arena installed,
+   restores the previous arena, then calls the object's finalize slot. */
+extern "C" ContextHolder * FUN_0028dbf8(ContextHolder *self)
 {
-  int iVar1;
-  int iVar2;
-  u32 uVar3;
-  u32 uVar4;
+  int scratch;
+  int obj;
+  u32 prev_a;
+  u32 prev_b;
   
   FUN_0001f06c();
-  *param_1 = (unsigned int)(&DAT_00309d98);
-  param_1[0xf] = 0;
-  iVar1 = FUN_00010184(0x40,0x300000);
-  FUN_0001bfb4(&DAT_0030ab9c,iVar1,0x300000);
+  self->vtable = &DAT_00309d98;
+  self->context = 0;
+  scratch = FUN_00010184(SCRATCH_ALIGN,SCRATCH_SIZE);
+  FUN_0001bfb4(&DAT_0030ab9c,scratch,SCRATCH_SIZE);
   FUN_0001cad0(&DAT_0030ebf4,1,DAT_002feee4);
   *(u32 *)(*(int *)(DAT_003386c8 + 0x40) + 0x5c) = 1;
-  iVar2 = FUN_00000bcc(0x1bc0);
-  if (iVar2 != 0) iVar2 = (int)FUN_0028dd1c(iVar2,DAT_002feef8);
-  param_1[0xf] = iVar2;
+  obj = FUN_00000bcc(CONTEXT_OBJ_SIZE);
+  if (obj != 0) obj = (int)FUN_0028dd1c(obj,DAT_002feef8);
+  self->context = (Finalizer *)obj;
   FUN_00253da0();
   FUN_0001cb88(&DAT_0030ebf4);
-  uVar3 = FUN_0001cbfc();
-  uVar4 = FUN_0001cc54();
-  FUN_0001bfb4(&DAT_0030ab9c,uVar3,uVar4);
-  if (iVar1 != 0) {
-    FUN_000104e0(iVar1);
+  prev_a = FUN_0001cbfc();
+  prev_b = FUN_0001cc54();
+  FUN_0001bfb4(&DAT_0030ab9c,prev_a,prev_b);
+  if (scratch != 0) {
+    FUN_000104e0(scratch);
   }
-  uVar3 = param_1[0xf];
-  FUN_00258294(uVar3);
-  ((Finalizer *)param_1[0xf])->finalize();
-  return param_1;
+  FUN_00258294((int)self->context);
+  self->context->finalize();
+  return self;
 }

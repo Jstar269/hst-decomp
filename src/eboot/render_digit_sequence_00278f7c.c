@@ -2,63 +2,66 @@
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode corrected by hand: used a signed divisor and positive loop bound to reproduce retail digit extraction; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/shop_scene.h"
 
 extern char DAT_002fe59c[];
 extern void FUN_000143b0(void *, void *, int);
-extern void FUN_000ffb3c(int, int);
-extern int FUN_001026b8(int, void *);
+extern void FUN_000ffb3c(DigitPart *, int);
+extern DigitPart * FUN_001026b8(u32, void *);
 
-void FUN_00278f7c(int param_1,int param_2,u8 param_3)
+/* Shows the second number (digit parts DIGIT_COUNT..2*DIGIT_COUNT-1): all digit parts hidden when show is 0, otherwise value printed without leading zeros
+   (the last digit is always shown). */
+void FUN_00278f7c(ShopScene *screen,int value,u8 show)
 {
-  bool bVar1;
-  u32 uVar2;
-  int iVar3;
-  int iVar4;
+  bool started;
+  DigitPart *hide_part;
+  DigitPart *digit_part;
+  int index;
   int divisor;
-  int iVar6;
-  u8 auStack_40 [64];
-  u8 auStack_80 [64];
+  int digit;
+  u8 name_hide [64];
+  u8 name_digit [64];
   
-  if (param_3 == '\0') {
-    iVar4 = 7;
+  if (show == 0) {
+    index = DIGIT_COUNT;
     do {
-      FUN_000143b0(auStack_40,DAT_002fe59c,iVar4);
-      uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_40);
-      FUN_000ffb3c(uVar2,1);
-      iVar4 = iVar4 + 1;
-    } while (iVar4 < 0xe);
+      FUN_000143b0(name_hide,DAT_002fe59c,index);
+      hide_part = FUN_001026b8(screen->layout,name_hide);
+      FUN_000ffb3c(hide_part,1);
+      index = index + 1;
+    } while (index < 2 * DIGIT_COUNT);
   }
   else {
-    bVar1 = false;
-    divisor = 1000000;
-    iVar4 = 7;
+    started = false;
+    divisor = DIGIT_FIRST_DIVISOR;
+    index = DIGIT_COUNT;
     do {
-      iVar6 = param_2 / divisor;
-      if (iVar6 != 0) {
-        bVar1 = true;
+      digit = value / divisor;
+      if (digit != 0) {
+        started = true;
       }
-      if (bVar1) {
-        FUN_000143b0(auStack_80,DAT_002fe59c,iVar4);
-        iVar3 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
-        *(int *)(iVar3 + 0x24) = *(int *)(iVar3 + 0x28) + iVar6;
-        uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
-        FUN_000ffb3c(uVar2,0);
+      if (started) {
+        FUN_000143b0(name_digit,DAT_002fe59c,index);
+        digit_part = FUN_001026b8(screen->layout,name_digit);
+        digit_part->unk24 = digit_part->unk28 + digit;
+        hide_part = FUN_001026b8(screen->layout,name_digit);
+        FUN_000ffb3c(hide_part,0);
       }
       else if (divisor == 1) {
-        FUN_000143b0(auStack_80,DAT_002fe59c,iVar4);
-        iVar3 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
-        *(u32 *)(iVar3 + 0x24) = *(u32 *)(iVar3 + 0x28);
-        uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
-        FUN_000ffb3c(uVar2,0);
+        FUN_000143b0(name_digit,DAT_002fe59c,index);
+        digit_part = FUN_001026b8(screen->layout,name_digit);
+        digit_part->unk24 = digit_part->unk28;
+        hide_part = FUN_001026b8(screen->layout,name_digit);
+        FUN_000ffb3c(hide_part,0);
       }
       else {
-        FUN_000143b0(auStack_80,DAT_002fe59c,iVar4);
-        uVar2 = FUN_001026b8(*(u32 *)(param_1 + 0x488),auStack_80);
-        FUN_000ffb3c(uVar2,1);
+        FUN_000143b0(name_digit,DAT_002fe59c,index);
+        hide_part = FUN_001026b8(screen->layout,name_digit);
+        FUN_000ffb3c(hide_part,1);
       }
-      param_2 = param_2 - iVar6 * divisor;
+      value = value - digit * divisor;
       divisor = divisor / 10;
-      iVar4 = iVar4 + 1;
+      index = index + 1;
     } while (divisor > 0);
   }
 }

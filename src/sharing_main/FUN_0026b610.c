@@ -1,13 +1,15 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0026b610 end=0x0026b654 symbol=FUN_0026b610 lang=c99 */
 /* Clone of src/eboot/FUN_00118c5c.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+#include "hst/deque_owner.h"
 
-void FUN_0026b610(int *param_1,int *param_2)
+/* begin(): iterator pointing at the first element of the circular deque. */
+void FUN_0026b610(CdequeIter *out,Cdeque *deq)
 {
-  int iVar1;
+  int *block;
   
-  *param_1 = param_2[3] + param_2[2] * 4;
-  iVar1 = param_2[3];
-  param_1[1] = iVar1;
-  param_1[2] = iVar1 + param_2[2] * 4;
-  param_1[3] = param_1[1] + *param_2 * 4;
+  out->ptr = deq->data + deq->start;
+  block = deq->data;
+  out->beg = block;
+  out->first = block + deq->start;
+  out->end = out->beg + deq->cap;
 }

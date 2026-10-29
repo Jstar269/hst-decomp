@@ -4,9 +4,10 @@
 
 extern u32 * FUN_000114c0();
 
-int FUN_00097edc(int param_1)
+/* Constructor of a 0x40-byte object: sets a field, then calls the fill routine (value 0, size 0x40). */
+int FUN_00097edc(int self)
 {
-  *(u32 *)(param_1 + 0x2c) = 1;
-  FUN_000114c0(param_1,0,0x40);
-  return param_1;
+  *(u32 *)(self + 0x2c) = 1;
+  FUN_000114c0(self,0,0x40);
+  return self;
 }

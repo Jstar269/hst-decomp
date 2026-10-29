@@ -1,7 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00253630 end=0x002536f0 symbol=FUN_00253630 lang=c99 */
 /* IromonoRuleList ctor: data/common/rule/Rule_Iromono.txt; see docs/DATA-TABLES.md */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag t0), refined by hstperm.py random mutation from try/gen-s256b/v0/FUN_00253630.c; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag t0) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+
+#define RULE_COLUMN_FLAG 3      /* column whose nonzero value selects a row */
+
+/* List of the row numbers of the rule file whose flag column is set. */
+typedef struct IromonoRuleList {
+  int unk0;                     /* 0x00 */
+  char pad4[0x14];
+  int count;                    /* 0x18 number of selected rows */
+  int rows[1];                  /* 0x1c selected row numbers, in file order */
+} IromonoRuleList;
 
 extern u8 DAT_002fcc70;
 extern char DAT_002fcc4c[];
@@ -11,30 +21,30 @@ extern u32 FUN_00064bf4();
 extern u32 FUN_000650e0();
 extern int FUN_00065104();
 
-u32 * FUN_00253630(u32 *param_1)
+IromonoRuleList * FUN_00253630(IromonoRuleList *list)
 {
-  int iVar1;
-  int iVar2;
-  u8 auStack_10 [16];
-  
-  *param_1 = 0;
-  FUN_000649c0(auStack_10);
-  FUN_00064bf4(auStack_10,DAT_002fcc4c,0,&DAT_002fcc70);
-  param_1[6] = 0;
-  iVar2 = 0;
-  iVar1 = FUN_000650e0(auStack_10);
-  if (0 < iVar1) {
+  int n;                        /* reused: row count, flag value, list count */
+  int row;
+  u8 parser[16];
+
+  list->unk0 = 0;
+  FUN_000649c0(parser);
+  FUN_00064bf4(parser,DAT_002fcc4c,0,&DAT_002fcc70);
+  list->count = 0;
+  row = 0;
+  n = FUN_000650e0(parser);
+  if (0 < n) {
     do {
-      iVar1 = FUN_00065104(auStack_10,iVar2,3);
-      if (iVar1 != 0) {
-        iVar1 = param_1[6];
-        param_1[6] = iVar1 + 1;
-        param_1[iVar1 + 7] = iVar2;
+      n = FUN_00065104(parser,row,RULE_COLUMN_FLAG);
+      if (n != 0) {
+        n = list->count;
+        list->count = n + 1;
+        list->rows[n] = row;
       }
-      iVar2 = 1 + iVar2;
-      iVar1 = FUN_000650e0(auStack_10);
-    } while (iVar2 < iVar1);
+      row = 1 + row;
+      n = FUN_000650e0(parser);
+    } while (row < n);
   }
-  FUN_00064a08(auStack_10,0xffffffff);
-  return param_1;
+  FUN_00064a08(parser,0xffffffff);
+  return list;
 }

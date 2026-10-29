@@ -8,16 +8,17 @@ extern void FUN_00000a00();
 extern u32 * FUN_0001ed28();
 extern void FUN_000c803c();
 
-u32 * FUN_000c7fd0(u32 *param_1,short param_2)
+/* Destructor: resets the vtable word, runs the cleanup, clears the global instance pointer, frees the object when flags > 0. */
+u32 * FUN_000c7fd0(u32 *self,short flags)
 {
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b06fc);
+  if (self != (u32 *)0x0) {
+    *self = (unsigned int)(&DAT_003b06fc);
     FUN_000c803c();
     DAT_003e1e30 = 0;
-    FUN_0001ed28(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0001ed28(self,0);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

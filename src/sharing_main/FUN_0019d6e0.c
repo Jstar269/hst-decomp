@@ -1,14 +1,16 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0019d6e0 end=0x0019d710 symbol=FUN_0019d6e0 lang=c99 */
 /* Clone of src/eboot/FUN_00190ed0.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/block_deque.h"
 
-u32 * FUN_0019d6e0(u32 *param_1,u32 *param_2,u32 param_3,u32 param_4)
+/* Builds a position from a map cursor plus the element and block end inside the current block. */
+BlockDequePos * FUN_0019d6e0(BlockDequePos *self,BlockDequePos *map_pos,char *elem,char *block_end)
 {
-  *param_1 = *param_2;
-  param_1[1] = param_2[1];
-  param_1[2] = param_2[2];
-  param_1[3] = param_2[3];
-  param_1[4] = param_3;
-  param_1[5] = param_4;
-  return param_1;
+  self->map_cur = map_pos->map_cur;
+  self->map_begin = map_pos->map_begin;
+  self->map_head = map_pos->map_head;
+  self->map_end = map_pos->map_end;
+  self->elem = elem;
+  self->block_end = block_end;
+  return self;
 }

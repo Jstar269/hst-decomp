@@ -1,5 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00286e08 end=0x00286f00 symbol=FUN_00286e08 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: C++ virtual calls, boolean flag reuse with xori, Vec4 assignment to parameter; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: C++ virtual calls, boolean flag reuse with xori, Vec4 assignment to parameter; readability pass; exact match verified; names and types await human review. */
+#include "hst/cmd_actor.h"
 
 extern "C" {
 extern void *FUN_00022418(void *out, void *a, void *b);
@@ -7,26 +8,23 @@ extern void FUN_001cd3d0(void *p);
 extern void FUN_001cd3e4(void *p);
 }
 
-struct Vec4 {
-    float x, y, z, w;
-};
-
-struct GlobalData_0034a114 {
+struct SysGlobals {
     char pad[0xf9];
-    unsigned char flagF9;  // +0xf9 (249)
+    unsigned char flagF9;  // 0xf9
 };
 
-extern "C" GlobalData_0034a114 *DAT_0034a114;
+extern "C" SysGlobals *DAT_0034a114;
 
-struct TargetClass_00286e08 {
+/* Virtual interface of the actor (the vtable pointer is CmdActor.vtbl). */
+struct CmdActorV {
     virtual void v0();
     virtual void v1();
     virtual void v2();
     virtual void v3();
     virtual void v4();
     virtual void v5();
-    virtual void *v6();
-    virtual void v7(Vec4 *v);
+    virtual void *v6();     // returns a vector pointer
+    virtual void v7(Vec4 *v); // takes a vector
     virtual void v8();
     virtual void v9();
     virtual void v10();
@@ -37,31 +35,28 @@ struct TargetClass_00286e08 {
     virtual void v15();
     virtual void v16();
     virtual void v17();
-
-    char pad[28];          // 4..31
-    Vec4 pos;              // +32 (0x20)
-    char pad2[37];         // 48..84
-    unsigned char flag55;  // +85 (0x55)
 };
 
-extern "C" void FUN_00286e08(TargetClass_00286e08 *self)
+/* Per-frame update: when virtual slot 11 reports 2 or 3, sets the actor position through slot 7. */
+extern "C" void FUN_00286e08(CmdActor *self)
 {
     Vec4 copy;
     Vec4 r;
-    bool b;
+    bool slotOk;
+    CmdActorV *v = (CmdActorV *)self;
 
-    self->v17();
-    if (self->flag55 != 0) {
+    v->v17();
+    if (self->enabled != 0) {
         FUN_001cd3d0(DAT_0034a114);
         FUN_001cd3e4(DAT_0034a114);
     }
-    b = self->v11() == 2;
-    if (!b) {
-        b = self->v11() == 3;
+    slotOk = v->v11() == 2;
+    if (!slotOk) {
+        slotOk = v->v11() == 3;
     }
-    if (b && DAT_0034a114->flagF9 == 0) {
-        FUN_00022418(&r, self->v6(), &self->pos);
+    if (slotOk && DAT_0034a114->flagF9 == 0) {
+        FUN_00022418(&r, v->v6(), &self->pos);
         copy = r;
-        self->v7(&copy);
+        v->v7(&copy);
     }
 }

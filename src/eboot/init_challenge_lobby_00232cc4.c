@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00232cc4 end=0x00232e2c symbol=FUN_00232cc4 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: structured Obj/Inner, unified alloc/ctor idiom, loop typing; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: structured lobby and menu types, unified alloc/ctor idiom, loop typing; readability pass; exact match verified; names and types await human review. */
+#include "hst/challenge_menu.h"
+#include "hst/challenge_lobby.h"
 
 extern char DAT_0030ebf4;
 extern char DAT_002f3e24[];
@@ -22,56 +24,46 @@ extern void *FUN_0023167c(void *);
 extern void FUN_002afb80(void *, int);
 extern void FUN_002afce0(int);
 
-typedef struct {
-    void *p0;
-    void *p1;
-    void *p2;
-} Obj;
-
-typedef struct {
-    char pad[0x1a8];
-    void *items[10];
-} Inner;
-
-void FUN_00232cc4(Obj *param_1)
+/* Builds the lobby's three owned objects (menu and two helpers), then ten named widgets on the menu. */
+void FUN_00232cc4(ChallengeLobby *lobby)
 {
-    char buf[256];
-    void *p0;
-    void *p1;
-    void *p2;
-    Inner *s0;
-    int s1;
-    void *item;
+    char name[256];
+    void *menu_obj;
+    void *obj4;
+    void *obj8;
+    ChallengeMenu *menu;
+    int i;
+    void *widget;
 
     FUN_0001cad0(&DAT_0030ebf4, 1, DAT_002f3e78);
 
-    p0 = FUN_00000bcc(752);
-    if (p0)
-        p0 = FUN_0023167c(p0);
-    param_1->p0 = p0;
+    menu_obj = FUN_00000bcc(sizeof(ChallengeMenu));
+    if (menu_obj)
+        menu_obj = FUN_0023167c(menu_obj);
+    lobby->menu = menu_obj;
 
-    p1 = FUN_00000bcc(120);
-    if (p1)
-        p1 = FUN_002200d4(p1);
-    param_1->p1 = p1;
+    obj4 = FUN_00000bcc(120);
+    if (obj4)
+        obj4 = FUN_002200d4(obj4);
+    lobby->unk4 = obj4;
 
-    p2 = FUN_00000bcc(160);
-    if (p2)
-        p2 = FUN_00220f00(p2);
-    param_1->p2 = p2;
+    obj8 = FUN_00000bcc(160);
+    if (obj8)
+        obj8 = FUN_00220f00(obj8);
+    lobby->unk8 = obj8;
 
     FUN_0001cb88(&DAT_0030ebf4);
     FUN_0001ca58(&DAT_0030ebf4, DAT_002f3e94);
 
-    s0 = (Inner *)param_1->p0;
-    for (s1 = 0; s1 < 10; s1++) {
-        FUN_000143b0(buf, DAT_002f3e24, s1 + 1);
-        item = FUN_00000bcc(72);
-        if (item)
-            item = FUN_00050fc0(item);
-        s0->items[s1] = item;
-        FUN_000511c4(item, buf, 0);
-        FUN_00051398(s0->items[s1], 1100.0f);
+    menu = (ChallengeMenu *)lobby->menu;
+    for (i = 0; i < CHALLENGE_EXTRAS; i++) {
+        FUN_000143b0(name, DAT_002f3e24, i + 1);
+        widget = FUN_00000bcc(72);
+        if (widget)
+            widget = FUN_00050fc0(widget);
+        menu->extras[i] = widget;
+        FUN_000511c4(widget, name, 0);
+        FUN_00051398(menu->extras[i], 1100.0f);
     }
 
     FUN_0001cb88(&DAT_0030ebf4);

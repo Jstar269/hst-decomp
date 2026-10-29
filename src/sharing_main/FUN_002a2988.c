@@ -5,9 +5,10 @@
 extern u32 DAT_003f3b40;
 extern u32 DAT_003f3b44;
 
-u32 FUN_002a2988(u32 param_1,u32 param_2,u32 param_3)
+/* Stores a pair of values (the caller passes the same value twice) in globals; always returns 1. */
+u32 FUN_002a2988(u32 unused,u32 value_a,u32 value_b)
 {
-  DAT_003f3b40 = param_2;
-  DAT_003f3b44 = param_3;
+  DAT_003f3b40 = value_a;
+  DAT_003f3b44 = value_b;
   return 1;
 }

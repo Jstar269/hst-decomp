@@ -2,16 +2,22 @@
 /* Clone of src/eboot/FUN_001fe080.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u32 DAT_003751d4;
+typedef struct Context {
+  char pad0[0x80];
+  u32 flags;  /* 0x80 */
+} Context;
+
+extern Context *DAT_003751d4;
 extern bool FUN_0001e6b0();
 
-u8 FUN_0020c850(u32 param_1,u32 param_2,u32 param_3)
+/* Result of the call is forced to 0 when any bit of blocked_mask is set in the context flags. */
+u8 FUN_0020c850(u32 arg_a,u32 arg_b,u32 blocked_mask)
 {
-  u8 uVar1;
+  u8 result;
   
-  uVar1 = FUN_0001e6b0(DAT_003751d4,param_1,param_2,2,9);
-  if ((*(u32 *)(DAT_003751d4 + 0x80) & param_3) != 0) {
-    uVar1 = 0;
+  result = FUN_0001e6b0(DAT_003751d4,arg_a,arg_b,2,9);
+  if ((DAT_003751d4->flags & blocked_mask) != 0) {
+    result = 0;
   }
-  return uVar1;
+  return result;
 }

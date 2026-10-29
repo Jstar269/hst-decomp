@@ -24,9 +24,9 @@ struct State {
 };
 
 struct Ctl {
-    int on;
+    int on;        /* toggled by the update below */
     int pending;
-    char inited;
+    char inited;   /* set once the state is constructed and registered */
     int reg;
 };
 
@@ -47,7 +47,7 @@ extern "C" int FUN_000fb734(int);
 
 extern "C" void FUN_00048548(void)
 {
-    State *s;
+    State *state;
 
     if (DAT_00311060.inited == 0) {
         FUN_0001dc7c(&DAT_00311080);
@@ -55,12 +55,12 @@ extern "C" void FUN_00048548(void)
         DAT_00311060.inited = 1;
     }
     if (FUN_000487c8() == 0) {
-        s = DAT_002cfc8c;
-        DAT_00311080.b0 = s->b0;
-        DAT_00311080.i4 = s->i4;
-        DAT_00311080.b8 = s->b8;
-        DAT_00311080.ic = s->ic;
-        DAT_00311080.sub = s->sub;
+        state = DAT_002cfc8c;
+        DAT_00311080.b0 = state->b0;
+        DAT_00311080.i4 = state->i4;
+        DAT_00311080.b8 = state->b8;
+        DAT_00311080.ic = state->ic;
+        DAT_00311080.sub = state->sub;
     }
     if (DAT_00311060.on != 0) {
         if (DAT_00338c20 != 0 && FUN_000fb5f4(DAT_00338c20) != 0)
@@ -69,8 +69,8 @@ extern "C" void FUN_00048548(void)
         if (DAT_00338c20 != 0)
             FUN_000fb5f4(DAT_00338c20);
     }
-    s = DAT_002cfc8c;
-    if ((*(signed char *)&s->sub.v88 << 0x18) >> 0x1e == 0 && DAT_00310fd0 == 1 &&
+    state = DAT_002cfc8c;
+    if ((*(signed char *)&state->sub.v88 << 0x18) >> 0x1e == 0 && DAT_00310fd0 == 1 &&
         DAT_003386b0 != 0 && FUN_000889ec(DAT_003386b0) != 0 &&
         (DAT_00338c20 == 0 || FUN_000fb734(DAT_00338c20) != 0)) {
         DAT_00311060.on = (unsigned char)((DAT_00311060.on != 0) ^ 1);

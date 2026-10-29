@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00239008 end=0x002392dc symbol=FUN_00239008 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern u8 DAT_003070bc;
@@ -15,92 +15,118 @@ extern void FUN_001b338c();
 extern int * FUN_0023b17c();
 extern u32 * FUN_0023bf54();
 
-u32 * FUN_00239008(u32 *param_1,short param_2)
+/* A string-pair block: a base object (vtable first) followed by two string objects. */
+typedef struct TextBlock {
+  u32 vtable;         /* 0x00 */
+  char pad04[0xc];
+  u32 first[4];       /* 0x10 */
+  u32 second[4];      /* 0x20 */
+} TextBlock;          /* size 0x30 */
+
+typedef struct ScreenObj {
+  u32 vtable;                          /* 0x0000 */
+  char pad0004[0x50 - 4];
+  u32 unk50[4];                        /* 0x0050 destroyed with the -1 variant */
+  char pad0060[0x1818 - 0x60];
+  u32 member1818[5];                   /* 0x1818 */
+  u32 member182c[3];                   /* 0x182c */
+  u32 member1838[3];                   /* 0x1838 */
+  u32 member1844[5];                   /* 0x1844 */
+  TextBlock block1858;                 /* 0x1858 */
+  TextBlock block1888;                 /* 0x1888 */
+  char pad18b8[0x18d4 - 0x18b8];
+  TextBlock block18d4;                 /* 0x18d4 */
+  TextBlock block1904;                 /* 0x1904 */
+} ScreenObj;
+
+/* Deleting destructor of the screen: restores its vtable, runs a global cleanup call, destroys the four text
+   blocks and the other members, then the base, and frees when flag > 0. */
+ScreenObj * FUN_00239008(ScreenObj *self,short flag)
 {
-  u32 *puVar1;
-  int *piVar2;
+  u32 *text;
+  int *member;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003098b0);
+  if (self != (ScreenObj *)0x0) {
+    self->vtable = (unsigned int)(&DAT_003098b0);
     FUN_001b338c((int *)&DAT_0034179c,6);
     DAT_0034a6bc = 0;
-    if ((char *)param_1 + 0x1904 != (char *)0) {
-      puVar1 = param_1 + 0x649;
-      param_1[0x641] = (unsigned int)(&DAT_003070bc);
-      if ((((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-          (puVar1 != (u32 *)0x0)) && (puVar1 != (u32 *)0x0)) {
-        FUN_00066338((int)puVar1,0);
+    if ((char *)&self->block1904 != (char *)0) {
+      text = self->block1904.second;
+      self->block1904.vtable = (unsigned int)(&DAT_003070bc);
+      if ((((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+          (text != (u32 *)0x0)) && (text != (u32 *)0x0)) {
+        FUN_00066338((int)text,0);
       }
-      puVar1 = param_1 + 0x645;
-      if (((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-         ((puVar1 != (u32 *)0x0 && (puVar1 != (u32 *)0x0)))) {
-        FUN_00066338((int)puVar1,0);
+      text = self->block1904.first;
+      if (((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+         ((text != (u32 *)0x0 && (text != (u32 *)0x0)))) {
+        FUN_00066338((int)text,0);
       }
-      FUN_00064a08(param_1 + 0x641,0);
+      FUN_00064a08(&self->block1904,0);
     }
-    if ((char *)param_1 + 0x18d4 != (char *)0) {
-      puVar1 = param_1 + 0x63d;
-      param_1[0x635] = (unsigned int)(&DAT_003070bc);
-      if (((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-         ((puVar1 != (u32 *)0x0 && (puVar1 != (u32 *)0x0)))) {
-        FUN_00066338((int)puVar1,0);
+    if ((char *)&self->block18d4 != (char *)0) {
+      text = self->block18d4.second;
+      self->block18d4.vtable = (unsigned int)(&DAT_003070bc);
+      if (((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+         ((text != (u32 *)0x0 && (text != (u32 *)0x0)))) {
+        FUN_00066338((int)text,0);
       }
-      puVar1 = param_1 + 0x639;
-      if ((((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-          (puVar1 != (u32 *)0x0)) && (puVar1 != (u32 *)0x0)) {
-        FUN_00066338((int)puVar1,0);
+      text = self->block18d4.first;
+      if ((((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+          (text != (u32 *)0x0)) && (text != (u32 *)0x0)) {
+        FUN_00066338((int)text,0);
       }
-      FUN_00064a08(param_1 + 0x635,0);
+      FUN_00064a08(&self->block18d4,0);
     }
-    if ((char *)param_1 + 0x1888 != (char *)0) {
-      puVar1 = param_1 + 0x62a;
-      param_1[0x622] = (unsigned int)(&DAT_003070bc);
-      if (((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-         ((puVar1 != (u32 *)0x0 && (puVar1 != (u32 *)0x0)))) {
-        FUN_00066338((int)puVar1,0);
+    if ((char *)&self->block1888 != (char *)0) {
+      text = self->block1888.second;
+      self->block1888.vtable = (unsigned int)(&DAT_003070bc);
+      if (((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+         ((text != (u32 *)0x0 && (text != (u32 *)0x0)))) {
+        FUN_00066338((int)text,0);
       }
-      puVar1 = param_1 + 0x626;
-      if (((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-         ((puVar1 != (u32 *)0x0 && (puVar1 != (u32 *)0x0)))) {
-        FUN_00066338((int)puVar1,0);
+      text = self->block1888.first;
+      if (((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+         ((text != (u32 *)0x0 && (text != (u32 *)0x0)))) {
+        FUN_00066338((int)text,0);
       }
-      FUN_00064a08(param_1 + 0x622,0);
+      FUN_00064a08(&self->block1888,0);
     }
-    if ((char *)param_1 + 0x1858 != (char *)0) {
-      puVar1 = param_1 + 0x61e;
-      param_1[0x616] = (unsigned int)(&DAT_003070bc);
-      if ((((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-          (puVar1 != (u32 *)0x0)) && (puVar1 != (u32 *)0x0)) {
-        FUN_00066338((int)puVar1,0);
+    if ((char *)&self->block1858 != (char *)0) {
+      text = self->block1858.second;
+      self->block1858.vtable = (unsigned int)(&DAT_003070bc);
+      if ((((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+          (text != (u32 *)0x0)) && (text != (u32 *)0x0)) {
+        FUN_00066338((int)text,0);
       }
-      puVar1 = param_1 + 0x61a;
-      if (((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) &&
-         ((puVar1 != (u32 *)0x0 && (puVar1 != (u32 *)0x0)))) {
-        FUN_00066338((int)puVar1,0);
+      text = self->block1858.first;
+      if (((text != (u32 *)0x0) && (text != (u32 *)0x0)) &&
+         ((text != (u32 *)0x0 && (text != (u32 *)0x0)))) {
+        FUN_00066338((int)text,0);
       }
-      FUN_00064a08(param_1 + 0x616,0);
+      FUN_00064a08(&self->block1858,0);
     }
-    piVar2 = (int *)(param_1 + 0x611);
-    if ((piVar2 != (int *)0x0) && (piVar2 != (int *)0x0)) {
-      FUN_00054554(piVar2,0);
+    member = (int *)self->member1844;
+    if ((member != (int *)0x0) && (member != (int *)0x0)) {
+      FUN_00054554(member,0);
     }
-    piVar2 = (int *)(param_1 + 0x60e);
-    if ((piVar2 != (int *)0x0) && (piVar2 != (int *)0x0)) {
-      FUN_00054554(piVar2,0);
+    member = (int *)self->member1838;
+    if ((member != (int *)0x0) && (member != (int *)0x0)) {
+      FUN_00054554(member,0);
     }
-    piVar2 = (int *)(param_1 + 0x60b);
-    if ((piVar2 != (int *)0x0) && (piVar2 != (int *)0x0)) {
-      FUN_00054554(piVar2,0);
+    member = (int *)self->member182c;
+    if ((member != (int *)0x0) && (member != (int *)0x0)) {
+      FUN_00054554(member,0);
     }
-    piVar2 = (int *)(param_1 + 0x606);
-    if ((piVar2 != (int *)0x0) && (piVar2 != (int *)0x0)) {
-      FUN_0023b17c(piVar2,0);
+    member = (int *)self->member1818;
+    if ((member != (int *)0x0) && (member != (int *)0x0)) {
+      FUN_0023b17c(member,0);
     }
-    FUN_0023bf54(param_1 + 0x14,-1);
-    FUN_0001f0f0(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0023bf54(self->unk50,-1);
+    FUN_0001f0f0(self,0);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

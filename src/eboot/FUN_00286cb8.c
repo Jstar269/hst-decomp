@@ -1,20 +1,21 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00286cb8 end=0x00286d08 symbol=FUN_00286cb8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a7); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/cmd_actor.h"
 
-extern int FUN_0014c820();
+extern int FUN_0014c820(void *, int);
 
-void FUN_00286cb8(int param_1)
+/* Deletes the two 36-byte objects of the actor and clears the pointers. */
+void FUN_00286cb8(CmdActor *self)
 {
-  int iVar1;
-  
-  if (*(int *)(param_1 + 0xc) != 0) {
-    FUN_0014c820(*(int *)(param_1 + 0xc),1);
-    *(u32 *)(param_1 + 0xc) = 0;
+  void *obj;
+
+  if (self->objB != 0) {
+    FUN_0014c820(self->objB,1);
+    self->objB = 0;
   }
-  iVar1 = *(int *)(param_1 + 8);
-  if (iVar1 != 0) {
-    FUN_0014c820(iVar1,1);
-    *(u32 *)(param_1 + 8) = 0;
+  obj = self->objA;
+  if (obj != 0) {
+    FUN_0014c820(obj,1);
+    self->objA = 0;
   }
 }

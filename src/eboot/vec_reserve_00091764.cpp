@@ -3,28 +3,29 @@
 /* Container reserve for a 32-byte element type: length check against max_size (0xffffffff / 32), allocate
    n elements through an allocator temporary (32-byte frame), report failures on newlib stderr and abort.
    Names provisional. */
+#include "hst/vec_reserve.h"
+
 extern "C" {
-struct Reent_00091764 { int pad[3]; void *err; };
-Reent_00091764 *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
-void FUN_0000d518(void);
-void *FUN_00000bcc(unsigned size);
 extern char DAT_002beb00[];
 }
-struct Elem_00091764 { int w[8]; };
-struct Alloc_00091764 { Elem_00091764 *allocate(unsigned n) { return (Elem_00091764 *)FUN_00000bcc(n * sizeof(Elem_00091764)); } };
-struct Vec_00091764 { Elem_00091764 *data; int size; unsigned capacity; };
-extern "C" void FUN_00091764(Vec_00091764 *v, unsigned n)
+
+enum { ELEM_SIZE = 32 }; /* bytes per element */
+struct Elem32 { int w[ELEM_SIZE / 4]; };
+struct Alloc32 { Elem32 *allocate(unsigned n) { return (Elem32 *)FUN_00000bcc(n * sizeof(Elem32)); } };
+
+/* Allocate storage for count elements; abort with a message when too many or out of memory. */
+extern "C" void FUN_00091764(RawVec *vec, unsigned count)
 {
-    if (n > 0xffffffffu / sizeof(Elem_00091764)) {
+    if (count > 0xffffffffu / sizeof(Elem32)) {
         FUN_0000f3e8(FUN_0000fe3c()->err, "vector length error");
         FUN_0000d518();
     }
-    Elem_00091764 *p = Alloc_00091764().allocate(n);
-    if (p == 0) {
+    Elem32 *storage = Alloc32().allocate(count);
+    if (storage == 0) {
         FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002beb00);
         FUN_0000d518();
     }
-    v->data = p;
-    v->capacity = n;
+    vec->data = storage;
+    vec->capacity = count;
 }

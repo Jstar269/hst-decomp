@@ -5,53 +5,9 @@
    registers itself as g_pCourt, reserves 16 entries in both lists. Release build of src/sharing_main/court_ctor_0013d738.c
    (same source; the g_pCourt assertion compiles away here). */
 #define HST_ASSERT(cond) do { } while (0)
+#define LIST_RESERVE 16 /* entries reserved in both lists */
 
-typedef struct List {
-    void *data;
-    int size;
-    unsigned int capacity;
-} List;
-
-typedef struct Court {
-    void *vptr;                 /* 0x0000 */
-    char base0[0x3c];
-    void *vptr1;                /* 0x0040: second base */
-    char base1[0x1360 - 0x44];
-    int m1360;
-    int mode;                   /* 0x1364 */
-    unsigned char m1368;
-    int m136c;
-    int m1370[5];
-    int m1384[17];
-    unsigned char m13c8;
-    int m13cc[12];
-    List list13fc;              /* 0x13fc: 4-byte elements */
-    int m1408[3];
-    unsigned char m1414;
-    unsigned char m1415;
-    int m1418;
-    unsigned char m141c;
-    unsigned char m141d;
-    unsigned char m141e;
-    unsigned char m141f;
-    char pad1420[0xc];
-    unsigned char m142c;
-    List list1430;              /* 0x1430: 16-byte elements */
-    int m143c;
-    unsigned char m1440;
-    int m1444;
-    int m1448;
-    int m144c;
-    int m1450;
-    int m1454;
-    int m1458;
-    int m145c;
-    char pad1460[0x50];
-    unsigned char m14b0;
-    unsigned char m14b1;
-    unsigned char m14b2;
-    int m14b4;
-} Court;
+#include "hst/court.h"
 
 extern char DAT_0030820c[];
 extern char DAT_00308228[];
@@ -61,106 +17,107 @@ extern int DAT_003417c4;
 extern unsigned char DAT_003417cc;
 extern void FUN_0001f06c(Court *);
 extern void FUN_0013fb58(void *);
-extern void FUN_000c4040(List *, unsigned int);
-extern void FUN_0012ca4c(List *, unsigned int);
+extern void FUN_000c4040(RawVec *, unsigned int);
+extern void FUN_0012ca4c(RawVec *, unsigned int);
 extern int FUN_002b78f8(void);
 extern void FUN_000133f4(int);
 extern int FUN_0001342c(void);
 extern void FUN_0013293c(Court *, int);
 
+/* Court constructor: build both bases, clear the state, register as the global court, reserve the lists and pick the mode. */
 Court *FUN_00132180(Court *c)
 {
     unsigned int m;
-    List *l1;
-    List *l2;
+    RawVec *l1;
+    RawVec *l2;
 
     FUN_0001f06c(c);
     FUN_0013fb58(&c->vptr1);
     c->vptr = DAT_0030820c;
     c->vptr1 = DAT_00308228;
-    c->m1360 = 1;
+    c->unk1360 = 1;
     c->mode = 1;
-    c->m1368 = 0;
-    c->m136c = 0;
-    c->m1370[0] = -1;
-    c->m1370[1] = -1;
-    c->m1370[2] = -1;
-    c->m1370[3] = -1;
-    c->m1370[4] = -1;
-    c->m1384[0] = 0;
-    c->m1384[1] = 0;
-    c->m1384[2] = 0;
-    c->m1384[3] = 0;
-    c->m1384[4] = 0;
-    c->m1384[5] = 0;
-    c->m1384[6] = 0;
-    c->m1384[7] = 0;
-    c->m1384[8] = 0;
-    c->m1384[9] = 0;
-    c->m1384[10] = 0;
-    c->m1384[11] = 0;
-    c->m1384[12] = 0;
-    c->m1384[13] = 0;
-    c->m1384[14] = 0;
-    c->m1384[15] = 0;
-    c->m1384[16] = 0;
-    c->m13cc[0] = 0;
-    c->m13cc[1] = 0;
-    c->m13cc[2] = 0;
-    c->m13cc[3] = 0;
-    c->m13cc[4] = 0;
-    c->m13cc[5] = 0;
-    c->m13cc[6] = 0;
-    c->m13cc[7] = 0;
-    c->m13cc[8] = 0;
-    c->m13cc[9] = 0;
-    c->m13cc[10] = 0;
-    c->m13cc[11] = 0;
+    c->unk1368 = 0;
+    c->unk136c = 0;
+    c->unk1370[0] = -1;
+    c->unk1370[1] = -1;
+    c->unk1370[2] = -1;
+    c->unk1370[3] = -1;
+    c->unk1370[4] = -1;
+    c->unk1384[0] = 0;
+    c->unk1384[1] = 0;
+    c->vec138c.data = 0;
+    c->vec138c.size = 0;
+    c->vec138c.capacity = 0;
+    c->vec1398.data = 0;
+    c->vec1398.size = 0;
+    c->vec1398.capacity = 0;
+    c->vec13a4.data = 0;
+    c->vec13a4.size = 0;
+    c->vec13a4.capacity = 0;
+    c->vec13b0.data = 0;
+    c->vec13b0.size = 0;
+    c->vec13b0.capacity = 0;
+    c->vec13bc.data = 0;
+    c->vec13bc.size = 0;
+    c->vec13bc.capacity = 0;
+    c->vec13cc.data = 0;
+    c->vec13cc.size = 0;
+    c->vec13cc.capacity = 0;
+    c->vec13d8.data = 0;
+    c->vec13d8.size = 0;
+    c->vec13d8.capacity = 0;
+    c->vec13e4.data = 0;
+    c->vec13e4.size = 0;
+    c->vec13e4.capacity = 0;
+    c->vec13f0.data = 0;
+    c->vec13f0.size = 0;
+    c->vec13f0.capacity = 0;
     l1 = &c->list13fc;
     l1->data = 0;
     l1->size = 0;
     l1->capacity = 0;
-    c->m1408[0] = 0;
-    c->m1408[1] = 0;
-    c->m1408[2] = 0;
-    c->m1414 = 1;
-    c->m1415 = 1;
-    c->m1418 = 0;
-    c->m141c = 0;
-    c->m141d = 1;
-    c->m141e = 0;
-    c->m141f = 1;
-    c->m142c = 0;
+    c->vec1408.data = 0;
+    c->vec1408.size = 0;
+    c->vec1408.capacity = 0;
+    c->unk1414 = 1;
+    c->unk1415 = 1;
+    c->unk1418 = 0;
+    c->unk141c = 0;
+    c->unk141d = 1;
+    c->unk141e = 0;
+    c->unk141f = 1;
+    c->unk142c = 0;
     l2 = &c->list1430;
     l2->data = 0;
     l2->size = 0;
     l2->capacity = 0;
-    c->m143c = 0;
-    c->m1440 = 1;
-    c->m1444 = 0;
-    c->m1448 = -1;
-    c->m144c = -1;
-    c->m1450 = 0;
-    c->m1454 = 0;
-    c->m1458 = 0;
-    c->m145c = -1;
-    c->m14b0 = 0;
-    c->m14b1 = 0;
-    c->m14b2 = 0;
-    c->m14b4 = 0;
+    c->unk143c = 0;
+    c->unk1440 = 1;
+    c->unk1444 = 0;
+    c->unk1448 = -1;
+    c->unk144c = -1;
+    c->vec1450.data = 0;
+    c->vec1450.size = 0;
+    c->vec1450.capacity = 0;
+    c->unk145c = -1;
+    c->unk14b0 = 0;
+    c->unk14b1 = 0;
+    c->unk14b2 = 0;
+    c->unk14b4 = 0;
     HST_ASSERT(DAT_003402a0 == 0);
     DAT_003402a0 = c;
-    if (c->list13fc.capacity < 16) {
-        FUN_000c4040(&c->list13fc, 16);
+    if (c->list13fc.capacity < LIST_RESERVE) {
+        FUN_000c4040(&c->list13fc, LIST_RESERVE);
     }
-    if (c->list1430.capacity < 16) {
-        FUN_0012ca4c(&c->list1430, 16);
+    if (c->list1430.capacity < LIST_RESERVE) {
+        FUN_0012ca4c(&c->list1430, LIST_RESERVE);
     }
     if (DAT_003386b8 != 0) {
-        c->m1360 = DAT_003417c4;
+        c->unk1360 = DAT_003417c4;
     } else {
         FUN_000133f4(FUN_002b78f8());
-        c->m1360 = FUN_0001342c();
+        c->unk1360 = FUN_0001342c();
     }
     m = DAT_003417cc;
     c->mode = m;
@@ -168,6 +125,6 @@ Court *FUN_00132180(Court *c)
         c->mode = 1;
     }
     FUN_0013293c(c, c->mode);
-    c->m13c8 = 0;
+    c->unk13c8 = 0;
     return c;
 }

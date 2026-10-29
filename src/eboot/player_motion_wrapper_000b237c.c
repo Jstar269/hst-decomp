@@ -1,5 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000b237c end=0x000b270c symbol=FUN_000b237c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+enum {
+    MOTION_NONE = 0x7fff,   /* motion id meaning "leave this slot alone" */
+    MOTION_ROW_COUNT = 0x115 /* rows of the motion table */
+};
+
 typedef struct CVec CVec;
 typedef struct Mat16 Mat16;
 typedef struct Row Row;
@@ -68,6 +73,8 @@ float FUN_00022e44(float);
 void FUN_00022498(CVec *, CVec *, float);
 void FUN_00055044(Eff *, CVec *);
 
+/* Start the motions through the player setter, then record the track state per slot and, for a table row
+   with an effect index, restart the effect with a scaled copy of the player matrix. */
 void FUN_000b237c(Player *pl, float speed1, int id1, unsigned char c1, int id2, unsigned char c2, float speed2,
                   unsigned char extra, int flag1, int flag2, float add)
 {
@@ -82,13 +89,13 @@ void FUN_000b237c(Player *pl, float speed1, int id1, unsigned char c1, int id2, 
     int off2 = 0;
     do {
         int id = *ip;
-        if (id >= 0 && id < 0x115) {
+        if (id >= 0 && id < MOTION_ROW_COUNT) {
             if (DAT_002beb78[id].s12 >= 0) {
                 ch = DAT_002beb78[id].c0;
                 row = DAT_002beb78[id].s12;
             }
         }
-        if (id != 0x7fff) {
+        if (id != MOTION_NONE) {
             int b = DAT_003386b8 != 0;
             if (b) {
                 b = !pl->m1b4;

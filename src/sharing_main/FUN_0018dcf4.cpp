@@ -1,6 +1,5 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0018dcf4 end=0x0018e070 symbol=FUN_0018dcf4 lang=c++ */
 /* Clone of src/eboot/FUN_00181600.cpp (hstclone.py tag u4r1-3): addresses substituted; exact match verified; names and types await human review. */
-
 extern "C" {
 extern void FUN_00108e6c(void *, float);
 extern void FUN_001090f4(void *, int);
@@ -15,6 +14,8 @@ extern void FUN_001118ac(void *, int, int);
 extern void FUN_001900a0(void *, void *, int, int, void *, void *);
 extern void FUN_0019078c(void *, void *, int, int, int, int);
 }
+
+enum { LIST_ROW_COUNT = 12, LIST_ROW_STRIDE = 20, REQUEST_TYPE_NO_INDENT = 4 };
 
 struct Widget {
     virtual void m0();
@@ -40,7 +41,7 @@ struct Param2 {
 
 struct SubObj {
     char pad[68];
-    Slot slots[12];
+    Slot slots[LIST_ROW_COUNT];
     void *fcb0;
 };
 
@@ -83,100 +84,101 @@ struct Widget20 {
     float f64;
 };
 
-extern "C" void FUN_0018dcf4(Obj *param_1, Param2 *param_2, void *param_3, void *param_4, int param_5)
+extern "C" void FUN_0018dcf4(Obj *self, Param2 *request, void *ctx_a, void *ctx_b, int show_first)
 {
-    int i;
+    int i; /* row index */
     int offset;
     int count;
-    int y0;
+    int y_first;
     Slot *slot;
-    void *item_1180;
+    void *list_item;
     float step;
 
-    if (param_1->f4 != 0) {
-        FUN_00108e6c(param_1->f4, 2000.0f);
-        FUN_001090f4(param_1->f4, 16);
+    if (self->f4 != 0) {
+        FUN_00108e6c(self->f4, 2000.0f);
+        FUN_001090f4(self->f4, 16);
     }
 
-    FUN_00108f54(param_1->f10, 0);
+    FUN_00108f54(self->f10, 0);
 
-    if (param_1->f1f48 != 0) {
-        FUN_00108f54(param_1->f1f48, 1);
-        FUN_00108f54(param_1->f2864, 1);
+    if (self->f1f48 != 0) {
+        FUN_00108f54(self->f1f48, 1);
+        FUN_00108f54(self->f2864, 1);
     }
 
-    param_1->f0c = 1;
-    param_1->f0d = 0;
-    param_1->f1f45 = 0;
+    self->f0c = 1;
+    self->f0d = 0;
+    self->f1f45 = 0;
 
-    param_1->w14->SetVisible(0);
-    param_1->w18->SetVisible(0);
-    param_1->w20->SetVisible(0);
-    param_1->w2c->SetVisible(0);
-    FUN_00105470(param_1->sub.fcb0, 1);
-    param_1->w30->SetVisible(0);
-    param_1->w38->SetVisible(0);
-    param_1->w40->SetVisible(0);
-    param_1->w34->SetVisible(0);
-    param_1->w3c->SetVisible(1);
-    param_1->w24->SetVisible(1);
-    param_1->w1c->SetVisible(1);
+    self->w14->SetVisible(0);
+    self->w18->SetVisible(0);
+    self->w20->SetVisible(0);
+    self->w2c->SetVisible(0);
+    FUN_00105470(self->sub.fcb0, 1);
+    self->w30->SetVisible(0);
+    self->w38->SetVisible(0);
+    self->w40->SetVisible(0);
+    self->w34->SetVisible(0);
+    self->w3c->SetVisible(1);
+    self->w24->SetVisible(1);
+    self->w1c->SetVisible(1);
 
-    void **p_fd0 = &param_1->fd0;
-    if (param_5 != 0) {
-        param_1->w14->SetVisible(1);
-        FUN_00105470(*p_fd0, 0);
+    void **p_panel_ref = &self->fd0;
+    if (show_first != 0) {
+        self->w14->SetVisible(1);
+        FUN_00105470(*p_panel_ref, 0);
     } else {
-        param_1->w14->SetVisible(0);
-        FUN_00105470(*p_fd0, 1);
+        self->w14->SetVisible(0);
+        FUN_00105470(*p_panel_ref, 1);
     }
 
-    FUN_0018dbb0(param_1);
-    FUN_0018d978(param_1);
+    FUN_0018dbb0(self);
+    FUN_0018d978(self);
 
     count = FUN_00185780(FUN_00177e98());
 
-    SlotItem *item0 = param_1->sub.slots[0].item;
-    SlotItem *item_cb0 = (SlotItem *)param_1->sub.fcb0;
-    y0 = item0->y;
-    int y_cb0 = item_cb0->y;
-    int count_minus_1 = count - 1;
-    if (count_minus_1 <= 0) {
+    SlotItem *item0 = self->sub.slots[0].item;
+    SlotItem *item_cb0 = (SlotItem *)self->sub.fcb0;
+    y_first = item0->y;
+    int y_last = item_cb0->y;
+    int gaps = count - 1;
+    if (gaps <= 0) {
         step = 0.0f;
     } else {
-        step = (float)(y_cb0 - y0) / (float)count_minus_1;
+        step = (float)(y_last - y_first) / (float)gaps;
     }
 
+    /* Space the visible rows evenly; hide rows beyond the entry count. */
     i = 0;
     offset = 0;
     do {
-        SubObj *sub = (SubObj *)((char *)param_1 + (offset + 2940));
+        SubObj *sub = (SubObj *)((char *)self + (offset + 2940));
         Slot &slot = sub->slots[0];
         if (count <= i) {
             FUN_00105470(slot.item, 1);
         } else {
             FUN_00105470(slot.item, 0);
             SlotItem *item = slot.item;
-            short new_y = (short)(int)((float)y0 + step * (float)i);
+            short new_y = (short)(int)((float)y_first + step * (float)i);
             short old_y = item->y;
             item->y = new_y;
             item->h += (short)(new_y - old_y);
         }
         i++;
-        offset += 20;
-    } while (i < 12);
+        offset += LIST_ROW_STRIDE;
+    } while (i < LIST_ROW_COUNT);
 
-    if (param_2->type != 4) {
-        ((Widget20 *)param_1->w20)->f64 = 16.0f;
-        FUN_00108558(param_1->w20);
-        item_1180 = param_1->f1180;
+    if (request->type != REQUEST_TYPE_NO_INDENT) {
+        ((Widget20 *)self->w20)->f64 = 16.0f;
+        FUN_00108558(self->w20);
+        list_item = self->f1180;
     } else {
-        ((Widget20 *)param_1->w20)->f64 = 0.0f;
-        FUN_00108558(param_1->w20);
-        item_1180 = param_1->f1180;
+        ((Widget20 *)self->w20)->f64 = 0.0f;
+        FUN_00108558(self->w20);
+        list_item = self->f1180;
     }
 
-    FUN_001118ac(item_1180, 0, 15);
-    FUN_001900a0(param_1, param_4, 1, 1, param_2, param_3);
-    FUN_0019078c(param_1, param_3, 1, 0, 1, 0);
+    FUN_001118ac(list_item, 0, 15);
+    FUN_001900a0(self, ctx_b, 1, 1, request, ctx_a);
+    FUN_0019078c(self, ctx_a, 1, 0, 1, 0);
 }

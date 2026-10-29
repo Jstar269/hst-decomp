@@ -2,12 +2,13 @@
 /* Clone of src/eboot/FUN_00127788.c (hstclone.py tag x14): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u32 DAT_003e47e8;
-extern u32 DAT_003e47ec;
+extern u32 DAT_003e47e8;  /* entry table (array with destructors) */
+extern u32 DAT_003e47ec;  /* second block, allocated with a 0x10-byte header */
 extern void FUN_000006e8();
 extern void FUN_000009e4();
 extern void FUN_000569f4();
 
+/* Free the two global blocks and clear their pointers. */
 void FUN_001329f8(void)
 {
   if (DAT_003e47ec != 0) {

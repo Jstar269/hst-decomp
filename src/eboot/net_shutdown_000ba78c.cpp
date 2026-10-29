@@ -5,6 +5,8 @@
    away a single guard. The net teardown is written as sequential early-return guards, which is what puts the
    continuation out of line and leaves `beqzl v0,<success>`. Data: its string literals (6 strings, 0x002d4e68-0x002d4f1a) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 
+#include "hst/adhoc_net.h"
+
 extern "C" void FUN_000009e4(void *);
 extern "C" void FUN_000ba3ac(char *, ...);
 extern "C" void FUN_000bae04(void *);
@@ -13,89 +15,77 @@ extern "C" int FUN_002b7d78(void);
 extern "C" int FUN_002b7e40(void);
 extern "C" int FUN_002b7d90(void);
 
-struct Obj {
-  virtual ~Obj();
+struct AdhocObj {
+  virtual ~AdhocObj();
 };
 
-struct Net {
-  char pad0[0x180];
-  void *f180;
-  void *f184;
-  void *f188;
-  char pad1[0x1dc - 0x18c];
-  Obj *f1dc[0x10];
-  unsigned char f21c[0x10];
-  Obj *f22c[0x10];
-  Obj *f26c;
-};
-
-extern "C" int FUN_000ba78c(Net *self)
+/* Releases the working buffers and slot objects, stops matching, then shuts the net stack down; returns 1 on success. */
+extern "C" int FUN_000ba78c(AdhocNet *self)
 {
   int i;
-  int mode;
-  Obj *p;
-  char *base;
+  int result;
+  AdhocObj *obj;
 
-  if (self->f188 != 0) {
-    if (self->f188 != 0) {
-      FUN_000009e4(self->f188);
-      self->f188 = 0;
+  if (self->bufC != 0) {
+    if (self->bufC != 0) {
+      FUN_000009e4(self->bufC);
+      self->bufC = 0;
     }
   }
-  if (self->f184 != 0) {
-    if (self->f184 != 0) {
-      FUN_000009e4(self->f184);
-      self->f184 = 0;
+  if (self->bufA != 0) {
+    if (self->bufA != 0) {
+      FUN_000009e4(self->bufA);
+      self->bufA = 0;
     }
   }
-  if (self->f180 != 0) {
-    if (self->f180 != 0) {
-      FUN_000009e4(self->f180);
-      self->f180 = 0;
+  if (self->bufB != 0) {
+    if (self->bufB != 0) {
+      FUN_000009e4(self->bufB);
+      self->bufB = 0;
     }
   }
 
-  for (i = 0, base = (char *)self; i < 0x10; i++, base += 4) {
-    p = *(Obj **)(base + 0x1dc);
-    if (p != 0) {
-      if (p != 0) {
-        delete p;
-        *(Obj **)(base + 0x1dc) = 0;
+  for (i = 0; i < ADHOC_SLOT_COUNT; i++) {
+    obj = self->slotObj[i];
+    if (obj != 0) {
+      if (obj != 0) {
+        delete obj;
+        self->slotObj[i] = 0;
       }
     }
-    p = *(Obj **)(base + 0x22c);
-    if (p != 0) {
-      if (p != 0) {
-        delete p;
-        *(Obj **)(base + 0x22c) = 0;
+    obj = self->slotAux[i];
+    if (obj != 0) {
+      if (obj != 0) {
+        delete obj;
+        self->slotAux[i] = 0;
       }
     }
   }
 
-  if (self->f26c != 0) {
-    if (self->f26c != 0) {
-      delete self->f26c;
-      self->f26c = 0;
+  if (self->unk26c != 0) {
+    if (self->unk26c != 0) {
+      delete self->unk26c;
+      self->unk26c = 0;
     }
   }
   FUN_000bae04(self);
   FUN_000baac8(self);
 
-  mode = FUN_002b7d78();
-  if (mode != 0) {
-    FUN_000ba3ac("sceNetAdhocctlTerm() failed(0x%X)\n",mode);
+  result = FUN_002b7d78();
+  if (result != 0) {
+    FUN_000ba3ac("sceNetAdhocctlTerm() failed(0x%X)\n",result);
     return 0;
   }
   FUN_000ba3ac("sceNetAdhocctlTerm() success\n");
-  mode = FUN_002b7e40();
-  if (mode != 0) {
-    FUN_000ba3ac("sceNetAdhocTerm() failed(0x%X)\n",mode);
+  result = FUN_002b7e40();
+  if (result != 0) {
+    FUN_000ba3ac("sceNetAdhocTerm() failed(0x%X)\n",result);
     return 0;
   }
   FUN_000ba3ac("sceNetAdhocTerm() success\n");
-  mode = FUN_002b7d90();
-  if (mode != 0) {
-    FUN_000ba3ac("sceNetTerm() failed(0x%X)\n",mode);
+  result = FUN_002b7d90();
+  if (result != 0) {
+    FUN_000ba3ac("sceNetTerm() failed(0x%X)\n",result);
     return 0;
   }
   FUN_000ba3ac("sceNetTerm() success\n");

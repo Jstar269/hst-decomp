@@ -1,13 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016ba78 end=0x0016baa0 symbol=FUN_0016ba78 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/settings_block.h"
 
-extern int FUN_0016bb88();
+extern SettingsBlock * FUN_0016bb88();
 
-void FUN_0016ba78(u8 param_1)
+/* Stores the flag byte at +0x103c. */
+void FUN_0016ba78(u8 value)
 {
-  int iVar1;
+  SettingsBlock *settings;
   
-  iVar1 = FUN_0016bb88();
-  *(u8 *)(iVar1 + 0x103c) = param_1;
+  settings = FUN_0016bb88();
+  settings->unk103c = value;
 }

@@ -1,11 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00285f28 end=0x00285f3c symbol=FUN_00285f28 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-u32 * FUN_00285f28(u32 *param_1)
+typedef struct ClearedObj {
+  u32 unk00;            /* 0x00 */
+  u8 unk04;             /* 0x04 */
+  char pad05[0xc5 - 0x5];
+  u8 unkc5;             /* 0xc5 */
+} ClearedObj;
+
+ClearedObj * FUN_00285f28(ClearedObj *self)
 {
-  *param_1 = 0;
-  *(u8 *)(param_1 + 1) = 0;
-  *(u8 *)((int)param_1 + 0xc5) = 0;
-  return param_1;
+  self->unk00 = 0;
+  self->unk04 = 0;
+  self->unkc5 = 0;
+  return self;
 }

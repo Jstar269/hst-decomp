@@ -2,134 +2,103 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #pragma opt_unroll_loops off
 
-typedef struct L3 { char pad0[4]; void *f4; } L3;
-typedef struct L2 { char pad0[16]; L3 *f10; } L2;
-typedef struct L1 { char pad0[4]; L2 *f4; } L1;
-typedef struct L0 { char pad0[4]; L1 *f4; } L0;
+#include "hst/result_scene.h"
 
-typedef struct {
-  char pad00[0x3c];
-  void *f3c;
-  void *f40;
-  char pad44[0x48 - 0x44];
-  char f48[0xd4 - 0x48];
-  void *fd4;
-  char pad_d8[0x1f4 - 0xd8];
-  void *f1f4;
-  char pad1f8[0x810 - 0x1f8];
-  void *f810;
-  char pad814[0x9b4 - 0x814];
-  void *f9b4;
-  char pad9b8[0x175c - 0x9b8];
-  void *f175c;
-  char pad1760[0x1954 - 0x1760];
-  void *f1954;
-  void *f1958;
-  void *f195c;
-  char pad1960[0x1adc - 0x1960];
-  int g[21];
-  char pad1b30[0x1d68 - 0x1b30];
-  void *f1d68;
-  char pad1d6c[0x21e4 - 0x1d6c];
-  void *f21e4;
-  char pad21e8[0x235c - 0x21e8];
-  void *f235c;
-  char pad2360[0x2464 - 0x2360];
-  void *f2464;
-  char pad2468[0x250c - 0x2468];
-  void *f250c;
-  char pad2510[0x25b8 - 0x2510];
-  void *f25b8;
-} Obj;
+/* Pointer chain walked from the 100-byte part object: +4, +4, +0x10, +4. */
+typedef struct Chain3 { char pad0[4]; void *at4; } Chain3;
+typedef struct Chain2 { char pad0[16]; Chain3 *at10; } Chain2;
+typedef struct Chain1 { char pad0[4]; Chain2 *at4; } Chain1;
+typedef struct Chain0 { char pad0[4]; Chain1 *at4; } Chain0;
 
 extern void *FUN_00000bcc(int size);
 extern void *FUN_001dd0a4(void *p);
 extern void *FUN_001dd28c(void *p);
 extern void *FUN_00102e38(void *p);
 extern void FUN_00217614(void *p, void *q);
-extern void FUN_001e248c(Obj *self);
-extern void FUN_001e185c(Obj *self);
-extern void FUN_001e1c40(Obj *self);
-extern void FUN_001e25c0(Obj *self);
+extern void FUN_001e248c(ResultScene *self);
+extern void FUN_001e185c(ResultScene *self);
+extern void FUN_001e1c40(ResultScene *self);
+extern void FUN_001e25c0(ResultScene *self);
 
-void FUN_001e05d4(Obj *self)
+/* Constructor body: clear the part pointers, create the first parts and let the page setup functions fill the rest. */
+void FUN_001e05d4(ResultScene *self)
 {
   int i;
   void *p;
 
-  self->f3c = 0;
-  self->f40 = 0;
-  self->fd4 = 0;
-  self->f1f4 = 0;
-  self->f9b4 = 0;
-  self->f810 = 0;
-  self->f175c = 0;
-  self->f1d68 = 0;
-  self->f1958 = 0;
-  self->f195c = 0;
-  self->f21e4 = 0;
-  self->f235c = 0;
-  self->f2464 = 0;
-  self->f250c = 0;
-  self->f25b8 = 0;
-  self->f1954 = 0;
+  self->part3c = 0;
+  self->part40 = 0;
+  self->partd4 = 0;
+  self->part1f4 = 0;
+  self->part9b4 = 0;
+  self->part810 = 0;
+  self->part175c = 0;
+  self->part1d68 = 0;
+  self->part1958 = 0;
+  self->part195c = 0;
+  self->part21e4 = 0;
+  self->part235c = 0;
+  self->part2464 = 0;
+  self->part250c = 0;
+  self->part25b8 = 0;
+  self->part1954 = 0;
 
   /* matching idiom: the int table at +0x1adc is cleared with a FLAT index that
      steps by 7 (the retail loop counter), which needs the seven stores spelled
      out and the loop kept rolled (#pragma opt_unroll_loops off). */
-  for (i = 0; i < 21; i += 7) {
-    self->g[i + 0] = 0;
-    self->g[i + 1] = 0;
-    self->g[i + 2] = 0;
-    self->g[i + 3] = 0;
-    self->g[i + 4] = 0;
-    self->g[i + 5] = 0;
-    self->g[i + 6] = 0;
+  for (i = 0; i < RESULT_GRID_COUNT; i += 7) {
+    self->grid[i + 0] = 0;
+    self->grid[i + 1] = 0;
+    self->grid[i + 2] = 0;
+    self->grid[i + 3] = 0;
+    self->grid[i + 4] = 0;
+    self->grid[i + 5] = 0;
+    self->grid[i + 6] = 0;
   }
 
   p = FUN_00000bcc(156);
   if (p != 0) {
-    self->f3c = FUN_001dd0a4(p);
+    self->part3c = FUN_001dd0a4(p);
   } else {
-    self->f3c = p;
+    self->part3c = p;
   }
 
   p = FUN_00000bcc(100);
   if (p != 0) {
     p = FUN_001dd28c(p);
-    self->f40 = p;
+    self->part40 = p;
   } else {
-    self->f40 = p;
+    self->part40 = p;
   }
 
-  FUN_00217614(&self->f48[0], ((L0 *)p)->f4->f4->f10->f4);
+  FUN_00217614(&self->anim48, ((Chain0 *)p)->at4->at4->at10->at4);
 
   p = FUN_00000bcc(84);
   if (p != 0) {
-    self->f9b4 = FUN_00102e38(p);
+    self->part9b4 = FUN_00102e38(p);
   } else {
-    self->f9b4 = p;
-  }
-
-  p = FUN_00000bcc(84);
-  if (p != 0) {
-    self->fd4 = FUN_00102e38(p);
-  } else {
-    self->fd4 = p;
+    self->part9b4 = p;
   }
 
   p = FUN_00000bcc(84);
   if (p != 0) {
-    self->f2464 = FUN_00102e38(p);
+    self->partd4 = FUN_00102e38(p);
   } else {
-    self->f2464 = p;
+    self->partd4 = p;
   }
 
   p = FUN_00000bcc(84);
   if (p != 0) {
-    self->f25b8 = FUN_00102e38(p);
+    self->part2464 = FUN_00102e38(p);
   } else {
-    self->f25b8 = p;
+    self->part2464 = p;
+  }
+
+  p = FUN_00000bcc(84);
+  if (p != 0) {
+    self->part25b8 = FUN_00102e38(p);
+  } else {
+    self->part25b8 = p;
   }
 
   FUN_001e248c(self);

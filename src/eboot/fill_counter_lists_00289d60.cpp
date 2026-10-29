@@ -10,52 +10,61 @@
    passed by value (the caller materialises it as `move v0,zero; seb a3,v0`), and the index is set to 1
    AFTER the if/else chain (inside both arms the compiler turns the inner test into a branch likely
    with the join copied into its delay slot). */
+#include "hst/scene_res.h"
+
 struct Tag {};
 #pragma opt_strength_reduction off
 
-struct Obj {
-  int *items;
+#define TABLE_SIZE 1000        /* number of entries the table is filled to */
+#define LOW_END 900            /* ascending part covers indices 1..LOW_END-1 */
+#define HIGH_FIRST 901         /* descending part covers TABLE_SIZE-1 down to this index */
+#define HIGH_LEVEL 99          /* level used for the descending part */
+
+/* Table of scene resource sets: pointer array and entry count. */
+struct Table {
+  SceneResSet **items;
   unsigned int count;
 };
 
-extern "C" void FUN_00289e84(Obj *self);
-extern "C" void FUN_0028c8d8(Obj *self, int count, int *out, Tag tag);
-extern "C" int FUN_00289f84(Obj *self, int *p2, int p3, int p4);
+extern "C" void FUN_00289e84(Table *self);
+extern "C" void FUN_0028c8d8(Table *self, int count, int *out, Tag tag);
+extern "C" SceneResSet *FUN_00289f84(Table *self, char *base_dir, int level, int item);
 extern "C" int FUN_0001342c();
 extern int DAT_0034a7f4;
 
-extern "C" void FUN_00289d60(Obj *self, int *p2, int *p3, int p4)
+/* Reset the table to TABLE_SIZE entries and load the low items from dir_low and the high items from dir_high. */
+extern "C" void FUN_00289d60(Table *self, char *dir_high, char *dir_low, int level)
 {
-  unsigned int v1;
+  unsigned int count;
   int idx;
-  int v;
+  SceneResSet *set;
 
   FUN_00289e84(self);
-  int local_4 = 0;
-  v1 = self->count;
-  if (v1 < 1000) {
-    FUN_0028c8d8(self, 1000 - v1, &local_4, Tag());
-  } else if (v1 > 1000) {
-    self->count -= v1 - 1000;
+  int zero = 0;
+  count = self->count;
+  if (count < TABLE_SIZE) {
+    FUN_0028c8d8(self, TABLE_SIZE - count, &zero, Tag());
+  } else if (count > TABLE_SIZE) {
+    self->count -= count - TABLE_SIZE;
   }
   idx = 1;
   do {
-    v = FUN_00289f84(self, p3, p4, idx);
-    if (v == 0) {
-      idx = 999;
+    set = FUN_00289f84(self, dir_low, level, idx);
+    if (set == 0) {
+      idx = TABLE_SIZE - 1;
       break;
     }
-    self->items[idx] = v;
+    self->items[idx] = set;
     idx++;
-  } while (idx < 900);
-  idx = 999;
+  } while (idx < LOW_END);
+  idx = TABLE_SIZE - 1;
   do {
-    v = FUN_00289f84(self, p2, 99, idx);
-    if (v == 0) {
+    set = FUN_00289f84(self, dir_high, HIGH_LEVEL, idx);
+    if (set == 0) {
       break;
     }
-    self->items[idx] = v;
+    self->items[idx] = set;
     idx--;
-  } while (idx >= 901);
+  } while (idx >= HIGH_FIRST);
   DAT_0034a7f4 = FUN_0001342c();
 }

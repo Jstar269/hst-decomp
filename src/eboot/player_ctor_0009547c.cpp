@@ -8,6 +8,12 @@
    objects (0x91830 / 0x5eaa8, `if (mem) mem = ctor(mem)` form), swaps the per-player global slot, sets up the
    face texture ("__InpaneFace%d") and finishes with 0x97520. The two-byte flag clear only stays a loop as a
    do/while (a for loop is unrolled). Names provisional. */
+enum {
+    HELPER_OBJECT_SIZE = 224, /* both helper objects created in the body */
+    FACE_TEX_SIZE = 64,       /* width and height of the face texture */
+    FACE_NAME_MAX = 64
+};
+
 struct Vec4 {
     float x, y, z, w;
     Vec4() {}
@@ -120,7 +126,7 @@ void FUN_00092ff8(Deletable *);
 void FUN_0009265c(Deletable *, int);
 void FUN_0005ed18(Model224 *, int, int);
 void FUN_0005f030(Model224 *, float, int);
-int FUN_0004e780(int *, int *, int, int, int, int);
+int FUN_0004e780(int *width, int *height, int, int, int, int);
 void FUN_000143b0(char *, const char *, ...);
 void FUN_00051274(M_50fc0 *, const char *, int, int, int);
 }
@@ -244,10 +250,10 @@ C_0009547c::C_0009547c(int a, int i, int b)
       m8a0(0), m8a1(0), m8a2(0), m8a3(0), m8a4(0), m8a5(0), m8c0(0), m8c4(0), m8c8(0), m8cc(0), m8d0(0),
       m8d4(0), m8d8(1), m8dc(3), m8e0(3), m8f0(0), m8f4(0), m8f8(0), m8fc(0)
 {
-    Deletable *mem = (Deletable *)operator new(224);
-    if (mem)
-        mem = FUN_00091830(mem);
-    m5bc = mem;
+    Deletable *helper = (Deletable *)operator new(HELPER_OBJECT_SIZE);
+    if (helper)
+        helper = FUN_00091830(helper);
+    m5bc = helper;
     if (DAT_0034b340[idx] != 0) {
         FUN_0009191c(m5bc, DAT_0034b340[idx]);
         Deletable *&slot = DAT_0034b340[i];
@@ -259,10 +265,10 @@ C_0009547c::C_0009547c(int a, int i, int b)
     }
     FUN_00092ff8(m5bc);
     FUN_0009265c(m5bc, 1);
-    Model224 *mdl = (Model224 *)operator new(224);
-    if (mdl)
-        mdl = FUN_0005eaa8(mdl);
-    m780 = mdl;
+    Model224 *model = (Model224 *)operator new(HELPER_OBJECT_SIZE);
+    if (model)
+        model = FUN_0005eaa8(model);
+    m780 = model;
     m780->Init(DAT_003386b0->f80);
     FUN_0005ed18(m780, 0, DAT_003386b0->f84);
     FUN_0005f030(m780, 0.0f, 0);
@@ -277,9 +283,9 @@ C_0009547c::C_0009547c(int a, int i, int b)
         m5b0[k] = 0;
     } while (++k < 2);
     m480 = 0;
-    int w = 0, h = 0;
-    int tex = FUN_0004e780(&w, &h, 1, 0, 64, 64);
-    char name[64];
+    int width = 0, height = 0;
+    int tex = FUN_0004e780(&width, &height, 1, 0, FACE_TEX_SIZE, FACE_TEX_SIZE);
+    char name[FACE_NAME_MAX];
     FUN_000143b0(name, "__InpaneFace%d", idx);
     FUN_00051274(&m788, name, tex, 0, 16);
     FUN_00097520(this, m154, m150);

@@ -4,17 +4,34 @@
 
 extern u8 DAT_003b0e38;
 
-u32 * FUN_001017dc(u32 *param_1)
+#define LIMIT_DEFAULT 100000.0f
+
+typedef struct LimitObj {
+  u32 vtable;           /* 0x00 */
+  u32 unk04;
+  u32 unk08;
+  u32 unk0c;
+  u32 unk10;
+  u32 unk14;
+  u32 unk18;
+  u8 unk1c;
+  char pad1d[3];
+  float limit;          /* 0x20 */
+  u8 unk24;
+} LimitObj;
+
+/* Constructor: zeroes the fields and sets the default limit. */
+LimitObj * FUN_001017dc(LimitObj *self)
 {
-  *param_1 = (unsigned int)(&DAT_003b0e38);
-  param_1[1] = 0;
-  param_1[2] = 0;
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[6] = 0;
-  *(u8 *)(param_1 + 7) = 0;
-  param_1[8] = 0x47c35000;
-  *(u8 *)(param_1 + 9) = 0;
-  return param_1;
+  self->vtable = (unsigned int)(&DAT_003b0e38);
+  self->unk04 = 0;
+  self->unk08 = 0;
+  self->unk0c = 0;
+  self->unk10 = 0;
+  self->unk14 = 0;
+  self->unk18 = 0;
+  self->unk1c = 0;
+  self->limit = LIMIT_DEFAULT;
+  self->unk24 = 0;
+  return self;
 }

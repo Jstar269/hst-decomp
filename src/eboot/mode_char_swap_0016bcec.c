@@ -5,6 +5,7 @@ extern void FUN_002345f8(int *);
 extern void FUN_0023466c(int *);
 extern void FUN_00234158(int *, int);
 
+/* Applies a mode request to the current state id (DAT_0034a678): modes 1 and 2 use their own helpers, 3 and 4 go to a fixed target state. */
 void FUN_0016bcec(int mode)
 {
   switch (mode) {

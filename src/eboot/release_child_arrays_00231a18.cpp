@@ -1,49 +1,51 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00231a18 end=0x00231b08 symbol=FUN_00231a18 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: ordered the typed cursor and count locals to match both virtual cleanup walks; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: ordered the typed cursor and count locals to match both virtual cleanup walks; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/challenge_menu.h"
 
 extern "C" {
 extern u8 DAT_00309878;
 extern void FUN_00000a00(...);
 extern u32 * FUN_00102ea4(...);
 }
-struct VC_0 { virtual ~VC_0(); };
-struct VC_1 { virtual ~VC_1(); };
+struct CharWidget { virtual ~CharWidget(); };
+struct ExtraWidget { virtual ~ExtraWidget(); };
 
-extern "C" u32 * FUN_00231a18(u32 *param_1,short param_2)
+/* Deleting destructor of the challenge menu: delete the character and extra widgets, then run the base destructor. */
+extern "C" ChallengeMenu * FUN_00231a18(ChallengeMenu *self,short flags)
 {
-  int *piVar1;
-  int iVar3;
-  u32 *puVar2;
+  CharWidget *widget;
+  int i;
+  ChallengeMenu *cursor;  /* moved on by one word per step so chars[0]/extras[0] walk the arrays */
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00309878);
-    iVar3 = 0;
-    puVar2 = param_1;
+  if (self != (ChallengeMenu *)0x0) {
+    self->vtable = (unsigned int)(&DAT_00309878);
+    i = 0;
+    cursor = self;
     do {
-      piVar1 = (int *)puVar2[0x5b];
-      if (piVar1 != (int *)0x0) {
-        delete ((VC_0 *)(piVar1));
-        puVar2[0x5b] = 0;
+      widget = (CharWidget *)cursor->chars[0];
+      if (widget != (CharWidget *)0x0) {
+        delete widget;
+        cursor->chars[0] = 0;
       }
-      iVar3 = iVar3 + 1;
-      puVar2 = puVar2 + 1;
-    } while (iVar3 < 0xf);
-    iVar3 = 0;
-    puVar2 = param_1;
+      i = i + 1;
+      cursor = (ChallengeMenu *)((u32 *)cursor + 1);
+    } while (i < CHALLENGE_CHARS);
+    i = 0;
+    cursor = self;
     do {
-      piVar1 = (int *)puVar2[0x6a];
-      if (piVar1 != (int *)0x0) {
-        delete ((VC_1 *)(piVar1));
-        puVar2[0x6a] = 0;
+      ExtraWidget *extra = (ExtraWidget *)cursor->extras[0];
+      if (extra != (ExtraWidget *)0x0) {
+        delete extra;
+        cursor->extras[0] = 0;
       }
-      iVar3 = iVar3 + 1;
-      puVar2 = puVar2 + 1;
-    } while (iVar3 < 10);
-    FUN_00102ea4(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+      i = i + 1;
+      cursor = (ChallengeMenu *)((u32 *)cursor + 1);
+    } while (i < CHALLENGE_EXTRAS);
+    FUN_00102ea4(self,0);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

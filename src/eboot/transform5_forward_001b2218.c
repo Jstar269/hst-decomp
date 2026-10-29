@@ -3,8 +3,9 @@
 extern int FUN_001b2240(int, int, int, int, int, int, float, float, float, float);
 extern float DAT_002e9908, DAT_002e990c, DAT_002e9910, DAT_002e9914;
 
-int FUN_001b2218(int a0, int a1, int a2, int a3, int a4)
+/* Positional update with the default blend values (four globals) and no explicit position. */
+int FUN_001b2218(int self, int handle_ref, int ref_pos, int out_volume, int fold)
 {
-    return FUN_001b2240(a0, a1, a2, a3, a4, 0,
+    return FUN_001b2240(self, handle_ref, ref_pos, out_volume, fold, 0,
                         DAT_002e9908, DAT_002e990c, DAT_002e9910, DAT_002e9914);
 }

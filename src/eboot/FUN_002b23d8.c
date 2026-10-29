@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002b23d8 end=0x002b2628 symbol=FUN_002b23d8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern char DAT_00302e9c[];
@@ -16,45 +16,46 @@ extern void FUN_000ffb3c();
 extern int FUN_001026b8();
 extern int FUN_001039d8();
 
-void FUN_002b23d8(int param_1,u32 param_2,u32 param_3)
+/* Looks up nine named child widgets of the pane `pane_id` (name built from a format and `index`) and shows each. */
+void FUN_002b23d8(int self,u32 pane_id,u32 index)
 {
-  u32 uVar1;
-  u8 auStack_40 [64];
+  u32 widget;
+  u8 name [64];
   
-  FUN_000143b0(auStack_40,DAT_00302fd0);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_00302fe4,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_00302ff0,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_00303000,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_00303010,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_0030301c,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_00303028,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_0030303c,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
-  FUN_000143b0(auStack_40,DAT_00302e9c,param_3);
-  uVar1 = FUN_001039d8(param_1 + 0x3c,param_2,0);
-  uVar1 = FUN_001026b8(uVar1,auStack_40);
-  FUN_000ffb3c(uVar1,1);
+  FUN_000143b0(name,DAT_00302fd0);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_00302fe4,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_00302ff0,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_00303000,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_00303010,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_0030301c,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_00303028,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_0030303c,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
+  FUN_000143b0(name,DAT_00302e9c,index);
+  widget = FUN_001039d8(self + 0x3c,pane_id,0);
+  widget = FUN_001026b8(widget,name);
+  FUN_000ffb3c(widget,1);
 }

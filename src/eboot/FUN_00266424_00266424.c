@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00266424 end=0x002664c0 symbol=FUN_00266424 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: typed the final copied state field as float; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: typed the final copied state field as float; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/mover.h"
 
 extern void FUN_00055044();
 extern void FUN_00059174();
@@ -10,25 +11,25 @@ extern void FUN_00266818();
 extern void FUN_0026694c();
 extern void FUN_00266b1c();
 
-void FUN_00266424(int param_1)
+/* Per-frame update: steps the vector, refreshes the heading and updates the body (and the optional second body). */
+void FUN_00266424(Mover *self)
 {
-  int iVar1;
-  float fVar2;
+  MoverBody *body;
+  float heading;
   
-  FUN_0026694c(param_1);
-  fVar2 = FUN_00128e40(*(float *)(param_1 + 0x164),*(float *)(param_1 + 0x168));
-  *(float *)(param_1 + 0x164) = fVar2;
-  FUN_00266b1c(param_1);
-  iVar1 = *(int *)(param_1 + 0x70);
-  FUN_00059174(iVar1);
-  FUN_0005f0d8(iVar1);
-  if (*(int *)(param_1 + 0x74) != 0) {
-    FUN_00055044(*(int *)(param_1 + 0x74),(u32 *)(*(int *)(param_1 + 0x70) + 0x30));
-    iVar1 = *(int *)(param_1 + 0x74);
-    FUN_00059174(iVar1);
-    FUN_0005f0d8(iVar1);
+  FUN_0026694c(self);
+  heading = FUN_00128e40(self->heading,self->prevHeading);
+  self->heading = heading;
+  FUN_00266b1c(self);
+  body = self->body;
+  FUN_00059174(body);
+  FUN_0005f0d8(body);
+  if (self->body2 != 0) {
+    FUN_00055044(self->body2,self->body->unk30);
+    body = self->body2;
+    FUN_00059174(body);
+    FUN_0005f0d8(body);
   }
-  FUN_00266818(param_1);
-  *(float *)(*(int *)(param_1 + 0x70) + 0x80) =
-       *(float *)(*(int *)(param_1 + 0x70) + 0x104);
+  FUN_00266818(self);
+  self->body->unk80 = self->body->tracks[0].value;
 }

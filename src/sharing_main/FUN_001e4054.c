@@ -2,10 +2,14 @@
 /* Clone of src/eboot/FUN_001d6264.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-void FUN_001e4054(int param_1,u32 *param_2)
+/* Small object: a word at +4 and a word copied from a source at +8. */
+typedef struct WordCell { char pad00[4]; u32 unk04; u32 value; } WordCell;
+
+/* Store *src (when given) as the value and clear the word at +4. */
+void FUN_001e4054(WordCell *self,u32 *src)
 {
-  if (param_2 != (u32 *)0x0) {
-    *(u32 *)(param_1 + 8) = *param_2;
+  if (src != (u32 *)0x0) {
+    self->value = *src;
   }
-  *(u32 *)(param_1 + 4) = 0;
+  self->unk04 = 0;
 }

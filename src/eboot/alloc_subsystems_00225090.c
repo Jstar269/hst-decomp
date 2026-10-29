@@ -1,107 +1,93 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00225090 end=0x00225288 symbol=FUN_00225090 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/mode_parts.h"
 
-extern u32 FUN_00000bcc();
-extern u32 FUN_0018a5a8();
-extern u32 FUN_0021aa34();
-extern u32 FUN_0021aec0();
-extern u32 FUN_0021b328();
-extern u32 FUN_0021b478();
-extern u32 FUN_0021bb04();
-extern u32 FUN_0021f5c4();
-extern u32 FUN_0022060c();
-extern u32 FUN_002226b4();
-extern u32 FUN_002239ec();
-extern u32 FUN_00224468();
-extern u32 FUN_00224a28();
+extern void *FUN_00000bcc();
+extern void *FUN_0018a5a8();
+extern void *FUN_0021aa34();
+extern void *FUN_0021aec0();
+extern void *FUN_0021b328();
+extern void *FUN_0021b478();
+extern void *FUN_0021bb04();
+extern void *FUN_0021f5c4();
+extern void *FUN_0022060c();
+extern void *FUN_002226b4();
+extern void *FUN_002239ec();
+extern void *FUN_00224468();
+extern void *FUN_00224a28();
 extern void FUN_00291b8c();
 extern void FUN_002931f0(float, u32, int);
 extern u32 FUN_002933fc();
 
 extern u32 DAT_0034a820;
 
-typedef struct {
-    u32 f0;
-    u32 f1;
-    u32 f2;
-    u32 f3;
-    u32 f4;
-    u32 f5;
-    u32 f6;
-    u32 f7;
-    u32 f8;
-    u32 f9;
-    u32 f10;
-    u32 f11;
-    u32 f12;
-} Obj;
-
-Obj *FUN_00225090(Obj *p)
+/* Build the part set: clear every pointer, then allocate and construct each part. */
+ModeParts *FUN_00225090(ModeParts *parts)
 {
-    u32 m;
+    void *part;
 
-    p->f0 = 0;
-    p->f1 = 0;
-    p->f2 = 0;
-    p->f3 = 0;
-    p->f4 = 0;
-    p->f5 = 0;
-    p->f6 = 0;
-    p->f7 = 0;
-    p->f8 = 0;
-    p->f9 = 0;
-    p->f10 = 0;
-    p->f11 = 0;
-    p->f12 = 0;
+    parts->part00 = 0;
+    parts->part04 = 0;
+    parts->part08 = 0;
+    parts->part0c = 0;
+    parts->part10 = 0;
+    parts->part14 = 0;
+    parts->part18 = 0;
+    parts->part1c = 0;
+    parts->part20 = 0;
+    parts->part24 = 0;
+    parts->part28 = 0;
+    parts->part2c = 0;
+    parts->part30 = 0;
 
-    m = FUN_00000bcc(0x90);
-    if (m != 0) m = FUN_0021aec0(m);
-    p->f0 = m;
+    part = FUN_00000bcc(0x90);
+    if (part != 0) part = FUN_0021aec0(part);
+    parts->part00 = part;
 
-    m = FUN_00000bcc(0x60);
-    if (m != 0) m = FUN_0021b328(m);
-    p->f1 = m;
+    part = FUN_00000bcc(0x60);
+    if (part != 0) part = FUN_0021b328(part);
+    parts->part04 = part;
 
-    m = FUN_00000bcc(0x19c);
-    if (m != 0) m = FUN_0021b478(m);
-    p->f2 = m;
+    part = FUN_00000bcc(0x19c);
+    if (part != 0) part = FUN_0021b478(part);
+    parts->part08 = part;
 
-    m = FUN_00000bcc(0xe8);
-    if (m != 0) m = FUN_0021bb04(m, 1);
-    p->f3 = m;
+    part = FUN_00000bcc(0xe8);
+    if (part != 0) part = FUN_0021bb04(part, 1);
+    parts->part0c = part;
 
-    m = FUN_00000bcc(0x90);
-    if (m != 0) m = FUN_0021f5c4(m);
-    p->f4 = m;
+    part = FUN_00000bcc(0x90);
+    if (part != 0) part = FUN_0021f5c4(part);
+    parts->part10 = part;
 
-    m = FUN_00000bcc(0xcc);
-    if (m != 0) m = FUN_002226b4(m, 0);
-    p->f6 = m;
+    part = FUN_00000bcc(0xcc);
+    if (part != 0) part = FUN_002226b4(part, 0);
+    parts->part18 = part;
 
-    m = FUN_00000bcc(0x78);
-    if (m != 0) m = FUN_0022060c(m);
-    p->f7 = m;
+    part = FUN_00000bcc(0x78);
+    if (part != 0) part = FUN_0022060c(part);
+    parts->part1c = part;
 
-    m = FUN_00000bcc(0xb4);
-    if (m != 0) m = FUN_002239ec(m);
-    p->f8 = m;
+    part = FUN_00000bcc(0xb4);
+    if (part != 0) part = FUN_002239ec(part);
+    parts->part20 = part;
 
-    m = FUN_00000bcc(0x11c);
-    if (m != 0) m = FUN_00224468(m);
-    p->f9 = m;
+    part = FUN_00000bcc(0x11c);
+    if (part != 0) part = FUN_00224468(part);
+    parts->part24 = part;
 
-    m = FUN_00000bcc(8);
-    if (m != 0) m = FUN_0021aa34(m);
-    p->f10 = m;
+    part = FUN_00000bcc(8);
+    if (part != 0) part = FUN_0021aa34(part);
+    parts->part28 = part;
 
-    m = FUN_00000bcc(0xc9c);
-    if (m != 0) m = FUN_0018a5a8(m);
-    p->f11 = m;
+    part = FUN_00000bcc(0xc9c);
+    if (part != 0) part = FUN_0018a5a8(part);
+    parts->part2c = part;
 
-    m = FUN_00000bcc(0x880);
-    if (m != 0) m = FUN_00224a28(m);
-    p->f12 = m;
+    part = FUN_00000bcc(0x880);
+    if (part != 0) part = FUN_00224a28(part);
+    parts->part30 = part;
 
     if (DAT_0034a820 != 0) {
         FUN_00291b8c(DAT_0034a820, 1);
@@ -109,5 +95,5 @@ Obj *FUN_00225090(Obj *p)
             FUN_002931f0(65535.0f, DAT_0034a820, -1);
         }
     }
-    return p;
+    return parts;
 }

@@ -4,17 +4,20 @@ struct Vec4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
 
-struct Globals { char pad[0x1d0]; Vec4 f1d0; };
-struct Obj {
+struct CamGlobals { char pad[0x1d0]; Vec4 pos; };
+/* Debug camera state: the same object as the debug camera update source. */
+struct DebugCam {
     char pad0[0xc8];
-    int fc8;
+    int mode;
     char pad1[0xf0 - 0xcc];
-    float f0f0;
-    int f0f4;
-    int f0f8;
+    float fov;
+    int preset;
+    int obj;
 };
 
-extern Globals *DAT_003313c4;
+enum { CAM_OFF = 0, CAM_FREE = 1 };
+
+extern CamGlobals *DAT_003313c4;
 extern int DAT_00340284;
 extern char DAT_0030fc10[];
 
@@ -27,30 +30,31 @@ float FUN_0016a93c(Vec4 *, Vec4 *);
 Vec4 *FUN_00022434(Vec4 *, const Vec4 *, const Vec4 *);
 int FUN_00131db8(int, int);
 
-void FUN_000b9208(Obj *o)
+/* Draw the debug camera readout: direction, distance and height to the selected preset, fov and its name. */
+void FUN_000b9208(DebugCam *cam)
 {
-    if (o->fc8 > 0) {
-        if (o->fc8 == 1) {
-            FUN_0015f8f4(o->f0f8);
+    if (cam->mode > CAM_OFF) {
+        if (cam->mode == CAM_FREE) {
+            FUN_0015f8f4(cam->obj);
         } else {
-            Vec4 p;
-            FUN_00131198(&p, DAT_00340284, o->f0f4, -1);
-            Vec4 g;
-            g.x = DAT_003313c4->f1d0.x;
-            g.y = DAT_003313c4->f1d0.y;
-            g.z = DAT_003313c4->f1d0.z;
-            g.w = DAT_003313c4->f1d0.w;
-            Vec4 v;
-            float d; float dy; float len;
-            d = 360.0f - FUN_0016a93c(&p, &g);
-            FUN_00022434(&v, &p, &g);
-            len = sqrtf(v.x * v.x + v.z * v.z);
-            dy = p.y - g.y;
-            FUN_00047d58(DAT_0030fc10, "Direction: %6.1f", (double)d);
-            FUN_00047d58(DAT_0030fc10, "Dist:      %6.1f", (double)len);
-            FUN_00047d58(DAT_0030fc10, "Height:    %6.1f", (double)dy);
-            FUN_00047d58(DAT_0030fc10, "FOV:       %6.1f", (double)o->f0f0);
-            FUN_00047d58(DAT_0030fc10, "CamBasePoint:   %s", FUN_00131db8(DAT_00340284, o->f0f4));
+            Vec4 presetPos;
+            FUN_00131198(&presetPos, DAT_00340284, cam->preset, -1);
+            Vec4 camPos;
+            camPos.x = DAT_003313c4->pos.x;
+            camPos.y = DAT_003313c4->pos.y;
+            camPos.z = DAT_003313c4->pos.z;
+            camPos.w = DAT_003313c4->pos.w;
+            Vec4 delta;
+            float direction; float height; float dist;
+            direction = 360.0f - FUN_0016a93c(&presetPos, &camPos);
+            FUN_00022434(&delta, &presetPos, &camPos);
+            dist = sqrtf(delta.x * delta.x + delta.z * delta.z);
+            height = presetPos.y - camPos.y;
+            FUN_00047d58(DAT_0030fc10, "Direction: %6.1f", (double)direction);
+            FUN_00047d58(DAT_0030fc10, "Dist:      %6.1f", (double)dist);
+            FUN_00047d58(DAT_0030fc10, "Height:    %6.1f", (double)height);
+            FUN_00047d58(DAT_0030fc10, "FOV:       %6.1f", (double)cam->fov);
+            FUN_00047d58(DAT_0030fc10, "CamBasePoint:   %s", FUN_00131db8(DAT_00340284, cam->preset));
         }
     }
 }

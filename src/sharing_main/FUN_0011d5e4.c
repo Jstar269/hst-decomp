@@ -8,22 +8,23 @@ extern u8 DAT_003b101c;
 extern void FUN_00000a00();
 extern u32 * FUN_0010642c();
 
-int * FUN_0011d5e4(int *param_1,int param_2)
+/* Destructor body for the object with a base at +0x10: restores the vtables and, when asked, destroys the base; frees when `flags` > 0. */
+int * FUN_0011d5e4(int *self,int flags)
 {
-  int *piVar1;
+  int *base;
   
-  if (param_1 != (int *)0x0) {
-    param_1[1] = (int)&DAT_003b100c;
-    *(u8 **)*param_1 = &DAT_003b101c;
-    piVar1 = param_1 + 4;
-    *(int *)(*param_1 + 0xd0) = (int)piVar1 - *param_1;
-    if ((param_2 != 0) && (piVar1 != (int *)0x0)) {
-      param_1[4] = (int)&DAT_003b0a68;
-      FUN_0010642c(piVar1,0);
+  if (self != (int *)0x0) {
+    self[1] = (int)&DAT_003b100c;
+    *(u8 **)*self = &DAT_003b101c;
+    base = self + 4;
+    *(int *)(*self + 0xd0) = (int)base - *self;
+    if ((flags != 0) && (base != (int *)0x0)) {
+      self[4] = (int)&DAT_003b0a68;
+      FUN_0010642c(base,0);
     }
-    if (0 < (short)param_2) {
-      FUN_00000a00(param_1);
+    if (0 < (short)flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

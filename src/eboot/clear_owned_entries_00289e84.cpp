@@ -1,11 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00289e84 end=0x00289f84 symbol=FUN_00289e84 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-struct Elem {
-  int *f0;
-  int *f4;
-  int *f8;
-  int *fc;
-};
+#include "hst/scene_res.h"
 
 template <class T> struct It {
   T *p_;
@@ -25,20 +20,21 @@ template <class T> struct Vec {
   void shrink(int n, Alloc) { size_ -= n; }
 };
 
-extern "C" int FUN_00055e48(int *, int);
-extern "C" int FUN_00053718(int *, int);
+extern "C" int FUN_00055e48(void *, int);
+extern "C" int FUN_00053718(SceneModel *, int);
 extern "C" void FUN_00000a00(void *);
 
-extern "C" void FUN_00289e84(Vec<Elem *> *v)
+/* Destroy every owned resource set (motion, break model, collision, model), free it, then empty the vector. */
+extern "C" void FUN_00289e84(Vec<SceneResSet *> *v)
 {
-  for (It<Elem *> it = v->begin(); it != v->end(); ++it) {
-    Elem *e = *it;
-    if (e != 0) {
-      if (e->fc != 0) { FUN_00055e48(e->fc, 1); e->fc = 0; }
-      if (e->f8 != 0) { FUN_00053718(e->f8, 1); e->f8 = 0; }
-      if (e->f4 != 0) { FUN_00053718(e->f4, 1); e->f4 = 0; }
-      if (e->f0 != 0) { FUN_00053718(e->f0, 1); e->f0 = 0; }
-      if (e != 0) FUN_00000a00(e);
+  for (It<SceneResSet *> it = v->begin(); it != v->end(); ++it) {
+    SceneResSet *set = *it;
+    if (set != 0) {
+      if (set->motion != 0) { FUN_00055e48(set->motion, 1); set->motion = 0; }
+      if (set->breakModel != 0) { FUN_00053718(set->breakModel, 1); set->breakModel = 0; }
+      if (set->collision != 0) { FUN_00053718(set->collision, 1); set->collision = 0; }
+      if (set->model != 0) { FUN_00053718(set->model, 1); set->model = 0; }
+      if (set != 0) FUN_00000a00(set);
     }
   }
   int n = v->size_;

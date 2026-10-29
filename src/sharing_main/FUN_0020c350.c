@@ -4,8 +4,9 @@
 extern void FUN_0001ef14();
 extern void FUN_002104c4();
 
-void FUN_0020c350(int param_1)
+/* Releases the sub-object at 0x1250, then forwards to the base cleanup. */
+void FUN_0020c350(int self)
 {
-  FUN_002104c4(param_1 + 0x1250);
-  FUN_0001ef14(param_1,0);
+  FUN_002104c4(self + 0x1250);
+  FUN_0001ef14(self,0);
 }

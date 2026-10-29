@@ -1,48 +1,65 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ef480 end=0x000ef564 symbol=FUN_000ef480 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5, variant v17c) corrected by hand: flag byte typed unsigned char, the global pointer read once into a local inside the flag block, locals declared index/walking pointer/element; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5, variant v17c) corrected by hand: flag byte typed unsigned char, the global pointer read once into a local inside the flag block, locals declared index/walking pointer/element; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+
+enum { SLOT_COUNT = 2 };
+
+struct VC_0 { virtual ~VC_0(); };
+
+struct GlobalState {
+  char pad00[0xc];
+  int unkc;                 /* 0x0c */
+  char pad10[0x52 - 0x10];
+  u8 unk52;                 /* 0x52 */
+};
+
+struct Self {
+  const void *vtable;       /* 0x00 */
+  char pad04[0x55 - 0x4];
+  u8 registered;            /* 0x55 when set, the global state is reset on destruction */
+  char pad56[0x94 - 0x56];
+  VC_0 *slots[SLOT_COUNT];  /* 0x94 */
+  void *owned;              /* 0x9c released with FUN_0005ba00 */
+};
 
 extern "C" {
 extern u8 DAT_003078f4;
-extern char * DAT_00331b84;
+extern GlobalState * DAT_00331b84;
 extern void FUN_00000a00(...);
 extern int FUN_0005ba00(...);
 extern u32 * FUN_00102ea4(...);
 }
-struct VC_0 { virtual ~VC_0(); };
 
-extern "C" u32 * FUN_000ef480(u32 *param_1,short param_2)
+/* Deleting destructor: releases the owned object and the two slot objects, then runs the base destructor. */
+extern "C" Self * FUN_000ef480(Self *self,short delete_flag)
 {
-  int iVar4;
-  u32 *puVar3;
-  int *piVar2;
+  int i;
+  VC_0 *item;
 
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003078f4);
-    if (param_1[0x27] != 0) {
-      FUN_0005ba00(param_1[0x27],1);
-      param_1[0x27] = 0;
+  if (self != 0) {
+    self->vtable = &DAT_003078f4;
+    if (self->owned != 0) {
+      FUN_0005ba00(self->owned,1);
+      self->owned = 0;
     }
-    iVar4 = 0;
-    puVar3 = param_1;
+    i = 0;
     do {
-      piVar2 = (int *)puVar3[0x25];
-      if (piVar2 != (int *)0x0) {
-        delete ((VC_0 *)(piVar2));
-        puVar3[0x25] = 0;
+      item = self->slots[i];
+      if (item != 0) {
+        delete item;
+        self->slots[i] = 0;
       }
-      iVar4 = iVar4 + 1;
-      puVar3 = puVar3 + 1;
-    } while (iVar4 < 2);
-    if (*(unsigned char *)((int)param_1 + 0x55) != 0) {
-      char *g = DAT_00331b84;
-      *(u32 *)(g + 0xc) = 0;
-      *(u8 *)(g + 0x52) = 0;
+      i = i + 1;
+    } while (i < SLOT_COUNT);
+    if (self->registered != 0) {
+      GlobalState *g = DAT_00331b84;
+      g->unkc = 0;
+      g->unk52 = 0;
     }
-    FUN_00102ea4(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_00102ea4(self,0);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

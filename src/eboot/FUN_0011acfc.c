@@ -2,66 +2,70 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+#define ELEMS_PER_BLOCK 0x2a  /* queue elements per block */
+
 extern char DAT_0033b480;
 extern int DAT_002d9ba4;
 
 extern void FUN_0001f1fc();
 extern void FUN_0011c998();
 
-typedef struct {
-  int x;
-  int y;
-  float z;
+typedef struct Entry {
+  int kind;
+  int amount;
+  float param;
 } Entry;
 
-typedef struct {
-  u32 count;
-  int pad;
-  u32 a;
-  Entry **rows;
-  u32 b;
-  int flag;
-} Slot;
+/* Block queue of Entry records (block map plus start/size of the elements). */
+typedef struct EntryQueue {
+  u32 map_cap;
+  int map_size;
+  u32 map_start;
+  Entry **map;
+  u32 start;
+  int size;
+} EntryQueue;
 
-typedef struct {
+typedef struct Self {
   char pad0[0x3c];
-  char *obj;
+  char *owner;      /* 0x3c */
   char pad1[0x70];
-  int b0;
-  int b4;
-  float b8;
-  int bc;
-  int c0;
-  float c4;
+  int kind;         /* 0xb0 */
+  int amount;       /* 0xb4 */
+  float param;      /* 0xb8 */
+  int kind2;        /* 0xbc */
+  int amount2;      /* 0xc0 */
+  float param2;     /* 0xc4 */
   char pad2[4];
-  int cc;
+  int count;        /* 0xcc */
 } Self;
 
+/* Counts down; at zero loads the next two queued entries into the task, or ends the task when the queue is empty. */
 void FUN_0011acfc(Self *self)
 {
-  int n = self->cc - 1;
-  self->cc = n;
+  int n = self->count - 1;
+  self->count = n;
   if (n >= 1) {
     return;
   }
-  Slot *s = (Slot *)(self->obj + 0x2e0);
-  if (s->flag != 0) {
-    Entry *e = (Entry *)((char *)s->rows[(s->a + s->b / 0x2a) % s->count] + (s->b % 0x2a) * 0xc);
-    self->b0 = e->x;
-    self->b4 = e->y;
-    self->b8 = e->z;
-    FUN_0011c998(s);
-    if (s->flag != 0) {
-      Entry *e2 = (Entry *)((char *)s->rows[(s->a + s->b / 0x2a) % s->count] + (s->b % 0x2a) * 0xc);
-      self->bc = e2->x;
-      self->c0 = e2->y;
-      self->c4 = e2->z;
-      FUN_0011c998(s);
+  EntryQueue *q = (EntryQueue *)(self->owner + 0x2e0);
+  if (q->size != 0) {
+    Entry *first = (Entry *)((char *)q->map[(q->map_start + q->start / ELEMS_PER_BLOCK) % q->map_cap] + (q->start % ELEMS_PER_BLOCK) * 0xc);
+    self->kind = first->kind;
+    self->amount = first->amount;
+    self->param = first->param;
+    FUN_0011c998(q);
+    if (q->size != 0) {
+      Entry *second = (Entry *)((char *)q->map[(q->map_start + q->start / ELEMS_PER_BLOCK) % q->map_cap] + (q->start % ELEMS_PER_BLOCK) * 0xc);
+      self->kind2 = second->kind;
+      self->amount2 = second->amount;
+      self->param2 = second->param;
+      FUN_0011c998(q);
     }
     else {
-      self->c0 = 0;
+      self->amount2 = 0;
     }
-    self->cc = DAT_002d9ba4;
+    self->count = DAT_002d9ba4;
   }
   else {
     FUN_0001f1fc(self, 0);

@@ -1,14 +1,16 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00100c0c end=0x00100c40 symbol=FUN_00100c0c lang=c99 */
 /* Clone of src/eboot/FUN_000fb4d0.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
+#include "hst/mode_screen.h"
 
-extern void FUN_000fc08c(int param_1,int param_2,float *param_3);
+extern void FUN_000fc08c(void *target,int rank,float *pos);
 
-void FUN_00100c0c(int param_1,int param_2,float *param_3)
+/* Forward (rank, pos) to the core's second target, if there is one. */
+void FUN_00100c0c(ModeScreen *self,int rank,float *pos)
 {
-  int iVar1;
+  void *target;
   
-  if ((*(int *)(param_1 + 0x3c) != 0) &&
-     (iVar1 = *(int *)(*(int *)(param_1 + 0x3c) + 0x90), iVar1 != 0)) {
-    FUN_000fc08c(iVar1,param_2,param_3);
+  if ((self->core != 0) &&
+     (target = self->core->targetB, target != 0)) {
+    FUN_000fc08c(target,rank,pos);
   }
 }

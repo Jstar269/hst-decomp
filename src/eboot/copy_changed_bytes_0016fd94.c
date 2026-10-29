@@ -1,49 +1,57 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016fd94 end=0x0016fe64 symbol=FUN_0016fd94 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: byte pointers typed unsigned char (lbu), renamed src/dst with src declared first for register choice; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: byte pointers typed unsigned char (lbu), renamed src/dst with src declared first for register choice; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/table_page.h"
 
 extern int FUN_0016bb88();
 
-void FUN_0016fd94(int param_1)
+/* Byte tables of the global store the page tables are mirrored into. */
+typedef struct TableStore {
+  char pad000[0x84c];
+  u8 tables[TABLE_PAGE_TABLES][TABLE_PAGE_TABLE_SIZE]; /* 0x84c */
+} TableStore;
+
+/* Copies each of the page's three byte tables into the store, writing only bytes that differ. */
+void FUN_0016fd94(TablePage *self)
 {
-  int iVar1;
+  int count;
   u8 *src;
   u8 *dst;
   
-  iVar1 = FUN_0016bb88();
-  dst = (u8 *)(iVar1 + 0x84c);
-  src = (u8 *)(param_1 + 0x63b);
-  iVar1 = 0;
+  count = FUN_0016bb88();
+  dst = ((TableStore *)count)->tables[0];
+  src = self->tables[0];
+  count = 0;
   do {
     if (*src != *dst) {
       *dst = *src;
     }
-    iVar1 = iVar1 + 1;
+    count = count + 1;
     src = src + 1;
     dst = dst + 1;
-  } while (iVar1 < 0x280);
-  iVar1 = FUN_0016bb88();
-  dst = (u8 *)(iVar1 + 0xacc);
-  src = (u8 *)(param_1 + 0x8bb);
-  iVar1 = 0;
+  } while (count < TABLE_PAGE_TABLE_SIZE);
+  count = FUN_0016bb88();
+  dst = ((TableStore *)count)->tables[1];
+  src = self->tables[1];
+  count = 0;
   do {
     if (*src != *dst) {
       *dst = *src;
     }
-    iVar1 = iVar1 + 1;
+    count = count + 1;
     src = src + 1;
     dst = dst + 1;
-  } while (iVar1 < 0x280);
-  iVar1 = FUN_0016bb88();
-  src = (u8 *)(param_1 + 0xb3b);
-  dst = (u8 *)(iVar1 + 0xd4c);
-  iVar1 = 0;
+  } while (count < TABLE_PAGE_TABLE_SIZE);
+  count = FUN_0016bb88();
+  src = self->tables[2];
+  dst = ((TableStore *)count)->tables[2];
+  count = 0;
   do {
     if (*src != *dst) {
       *dst = *src;
     }
-    iVar1 = iVar1 + 1;
+    count = count + 1;
     src = src + 1;
     dst = dst + 1;
-  } while (iVar1 < 0x280);
+  } while (count < TABLE_PAGE_TABLE_SIZE);
 }

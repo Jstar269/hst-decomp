@@ -36,6 +36,7 @@ struct Vec_00179eb8 {
     }
 };
 
+/* Initialise the vector from the range [first, last): reserve exactly the range size, then copy. */
 extern "C" void FUN_00179eb8(Vec_00179eb8 *v, Elem_00179eb8 *first, Elem_00179eb8 *last) {
     int n = ((char *)last - (char *)first) / (int)sizeof(Elem_00179eb8);
     if (n != 0) {

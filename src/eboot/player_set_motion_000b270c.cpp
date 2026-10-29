@@ -1,5 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000b270c end=0x000b2f0c symbol=FUN_000b270c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+enum {
+    MOTION_NONE = 0x7fff, /* motion id meaning "leave this slot alone" */
+    SOUND_NONE = 0xd0     /* no sound selected */
+};
+
 struct CVec {
     float x, y, z, w;
     CVec() {}
@@ -79,7 +84,7 @@ struct Player {
     float Rand()
     {
         seed = seed * 0x343fd + 0x269ec3;
-        return (float)((seed >> 16) & 0x7fff) * (1.0f / 32768.0f);
+        return (float)((seed >> 16) & MOTION_NONE) * (1.0f / 32768.0f);
     }
 };
 
@@ -132,22 +137,23 @@ void FUN_001b55a0(void *, int, int, int);
 extern "C" float fabsf(float);
 static inline CVec Mul(const CVec &a, CVec b) { CVec r; FUN_00022450(&r, &a, &b); return r; }
 
+/* Start motions id1/id2 on the player's model (and its effect tracks), then pick a sound for some motions. */
 extern "C" void FUN_000b270c(Player *pl, float speed1, int id1, unsigned char c1, int id2, unsigned char c2, float speed2,
                              unsigned char extra, int flag1, int flag2, float add)
 {
-    if (id2 != 0x7fff) {
+    if (id2 != MOTION_NONE) {
         if (pl->effect.IsActive())
             FUN_00058fc0(&pl->effect, -1);
     }
     if (flag1 || flag2) {
-        Effect *e = pl->model->m58;
+        Effect *e = pl->model->m58; /* two-track blend effect */
         if (e) {
             int ids[2] = { id1, id2 };
             unsigned char cs[2] = { c1, c2 };
             float sp[2] = { speed1, speed2 };
             unsigned char fl[2] = { flag1, flag2 };
             for (int i = 0; i < 2; i++) {
-                if (ids[i] != 0x7fff) {
+                if (ids[i] != MOTION_NONE) {
                     FUN_00058ddc(e, cs[i], i);
                     if (fl[i]) {
                         float t = e->tracks[i].anim ? (*e->tracks[i].anim)->time : 0.0f;
@@ -169,9 +175,9 @@ extern "C" void FUN_000b270c(Player *pl, float speed1, int id1, unsigned char c1
         o->mc0 = 0;
         FUN_0005f110(o, o->ma4 ? o->ma4->m10 : 0.0f);
     }
-    if (id1 != 0x7fff) pl->m5b0 = 1;
-    if (id2 != 0x7fff) pl->m5b1 = 1;
-    if (id1 == 0x7fff) return;
+    if (id1 != MOTION_NONE) pl->m5b0 = 1;
+    if (id2 != MOTION_NONE) pl->m5b1 = 1;
+    if (id1 == MOTION_NONE) return;
     Effect *q = pl->model->m64;
     if (q) {
         int n = FUN_000b2fc0(pl, id1);
@@ -192,7 +198,7 @@ extern "C" void FUN_000b270c(Player *pl, float speed1, int id1, unsigned char c1
     }
     if (!extra) return;
     FUN_000b35f4(pl, id1);
-    int snd = 0xd0;
+    int snd = SOUND_NONE;
     switch (id1) {
     case 0x82:
     case 0x84:
@@ -225,6 +231,6 @@ extern "C" void FUN_000b270c(Player *pl, float speed1, int id1, unsigned char c1
         snd = 0x61;
         break;
     }
-    if (snd != 0xd0)
+    if (snd != SOUND_NONE)
         FUN_001b55a0(DAT_003386b0->sound, pl->m148, snd, 1);
 }

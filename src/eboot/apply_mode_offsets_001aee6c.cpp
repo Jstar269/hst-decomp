@@ -1,62 +1,66 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001aee6c end=0x001aef94 symbol=FUN_001aee6c lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: both mode tests are switches (case 0/case 4 sharing a body, default else/return), typed structs with the info sub-object addressed through a pointer, shared pointer loads; exact match verified; names and types await human review. */
-struct Tgt { char pad[0x60]; float v; };
-struct Q { char pad[0x24]; int a; int b; };
-struct Info { Q *p; int val; };
-struct Sh { char pad[4]; short s4; char pad2[2]; short s8; };
-struct A {
+/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: both mode tests are switches (case 0/case 4 sharing a body, default else/return), typed structs with the info sub-object addressed through a pointer, shared pointer loads; readability pass; exact match verified; names and types await human review. */
+enum { MODE_OFFSET = 0x3f };   /* amount subtracted from the two shorts (63.0f is set as the float value) */
+
+struct Target { char pad[0x60]; float value; };
+struct Pair { char pad[0x24]; int a; int b; };
+struct Info { Pair *pair; int val; };
+struct Shorts { char pad[4]; short s4; char pad2[2]; short s8; };
+struct PartA {
   char pad0[0x1c];
-  Tgt *t;
+  Target *target;
   char pad1[0x28c - 0x20];
   Info info;
   char pad2[0x3b8 - 0x294];
-  Sh *sh;
+  Shorts *shorts;
 };
-struct B {
+struct PartB {
   char pad0[0x1c];
-  Tgt *t1;
+  Target *target1;
   char pad1[0x28 - 0x20];
-  Tgt *t2;
+  Target *target2;
 };
-struct S { int pad; A *a; B *b; };
-struct G {
+struct Self { int pad; PartA *part_a; PartB *part_b; };
+struct GameState {
   char pad0[0x11c];
   unsigned char mode;
   char pad1[0x34c - 0x11d];
-  int f34c;
+  int unk34c;
 };
-extern "C" G *FUN_0019d474();
-extern "C" void FUN_00102c54(Tgt *);
+extern "C" GameState *FUN_0019d474();
+extern "C" void FUN_00102c54(Target *);
 
-extern "C" void FUN_001aee6c(S *s)
+/* Apply the per-mode adjustments: modes 0 and 4 use the stored value as is, other modes use it plus one;
+   a state of 2 sets the target value and lowers the shorts; modes 0 and 4 nudge the two part-B targets by +6 / -6. */
+extern "C" void FUN_001aee6c(Self *self)
 {
-  A *a = s->a;
-  unsigned char m = FUN_0019d474()->mode;
-  Info *i = &a->info;
-  switch (m) {
+  PartA *a = self->part_a;
+  unsigned char mode = FUN_0019d474()->mode;
+  Info *info = &a->info;
+  switch (mode) {
   case 0:
   case 4: {
-    int n = i->val;
-    Q *q = i->p;
-    q->a = n;
-    q->b = n;
+    int n = info->val;
+    Pair *pair = info->pair;
+    pair->a = n;
+    pair->b = n;
     break;
   }
   default: {
-    int n = i->val + 1;
-    Q *q = i->p;
-    q->a = n;
-    q->b = n;
+    int n = info->val + 1;
+    Pair *pair = info->pair;
+    pair->a = n;
+    pair->b = n;
   }
   }
-  if (FUN_0019d474()->f34c == 2) {
-    a->t->v = 63.0f;
-    FUN_00102c54(a->t);
-    Sh *sh = a->sh;
-    sh->s4 = sh->s4 - 0x3f;
-    sh->s8 = sh->s8 - 0x3f;
+  if (FUN_0019d474()->unk34c == 2) {
+    a->target->value = 63.0f;
+    FUN_00102c54(a->target);
+    Shorts *shorts = a->shorts;
+    shorts->s4 = shorts->s4 - MODE_OFFSET;
+    shorts->s8 = shorts->s8 - MODE_OFFSET;
   }
-  B *b = s->b;
+  PartB *b = self->part_b;
   switch (FUN_0019d474()->mode) {
   case 0:
   case 4:
@@ -64,8 +68,8 @@ extern "C" void FUN_001aee6c(S *s)
   default:
     return;
   }
-  b->t1->v = b->t1->v + 6.0f;
-  FUN_00102c54(b->t1);
-  b->t2->v = b->t2->v - 6.0f;
-  FUN_00102c54(b->t2);
+  b->target1->value = b->target1->value + 6.0f;
+  FUN_00102c54(b->target1);
+  b->target2->value = b->target2->value - 6.0f;
+  FUN_00102c54(b->target2);
 }

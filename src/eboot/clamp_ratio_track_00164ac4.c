@@ -1,14 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00164ac4 end=0x00164c60 symbol=FUN_00164ac4 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idioms: the ratio is an in-place divide (`r = c - lo; r = r / (hi - lo);`); the clamp reads the table through a typed Row while the division uses raw offsets so the loads are not shared; `last = count - 1` kept as a local; the final clamp takes its bounds by pointer (double global load). */
-struct Row { int a; int b; int c; int d; float key; };
-struct Tbl {
-    int base;
-    int count;
-    int pad;
-    int idx;
-};
-extern struct Tbl *DAT_0034150c;
-extern struct Tbl *DAT_00341510;
+/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Matching idioms: the ratio is an in-place divide (`r = c - lo; r = r / (hi - lo);`); the clamp reads the table through a typed row (StatCurveRow) while the division uses raw offsets so the loads are not shared; `last = count - 1` kept as a local; the final clamp takes its bounds by pointer (double global load). */
+#include "hst/stat_curve.h"
+
+extern StatTable *DAT_0034150c; /* records, indexed by id */
+extern StatTable *DAT_00341510; /* curve rows */
 extern float DAT_002e03a8;
 extern float DAT_002e03ac;
 extern float FUN_000d8334(int, int);
@@ -22,35 +17,36 @@ static inline float ClampR(float v, const float *lo, const float *hi)
     return v < *lo ? *lo : (!(v > *hi) ? v : *hi);
 }
 
-float FUN_00164ac4(int param_1, int param_2)
+/* Position of the target's value along the curve, as a ratio clamped to the global limits. */
+float FUN_00164ac4(int self, int target)
 {
     float v;
     float c;
     float r;
     int count;
-    int base;
+    char *base;
     int last;
 
-    if (param_2 != 0 && *(short *)(param_2 + 10) / 10 == 50) {
+    if (target != 0 && *(short *)(target + 10) / STAT_ID_GROUP_DIVISOR == STAT_GROUP_LAST) {
         count = DAT_00341510->count;
         base = DAT_00341510->base;
         last = count - 1;
-        c = *(float *)((char *)base + last * 0x14 + 0x10);
+        c = *(float *)(base + last * STAT_CURVE_ROW_SIZE + 0x10);
     } else {
-        v = *(float *)(param_1 + 0x58);
-        if (param_2 != 0) {
-            if (*(short *)(param_2 + 10) >= 0)
+        v = *(float *)(self + 0x58);
+        if (target != 0) {
+            if (*(short *)(target + 10) >= 0)
                 v += *(float *)(DAT_0034150c->base +
-                                *(short *)(DAT_0034150c->idx + *(short *)(param_2 + 10) * 2) * 0x22c +
+                                DAT_0034150c->index[*(short *)(target + 10)] * STAT_RECORD_SIZE +
                                 0x58);
-            v += FUN_000d8334(param_2, 4);
+            v += FUN_000d8334(target, 4);
         }
         count = DAT_00341510->count;
         base = DAT_00341510->base;
         last = count - 1;
-        c = Clamp(v, ((struct Row *)base)[0].key, *(float *)((char *)base + last * 0x14 + 0x10));
+        c = Clamp(v, ((StatCurveRow *)base)[0].col10, *(float *)(base + last * STAT_CURVE_ROW_SIZE + 0x10));
     }
     r = c - *(float *)(base + 0x10);
-    r = r / (*(float *)(base + (count - 1) * 0x14 + 0x10) - *(float *)(base + 0x10));
+    r = r / (*(float *)(base + (count - 1) * STAT_CURVE_ROW_SIZE + 0x10) - *(float *)(base + 0x10));
     return ClampR(r, &DAT_002e03a8, &DAT_002e03ac);
 }

@@ -1,6 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00130304 end=0x00130654 symbol=FUN_00130304 lang=c99 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
-/* Ghidra pseudocode (hstgen mechanical draft) corrected by hand: flipped the strcmp-equality chain to the positive if/else-if form, an accumulator per digit field, and the loop increment order; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen mechanical draft) corrected by hand: flipped the strcmp-equality chain to the positive if/else-if form, an accumulator per digit field, and the loop increment order; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern u8 DAT_002db130;
@@ -19,90 +19,93 @@ extern char DAT_002db174[];
 extern char DAT_002db180[];
 extern char *FUN_00014d64();
 
-u32 FUN_00130304(u32 param_1, int param_2, unsigned int *param_3)
+/* Classifies a command name by substring match and returns its kind id (0 if none). Kinds that carry
+   digits in the name also set *out: kind 4 ORs in one bit per 2-digit number in a separator-delimited
+   list; the others store a 2- or 3-digit number. */
+u32 FUN_00130304(u32 unused, char *name, unsigned int *out)
 {
-  char *iVar1;
-  char *pcVar2;
-  int n;
-  u32 uVar3;
+  char *hit;
+  char *cur;
+  int num;
+  u32 kind;
 
-  uVar3 = 0;
-  if (param_2 == 0) {
-    uVar3 = 0;
+  kind = 0;
+  if (name == 0) {
+    kind = 0;
   }
   else {
-    if (FUN_00014d64(param_2, DAT_002db100) != 0) {
-      uVar3 = 1;
+    if (FUN_00014d64(name, DAT_002db100) != 0) {
+      kind = 1;
     }
-    else if (FUN_00014d64(param_2, DAT_002db10c) != 0) {
-      uVar3 = 2;
+    else if (FUN_00014d64(name, DAT_002db10c) != 0) {
+      kind = 2;
     }
-    else if (FUN_00014d64(param_2, DAT_002db118) != 0) {
-      uVar3 = 3;
+    else if (FUN_00014d64(name, DAT_002db118) != 0) {
+      kind = 3;
     }
-    else if (FUN_00014d64(param_2, DAT_002db124) != 0) {
-      uVar3 = 4;
-      pcVar2 = FUN_00014d64(param_2, DAT_002db124) + 10;
+    else if (FUN_00014d64(name, DAT_002db124) != 0) {
+      kind = 4;
+      cur = FUN_00014d64(name, DAT_002db124) + 10;
       while (1) {
-        n = 0;
-        n += (*pcVar2 - 0x30) * 10;
-        n += pcVar2[1] - 0x30;
-        *param_3 = *param_3 | 1 << n;
-        pcVar2++;
-        iVar1 = FUN_00014d64(pcVar2, &DAT_002db130);
-        if (iVar1 == 0) break;
-        pcVar2 = iVar1 + 1;
+        num = 0;
+        num += (*cur - '0') * 10;
+        num += cur[1] - '0';
+        *out = *out | 1 << num;
+        cur++;
+        hit = FUN_00014d64(cur, &DAT_002db130);
+        if (hit == 0) break;
+        cur = hit + 1;
       }
     }
-    else if (FUN_00014d64(param_2, &DAT_002db134) != 0) {
-      uVar3 = 5;
-      iVar1 = FUN_00014d64(param_2, &DAT_002db134);
-      n = 0;
-      n += (iVar1[4] - 0x30) * 10;
-      n += iVar1[5] - 0x30;
-      *param_3 = n;
+    else if (FUN_00014d64(name, &DAT_002db134) != 0) {
+      kind = 5;
+      hit = FUN_00014d64(name, &DAT_002db134);
+      num = 0;
+      num += (hit[4] - '0') * 10;
+      num += hit[5] - '0';
+      *out = num;
     }
-    else if (FUN_00014d64(param_2, DAT_002db13c) != 0) {
-      uVar3 = 6;
-      iVar1 = FUN_00014d64(param_2, DAT_002db13c);
-      n = 0;
-      n += (iVar1[6] - 0x30) * 10;
-      n += iVar1[7] - 0x30;
-      *param_3 = n;
+    else if (FUN_00014d64(name, DAT_002db13c) != 0) {
+      kind = 6;
+      hit = FUN_00014d64(name, DAT_002db13c);
+      num = 0;
+      num += (hit[6] - '0') * 10;
+      num += hit[7] - '0';
+      *out = num;
     }
-    else if (FUN_00014d64(param_2, DAT_002db144) != 0) {
-      uVar3 = 7;
+    else if (FUN_00014d64(name, DAT_002db144) != 0) {
+      kind = 7;
     }
-    else if (FUN_00014d64(param_2, DAT_002db150) != 0) {
-      uVar3 = 8;
+    else if (FUN_00014d64(name, DAT_002db150) != 0) {
+      kind = 8;
     }
-    else if (FUN_00014d64(param_2, DAT_002db158) != 0) {
-      uVar3 = 9;
+    else if (FUN_00014d64(name, DAT_002db158) != 0) {
+      kind = 9;
     }
-    else if (FUN_00014d64(param_2, DAT_002db01c) != 0) {
-      uVar3 = 10;
-      iVar1 = FUN_00014d64(param_2, DAT_002db01c);
-      n = 0;
-      n += (iVar1[10] - 0x30) * 100;
-      n += (iVar1[0xb] - 0x30) * 10;
-      n += iVar1[0xc] - 0x30;
-      *param_3 = n;
+    else if (FUN_00014d64(name, DAT_002db01c) != 0) {
+      kind = 10;
+      hit = FUN_00014d64(name, DAT_002db01c);
+      num = 0;
+      num += (hit[10] - '0') * 100;
+      num += (hit[0xb] - '0') * 10;
+      num += hit[0xc] - '0';
+      *out = num;
     }
-    else if (FUN_00014d64(param_2, DAT_002db164) != 0) {
-      uVar3 = 0xc;
+    else if (FUN_00014d64(name, DAT_002db164) != 0) {
+      kind = 0xc;
     }
-    else if (FUN_00014d64(param_2, DAT_002db174) != 0) {
-      uVar3 = 0xd;
+    else if (FUN_00014d64(name, DAT_002db174) != 0) {
+      kind = 0xd;
     }
-    else if (FUN_00014d64(param_2, DAT_002db180) != 0) {
-      uVar3 = 0xe;
-      iVar1 = FUN_00014d64(param_2, DAT_002db180);
-      n = 0;
-      n += (iVar1[0xb] - 0x30) * 100;
-      n += (iVar1[0xc] - 0x30) * 10;
-      n += iVar1[0xd] - 0x30;
-      *param_3 = n;
+    else if (FUN_00014d64(name, DAT_002db180) != 0) {
+      kind = 0xe;
+      hit = FUN_00014d64(name, DAT_002db180);
+      num = 0;
+      num += (hit[0xb] - '0') * 100;
+      num += (hit[0xc] - '0') * 10;
+      num += hit[0xd] - '0';
+      *out = num;
     }
   }
-  return uVar3;
+  return kind;
 }

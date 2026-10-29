@@ -1,9 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00179ad8 end=0x00179c00 symbol=FUN_00179ad8 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-/* vector<vector<int>>::assign(n, x)-style: grow path (recommend 0x17a548, reallocate 0x17a62c, append n copies
-   0x179c00); otherwise copy-assign min(n, size) elements (inner assign 0x179fb0), then erase the tail (0x17a4b4)
-   or append n - size copies. The grow path is written as the fall-through after an if/else whose else-part
-   returns, which reproduces retail's block order. Names provisional. */
+/* vector<vector<int>>::assign(n, x)-style: grow path (recommend FUN_0017a548, reallocate FUN_0017a62c, append n copies
+   FUN_00179c00); otherwise copy-assign min(n, size) elements (inner assign FUN_00179fb0), then erase the tail
+   (FUN_0017a4b4) or append n - size copies. The grow path is written as the fall-through after an if/else whose
+   else-part returns, which reproduces retail's block order. Names provisional. */
 template <class T> inline const T &Min_00179ad8(const T &a, const T &b) { return b < a ? b : a; }
 struct Tag_00179ad8 {};  /* empty tag passed by value to the out-of-line helpers (callee sees seb of 0) */
 struct Tag2_00179ad8 {}; /* empty dispatch tag consumed by an inline function (one 4-byte frame slot each) */
@@ -47,9 +47,9 @@ inline void Fill_00179ad8(IVec_00179ad8 *p, unsigned m, const IVec_00179ad8 &x, 
 
 extern "C" void FUN_00179ad8(Vec_00179ad8 *v, unsigned n, const IVec_00179ad8 &x)
 {
-    unsigned c;
+    unsigned newCap;
     if (v->cap_ < n) {
-        c = FUN_0017a548(v, n - v->cap_);
+        newCap = FUN_0017a548(v, n - v->cap_);
     } else {
         Fill_00179ad8(v->data_, Min_00179ad8(n, v->size_), x, Tag2_00179ad8());
         if (n < v->size_) {
@@ -59,6 +59,6 @@ extern "C" void FUN_00179ad8(Vec_00179ad8 *v, unsigned n, const IVec_00179ad8 &x
         FUN_00179c00(v, n - v->size_, x, Tag_00179ad8());
         return;
     }
-    FUN_0017a62c(v, n, c);
+    FUN_0017a62c(v, n, newCap);
     FUN_00179c00(v, n, x, Tag_00179ad8());
 }

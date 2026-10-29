@@ -1,22 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00231f84 end=0x00232084 symbol=FUN_00231f84 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern float FUN_0000ce3c(float value, float period);
+#include "hst/challenge_menu.h"
+
+extern float FUN_0000ce3c(float base, float exponent);
 extern float sqrtf(float value);
 
-void FUN_00231f84(char *self, int *out_idx, float *out_dist)
+#define FAR_DISTANCE 99999.0f /* start value of the best squared distance */
+#define POINT_MIN_COUNT 2     /* a point is usable from this count on */
+
+/* Find the usable point nearest to the selected one's position; returns its index and the distance. */
+void FUN_00231f84(ChallengeMenu *self, int *out_idx, float *out_dist)
 {
     int best_idx = 0;
-    float best = 99999.0f;
+    float best = FAR_DISTANCE;
     int i = 0;
-    char *p = self;
-    for (; i < 10; i++, p += 4) {
+    for (; i < POINT_COUNT; i++) {
         int ok = 0;
-        if (*(int *)(p + 0x200) >= 2)
+        if (self->count[i] >= POINT_MIN_COUNT)
             ok = 1;
         if (!ok)
             continue;
-        float sx = FUN_0000ce3c(*(float *)(self + 0x1ec) - *(float *)(p + 0x2a0), 2.0f);
-        float sy = FUN_0000ce3c(*(float *)(self + 0x1f0) - *(float *)(p + 0x2c8), 2.0f);
+        float sx = FUN_0000ce3c(self->pos_x - self->x[i], 2.0f);
+        float sy = FUN_0000ce3c(self->pos_y - self->y[i], 2.0f);
         float d = sx + sy;
         if (d < best) {
             best = d;

@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00219a50 end=0x00219fa0 symbol=FUN_00219a50 lang=c++ */
 /* Hand-written reconstruction from the disassembly (EBOOT twin of src/sharing_main/particle_set_mode_00228f68.cpp); Init/Step are static inline helpers expanded in place (Step's respawn calls the out-of-line copy of Init, FUN_002198b4, directly: MWCC does not inline a call made from an inlined body); exact match verified; names and types await human review. */
+#include "hst/particle_sys.h"
+
 struct Vec4 {
     float x, y, z, w;
     Vec4() {}
@@ -10,7 +12,7 @@ struct Mat4 {
     Vec4 r0, r1, r2, r3;
 };
 
-struct Particle {           /* 0xa0 bytes */
+struct Particle {           /* PARTICLE_SIZE bytes */
     char pad0[0x10];
     Mat4 m;                 /* +0x10 */
     char pad50[0x20];
@@ -21,10 +23,10 @@ struct Particle {           /* 0xa0 bytes */
 };
 
 struct System {
-    int m0;
-    Particle *parts;        /* +0x04, 200 entries */
+    int unk0;
+    Particle *parts;        /* +0x04, PARTICLE_COUNT entries */
     int mode;               /* +0x08 */
-    int mc;
+    int unkc;
     Vec4 origin;            /* +0x10 */
 };
 
@@ -42,6 +44,7 @@ extern "C" Vec4 *FUN_00219998(Vec4 *, const Vec4 *);              /* a -= b */
 
 static inline void Init(Particle *p)
 {
+    /* Place the particle at a random x/z position on the y = -3.5 plane. */
     float rx = (1.0f - ((float)FUN_0001342c() * 2.0f) / 2147483648.0f) * 2.5f;
     float rz = (1.0f - ((float)FUN_0001342c() * 2.0f) / 2147483648.0f) * 2.5f;
 
@@ -51,6 +54,7 @@ static inline void Init(Particle *p)
     p->pos.w = 0.0f;
 }
 
+/* One simulation step: random spin, damped velocity, move, respawn when the particle reaches y >= 0. */
 static inline void Step(System *self, Particle *p)
 {
     FUN_0004d280(&p->m, &p->m, p->spin * (float)FUN_0001342c() / 2147483648.0f);
@@ -71,24 +75,24 @@ extern "C" void FUN_00219a50(System *self, int mode)
 {
     self->mode = mode;
     switch (mode) {
-    case 0:
-        for (int i = 0; i < 200; i++) {
+    case PARTICLE_MODE_WARMUP:
+        for (int i = 0; i < PARTICLE_COUNT; i++) {
             Init(&self->parts[i]);
             Step(self, &self->parts[i]);
             Step(self, &self->parts[i]);
             Step(self, &self->parts[i]);
         }
-        self->mode = 1;
+        self->mode = PARTICLE_MODE_RUN;
         break;
-    case 1:
+    case PARTICLE_MODE_RUN:
         break;
-    case 2:
-        for (int i = 0; i < 200; i++) {
+    case PARTICLE_MODE_REINIT:
+        for (int i = 0; i < PARTICLE_COUNT; i++) {
             Init(&self->parts[i]);
         }
-        self->mode = 1;
+        self->mode = PARTICLE_MODE_RUN;
         break;
-    case 3:
+    case PARTICLE_MODE_3:
         break;
     }
 }

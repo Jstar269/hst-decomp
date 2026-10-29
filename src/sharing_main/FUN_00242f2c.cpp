@@ -1,29 +1,32 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00242f2c end=0x00242fc4 symbol=FUN_00242f2c lang=c++ */
 /* Clone of src/eboot/FUN_00232e2c.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+#include "hst/challenge_lobby.h"
 
-extern "C" {
-}
-struct VC_0 { virtual ~VC_0(); };
-struct VC_1 { virtual ~VC_1(); };
-struct VC_2 { virtual ~VC_2(); };
+/* Owned objects, each deleted through its virtual destructor. */
+struct LobbyMenu { virtual ~LobbyMenu(); };
+struct LobbyHelper4 { virtual ~LobbyHelper4(); };
+struct LobbyHelper8 { virtual ~LobbyHelper8(); };
 
-extern "C" void FUN_00242f2c(int *param_1)
+/* Deletes the lobby's three owned objects (menu and the two helpers) and clears the pointers. */
+extern "C" void FUN_00242f2c(ChallengeLobby *self)
 {
-  int *piVar1;
+  LobbyMenu *menu;
+  LobbyHelper4 *helper4;
+  LobbyHelper8 *helper8;
   
-  piVar1 = (int *)*param_1;
-  if (piVar1 != (int *)0x0) {
-    delete ((VC_0 *)(piVar1));
-    *param_1 = 0;
+  menu = self->menu;
+  if (menu != 0) {
+    delete menu;
+    self->menu = 0;
   }
-  piVar1 = (int *)param_1[1];
-  if (piVar1 != (int *)0x0) {
-    delete ((VC_1 *)(piVar1));
-    param_1[1] = 0;
+  helper4 = self->unk4;
+  if (helper4 != 0) {
+    delete helper4;
+    self->unk4 = 0;
   }
-  piVar1 = (int *)param_1[2];
-  if (piVar1 != (int *)0x0) {
-    delete ((VC_2 *)(piVar1));
-    param_1[2] = 0;
+  helper8 = self->unk8;
+  if (helper8 != 0) {
+    delete helper8;
+    self->unk8 = 0;
   }
 }

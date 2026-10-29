@@ -1,13 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016b1fc end=0x0016b21c symbol=FUN_0016b1fc lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/settings_block.h"
 
-extern int FUN_0016b270();
+extern SettingsEntry * FUN_0016b270();
 
-u8 FUN_0016b1fc(void)
+/* Returns the flag byte of entry `index` of the static entry table. */
+u8 FUN_0016b1fc(int index)
 {
-  int iVar1;
+  SettingsEntry *e;
   
-  iVar1 = FUN_0016b270();
-  return *(u8 *)(iVar1 + 1);
+  e = FUN_0016b270(index);
+  return e->unk1;
 }

@@ -1,21 +1,23 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00092dc8 end=0x00092e1c symbol=FUN_00092dc8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: test the first field directly before loading the second; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: test the first field directly before loading the second; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/char_model.h"
 
 extern int FUN_00055e48();
 extern void FUN_0005734c();
 
-void FUN_00092dc8(int param_1)
+/* Releases the loaded body type: item 2, the mesh object, and the body-type id. */
+void FUN_00092dc8(CharModel *self)
 {
-  int iVar1;
+  struct ModelMesh *mesh;
 
-  if (*(int *)(param_1 + 0x58) != 0) {
-    FUN_0005734c(*(int *)(param_1 + 0x58));
+  if (self->item[2] != 0) {
+    FUN_0005734c(self->item[2]);
   }
-  iVar1 = *(int *)(param_1 + 0x6c);
-  if (iVar1 != 0) {
-    FUN_00055e48(iVar1,1);
-    *(u32 *)(param_1 + 0x6c) = 0;
+  mesh = self->mesh;
+  if (mesh != 0) {
+    FUN_00055e48(mesh,1);
+    self->mesh = 0;
   }
-  *(u32 *)(param_1 + 0x68) = 0xffffffff;
+  self->body_type = CHAR_INDEX_NONE;
 }

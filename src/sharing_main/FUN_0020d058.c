@@ -1,19 +1,21 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0020d058 end=0x0020d090 symbol=FUN_0020d058 lang=c99 */
 /* Clone of src/eboot/FUN_001fe888.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+#include "hst/key_record.h"
 
-int FUN_0020d058(int *param_1)
+/* Counts the records whose key is not the empty marker. */
+int FUN_0020d058(KeyRecord *table)
 {
-  int iVar1;
-  int iVar2;
+  int used;
+  int i;
   
-  iVar1 = 0;
-  iVar2 = 0;
+  used = 0;
+  i = 0;
   do {
-    if (*param_1 != 0x7fffffff) {
-      iVar1 = iVar1 + 1;
+    if (table->key != KEY_RECORD_EMPTY) {
+      used = used + 1;
     }
-    iVar2 = iVar2 + 1;
-    param_1 = param_1 + 8;
-  } while (iVar2 < 10);
-  return iVar1;
+    i = i + 1;
+    table = table + 1;
+  } while (i < KEY_RECORD_COUNT);
+  return used;
 }

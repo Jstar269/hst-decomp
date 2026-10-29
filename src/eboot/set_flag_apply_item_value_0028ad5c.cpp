@@ -1,20 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0028ad5c end=0x0028adc4 symbol=FUN_0028ad5c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-struct Item { char pad[8]; float f8; };
-struct Node { Item *item; };
-struct Sub { char pad[0xf4]; Node *node; };
-struct Obj { char pad[0x74]; Sub *sub; char pad78[0xec - 0x78]; unsigned char fec; };
+#include "hst/effect_source.h"
+
 extern "C" {
-void FUN_00058f38(Sub *, float, int);
-void FUN_0005f110(Sub *, float);
-void FUN_0028adc4(Obj *);
+void FUN_00058f38(ModelHolder *, float, int);
+void FUN_0005f110(ModelHolder *, float);
+void FUN_0028adc4(EffectSource *);
 }
-extern "C" void FUN_0028ad5c(Obj *param_1)
+
+/* Marks the source started and applies the holder's node value (0 when it has none). */
+extern "C" void FUN_0028ad5c(EffectSource *self)
 {
-    FUN_0028adc4(param_1);
-    param_1->fec = 1;
-    Sub *s = param_1->sub;
-    float f = s->node != 0 ? s->node->item->f8 : 0.0f;
-    FUN_00058f38(s, f, -1);
-    FUN_0005f110(s, f);
+    FUN_0028adc4(self);
+    self->started = 1;
+    ModelHolder *holder = self->modelA;
+    float value = holder->node != 0 ? holder->node->item->value : 0.0f;
+    FUN_00058f38(holder, value, -1);
+    FUN_0005f110(holder, value);
 }

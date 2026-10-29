@@ -3,35 +3,37 @@
 
 extern int DAT_0034179c;
 extern int FUN_001b1f7c(void *table, int id);
-extern int FUN_001b2bb8(void *table, int param_2);
+extern int FUN_001b2bb8(void *table, int id);
 extern void FUN_001b9608(void *out, void *p60, void *p24, void *p32);
 
-struct Info {
-    int p2;
-    int p3;
-    void *p100_a;
-    void *p100_b;
+/* Arguments handed to the registration helper. */
+struct RegisterArgs {
+    int id;
+    int count;
+    void *slot_a;               /* address of the stored handle */
+    void *slot_b;
 };
 
-void FUN_001b8b48(char *self, int param_2, int param_3)
+/* Stores a freshly created handle in the object, or registers through the helper when count > 0 or the old handle is live. */
+void FUN_001b8b48(char *self, int id, int count)
 {
-    struct Info info;
-    int local_28;
-    void *local_24;
+    struct RegisterArgs args;
+    int result_out;
+    void *range_end;
 
-    if (param_3 <= 0 &&
+    if (count <= 0 &&
         (self + 100 == 0 ||
          FUN_001b1f7c(&DAT_0034179c, *(int *)(self + 100)) == 0)) {
-        int r = FUN_001b2bb8(&DAT_0034179c, param_2);
+        int handle = FUN_001b2bb8(&DAT_0034179c, id);
         if (self + 100 != 0) {
-            *(int *)(self + 100) = r;
+            *(int *)(self + 100) = handle;
         }
     } else {
-        info.p2 = param_2;
-        info.p3 = param_3;
-        info.p100_a = self + 100;
-        info.p100_b = self + 100;
-        local_24 = self + 64;
-        FUN_001b9608(&local_28, self + 60, &local_24, &info);
+        args.id = id;
+        args.count = count;
+        args.slot_a = self + 100;
+        args.slot_b = self + 100;
+        range_end = self + 64;
+        FUN_001b9608(&result_out, self + 60, &range_end, &args);
     }
 }

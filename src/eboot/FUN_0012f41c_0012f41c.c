@@ -1,189 +1,178 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0012f41c end=0x0012f698 symbol=FUN_0012f41c lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/camera_obj.h"
 
-typedef struct Record {
-  u32 w00;
-  u32 w04;
-  u32 w08;
-  u32 w0c;
-  u32 w10;
-  u32 w14;
-  u32 w18;
-  u32 w1c;
-  u32 w20;
-  u32 w24;
-  u32 w28;
-  u32 w2c;
-  u32 w30;
-  u32 w34;
-  u32 w38;
-  u32 w3c;
-  u32 w40;
-  u16 h44;
-  u16 h46;
-  u16 h48;
-  u8 b4a;
-  u8 b4b;
-  u8 b4c;
-  u8 b4d;
-  u8 b4e;
-  u8 b4f;
-  u8 b50;
-  u8 b51;
-  u8 b52;
-  u8 b53;
-  u8 b54;
-  u8 b55;
-  u8 b56;
-  u8 b57;
-} Record;
+/* Number of entries in the record table, each starting zeroed with unk40 = 1. */
+#define CAM_RECORD_COUNT 0xe0
+
+typedef struct CamRecord {
+  u32 unk00;
+  u32 unk04;
+  u32 unk08;
+  u32 unk0c;
+  u32 unk10;
+  u32 unk14;
+  u32 unk18;
+  u32 unk1c;
+  u32 unk20;
+  u32 unk24;
+  u32 unk28;
+  u32 unk2c;
+  u32 unk30;
+  u32 unk34;
+  u32 unk38;
+  u32 unk3c;
+  u32 unk40;
+  u16 unk44;
+  u16 unk46;
+  u16 unk48;
+  u8 unk4a;
+  u8 unk4b;
+  u8 unk4c;
+  u8 unk4d;
+  u8 unk4e;
+  u8 unk4f;
+  u8 unk50;
+  u8 unk51;
+  u8 unk52;
+  u8 unk53;
+  u8 unk54;
+  u8 unk55;
+  u8 unk56;
+  u8 unk57;
+} CamRecord;
 
 extern u8 DAT_003081f0;
-extern Record DAT_0033b584[];
-extern u32 * DAT_00340284;
+extern CamRecord DAT_0033b584[];
+extern CameraObj * DAT_00340284;
 extern void * FUN_00000bcc(unsigned int);
 extern void FUN_0001f06c();
 extern void FUN_0001f1fc(void *, int);
 extern void FUN_0001f21c(void *, void *);
-extern u32 * FUN_000b7e7c(void *);
-extern u32 * FUN_00122888(void *);
+extern void * FUN_000b7e7c(void *);
+extern void * FUN_00122888(void *);
 extern u32 FUN_0012f698(void *);
-extern u32 * FUN_001b9760(void *);
+extern void * FUN_001b9760(void *);
 
-u32 * FUN_0012f41c(u32 *param_1)
+/* Camera constructor: reset the record table and every field, then create the three sub-objects. */
+CameraObj * FUN_0012f41c(CameraObj *self)
 {
-  u32 uVar1;
-  u32 *resource;
-  int iVar3;
-  Record *puVar2;
+  void *part;
+  int i;
+  CamRecord *rec;
+  int j;
   
   FUN_0001f06c();
-  *param_1 = (unsigned int)(&DAT_003081f0);
-  param_1[0x1f] = 0;
-  param_1[0x20] = 0;
-  param_1[0x21] = 0;
-  DAT_00340284 = param_1;
-  iVar3 = 0;
-  puVar2 = DAT_0033b584;
+  self->vtable = &DAT_003081f0;
+  self->parts[0] = 0;
+  self->parts[1] = 0;
+  self->parts[2] = 0;
+  DAT_00340284 = self;
+  i = 0;
+  rec = DAT_0033b584;
   do {
-    puVar2->w00 = 0;
-    puVar2->w04 = 0;
-    puVar2->w08 = 0;
-    puVar2->w0c = 0;
-    puVar2->b4a = 0;
-    puVar2->w10 = 0;
-    puVar2->w14 = 0;
-    puVar2->w18 = 0;
-    puVar2->b4b = 0;
-    puVar2->b4c = 0;
-    puVar2->b4e = 0;
-    puVar2->b4f = 0;
-    puVar2->w1c = 0;
-    puVar2->b50 = 0;
-    puVar2->h44 = 0;
-    puVar2->h46 = 0;
-    puVar2->b51 = 0;
-    puVar2->w38 = 0;
-    puVar2->h48 = 0;
-    puVar2->b52 = 0;
-    puVar2->w3c = 0;
-    puVar2->b53 = 0;
-    puVar2->w34 = 0;
-    puVar2->b54 = 0;
-    puVar2->b55 = 0;
-    puVar2->b56 = 0;
-    puVar2->b57 = 0;
-    puVar2->w20 = 0;
-    puVar2->w24 = 0;
-    puVar2->w28 = 0;
-    puVar2->w2c = 0;
-    puVar2->w30 = 0;
-    iVar3 = iVar3 + 1;
-    puVar2->w40 = 1;
-    puVar2++;
-  } while (iVar3 < 0xe0);
-  {
-    int iVar3 = 0;
-    float *puVar5 = (float *)param_1;
-    int iVar4;
-    do {
-      iVar4 = iVar3;
-      *(float *)((char *)puVar5 + 0x50) = 1.0f;
-      *(float *)((char *)puVar5 + 0x54) = 1.0f;
-      *(float *)((char *)puVar5 + 0x58) = 1.0f;
-      *(float *)((char *)puVar5 + 0x5c) = 1.0f;
-      iVar3 = iVar4 + 5;
-      *(float *)((char *)puVar5 + 0x60) = 1.0f;
-      puVar5 = puVar5 + 5;
-    } while (iVar3 < 6);
-    {
-      int off = iVar3 * 4;
-      *(float *)(off + (int)param_1 + 0x50) = 1.0f;
-    }
+    rec->unk00 = 0;
+    rec->unk04 = 0;
+    rec->unk08 = 0;
+    rec->unk0c = 0;
+    rec->unk4a = 0;
+    rec->unk10 = 0;
+    rec->unk14 = 0;
+    rec->unk18 = 0;
+    rec->unk4b = 0;
+    rec->unk4c = 0;
+    rec->unk4e = 0;
+    rec->unk4f = 0;
+    rec->unk1c = 0;
+    rec->unk50 = 0;
+    rec->unk44 = 0;
+    rec->unk46 = 0;
+    rec->unk51 = 0;
+    rec->unk38 = 0;
+    rec->unk48 = 0;
+    rec->unk52 = 0;
+    rec->unk3c = 0;
+    rec->unk53 = 0;
+    rec->unk34 = 0;
+    rec->unk54 = 0;
+    rec->unk55 = 0;
+    rec->unk56 = 0;
+    rec->unk57 = 0;
+    rec->unk20 = 0;
+    rec->unk24 = 0;
+    rec->unk28 = 0;
+    rec->unk2c = 0;
+    rec->unk30 = 0;
+    i = i + 1;
+    rec->unk40 = 1;
+    rec++;
+  } while (i < CAM_RECORD_COUNT);
+  for (j = 0; j < 11; j++) {
+    self->unk50[j] = 1.0f;
   }
-  param_1[0x2c] = 0;
-  param_1[0x2d] = 0;
-  param_1[0x30] = 0;
-  param_1[0x31] = 0;
-  param_1[0x32] = 0;
-  *(float *)((char *)param_1 + 0xcc) = 1.0f;
-  param_1[0x24] = 0;
-  param_1[0x28] = 0;
-  param_1[0x29] = 0;
-  param_1[0x2a] = 0;
-  *(float *)((char *)param_1 + 0xac) = 1.0f;
-  param_1[0x34] = 0;
-  param_1[0x11] = 0;
-  param_1[0x38] = 0;
-  param_1[0x39] = 0;
-  param_1[0x3a] = 0;
-  *(float *)((char *)param_1 + 0xec) = 1.0f;
-  *(u8 *)(param_1 + 0x3c) = 1;
-  *(u8 *)(param_1 + 0x4d) = 0;
-  *(u8 *)((int)param_1 + 0xf1) = 0;
-  *(u8 *)((int)param_1 + 0xf2) = 0;
-  *(u8 *)((int)param_1 + 0xf3) = 0;
-  param_1[0x3d] = 0;
-  param_1[0x3e] = 0;
-  param_1[0x3f] = 0;
-  param_1[0x40] = 0;
-  param_1[0x44] = 0;
-  param_1[0x45] = 0;
-  param_1[0x46] = 0;
-  *(float *)((char *)param_1 + 0x11c) = 1.0f;
-  param_1[0x48] = 0xffffffff;
-  param_1[0x49] = 0xffffffff;
-  param_1[0xf] = 0;
-  param_1[0x10] = 0xffffffff;
-  param_1[0x12] = 0;
-  *(u8 *)(param_1 + 0x13) = 1;
-  param_1[0x4a] = 0;
-  param_1[0x4b] = 1;
-  param_1[0x4c] = 0;
-  param_1[0x22] = 0;
-  param_1[0x23] = 0;
-  FUN_0012f698(param_1);
-  resource = (u32 *)FUN_00000bcc(0x100);
-  if (resource != 0) {
-    resource = FUN_000b7e7c(resource);
+  self->unkb0 = 0;
+  self->unkb4 = 0;
+  self->unkc0 = 0;
+  self->unkc4 = 0;
+  self->unkc8 = 0;
+  self->unkcc = 1.0f;
+  self->unk90 = 0;
+  self->unka0 = 0;
+  self->unka4 = 0;
+  self->unka8 = 0;
+  self->unkac = 1.0f;
+  self->unkd0 = 0;
+  self->unk44 = 0;
+  self->unke0 = 0;
+  self->unke4 = 0;
+  self->unke8 = 0;
+  self->unkec = 1.0f;
+  /* state starts as CAM_STATE_FOLLOW, stored byte by byte */
+  ((u8 *)&self->state)[0] = 1;
+  self->unk134 = 0;
+  ((u8 *)&self->state)[1] = 0;
+  ((u8 *)&self->state)[2] = 0;
+  ((u8 *)&self->state)[3] = 0;
+  self->unkf4 = 0;
+  self->src = 0;
+  self->unkfc = 0;
+  self->unk100 = 0;
+  self->unk110 = 0;
+  self->unk114 = 0;
+  self->unk118 = 0;
+  self->unk11c = 1.0f;
+  self->unk120 = -1;
+  self->unk124 = -1;
+  self->unk3c = 0;
+  self->unk40 = -1;
+  self->unk48 = 0;
+  self->unk4c = 1;
+  self->unk128 = 0;
+  self->unk12c = 1;
+  self->unk130 = 0;
+  self->unk88 = 0;
+  self->unk8c = 0;
+  FUN_0012f698(self);
+  part = FUN_00000bcc(0x100);
+  if (part != 0) {
+    part = FUN_000b7e7c(part);
   }
-  param_1[0x1f] = (unsigned int)resource;
-  FUN_0001f21c(param_1,resource);
-  FUN_0001f1fc((void *)param_1[0x1f],1);
-  resource = (u32 *)FUN_00000bcc(0xa0);
-  if (resource != 0) {
-    resource = FUN_00122888(resource);
+  self->parts[0] = part;
+  FUN_0001f21c(self,part);
+  FUN_0001f1fc(self->parts[0],1);
+  part = FUN_00000bcc(0xa0);
+  if (part != 0) {
+    part = FUN_00122888(part);
   }
-  param_1[0x20] = (unsigned int)resource;
-  FUN_0001f21c(param_1,resource);
-  FUN_0001f1fc((void *)param_1[0x20],0);
-  resource = (u32 *)FUN_00000bcc(0x48);
-  if (resource != 0) {
-    resource = FUN_001b9760(resource);
+  self->parts[1] = part;
+  FUN_0001f21c(self,part);
+  FUN_0001f1fc(self->parts[1],0);
+  part = FUN_00000bcc(0x48);
+  if (part != 0) {
+    part = FUN_001b9760(part);
   }
-  param_1[0x21] = (unsigned int)resource;
-  FUN_0001f21c(param_1,resource);
-  FUN_0001f1fc((void *)param_1[0x21],0);
-  return param_1;
+  self->parts[2] = part;
+  FUN_0001f21c(self,part);
+  FUN_0001f1fc(self->parts[2],0);
+  return self;
 }

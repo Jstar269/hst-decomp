@@ -31,8 +31,8 @@ struct Anim {
     bool Done()
     {
         for (int i = first; i <= Last(); i++) {
-            Key **k = tracks[i].key;
-            float t = k ? (*k)->t : 0.0f;
+            Key **key = tracks[i].key;
+            float t = key ? (*key)->t : 0.0f;
             if (tracks[i].end < t)
                 return false;
         }
@@ -63,6 +63,7 @@ void FUN_000ef564(Self *self, int state);
 
 extern "C" void FUN_000efb74(Self *self)
 {
+    /* Scale the base matrix, rotate it by the yaw (degrees to radians), set its translation, push it to the animation. */
     Mat4 m = DAT_002bc410;
     if (DAT_00338bc0 == 0) {
         DAT_00338bd0.x = 0.0f;
@@ -71,11 +72,11 @@ extern "C" void FUN_000efb74(Self *self)
         DAT_00338bd0.w = 1.0f;
         DAT_00338bc0 = 1;
     }
-    float s = DAT_002d7260;
-    FUN_00022498(&m.r0, &m.r0, s);
-    FUN_00022498(&m.r1, &m.r1, s);
-    FUN_00022498(&m.r2, &m.r2, s);
-    FUN_00022498(&m.r3, &m.r3, s);
+    float scale = DAT_002d7260;
+    FUN_00022498(&m.r0, &m.r0, scale);
+    FUN_00022498(&m.r1, &m.r1, scale);
+    FUN_00022498(&m.r2, &m.r2, scale);
+    FUN_00022498(&m.r3, &m.r3, scale);
     FUN_0004d2cc(0.017453292f * self->yaw, &m, &m);
     m.r3 = DAT_00338bd0;
     FUN_00055044(self->anim, &m);

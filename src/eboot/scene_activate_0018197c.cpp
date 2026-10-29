@@ -60,7 +60,7 @@ extern "C" {
     void FUN_00184884(Obj *, int, int);
 }
 
-extern "C" void FUN_0018197c(Obj *self, int p2, int p3, int p4, int p5) {
+extern "C" void FUN_0018197c(Obj *self, int arg_a, int arg_b, int show_first, int arg_c) {
     if (self->f4 != 0) {
         FUN_00103540(self->f4, 2000.0f);
         FUN_001037c8(self->f4, 16);
@@ -73,7 +73,7 @@ extern "C" void FUN_0018197c(Obj *self, int p2, int p3, int p4, int p5) {
         FUN_00103628(self->f2864, 1);
     }
 
-    self->fc = 1;
+    self->fc = 1; /* flag set on activation */
     self->fd = 1;
     self->f1f45 = 0;
     self->f20->f64 = 0;
@@ -94,22 +94,23 @@ extern "C" void FUN_0018197c(Obj *self, int p2, int p3, int p4, int p5) {
     self->w3c->SetVisible(1);
     self->w1c->SetVisible(1);
 
-    void **p_fd0 = &self->fd0;
-    if (p4 != 0) {
+    void **p_panel_ref = &self->fd0;
+    if (show_first != 0) {
         self->w14->SetVisible(1);
-        FUN_000ffb3c(*p_fd0, 0);
+        FUN_000ffb3c(*p_panel_ref, 0);
     } else {
         self->w14->SetVisible(0);
-        FUN_000ffb3c(*p_fd0, 1);
+        FUN_000ffb3c(*p_panel_ref, 1);
     }
 
     FUN_001814bc(self);
     FUN_00181284(self);
 
+    /* Hide the list widget, then configure it. */
     self->w1180->SetVisible(0);
     FUN_0010b6d4(self->w1180, 16, 20);
 
-    FUN_00183954(self, 0, 1, 0, p2, p3);
-    FUN_00184040(self, p3, 1, 0, 0, p5);
-    FUN_00184884(self, p3, p5);
+    FUN_00183954(self, 0, 1, 0, arg_a, arg_b);
+    FUN_00184040(self, arg_b, 1, 0, 0, arg_c);
+    FUN_00184884(self, arg_b, arg_c);
 }

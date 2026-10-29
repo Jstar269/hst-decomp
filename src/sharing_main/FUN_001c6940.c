@@ -8,23 +8,24 @@ extern int FUN_001c0454();
 extern void FUN_001c6a18();
 extern void FUN_001c71e4();
 
-int FUN_001c6940(int param_1,short param_2)
+/* Destructor of an embedded list object; frees the storage when delete_flag > 0. */
+int FUN_001c6940(int self,short delete_flag)
 {
-  u8 auStack_4 [4];
-  u32 local_8;
-  int local_c;
+  u8 range_out [4];
+  u32 range_end;
+  int range_cursor;
   
-  if (param_1 != 0) {
+  if (self != 0) {
     FUN_001c6a18();
-    if ((((param_1 != 0) && (FUN_001c0454((int)&DAT_003eaad8,0), param_1 != 0)) && (param_1 != 0)) &&
-       (param_1 != 0)) {
-      local_c = param_1 + 4;
-      local_8 = *(u32 *)(param_1 + 8);
-      FUN_001c71e4(auStack_4,param_1,&local_8,&local_c);
+    if ((((self != 0) && (FUN_001c0454((int)&DAT_003eaad8,0), self != 0)) && (self != 0)) &&
+       (self != 0)) {
+      range_cursor = self + 4;
+      range_end = *(u32 *)(self + 8);
+      FUN_001c71e4(range_out,self,&range_end,&range_cursor);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

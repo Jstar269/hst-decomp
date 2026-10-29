@@ -1,30 +1,34 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001793e8 end=0x0017947c symbol=FUN_001793e8 lang=c++ rodata=0x002c1fa8 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review.
    Matching idiom: `#pragma opt_strength_reduction off` keeps the loop index multiply (retail recomputes i*0xc each pass). */
+#include "hst/list_host.h"
+
 #pragma opt_strength_reduction off
-extern "C" int FUN_001793e8(int param_1, int param_2)
+
+/* Number of records for the given kind (kind 0: sum of the weights in the row table); 0 for unknown kinds. */
+extern "C" int FUN_001793e8(ListHost *host, int kind)
 {
-  int v;
-  switch (param_2) {
+  int total;
+  switch (kind) {
   case 0: {
-    unsigned int count = *(unsigned int *)(param_1 + 0x50c);
-    v = 0;
+    unsigned int count = host->rowCount;
+    total = 0;
     int i = 0;
     if (count != 0) {
-      const char *rows = *(const char **)(param_1 + 0x508);
+      const StatRow *rows = host->rows;
       do {
-        v += *(const int *)(rows + i * 0xc + 4);
+        total += rows[i].weight;
         i++;
       } while (i < count);
     }
     break;
   }
-  case 1: v = *(int *)(param_1 + 0x1dc); break;
-  case 2: v = *(int *)(param_1 + 0x1f4); break;
+  case 1: total = host->list1a.size; break;
+  case 2: total = host->list2a.size; break;
   case 3:
-  case 4: v = *(int *)(param_1 + 0x20c); break;
-  case 5: v = *(int *)(param_1 + 0x1a8); break;
-  default: v = 0; break;
+  case 4: total = host->list3.size; break;
+  case 5: total = host->unk1a8; break;
+  default: total = 0; break;
   }
-  return v;
+  return total;
 }

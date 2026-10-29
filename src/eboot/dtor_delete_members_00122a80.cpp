@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00122a80 end=0x00122b48 symbol=FUN_00122a80 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: loop index declared before the member pointer (s-register order); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: loop index declared before the member pointer (s-register order); readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/actor_state.h"
 
 extern "C" {
 extern u8 DAT_00308028;
@@ -10,33 +11,34 @@ extern int FUN_002161c4(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" u32 * FUN_00122a80(u32 *param_1,short param_2)
+/* Destructor: deletes the three child objects and the helper object, runs the base destructor, frees when flag > 0. */
+extern "C" ActorState * FUN_00122a80(ActorState *self,short flag)
 {
-  int iVar3;
-  u32 *puVar2;
-  int *piVar1;
+  int i;
+  ActorState *cursor;
+  ActorChild *child;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00308028);
-    iVar3 = 0;
-    puVar2 = param_1;
+  if (self != 0) {
+    self->vtable = &DAT_00308028;
+    i = 0;
+    cursor = self; /* advances one word per child; children[0] is read relative to it */
     do {
-      piVar1 = (int *)puVar2[0xf];
-      if (piVar1 != (int *)0x0) {
-        delete ((VC_0 *)(piVar1));
-        puVar2[0xf] = 0;
+      child = cursor->children[0];
+      if (child != 0) {
+        delete ((VC_0 *)(child));
+        cursor->children[0] = 0;
       }
-      iVar3 = iVar3 + 1;
-      puVar2 = puVar2 + 1;
-    } while (iVar3 < 3);
-    if (param_1[0x15] != 0) {
-      FUN_002161c4(param_1[0x15],1);
-      param_1[0x15] = 0;
+      i = i + 1;
+      cursor = (ActorState *)((char *)cursor + 4);
+    } while (i < ACTOR_CHILD_COUNT);
+    if (self->unk54 != 0) {
+      FUN_002161c4(self->unk54,1);
+      self->unk54 = 0;
     }
-    FUN_0001f0f0(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0001f0f0(self,0);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

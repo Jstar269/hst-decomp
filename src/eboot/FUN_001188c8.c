@@ -1,16 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001188c8 end=0x00118908 symbol=FUN_001188c8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/deque_owner.h"
 
 extern int FUN_0005ba00();
 
-void FUN_001188c8(int param_1)
+/* Releases the owned object at +0xec, if any. */
+void FUN_001188c8(DequeOwner *self)
 {
-  int iVar1;
+  void *owned;
   
-  iVar1 = *(int *)(param_1 + 0xec);
-  if ((iVar1 != 0) && (iVar1 != 0)) {
-    FUN_0005ba00(iVar1,1);
-    *(u32 *)(param_1 + 0xec) = 0;
+  owned = self->unkec;
+  if ((owned != 0) && (owned != 0)) {
+    FUN_0005ba00(owned,1);
+    self->unkec = 0;
   }
 }

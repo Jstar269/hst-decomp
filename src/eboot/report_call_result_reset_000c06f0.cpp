@@ -7,11 +7,12 @@ extern int FUN_002b7e00(int, int);
 extern void FUN_000c02ac(char *fmt, int r);
 }
 
+/* Releases the global handle (logging a nonzero result) and marks it unset. */
 extern "C" void FUN_000c06f0(void)
 {
-    int r = FUN_002b7e00(DAT_002d55c4, 0);
-    if (r != 0) {
-        FUN_000c02ac(DAT_002d580c, r);
+    int result = FUN_002b7e00(DAT_002d55c4, 0);
+    if (result != 0) {
+        FUN_000c02ac(DAT_002d580c, result);
     }
     DAT_002d55c4 = -1;
 }

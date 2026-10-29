@@ -1,20 +1,21 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x002983b4 end=0x00298404 symbol=FUN_002983b4 lang=c99 */
 /* Clone of src/eboot/FUN_00286cb8.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/cmd_actor.h"
 
-extern int FUN_00158308();
+extern int FUN_00158308(void *, int);
 
-void FUN_002983b4(int param_1)
+/* Deletes the two 36-byte objects of the actor and clears the pointers. */
+void FUN_002983b4(CmdActor *self)
 {
-  int iVar1;
-  
-  if (*(int *)(param_1 + 0xc) != 0) {
-    FUN_00158308(*(int *)(param_1 + 0xc),1);
-    *(u32 *)(param_1 + 0xc) = 0;
+  void *obj;
+
+  if (self->objB != 0) {
+    FUN_00158308(self->objB,1);
+    self->objB = 0;
   }
-  iVar1 = *(int *)(param_1 + 8);
-  if (iVar1 != 0) {
-    FUN_00158308(iVar1,1);
-    *(u32 *)(param_1 + 8) = 0;
+  obj = self->objA;
+  if (obj != 0) {
+    FUN_00158308(obj,1);
+    self->objA = 0;
   }
 }

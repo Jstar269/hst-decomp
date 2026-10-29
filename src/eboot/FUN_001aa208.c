@@ -1,15 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001aa208 end=0x001aa244 symbol=FUN_001aa208 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/slot_select.h"
+#include "hst/selection_panel.h"
 
 extern u32 FUN_0016b0c0();
-extern u32 FUN_0019d474();
+extern SlotSelect * FUN_0019d474();
 
-void FUN_001aa208(int param_1)
+/* Sets the item's sprite frame from the table lookup for the current unk2ec value. */
+void FUN_001aa208(SelectionPanel *panel)
 {
-  int iVar1;
+  int offset;
   
-  iVar1 = FUN_0019d474();
-  iVar1 = FUN_0016b0c0(*(u32 *)(iVar1 + 0x2ec));
-  *(int *)(*(int *)(param_1 + 0xac) + 0x24) = *(int *)(*(int *)(param_1 + 0xac) + 0x28) + iVar1;
+  offset = FUN_0016b0c0(FUN_0019d474()->unk2ec);
+  panel->items[3].spr->frame = panel->items[3].spr->baseFrame + offset;
 }

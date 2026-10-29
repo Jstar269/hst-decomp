@@ -10,28 +10,29 @@ extern void FUN_00000a00();
 extern u32 * FUN_0010642c();
 extern int * FUN_0010d2d4();
 
-int * FUN_00120d7c(int *param_1,int param_2)
+/* Destructor of a class with a virtual base: resets the vtables, destroys the member objects, frees the object when flags > 0. */
+int * FUN_00120d7c(int *self,int flags)
 {
-  int *piVar1;
+  int *member;
   
-  if (param_1 != (int *)0x0) {
-    param_1[1] = (int)&DAT_003b11d0;
-    *(u8 **)*param_1 = &DAT_003b11e4;
-    *(int *)(*param_1 + 0x130) = (int)(param_1 + 0x1c) - *param_1;
-    if ((param_2 != 0) && (param_1 + 0x1c != (int *)0x0)) {
-      piVar1 = param_1 + 100;
-      param_1[0x1c] = (int)&DAT_003b122c;
-      if ((piVar1 != (int *)0x0) && (piVar1 != (int *)0x0)) {
-        FUN_0010d2d4(piVar1,0);
+  if (self != (int *)0x0) {
+    self[1] = (int)&DAT_003b11d0;
+    *(u8 **)*self = &DAT_003b11e4;
+    *(int *)(*self + 0x130) = (int)(self + 0x1c) - *self;
+    if ((flags != 0) && (self + 0x1c != (int *)0x0)) {
+      member = self + 100;
+      self[0x1c] = (int)&DAT_003b122c;
+      if ((member != (int *)0x0) && (member != (int *)0x0)) {
+        FUN_0010d2d4(member,0);
       }
-      if (param_1 + 0x1c != (int *)0x0) {
-        param_1[0x1c] = (int)&DAT_003b0a68;
-        FUN_0010642c(param_1 + 0x1c,0);
+      if (self + 0x1c != (int *)0x0) {
+        self[0x1c] = (int)&DAT_003b0a68;
+        FUN_0010642c(self + 0x1c,0);
       }
     }
-    if (0 < (short)param_2) {
-      FUN_00000a00(param_1);
+    if (0 < (short)flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

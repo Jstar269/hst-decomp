@@ -2,61 +2,55 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Matching idioms: retail has two call sites of FUN_00204c88 (one per arm of the flag test), so both arms spell the call;
    the two Info bytes are read into locals before the test. */
+#include "hst/chrsel_unit.h"
+
 typedef unsigned char u8;
 
+/* Shared object; only its second virtual method is called here. */
 struct Obj0 { virtual void d0(); virtual void v1(); };
-struct Info { u8 pad0[12]; u8 b0c; u8 b0d; u8 pad1[0x24 - 14]; u8 b24; };
-struct Self {
-  Obj0 *obj;
-  char pad0[0x54 - 4];
-  int id;
-  char pad1[0x70 - 0x58];
-  int f70;
-  u8 flag;
-  u8 f75;
-  u8 f76;
-  u8 f77;
-  u8 f78;
-};
+/* Info record looked up by the unit's first attribute id. */
+struct Info { u8 pad0[12]; u8 unk0c; u8 unk0d; u8 pad1[0x24 - 14]; u8 unk24; };
 
 extern "C" Info *FUN_00193474(int);
-extern "C" void FUN_00204c88(Obj0 *, u8 *, u8 *, u8 *, int *, u8, u8, u8, u8, u8, int);
-extern "C" void FUN_0020507c(Self *, int);
-extern "C" void FUN_002052b8(Self *, int, u8);
-extern "C" void FUN_00205374(Self *, int, u8);
-extern "C" void FUN_00092630(Obj0 *, u8);
-extern "C" void FUN_00205b54(Self *, int);
-extern "C" void FUN_00205b4c(Self *, int);
+extern "C" void FUN_00204c88(void *, u8 *, u8 *, u8 *, int *, u8, u8, u8, u8, u8, int);
+extern "C" void FUN_0020507c(ChrSelUnit *, int);
+extern "C" void FUN_002052b8(ChrSelUnit *, int, u8);
+extern "C" void FUN_00205374(ChrSelUnit *, int, u8);
+extern "C" void FUN_00092630(void *, u8);
+extern "C" void FUN_00205b54(ChrSelUnit *, int);
+extern "C" void FUN_00205b4c(ChrSelUnit *, int);
 
-extern "C" void FUN_00204f18(Self *self)
+/* Refreshes the unit from its info record: applies the attributes (flagged units report all three as changed)
+   and updates the parts that changed. */
+extern "C" void FUN_00204f18(ChrSelUnit *self)
 {
-  u8 x1 = 0;
-  u8 x2 = 0;
-  u8 x3 = 0;
-  Info *info = FUN_00193474(self->id);
-  u8 hi = info->b0d;
-  u8 lo = info->b0c;
-  u8 w = self->f78;
+  u8 changed2 = 0;
+  u8 changed0 = 0;
+  u8 changed5 = 0;
+  Info *info = FUN_00193474(self->attr[0]);
+  u8 hi = info->unk0d;
+  u8 lo = info->unk0c;
+  u8 w = self->unk78;
   if (self->flag == 0) {
-    FUN_00204c88(self->obj, &x2, &x1, &x3, &self->id, self->f76, self->f77, w, hi, lo, 0);
+    FUN_00204c88(self->handle, &changed0, &changed2, &changed5, self->attr, self->unk76, self->unk77, w, hi, lo, 0);
   } else {
-    FUN_00204c88(self->obj, &x2, &x1, &x3, &self->id, self->f76, self->f77, w, hi, lo, 0);
-    x2 = 1;
-    x1 = 1;
-    x3 = 1;
+    FUN_00204c88(self->handle, &changed0, &changed2, &changed5, self->attr, self->unk76, self->unk77, w, hi, lo, 0);
+    changed0 = 1;
+    changed2 = 1;
+    changed5 = 1;
   }
-  if (x2 != 0) {
-    FUN_0020507c(self, self->id);
+  if (changed0 != 0) {
+    FUN_0020507c(self, self->attr[0]);
   }
-  if (x1 != 0) {
+  if (changed2 != 0) {
     FUN_002052b8(self, 1, w);
   }
-  if (x3 != 0) {
+  if (changed5 != 0) {
     FUN_00205374(self, 1, w);
   }
-  self->f70 = info->b24;
-  FUN_00092630(self->obj, self->f75);
-  self->obj->v1();
+  self->unk70 = info->unk24;
+  FUN_00092630(self->handle, self->unk75);
+  ((Obj0 *)self->handle)->v1();
   FUN_00205b54(self, 3);
   FUN_00205b4c(self, 1);
 }

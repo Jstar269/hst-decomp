@@ -1,5 +1,6 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x0022869c end=0x00228728 symbol=FUN_0022869c lang=c++ */
 /* Clone of src/eboot/FUN_00219184.cpp (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+#include "hst/particle_sys.h"
 
 extern "C" {
 extern void FUN_000006e8(...);
@@ -8,23 +9,24 @@ extern void FUN_002285fc(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" int * FUN_0022869c(int *param_1,short param_2)
+/* Deleting destructor: frees the particle array, then the view object. */
+extern "C" ParticleSys * FUN_0022869c(ParticleSys *sys,short flags)
 {
-  int *piVar1;
+  VC_0 *view;
   
-  if (param_1 != (int *)0x0) {
-    if (param_1[1] != 0) {
-      FUN_000006e8(param_1[1],FUN_002285fc);
-      param_1[1] = 0;
+  if (sys != (ParticleSys *)0x0) {
+    if (sys->parts != 0) {
+      FUN_000006e8(sys->parts,FUN_002285fc);
+      sys->parts = 0;
     }
-    piVar1 = (int *)*param_1;
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      *param_1 = 0;
+    view = (VC_0 *)sys->view;
+    if (view != (VC_0 *)0x0) {
+      delete view;
+      sys->view = 0;
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(sys);
     }
   }
-  return param_1;
+  return sys;
 }

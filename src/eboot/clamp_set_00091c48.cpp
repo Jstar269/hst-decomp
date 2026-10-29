@@ -1,22 +1,23 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00091c48 end=0x00091cbc symbol=FUN_00091c48 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern "C" int DAT_002d28ec;
-extern "C" int DAT_002d28f0;
-extern "C" void FUN_00091cbc(void);
+#include "hst/model_set_full.h"
 
-struct Obj { char pad[0x28]; int f28; };
+extern "C" int DAT_002d28ec; /* lowest accepted level */
+extern "C" int DAT_002d28f0; /* highest accepted level */
+extern "C" void FUN_00091cbc(void);
 
 static inline int Clamp(const int &v, const int &lo, const int &hi)
 {
   return v < lo ? lo : (hi < v ? hi : v);
 }
 
-extern "C" void FUN_00091c48(Obj *param_1,int param_2)
+/* Set the level (clamped to its limits); refill the entry table when it changed and is non-negative. */
+extern "C" void FUN_00091c48(ModelSetFull *self,int level)
 {
-  int n = Clamp(param_2, DAT_002d28ec, DAT_002d28f0);
+  int n = Clamp(level, DAT_002d28ec, DAT_002d28f0);
 
-  if (param_1->f28 != n) {
-    param_1->f28 = n;
+  if (self->level != n) {
+    self->level = n;
     if (n >= 0) {
       FUN_00091cbc();
     }

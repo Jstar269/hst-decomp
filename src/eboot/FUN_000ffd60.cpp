@@ -1,20 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ffd60 end=0x000ffdb4 symbol=FUN_000ffd60 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern "C" {
 extern void FUN_00000a00(...);
 }
-struct VC_0 { virtual ~VC_0(); };
+struct OwnedObj { virtual ~OwnedObj(); };
 
-extern "C" void FUN_000ffd60(int param_1)
+/* Object that owns one virtual-destructor object at 0x20. */
+struct OwnerObj {
+  char pad0[0x20];
+  OwnedObj *owned; /* 0x20 */
+};
+
+/* Deletes the owned object (clearing the pointer), then frees the owner. */
+extern "C" void FUN_000ffd60(OwnerObj *self)
 {
-  int *piVar1;
+  OwnedObj *owned;
   
-  piVar1 = *(int **)(param_1 + 0x20);
-  if (piVar1 != (int *)0x0) {
-    delete ((VC_0 *)(piVar1));
-    *(u32 *)(param_1 + 0x20) = 0;
+  owned = self->owned;
+  if (owned != (OwnedObj *)0x0) {
+    delete owned;
+    self->owned = 0;
   }
-  FUN_00000a00(param_1);
+  FUN_00000a00(self);
 }

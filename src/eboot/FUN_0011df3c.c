@@ -1,14 +1,12 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011df3c end=0x0011df6c symbol=FUN_0011df3c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/block_deque.h"
 
-void FUN_0011df3c(int *param_1)
+/* Drop the first element of a circular map: one fewer in use, head advances and wraps at capacity. */
+void FUN_0011df3c(BlockMap *map)
 {
-  int iVar1;
-  
-  param_1[1] = param_1[1] + -1;
-  iVar1 = param_1[2];
-  param_1[2] = iVar1 + 1;
-  if (iVar1 + 1 == *param_1) {
-    param_1[2] = 0;
+  map->count--;
+  if (++map->head == map->capacity) {
+    map->head = 0;
   }
 }

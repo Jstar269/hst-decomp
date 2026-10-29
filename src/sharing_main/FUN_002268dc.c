@@ -1,40 +1,25 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x002268dc end=0x00226954 symbol=FUN_002268dc lang=c99 */
 /* Clone of src/eboot/FUN_00217834.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+#include "hst/animator.h"
 
-
-void FUN_002268dc(int param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4)
+/* Start the colour block: unpack the byte channels of the two packed colours, duration `duration`. */
+void FUN_002268dc(Animator *self,u32 from,u32 to,int duration)
 {
-  *(undefined1 *)(param_1 + 0x54) = 1;
-  *(undefined1 *)(param_1 + 0x55) = 0;
-  *(undefined4 *)(param_1 + 0x58) = param_4;
-  *(ushort *)(param_1 + 0x60) = (ushort)param_2 & 0xff;
-  *(ushort *)(param_1 + 0x62) = (ushort)(byte)((uint)param_2 >> 8);
-  *(ushort *)(param_1 + 100) = (ushort)(byte)((uint)param_2 >> 0x10);
-  *(ushort *)(param_1 + 0x66) = (ushort)(byte)((uint)param_2 >> 0x18);
-  *(ushort *)(param_1 + 0x68) = (ushort)param_3 & 0xff;
-  *(ushort *)(param_1 + 0x6a) = (ushort)(byte)((uint)param_3 >> 8);
-  *(ushort *)(param_1 + 0x6c) = (ushort)(byte)((uint)param_3 >> 0x10);
-  *(ushort *)(param_1 + 0x6e) = (ushort)(byte)((uint)param_3 >> 0x18);
-  *(undefined4 *)(param_1 + 0x5c) = 0;
-  *(undefined2 *)(param_1 + 0x70) = *(undefined2 *)(param_1 + 0x60);
-  *(undefined2 *)(param_1 + 0x72) = *(undefined2 *)(param_1 + 0x62);
-  *(undefined2 *)(param_1 + 0x74) = *(undefined2 *)(param_1 + 100);
-  *(undefined2 *)(param_1 + 0x76) = *(undefined2 *)(param_1 + 0x66);
+  self->color.head.active = 1;
+  self->color.head.done = 0;
+  self->color.head.duration = duration;
+  self->color.from[0] = (u16)from & 0xff;
+  self->color.from[1] = (u8)(from >> 8);
+  self->color.from[2] = (u8)(from >> 0x10);
+  self->color.from[3] = (u8)(from >> 0x18);
+  self->color.to[0] = (u16)to & 0xff;
+  self->color.to[1] = (u8)(to >> 8);
+  self->color.to[2] = (u8)(to >> 0x10);
+  self->color.to[3] = (u8)(to >> 0x18);
+  self->color.head.counter = 0;
+  self->color.cur[0] = self->color.from[0];
+  self->color.cur[1] = self->color.from[1];
+  self->color.cur[2] = self->color.from[2];
+  self->color.cur[3] = self->color.from[3];
   return;
 }

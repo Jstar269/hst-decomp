@@ -1,13 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a105c end=0x002a10a0 symbol=FUN_002a105c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/anim_host.h"
 
-extern u32 FUN_0001342c();
+extern u32 FUN_0001342c(); /* random number */
 
-void FUN_002a105c(int param_1)
+/* Picks a random value from 120 to 450 in steps of 30. */
+void FUN_002a105c(AnimHost *host)
 {
-  int iVar1;
+  int rnd;
   
-  iVar1 = FUN_0001342c();
-  *(int *)(param_1 + 0x1f0) = (iVar1 % 0xc) * 0x1e + 0x78;
+  rnd = FUN_0001342c();
+  host->unk1f0 = (rnd % 0xc) * 0x1e + 0x78;
 }

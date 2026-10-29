@@ -1,13 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016b138 end=0x0016b158 symbol=FUN_0016b138 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/settings_block.h"
 
-extern int FUN_0016bb88();
+extern SettingsBlock * FUN_0016bb88();
 
+/* Returns the halfword setting at +0x1036. */
 u16 FUN_0016b138(void)
 {
-  int iVar1;
+  SettingsBlock *settings;
   
-  iVar1 = FUN_0016bb88();
-  return *(u16 *)(iVar1 + 0x1036);
+  settings = FUN_0016bb88();
+  return settings->unk1036;
 }

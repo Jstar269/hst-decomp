@@ -1,48 +1,49 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00172c08 end=0x00172cb8 symbol=FUN_00172c08 lang=c99 */
 /* Clone of src/eboot/FUN_00166a44.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/vec_block.h"
 
-void FUN_00172c08(u32 *param_1)
+/* Reset the block: points at the origin (w = 1), everything else zero, the two flag bytes set. */
+void FUN_00172c08(VecBlock *blk)
 {
-  *param_1 = 0;
-  param_1[1] = 0;
-  param_1[2] = 0;
-  param_1[3] = 0x3f800000;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[6] = 0;
-  param_1[7] = 0x3f800000;
-  param_1[8] = 0;
-  param_1[9] = 0;
-  param_1[10] = 0;
-  param_1[0xb] = 0x3f800000;
-  param_1[0xc] = 0;
-  param_1[0xd] = 0;
-  param_1[0xe] = 0;
-  param_1[0xf] = 0;
-  param_1[0x10] = 0;
-  param_1[0x11] = 0;
-  param_1[0x12] = 0;
-  param_1[0x13] = 0;
-  param_1[0x14] = 0;
-  param_1[0x15] = 0;
-  param_1[0x16] = 0;
-  param_1[0x17] = 0;
-  param_1[0x18] = 0;
-  *(u8 *)(param_1 + 0x19) = 1;
-  *(u8 *)((int)param_1 + 0x65) = 1;
-  param_1[0x1c] = 0;
-  param_1[0x1d] = 0;
-  param_1[0x1e] = 0;
-  param_1[0x1f] = 0x3f800000;
-  param_1[0x20] = 0;
-  param_1[0x21] = 0;
-  param_1[0x22] = 0;
-  param_1[0x23] = 0x3f800000;
-  param_1[0x24] = 0;
-  param_1[0x25] = 0;
-  param_1[0x26] = 0;
-  param_1[0x27] = 0;
-  param_1[0x28] = 0;
-  param_1[0x29] = 0;
+  blk->v00.x = 0;
+  blk->v00.y = 0;
+  blk->v00.z = 0;
+  blk->v00.w = 1.0f;
+  blk->v10.x = 0;
+  blk->v10.y = 0;
+  blk->v10.z = 0;
+  blk->v10.w = 1.0f;
+  blk->v20.x = 0;
+  blk->v20.y = 0;
+  blk->v20.z = 0;
+  blk->v20.w = 1.0f;
+  blk->unk30 = 0;
+  blk->unk34 = 0;
+  blk->unk38 = 0;
+  blk->unk3c = 0;
+  blk->unk40[0] = 0;
+  blk->unk40[1] = 0;
+  blk->unk40[2] = 0;
+  blk->unk40[3] = 0;
+  blk->unk50[0] = 0;
+  blk->unk50[1] = 0;
+  blk->unk50[2] = 0;
+  blk->unk50[3] = 0;
+  blk->unk60 = 0;
+  blk->unk64 = 1;
+  blk->unk65 = 1;
+  blk->v70.x = 0;
+  blk->v70.y = 0;
+  blk->v70.z = 0;
+  blk->v70.w = 1.0f;
+  blk->v80.x = 0;
+  blk->v80.y = 0;
+  blk->v80.z = 0;
+  blk->v80.w = 1.0f;
+  blk->unk90[0] = 0;
+  blk->unk90[1] = 0;
+  blk->unk90[2] = 0;
+  blk->unk90[3] = 0;
+  blk->unk90[4] = 0;
+  blk->unk90[5] = 0;
 }

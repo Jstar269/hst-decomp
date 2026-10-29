@@ -1,12 +1,13 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00263794 end=0x002637c0 symbol=FUN_00263794 lang=c99 */
 /* Clone of src/eboot/FUN_00253440.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/sel_obj.h"
 
-extern void FUN_002637c0();
+extern void FUN_002637c0(SelObj *, int);
 
-int FUN_00263794(int param_1)
+/* Clears the flag and refreshes the handle; `enable` is forwarded unchanged (Ghidra dropped it). */
+SelObj * FUN_00263794(SelObj *obj, int enable)
 {
-  *(u8 *)(param_1 + 0x34) = 0;
-  FUN_002637c0();
-  return param_1;
+  obj->unk34 = 0;
+  FUN_002637c0(obj, enable);
+  return obj;
 }

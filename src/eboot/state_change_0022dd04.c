@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0022dd04 end=0x0022e020 symbol=FUN_0022dd04 lang=c99 data=0x002f353c */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: typed object and address symbols (lui/addiu), if/else-if on the new value rewritten as a range test plus a one-case-group switch (cases 0x22, 0x23, 0x25), table index as an int array, header typedefs dropped; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002f353c-0x002f3587) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: typed object and address symbols (lui/addiu), if/else-if on the new value rewritten as a range test plus a one-case-group switch (cases 0x22, 0x23, 0x25), table index as an int array, header typedefs dropped; readability pass; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002f353c-0x002f3587) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern char DAT_0034179c[];
 extern char DAT_0030ab9c[];
 extern char DAT_0030ebf4[];
@@ -21,78 +21,92 @@ extern void FUN_001b338c(char *, int);
 extern void FUN_001b3ce8(char *, int);
 extern void FUN_001b3e2c(char *);
 
-typedef struct Obj {
-  char pad0[0xa4];
-  int fa4;
-  int fa8;
-  char pad1[0x25c - 0xac];
-  int f25c;
-} Obj;
+enum {
+  BGM_NONE = -1,
+  BGM_LOBBY_FIRST = 0x28,   /* lobby tracks are numbered BGM_LOBBY_FIRST .. BGM_LOBBY_END - 1 */
+  BGM_LOBBY_END = 0x32,
+  BGM_LOBBY_BASE = 0x27,    /* lobby track number = bgm - BGM_LOBBY_BASE */
+  BGM_STREAM_A = 0x22,      /* ids that play the plain stream file */
+  BGM_STREAM_B = 0x23,
+  BGM_STREAM_C = 0x25,
+  STREAM_BUFFER_SIZE = 0xccccc,
+  LOBBY_BUFFER_SIZE = 0x173333
+};
 
-void FUN_0022dd04(Obj *o)
+/* Option screen: the selected bgm id and the one currently playing. */
+typedef struct OptionScreen {
+  char pad0[0xa4];
+  int nextBgm;     /* 0xa4 */
+  int curBgm;      /* 0xa8 */
+  char pad1[0x25c - 0xac];
+  int page;        /* 0x25c */
+} OptionScreen;
+
+/* Switches the option screen's background music to the track chosen for the current page. */
+void FUN_0022dd04(OptionScreen *o)
 {
-  void *p;
-  int a;
-  int b;
-  int n;
-  int t;
-  char buf[256];
+  void *buffer;
+  int data;
+  int size;
+  int track;
+  int next;
+  char path[256];
 
   FUN_001b3e2c(DAT_0034179c);
   FUN_001b2430(DAT_0034179c);
-  if (o->fa8 == -1) {
-    p = FUN_00010184(0x40, 0xccccc);
-    FUN_0001bfb4(DAT_0030ab9c, p, 0xccccc);
+  if (o->curBgm == BGM_NONE) {
+    buffer = FUN_00010184(0x40, STREAM_BUFFER_SIZE);
+    FUN_0001bfb4(DAT_0030ab9c, buffer, STREAM_BUFFER_SIZE);
     FUN_0001ca58(DAT_0030ebf4, "menu/optionbgm/option_bgm_stream.xb");
     FUN_001b3378(DAT_0034179c, 0);
     FUN_001b3378(DAT_0034179c, 2);
     FUN_001b3378(DAT_0034179c, 6);
     FUN_001b322c(DAT_0034179c);
     FUN_0001cb88(DAT_0030ebf4);
-    a = FUN_0001cbfc();
-    b = FUN_0001cc54();
-    FUN_0001bfb4(DAT_0030ab9c, (void *)a, b);
-    FUN_000104e0(p);
+    data = FUN_0001cbfc();
+    size = FUN_0001cc54();
+    FUN_0001bfb4(DAT_0030ab9c, (void *)data, size);
+    FUN_000104e0(buffer);
   }
-  t = DAT_002f33e4[o->f25c];
-  o->fa4 = t;
-  if (o->fa8 != t) {
-    if (o->fa8 >= 0x28 && o->fa8 < 0x32) {
-      FUN_001b32f8(DAT_0034179c, o->fa8 - 0x27);
+  next = DAT_002f33e4[o->page];
+  o->nextBgm = next;
+  if (o->curBgm != next) {
+    if (o->curBgm >= BGM_LOBBY_FIRST && o->curBgm < BGM_LOBBY_END) {
+      FUN_001b32f8(DAT_0034179c, o->curBgm - BGM_LOBBY_BASE);
     }
-    if (o->fa4 >= 0x28 && o->fa4 < 0x32) {
+    if (o->nextBgm >= BGM_LOBBY_FIRST && o->nextBgm < BGM_LOBBY_END) {
       FUN_001b338c(DAT_0034179c, 0x22);
       FUN_001b338c(DAT_0034179c, 0x23);
       FUN_001b338c(DAT_0034179c, 0x25);
-      n = o->fa4 - 0x27;
-      p = FUN_00010184(0x40, 0x173333);
-      FUN_0001bfb4(DAT_0030ab9c, p, 0x173333);
-      FUN_000143b0(buf, "menu/optionbgm/option_bgm_lobby%02d.xb", n);
-      FUN_0001ca58(DAT_0030ebf4, buf);
-      FUN_001b32e0(DAT_0034179c, n);
+      track = o->nextBgm - BGM_LOBBY_BASE;
+      buffer = FUN_00010184(0x40, LOBBY_BUFFER_SIZE);
+      FUN_0001bfb4(DAT_0030ab9c, buffer, LOBBY_BUFFER_SIZE);
+      FUN_000143b0(path, "menu/optionbgm/option_bgm_lobby%02d.xb", track);
+      FUN_0001ca58(DAT_0030ebf4, path);
+      FUN_001b32e0(DAT_0034179c, track);
       FUN_0001cb88(DAT_0030ebf4);
-      a = FUN_0001cbfc();
-      b = FUN_0001cc54();
-      FUN_0001bfb4(DAT_0030ab9c, (void *)a, b);
-      FUN_000104e0(p);
+      data = FUN_0001cbfc();
+      size = FUN_0001cc54();
+      FUN_0001bfb4(DAT_0030ab9c, (void *)data, size);
+      FUN_000104e0(buffer);
     } else {
-      switch (o->fa4) {
-      case 0x22:
-      case 0x23:
-      case 0x25:
-        p = FUN_00010184(0x40, 0xccccc);
-        FUN_0001bfb4(DAT_0030ab9c, p, 0xccccc);
+      switch (o->nextBgm) {
+      case BGM_STREAM_A:
+      case BGM_STREAM_B:
+      case BGM_STREAM_C:
+        buffer = FUN_00010184(0x40, STREAM_BUFFER_SIZE);
+        FUN_0001bfb4(DAT_0030ab9c, buffer, STREAM_BUFFER_SIZE);
         FUN_0001ca58(DAT_0030ebf4, "menu/optionbgm/option_bgm_stream.xb");
-        FUN_001b3378(DAT_0034179c, o->fa4);
+        FUN_001b3378(DAT_0034179c, o->nextBgm);
         FUN_0001cb88(DAT_0030ebf4);
-        a = FUN_0001cbfc();
-        b = FUN_0001cc54();
-        FUN_0001bfb4(DAT_0030ab9c, (void *)a, b);
-        FUN_000104e0(p);
+        data = FUN_0001cbfc();
+        size = FUN_0001cc54();
+        FUN_0001bfb4(DAT_0030ab9c, (void *)data, size);
+        FUN_000104e0(buffer);
         break;
       }
     }
   }
-  FUN_001b3ce8(DAT_0034179c, o->fa4);
-  o->fa8 = o->fa4;
+  FUN_001b3ce8(DAT_0034179c, o->nextBgm);
+  o->curBgm = o->nextBgm;
 }

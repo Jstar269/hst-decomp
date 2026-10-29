@@ -1,27 +1,29 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b2c70 end=0x001b2cd0 symbol=FUN_001b2c70 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a1), refined by hstperm.py tag p4 random mutation from try/gen-a1/v0/FUN_001b2c70.c; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/slot_table.h"
 
 extern int FUN_00062418();
 
-void FUN_001b2c70(u32 *param_1)
+/* Release the objects held in slots 0xb2 and 0. */
+void FUN_001b2c70(SlotTable **ref)
 {
-  int iVar1;
-  int *piVar2;
+  void *obj;
+  SlotTable *table;
   
-  piVar2 = (int *)*param_1;
-  iVar1 = piVar2[0xb2];
-  if (iVar1 == 0) {
-    iVar1 = *piVar2;
+  table = *ref;
+  obj = table->slot[0xb2];
+  if (obj == 0) {
+    obj = table->slot[0];
   }
   else {
-    if (iVar1 != 0) {
-      FUN_00062418(iVar1,1);
-      piVar2[0xb2] = 0;
+    if (obj != 0) {
+      FUN_00062418(obj,1);
+      table->slot[0xb2] = 0;
     }
   }
-  if (((*piVar2) != 0) && ((*piVar2) != 0)) {
-    FUN_00062418((*piVar2),1);
-    *piVar2 = 0;
+  if (((table->slot[0]) != 0) && ((table->slot[0]) != 0)) {
+    FUN_00062418((table->slot[0]),1);
+    table->slot[0] = 0;
   }
 }

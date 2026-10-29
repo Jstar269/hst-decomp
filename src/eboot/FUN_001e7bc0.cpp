@@ -1,25 +1,25 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001e7bc0 end=0x001e7c3c symbol=FUN_001e7bc0 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/result_page.h"
 
 extern "C" {
 extern void FUN_00103628(...);
 extern void FUN_001e09dc(...);
 extern void FUN_001e2694(...);
 }
-struct VC_0 { virtual void d0(); virtual void m(int); };
-struct VC_1 { virtual void d0(); virtual void m(int); };
+struct ResultSwitch { virtual void d0(); virtual void m(int); };
 
-extern "C" void FUN_001e7bc0(int param_1)
+/* Page start: both switches on, then the score pair is set one past its second value. */
+extern "C" void FUN_001e7bc0(ResultPage *page)
 {
-  int *piVar1;
+  ResultSwitch *sw;
   
-  FUN_001e09dc(param_1,2);
-  piVar1 = *(int **)(*(int *)(param_1 + 0x3c) + 0x58);
-  ((VC_0 *)(piVar1))->m((int)(1));
-  piVar1 = *(int **)(*(int *)(param_1 + 0x3c) + 0x5c);
-  ((VC_1 *)(piVar1))->m((int)(1));
-  FUN_001e2694(param_1);
-  FUN_00103628(*(u32 *)(param_1 + 0x2464),0);
-  *(int *)(*(int *)(param_1 + 0x246c) + 0x24) = *(int *)(*(int *)(param_1 + 0x246c) + 0x28) + 1;
+  FUN_001e09dc(page,2);
+  sw = page->ui->unk58;
+  sw->m(1);
+  sw = page->ui->unk5c;
+  sw->m(1);
+  FUN_001e2694(page);
+  FUN_00103628(page->lay2464,0);
+  page->score_box->unk24 = page->score_box->unk28 + 1;
 }

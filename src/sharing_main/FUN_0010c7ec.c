@@ -5,7 +5,8 @@
 extern u8 DAT_002d13b0;
 extern void FUN_00105fe4();
 
-void FUN_0010c7ec(int param_1,u32 *param_2,u32 param_3)
+/* Forward to the two-path loader with a fixed second name. */
+void FUN_0010c7ec(int self,u32 *path,u32 arg)
 {
-  FUN_00105fe4(param_1,param_2,(u32 *)&DAT_002d13b0,param_3);
+  FUN_00105fe4(self,path,(u32 *)&DAT_002d13b0,arg);
 }

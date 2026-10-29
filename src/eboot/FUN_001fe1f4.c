@@ -1,25 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fe1f4 end=0x001fe244 symbol=FUN_001fe1f4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/key_record.h"
 
-void FUN_001fe1f4(u32 *param_1)
+/* Marks every record in the table as empty. */
+void FUN_001fe1f4(KeyRecord *table)
 {
-  int iVar1;
+  int i;
   
-  iVar1 = 0;
+  i = 0;
   do {
-    *param_1 = 0x7fffffff;
-    *(u8 *)(param_1 + 1) = 0;
-    *(u8 *)((int)param_1 + 5) = 0;
-    *(u8 *)((int)param_1 + 6) = 0;
-    *(u8 *)((int)param_1 + 7) = 0;
-    param_1[2] = 0x7fffffff;
-    param_1[3] = 0x7fffffff;
-    param_1[4] = 0x7fffffff;
-    param_1[5] = 0x7fffffff;
-    param_1[6] = 0x7fffffff;
-    iVar1 = iVar1 + 1;
-    param_1[7] = 0x7fffffff;
-    param_1 = param_1 + 8;
-  } while (iVar1 < 10);
+    table->key = KEY_RECORD_EMPTY;
+    table->bytes[0] = 0;
+    table->bytes[1] = 0;
+    table->bytes[2] = 0;
+    table->bytes[3] = 0;
+    table->words[0] = KEY_RECORD_EMPTY;
+    table->words[1] = KEY_RECORD_EMPTY;
+    table->words[2] = KEY_RECORD_EMPTY;
+    table->words[3] = KEY_RECORD_EMPTY;
+    table->words[4] = KEY_RECORD_EMPTY;
+    i = i + 1;
+    table->words[5] = KEY_RECORD_EMPTY;
+    table = table + 1;
+  } while (i < KEY_RECORD_COUNT);
 }

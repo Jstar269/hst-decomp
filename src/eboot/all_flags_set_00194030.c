@@ -12,28 +12,30 @@ extern u32 FUN_00193a28();
 extern u32 FUN_00193b8c();
 extern u32 FUN_00193e40();
 
-u32 FUN_00194030(int param_1)
+/* Load the five challenge tables (with the menu archive opened around them when asked), build the name index,
+   and return 1 when all six steps report success. */
+u32 FUN_00194030(int openArchive)
 {
-  int cVar1;
-  int cVar2;
-  int cVar3;
-  int cVar4;
-  int cVar5;
-  int cVar6;
+  int ok1;
+  int ok2;
+  int ok3;
+  int ok4;
+  int ok5;
+  int ok6;
 
-  if (param_1 != 0) {
+  if (openArchive != 0) {
     FUN_0001ca58(DAT_0030ebf4,"menu/challenge_match.xb");
   }
-  cVar1 = (u8)FUN_00193770();
-  cVar2 = (u8)FUN_001938d8();
-  cVar3 = (u8)FUN_00193e40();
-  cVar4 = (u8)FUN_00193a28();
-  cVar5 = (u8)FUN_00193b8c();
-  if (param_1 != 0) {
+  ok1 = (u8)FUN_00193770();
+  ok2 = (u8)FUN_001938d8();
+  ok3 = (u8)FUN_00193e40();
+  ok4 = (u8)FUN_00193a28();
+  ok5 = (u8)FUN_00193b8c();
+  if (openArchive != 0) {
     FUN_0001cb88(DAT_0030ebf4);
   }
-  cVar6 = (u8)FUN_001934c8();
-  if (cVar1 != '\0' && cVar2 != '\0' && cVar3 != '\0' && cVar4 != '\0' && cVar5 != '\0' && cVar6 != '\0') {
+  ok6 = (u8)FUN_001934c8();
+  if (ok1 != '\0' && ok2 != '\0' && ok3 != '\0' && ok4 != '\0' && ok5 != '\0' && ok6 != '\0') {
     return 1;
   }
   return 0;

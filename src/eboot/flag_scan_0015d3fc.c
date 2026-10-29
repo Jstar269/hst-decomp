@@ -1,24 +1,29 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0015d3fc end=0x0015d46c symbol=FUN_0015d3fc lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/profile_data.h"
 
-extern u8 * FUN_0022cd60(void);
+extern ProfileData * FUN_0022cd60(void);
 extern u8 DAT_0034100c;
 
+#define FLAG_TABLE_BASE 0xd0 /* first entry of the flag table checked by the scan */
+/* the flag byte is read as a signed char */
+
+/* Returns 1 when some profile flag bit is set while its flag-table entry is still clear. */
 u8 FUN_0015d3fc(void)
 {
-  int iVar1;
+  ProfileData *profile;
   int i;
-  char *puVar2;
-  unsigned char uVar3;
+  char *entry;
+  unsigned char found;
 
-  uVar3 = 0;
-  iVar1 = (int)FUN_0022cd60();
-  for (i = 0, puVar2 = (char *)&DAT_0034100c; i < 5; i++, puVar2++) {
-    if ((*(char *)(iVar1 + 0xf0) & (1 << i)) != 0 && puVar2[0xd0] == '\0') {
-      uVar3 = 1;
+  found = 0;
+  profile = FUN_0022cd60();
+  for (i = 0, entry = (char *)&DAT_0034100c; i < PROFILE_FLAG_BITS; i++, entry++) {
+    if ((*(char *)&profile->flag_bits & (1 << i)) != 0 && entry[FLAG_TABLE_BASE] == '\0') {
+      found = 1;
       break;
     }
   }
-  return uVar3;
+  return found;
 }

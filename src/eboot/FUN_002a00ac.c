@@ -1,6 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a00ac end=0x002a0140 symbol=FUN_002a00ac lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag t0), refined by hstperm.py random mutation from try/gen-s256b/v0/FUN_002a00ac.c; exact match verified; names and types await human review. */
+/* Mechanical translation of Ghidra pseudocode (hstgen.py tag t0), refined by hstperm.py random mutation from try/gen-s256b/v0/FUN_002a00ac.c; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/install_thread.h"
+
+enum { INSTALL_THREAD_PRIORITY = 0x28, INSTALL_THREAD_STACK_SIZE = 0x18000 };
 
 extern char DAT_002cba78[];
 extern char DAT_002cba8c[];
@@ -10,25 +13,26 @@ extern void FUN_0029e3cc();
 extern int FUN_002b78d8();
 extern int FUN_002b7920();
 
-void FUN_002a00ac(int param_1,u32 param_2)
+/* Creates the worker thread running entry and starts it with self as its argument. */
+void FUN_002a00ac(InstallThread *self,u32 entry)
 {
-  u32 uVar2;
-  int iVar1;
-  int local_4;
+  u32 thread;
+  int ret;
+  InstallThread *start_arg;
   
-  iVar1 = FUN_002b7920(DAT_002cbb14,param_2,0x28,0x18000,0,0);
-  *(int *)(param_1 + 0x28) = iVar1;
-  if (iVar1 < 0) {
-    FUN_0029e3cc(DAT_002cbad0,iVar1);
+  ret = FUN_002b7920(DAT_002cbb14,entry,INSTALL_THREAD_PRIORITY,INSTALL_THREAD_STACK_SIZE,0,0);
+  self->thread = ret;
+  if (ret < 0) {
+    FUN_0029e3cc(DAT_002cbad0,ret);
   }
-  local_4 = param_1;
-  iVar1 = FUN_002b78d8(*(u32 *)(param_1 + 0x28),4,&local_4);
-  if (iVar1 < 0) {
-    FUN_0029e3cc(DAT_002cba8c,*(u32 *)(param_1 + 0x28));
-    uVar2 = *(u32 *)(param_1 + 0x28);
+  start_arg = self;
+  ret = FUN_002b78d8(self->thread,4,&start_arg);
+  if (ret < 0) {
+    FUN_0029e3cc(DAT_002cba8c,self->thread);
+    thread = self->thread;
   }
   else {
-    uVar2 = *(u32 *)(param_1 + 0x28);
+    thread = self->thread;
   }
-  FUN_0029e3cc(DAT_002cba78,uVar2);
+  FUN_0029e3cc(DAT_002cba78,thread);
 }

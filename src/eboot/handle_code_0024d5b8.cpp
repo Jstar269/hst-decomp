@@ -9,26 +9,32 @@
    BOTH paths; a cached local or two direct reads are CSE'd), and the early exit inside case 0xc is a `break`, not a
    `return 0` (one shared epilogue with `move v0,zero` after the restores). Names provisional. */
 struct Vec4 { float x, y, z, w; };
-struct Game { char pad[0x3c]; int f3c; };
+struct Game { char pad[0x3c]; int unk3c; };
 struct Rng { char pad[0x1360]; int seed; };
-struct Cfg { char pad[0xa0]; unsigned fa0; };
+
+/* Linear congruential generator step and the chance (percent) of setting the flag at +0x268. */
+#define RNG_MUL 0x343fd
+#define RNG_ADD 0x269ec3
+#define FLAG_CHANCE_PERCENT 80
+
+struct Cfg { char pad[0xa0]; unsigned unka0; };
 struct Sub50 { char b[0x1b8]; };
 struct Self {
   char pad0[0x3c];
-  int f3c;
+  int unk3c;
   char pad40[0x50 - 0x40];
   Sub50 sub50;
-  int f208;
-  int f20c;
-  int State() const { return f20c; }
-  Vec4 v210;
-  Vec4 v220;
-  Vec4 v230;
-  int f240;
+  int unk208;
+  int unk20c; /* state word */
+  int State() const { return unk20c; }
+  Vec4 vec210;
+  Vec4 vec220;
+  Vec4 vec230;
+  int unk240;
   char pad244[4];
-  unsigned char b248;
+  unsigned char unk248;
   char pad249[0x268 - 0x249];
-  unsigned char b268;
+  unsigned char unk268;
 };
 extern "C" {
 extern Game *DAT_003386b0;
@@ -39,31 +45,31 @@ void FUN_000550c8(Sub50 *, Vec4 *);
 void FUN_0024ba68(Self *, Vec4 *, Vec4 *);
 }
 
-extern "C" int FUN_0024d5b8(Self *self, int msg)
+extern "C" int FUN_0024d5b8(Self *self, int code)
 {
-  switch (msg) {
+  switch (code) {
   case 0:
   case 1:
     break;
   case 0x16:
   case 0xe:
-    self->f208 = -1;
-    if (self->f3c != 1) {
-      self->f3c = 1;
-      self->b248 = 1;
+    self->unk208 = -1;
+    if (self->unk3c != 1) {
+      self->unk3c = 1;
+      self->unk248 = 1;
     }
-    self->v230 = self->v210;
-    FUN_000550c8(&self->sub50, &self->v210);
+    self->vec230 = self->vec210;
+    FUN_000550c8(&self->sub50, &self->vec210);
     DAT_0034a778 = 0;
     break;
   case 8:
-    if (DAT_003386b0->f3c != 7) {
-      if (self->f3c != 1) {
-        self->f3c = 1;
-        self->b248 = 1;
+    if (DAT_003386b0->unk3c != 7) {
+      if (self->unk3c != 1) {
+        self->unk3c = 1;
+        self->unk248 = 1;
       }
-      FUN_0024ba68(self, &self->v210, &self->v220);
-      self->f240++;
+      FUN_0024ba68(self, &self->vec210, &self->vec220);
+      self->unk240++;
     }
     DAT_0034a778 = 0;
     break;
@@ -73,22 +79,22 @@ extern "C" int FUN_0024d5b8(Self *self, int msg)
   case 0x14:
     break;
   case 0xc: {
-    int s = self->State();
-    if (s == 1 || (unsigned)(s - 11) < 2) {
-      if (DAT_00338b44->fa0 < 2) {
-        if (s == 11) {
-          int seed = DAT_003402a0->seed * 0x343fd + 0x269ec3;
+    int state = self->State();
+    if (state == 1 || (unsigned)(state - 11) < 2) {
+      if (DAT_00338b44->unka0 < 2) {
+        if (state == 11) {
+          int seed = DAT_003402a0->seed * RNG_MUL + RNG_ADD;
           DAT_003402a0->seed = seed;
-          if (((seed >> 16) & 0x7fff) % 100 < 80) {
-            self->b268 = 1;
+          if (((seed >> 16) & 0x7fff) % 100 < FLAG_CHANCE_PERCENT) {
+            self->unk268 = 1;
             DAT_0034a778 = 1;
             break;
           }
         }
-        if (self->f20c == 12 && DAT_0034a778 == 0) {
-          self->b268 = 1;
-        } else if (self->f20c == 1) {
-          self->b268 = 1;
+        if (self->unk20c == 12 && DAT_0034a778 == 0) {
+          self->unk268 = 1;
+        } else if (self->unk20c == 1) {
+          self->unk268 = 1;
         }
       }
     }

@@ -1,35 +1,55 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001fea10 end=0x001feac4 symbol=FUN_001fea10 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: materialized both range predicates and formed the indexed row address through an offset-first comma expression; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: materialized both range predicates and formed the indexed row address through an offset-first comma expression; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+
+typedef struct ResRow {
+  u8 **items;     /* 0x00 */
+  int count;      /* 0x04 */
+  int unk8;       /* 0x08 */
+} ResRow;
+
+typedef struct ResHeader {
+  char pad0[8];
+  int row_count;  /* 0x08 */
+} ResHeader;
+
+typedef struct ResEntry {
+  char pad0[4];
+  int ready;          /* 0x04 */
+  ResHeader *header;  /* 0x08 */
+  ResRow *rows;       /* 0x0c */
+} ResEntry;
 
 extern u8 DAT_002c0e18;
 extern u8 DAT_002c0e1c;
 extern u8 DAT_002c0e20;
 extern u8 * FUN_0018c9f4();
 
-u8 * FUN_001fea10(u32 param_1,int param_2,int param_3)
+/* Looks up item [col] of row [row] in resource entry [kind]; a placeholder is returned when
+   the entry is not ready or an index is out of range. */
+u8 * FUN_001fea10(u32 kind,int row,int col)
 {
-  int iVar1;
-  u8 *puVar2;
-  int *piVar3;
+  ResEntry *entry;
+  u8 *result;
+  ResRow *row_ptr;
   int row_ok;
   int col_ok;
   int row_offset;
   
-  iVar1 = (int)(FUN_0018c9f4());
-  if (*(int *)(iVar1 + 4) == 0) {
-    puVar2 = &DAT_002c0e20;
+  entry = (ResEntry *)(FUN_0018c9f4(kind));
+  if (entry->ready == 0) {
+    result = &DAT_002c0e20;
   }
-  else if ((param_2 < 0) || ((row_ok = param_2 < *(int *)(*(int *)(iVar1 + 8) + 8)) == 0)) {
-    puVar2 = &DAT_002c0e1c;
+  else if ((row < 0) || ((row_ok = row < entry->header->row_count) == 0)) {
+    result = &DAT_002c0e1c;
   }
-  else if ((param_3 < 0) ||
-          (piVar3 = (int *)(row_offset = param_2 * 0xc, row_offset + *(int *)(iVar1 + 0xc)),
-           (col_ok = param_3 < piVar3[1]) == 0)) {
-    puVar2 = &DAT_002c0e18;
+  else if ((col < 0) ||
+          (row_ptr = (ResRow *)(row_offset = row * 0xc, row_offset + (int)entry->rows),
+           (col_ok = col < row_ptr->count) == 0)) {
+    result = &DAT_002c0e18;
   }
   else {
-    puVar2 = *(u8 **)(*piVar3 + param_3 * 4);
+    result = row_ptr->items[col];
   }
-  return puVar2;
+  return result;
 }

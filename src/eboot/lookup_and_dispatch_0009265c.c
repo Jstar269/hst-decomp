@@ -1,27 +1,32 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0009265c end=0x00092720 symbol=FUN_0009265c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag v21) corrected by hand: typed the string lookup and dispatch prototypes, used the null-result ternary, and expressed the final negative exit; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag v21) corrected by hand: typed the string lookup and dispatch prototypes, used the null-result ternary, and expressed the final negative exit; readability pass; exact match verified; names and types await human review. */
+
+#include "hst/char_model.h"
 
 extern char DAT_002d2930[];
 extern char DAT_002d294c[];
-extern int FUN_0002fe80(int param_1,char *param_2);
-extern void FUN_00054464(int param_1,int param_2,int param_3,int param_4,int param_5);
+extern int FUN_0002fe80(struct List *list,char *name);
+extern void FUN_00054464(ModelCtrl *ctrl,int unk,int bone,int value,int flags);
 
-void FUN_0009265c(int param_1,int param_2)
+/* Looks up two named bones on item 5's controller and sends each a value:
+   the first the inverse of show, the second show itself. */
+void FUN_0009265c(CharModel *self,int show)
 {
-  int iVar1;
+  ModelCtrl *ctrl;
+  struct List *list;
+  int bone;
   
-  if ((*(int *)(param_1 + 100) != 0) &&
-     (iVar1 = *(int *)(*(int *)(param_1 + 100) + 0x8c), iVar1 != 0)) {
-    iVar1 = *(int *)(iVar1 + 8);
-    iVar1 = iVar1 != 0 ? FUN_0002fe80(iVar1,DAT_002d2930) : -1;
-    if (iVar1 >= 0) {
-      FUN_00054464(*(int *)(*(int *)(param_1 + 100) + 0x8c),-1,iVar1,(param_2 != 0) ^ 1,0);
+  if ((self->item[5] != 0) &&
+     (ctrl = self->item[5]->ctrl, ctrl != 0)) {
+    list = ctrl->list;
+    bone = list != 0 ? FUN_0002fe80(list,DAT_002d2930) : -1;
+    if (bone >= 0) {
+      FUN_00054464(self->item[5]->ctrl,-1,bone,(show != 0) ^ 1,0);
     }
-    iVar1 = *(int *)(param_1 + 100);
-    iVar1 = *(int *)(*(int *)(iVar1 + 0x8c) + 8);
-    iVar1 = iVar1 != 0 ? FUN_0002fe80(iVar1,DAT_002d294c) : -1;
-    if (iVar1 < 0) goto done;
-    FUN_00054464(*(int *)(*(int *)(param_1 + 100) + 0x8c),-1,iVar1,param_2,0);
+    list = self->item[5]->ctrl->list;
+    bone = list != 0 ? FUN_0002fe80(list,DAT_002d294c) : -1;
+    if (bone < 0) goto done;
+    FUN_00054464(self->item[5]->ctrl,-1,bone,show,0);
   }
 done:
   return;

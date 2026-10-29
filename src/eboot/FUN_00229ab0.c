@@ -1,15 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00229ab0 end=0x00229af0 symbol=FUN_00229ab0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag p64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag p64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/tree_map.h"
 
 extern void FUN_0022a124();
 
-void FUN_00229ab0(u32 *param_1)
+/* Erases all nodes and resets the tree to empty (second tree type). */
+void FUN_00229ab0(TreeMap *map)
 {
-  if ((u32 *)param_1[1] != (u32 *)0x0) {
-    FUN_0022a124(param_1,(u32 *)param_1[1]);
-    *param_1 = 0;
-    param_1[1] = 0;
-    param_1[3] = (unsigned int)(param_1 + 1);
+  if (map->root != (TreeNode *)0x0) {
+    FUN_0022a124(map,map->root);
+    map->unk00 = 0;
+    map->root = 0;
+    map->first = (TreeNode *)&map->root;
   }
 }

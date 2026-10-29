@@ -1,11 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002217f0 end=0x0022181c symbol=FUN_002217f0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/lay_pane.h"
 
 extern void FUN_00103628();
 
-void FUN_002217f0(int param_1)
+/* Counterpart of FUN_002217b8: clear the base state and the flag. */
+void FUN_002217f0(PaneB *self)
 {
-  FUN_00103628(param_1,0);
-  *(u8 *)(param_1 + 0x54) = 0;
+  FUN_00103628(self,0);
+  self->unk54 = 0;
 }

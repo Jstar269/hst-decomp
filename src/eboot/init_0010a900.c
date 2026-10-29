@@ -1,8 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0010a900 end=0x0010aa08 symbol=FUN_0010a900 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag gen-a1/v0c) corrected by hand: the function returns int (the stripped print call is declared int and its result is stored back into the checked value, which is returned: `if (r) r = print(fmt, r); return r;`), which keeps r in v0 and gives retail beqzl/move a1,v0 shape; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag gen-a1/v0c) corrected by hand: the function returns int (the stripped print call is declared int and its result is stored back into the checked value, which is returned: `if (r) r = print(fmt, r); return r;`), which keeps r in v0 and gives retail beqzl/move a1,v0 shape; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/utility_params.h"
 
-extern u8 DAT_002d8fcc;
+extern u8 DAT_002d8fcc;  /* 8-character name copied into the block */
 extern char DAT_002d8fd0[];
 extern char DAT_002d8fdc[];
 extern u32 * FUN_000114c0();
@@ -11,33 +12,34 @@ extern int FUN_0010a4a8(const char *, ...);
 extern void FUN_00199280();
 extern int FUN_002b7cb0();
 
-int FUN_0010a900(u32 *param_1,char *param_2,u32 param_3)
+/* Start the game-sharing dialog for a memory block; logs the first four bytes of data and any start-up error. */
+int FUN_0010a900(GameSharingParams *params,char *data,u32 dataSize)
 {
-  int iVar1;
+  int result;
   
-  FUN_000114c0(param_1,0,100);
-  *param_1 = 100;
-  param_1[1] = 0;
-  param_1[2] = 0;
-  param_1[3] = 0x11;
-  param_1[4] = 0x13;
-  param_1[5] = 0x12;
-  param_1[6] = 0x10;
-  FUN_00199280(param_1);
-  param_1[3] = 0x27;
-  param_1[4] = 0x29;
-  param_1[5] = 0x28;
-  param_1[6] = 0x26;
-  FUN_00014b74(param_1 + 0xe,&DAT_002d8fcc,8);
-  param_1[0x15] = 1;
-  param_1[0x16] = 2;
-  param_1[0x17] = (unsigned int)(param_2);
-  param_1[0x18] = param_3;
-  param_1[0x14] = 0;
-  FUN_0010a4a8(DAT_002d8fd0,(int)*param_2,(int)param_2[1],(int)param_2[2],(int)param_2[3]);
-  iVar1 = FUN_002b7cb0(param_1);
-  if (iVar1 != 0) {
-    iVar1 = FUN_0010a4a8(DAT_002d8fdc,iVar1);
+  FUN_000114c0(params,0,sizeof(GameSharingParams));
+  params->base.size = sizeof(GameSharingParams);
+  params->base.language = 0;
+  params->base.buttonSwap = 0;
+  params->base.graphicsThread = UTILITY_PRIO_GRAPHICS;
+  params->base.accessThread = UTILITY_PRIO_ACCESS;
+  params->base.fontThread = UTILITY_PRIO_FONT;
+  params->base.soundThread = UTILITY_PRIO_SOUND;
+  FUN_00199280(params);
+  params->base.graphicsThread = 0x27;
+  params->base.accessThread = 0x29;
+  params->base.fontThread = 0x28;
+  params->base.soundThread = 0x26;
+  FUN_00014b74(params->name,&DAT_002d8fcc,8);
+  params->mode = GAMESHARING_MODE_SINGLE;
+  params->datatype = GAMESHARING_DATA_MEMORY;
+  params->data = data;
+  params->datasize = dataSize;
+  params->filepath = 0;
+  FUN_0010a4a8(DAT_002d8fd0,(int)*data,(int)data[1],(int)data[2],(int)data[3]);
+  result = FUN_002b7cb0(params);
+  if (result != 0) {
+    result = FUN_0010a4a8(DAT_002d8fdc,result);
   }
-  return iVar1;
+  return result;
 }

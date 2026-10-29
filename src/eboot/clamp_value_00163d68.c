@@ -1,35 +1,30 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00163d68 end=0x00163e60 symbol=FUN_00163d68 lang=c99 */
 /* Hand-written reconstruction from the disassembly (the offset of the last term is a block-scoped local, which flips MWCC's add operand order); exact match verified; names and types await human review. */
-struct Tbl {
-    int base;
-    int count;
-    int pad;
-    int idx;
-};
-extern struct Tbl *DAT_0034150c;
-extern struct Tbl *DAT_00341510;
-extern char *DAT_0034b5d4;
-extern float FUN_000d8334(int, int);
+#include "hst/stat_calc.h"
 
-float FUN_00163d68(int param_1, int param_2)
+extern StatRecTable *DAT_0034150c;
+extern LimitTable *DAT_00341510;
+extern char *DAT_0034b5d4;
+extern float FUN_000d8334(StatMod *, int);
+
+/* Stat 2 of a record plus the modifier's record, call result and rank bonus, clamped to the limit table's range. */
+float FUN_00163d68(StatRec *rec, StatMod *mod)
 {
-    float v = *(float *)(param_1 + 0x50);
+    float v = rec->stat2;
     float lo;
     float hi;
 
-    if (param_2 != 0) {
-        if (*(short *)(param_2 + 10) >= 0)
-            v += *(float *)(DAT_0034150c->base +
-                            *(short *)(DAT_0034150c->idx + *(short *)(param_2 + 10) * 2) * 0x22c +
-                            0x50);
-        v += FUN_000d8334(param_2, 2);
+    if (mod != 0) {
+        if (mod->id >= 0)
+            v += STAT_REC_AT(DAT_0034150c, mod->id)->stat2;
+        v += FUN_000d8334(mod, 2);
         {
-            int off = *(char *)(param_2 + 0xa0) * 0x14;
-            v += *(float *)(off + (int)DAT_0034b5d4 + 0xf8);
+            int off = mod->rank * RANK_ROW_SIZE;
+            v += *(float *)(off + (int)DAT_0034b5d4 + RANK_BONUS_BASE + 8);
         }
     }
-    lo = *(float *)(DAT_00341510->base + 8);
-    hi = *(float *)(DAT_00341510->base + (DAT_00341510->count - 1) * 0x14 + 8);
+    lo = LIMIT_ROW_AT(DAT_00341510, 0)->v[2];
+    hi = LIMIT_ROW_AT(DAT_00341510, DAT_00341510->count - 1)->v[2];
     if (v < lo)
         return lo;
     if (v > hi)

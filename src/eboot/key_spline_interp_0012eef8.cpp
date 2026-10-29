@@ -33,28 +33,31 @@ struct Basis {
     }
 };
 
-struct Key {
+/* One animation key: a rotation/translation matrix and a scale. */
+struct KeyFrame {
     Vec4 r0, r1, r2, r3;
     Vec3 s;
     float pad;
 };
 
 extern "C" {
-Vec4 *FUN_000226c4(Vec4 *, const Key *);
+Vec4 *FUN_000226c4(Vec4 *, const KeyFrame *);
 Vec4 *FUN_0002299c(Vec4 *, const Vec4 *, const Vec4 *, float);
-Key *FUN_00022938(Key *, const Vec4 *);
+KeyFrame *FUN_00022938(KeyFrame *, const Vec4 *);
 Mat4 *FUN_00022570(Mat4 *, const Basis *, const Mat4 *);
 Vec4 *FUN_00022548(Vec4 *, const Mat4 *, const Vec4 *);
 }
 
 extern Mat4 DAT_002c0f30;
 
-extern "C" void FUN_0012eef8(float t, Key *out, Key *keys)
+/* Interpolates between keys[i] and keys[i+1] at time t (integer part = key index): rotation with nested
+   interpolation steps, translation and scale with the shared cubic basis. */
+extern "C" void FUN_0012eef8(float t, KeyFrame *out, KeyFrame *keys)
 {
     int i = (int)t;
-    t -= (float)i;
+    t -= (float)i;  /* fraction between the two keys */
     float t2 = t * t;
-    float t3 = t2 * t;
+    float t3 = t2 * t;  /* powers of t for the cubic basis */
     Vec4 q0;
     FUN_000226c4(&q0, &keys[i]);
     Vec4 q1 = q0;

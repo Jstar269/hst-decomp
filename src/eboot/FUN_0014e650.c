@@ -1,16 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0014e650 end=0x0014e698 symbol=FUN_0014e650 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/script_node.h"
+#include "hst/stream_cursor.h"
 
 extern u8 DAT_0030829c;
 extern u8 DAT_0030840c;
 extern u16 FUN_0014f050();
 
-u32 * FUN_0014e650(u32 *param_1,u32 param_2)
+/* Constructor of a script node read from a stream: base vtable, cleared byte, then own vtable. */
+ScriptNode * FUN_0014e650(ScriptNode *self,StreamCursor *stream)
 {
-  *param_1 = (unsigned int)(&DAT_0030840c);
-  *(u8 *)(param_1 + 1) = 0;
-  *param_1 = (unsigned int)(&DAT_0030829c);
-  FUN_0014f050(param_2);
-  return param_1;
+  self->vtable = &DAT_0030840c;
+  self->unk04 = 0;
+  self->vtable = &DAT_0030829c;
+  FUN_0014f050(stream);
+  return self;
 }

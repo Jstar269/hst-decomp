@@ -1,58 +1,66 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ee8d0 end=0x000eea50 symbol=FUN_000ee8d0 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/inp_panes.h"
+#include "hst/scene.h"
+
 extern "C" float fabsf(float);
 extern "C" float FUN_0000bb44(float);
-extern "C" void FUN_000ffb3c(unsigned int, int);
-extern "C" void FUN_00103128(int);
-extern "C" void FUN_00103480(int);
-extern "C" void FUN_0010f5d4(unsigned int, int);
-extern unsigned char *DAT_003386b0;
+extern "C" void FUN_000ffb3c(PaneItem *, int);
+extern "C" void FUN_00103128(ReplayPane *);
+extern "C" void FUN_00103480(ReplayPane *);
+extern "C" void FUN_0010f5d4(int, int);
+extern Scene *DAT_003386b0;
 
-struct VBase
+/* Virtual view of a PaneLayer: slot 1 shows or hides it. */
+struct LayerV
 {
   virtual void v0();
-  virtual void v1(int);
+  virtual void Show(int on);
 };
 
-extern "C" void FUN_000ee8d0(int param_1)
+#define SCENE_FPS 30.0f
+
+/* Per-frame update of the replay pane: the layer offsets ease toward zero (20% per frame, snapping inside 0.1);
+   while the scene counts down, the remaining seconds are shown and the digit items are hidden at zero. */
+extern "C" void FUN_000ee8d0(ReplayPane *pane)
 {
-  if (*(unsigned char *)(param_1 + 0x54) == 0)
+  if (pane->base.shown == 0)
   {
-    int p0 = *(int *)(param_1 + 0x5c);
-    float f3 = *(float *)(p0 + 100);
-    int p1 = *(int *)(param_1 + 0x60);
-    int p2 = *(int *)(param_1 + 100);
-    int p3 = *(int *)(param_1 + 0x68);
-    int p4 = *(int *)(param_1 + 0x6c);
-    float f5 = *(float *)(p1 + 100);
-    float f8 = 0.0f;
-    float f6 = f8 - f3;
-    f8 = (fabsf(f6) >= 0.1f) ? (f3 + f6 * 0.2f) : f8;
-    float fz = 0.0f;
-    f6 = fz - f5;
-    fz = (fabsf(f6) >= 0.1f) ? (f5 + f6 * 0.2f) : fz;
-    *(float *)(p0 + 100) = f8;
-    *(float *)(p1 + 100) = fz;
-    *(float *)(p2 + 100) = f8;
-    *(float *)(p3 + 100) = fz;
-    *(float *)(p4 + 100) = f8;
-    if (*(unsigned char *)(param_1 + 0x54) == 0)
+    PaneLayer *l0 = pane->layer[0];
+    float cur0 = l0->offset;
+    PaneLayer *l1 = pane->layer[1];
+    PaneLayer *l2 = pane->layer[2];
+    PaneLayer *l3 = pane->layer[3];
+    PaneLayer *l4 = pane->layer[4];
+    float cur1 = l1->offset;
+    float next0 = 0.0f;
+    float delta = next0 - cur0;
+    next0 = (fabsf(delta) >= 0.1f) ? (cur0 + delta * 0.2f) : next0;
+    float next1 = 0.0f;
+    delta = next1 - cur1;
+    next1 = (fabsf(delta) >= 0.1f) ? (cur1 + delta * 0.2f) : next1;
+    l0->offset = next0;
+    l1->offset = next1;
+    l2->offset = next0;
+    l3->offset = next1;
+    l4->offset = next0;
+    if (pane->base.shown == 0)
     {
-      FUN_00103480(param_1);
+      FUN_00103480(pane);
     }
-    if (DAT_003386b0[0x68] != 0)
+    if (DAT_003386b0->unk68 != 0)
     {
-      int n = (int)FUN_0000bb44((float)*(int *)(DAT_003386b0 + 0x6c) / 30.0f);
-      ((VBase *)*(int *)(param_1 + 0x6c))->v1(0);
-      FUN_0010f5d4(*(unsigned int *)(param_1 + 0xa0), n);
-      if (n < 1)
+      int seconds = (int)FUN_0000bb44((float)DAT_003386b0->timer / SCENE_FPS);
+      ((LayerV *)pane->layer[4])->Show(0);
+      FUN_0010f5d4(pane->unkA0, seconds);
+      if (seconds < 1)
       {
-        FUN_000ffb3c(*(unsigned int *)(param_1 + 0x70), 1);
-        FUN_000ffb3c(*(unsigned int *)(param_1 + 0x74), 1);
-        FUN_000ffb3c(*(unsigned int *)(param_1 + 0x80), 1);
-        FUN_000ffb3c(*(unsigned int *)(param_1 + 0x84), 1);
+        FUN_000ffb3c(pane->item[0], 1);
+        FUN_000ffb3c(pane->item[1], 1);
+        FUN_000ffb3c(pane->item[4], 1);
+        FUN_000ffb3c(pane->item[5], 1);
       }
     }
-    FUN_00103128(param_1);
+    FUN_00103128(pane);
   }
 }

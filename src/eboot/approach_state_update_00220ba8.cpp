@@ -1,33 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00220ba8 end=0x00220ed8 symbol=FUN_00220ba8 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; matching idioms: both mode tests are switches (a combined case 0/1 group, then case 0 before case 1 in the 100+ branch, because MWCC emits the compare chain in reverse source order), the five stores through self->sub come BEFORE the two float scalings (e = d*64, g = c*128) so the scheduler keeps the retail interleave; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified; matching idioms: both mode tests are switches (a combined case 0/1 group, then case 0 before case 1 in the 100+ branch, because MWCC emits the compare chain in reverse source order), the five stores through self->node come BEFORE the two float scalings (extent = grow*64, alpha_scaled = alpha*128) so the scheduler keeps the retail interleave; names and types await human review. */
+#include "hst/fade_pane.h"
+#include "hst/sprite_quad.h"
+
 struct Vec { float x, y, z, w; };
 
-struct Sub {
-    char pad0[0x60];
-    float f60;
-    float f64;
-    char pad68[4];
-    float f6c;
-    char pad70[8];
-    float f78;
-};
-
-struct Quad {
-    unsigned int color;
-    short s4;
-    short s6;
-    short s8;
-    short s10;
-};
-
+/* Pane with a node and two sprite quads, driven by a timer and a mode (0 or 1). */
 struct Obj {
     char pad0[0x60];
     int mode;
-    int count;
-    float f68;
-    Sub *sub;
-    Quad *q1;
-    Quad *q2;
+    int timer;      /* 0x64 negative while idle */
+    float grow;     /* 0x68 growth factor of the quads */
+    FadeNode *node; /* 0x6c */
+    SpriteQuad *q1; /* 0x70 */
+    SpriteQuad *q2; /* 0x74 */
 };
 
 extern "C" {
@@ -40,51 +26,53 @@ void FUN_00103480(Obj *o);
 void FUN_00103128(Obj *o);
 }
 
+/* One step: eases the node's offset and alpha and the quad growth toward the targets for the current
+   mode, resizes both quads, writes the alpha into the first quad's colour and advances the timer. */
 extern "C" void FUN_00220ba8(Obj *self)
 {
-    if (self->count >= 0) {
-        Sub *o = self->sub;
-        float a = o->f60;
-        float b = o->f64;
-        float c = o->f78;
-        float d = self->f68;
-        if (self->count < 100) {
+    if (self->timer >= 0) {
+        FadeNode *o = self->node;
+        float x = o->x;
+        float y = o->y;
+        float alpha = o->alpha;
+        float grow = self->grow;
+        if (self->timer < 100) {
             switch (self->mode) {
             case 0:
             case 1:
-                a = FUN_000ede98(a, 0.0f, DAT_002f0bbc, 1.0f);
-                b = FUN_000ede98(b, 0.0f, DAT_002f0bbc, 1.0f);
-                c = FUN_000ede98(c, 1.0f, DAT_002f0bbc, 0.01f);
-                d = FUN_000ede98(d, 1.0f, DAT_002f0bbc, 0.01f);
+                x = FUN_000ede98(x, 0.0f, DAT_002f0bbc, 1.0f);
+                y = FUN_000ede98(y, 0.0f, DAT_002f0bbc, 1.0f);
+                alpha = FUN_000ede98(alpha, 1.0f, DAT_002f0bbc, 0.01f);
+                grow = FUN_000ede98(grow, 1.0f, DAT_002f0bbc, 0.01f);
                 break;
             }
         } else {
             switch (self->mode) {
             case 0:
-                a = FUN_000ede98(a, DAT_0034a210[self->mode].x, DAT_002f0bbc * 0.5f, 1.0f);
-                b = FUN_000ede98(b, DAT_0034a210[self->mode].y, DAT_002f0bbc * 0.5f, 1.0f);
-                d = FUN_000ede98(d, DAT_002f0bc0, 0.1f, 0.01f);
+                x = FUN_000ede98(x, DAT_0034a210[self->mode].x, DAT_002f0bbc * 0.5f, 1.0f);
+                y = FUN_000ede98(y, DAT_0034a210[self->mode].y, DAT_002f0bbc * 0.5f, 1.0f);
+                grow = FUN_000ede98(grow, DAT_002f0bc0, 0.1f, 0.01f);
                 break;
             case 1:
-                c = FUN_000ede98(c, DAT_0034a230, DAT_002f0bbc, 0.01f);
+                alpha = FUN_000ede98(alpha, DAT_0034a230, DAT_002f0bbc, 0.01f);
                 break;
             }
         }
-        self->sub->f60 = a;
-        self->sub->f64 = b;
-        self->sub->f6c = 1.0f;
-        self->sub->f78 = c;
-        self->f68 = d;
-        float e = d * 64.0f;
-        float g = c * 128.0f;
-        self->q1->s8 = (short)(int)((float)self->q1->s4 + e);
-        self->q1->s10 = (short)(int)((float)self->q1->s6 + e);
-        self->q2->s8 = (short)(int)((float)self->q2->s4 + e);
-        self->q2->s10 = (short)(int)((float)self->q2->s6 + e);
-        unsigned int alpha = (unsigned char)(unsigned int)g;
-        self->q1->color = (self->q1->color & 0xffffff) | (alpha << 24);
+        self->node->x = x;
+        self->node->y = y;
+        self->node->unk6c = 1.0f;
+        self->node->alpha = alpha;
+        self->grow = grow;
+        float extent = grow * 64.0f;
+        float alpha_scaled = alpha * 128.0f;
+        self->q1->x1 = (short)(int)((float)self->q1->x0 + extent);
+        self->q1->y1 = (short)(int)((float)self->q1->y0 + extent);
+        self->q2->x1 = (short)(int)((float)self->q2->x0 + extent);
+        self->q2->y1 = (short)(int)((float)self->q2->y0 + extent);
+        unsigned int alpha_byte = (unsigned char)(unsigned int)alpha_scaled;
+        self->q1->color = (self->q1->color & 0xffffff) | (alpha_byte << 24);
         FUN_00103480(self);
-        self->count = self->count + 1;
+        self->timer = self->timer + 1;
     }
     FUN_00103128(self);
 }

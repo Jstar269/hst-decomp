@@ -1,13 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00096c2c end=0x00096d1c symbol=FUN_00096c2c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: restored switch case dispatch and short-circuit checks; exact match verified; names and types await human review. */
-typedef struct { char pad[0x148]; int index; } Obj;
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: restored switch case dispatch and short-circuit checks; readability pass; exact match verified; names and types await human review. */
+#include "hst/player_record.h"
+
 extern int DAT_00338b44;
 extern unsigned char DAT_00341837[];
 extern int DAT_0034a77c;
 extern int FUN_000dbc54(int, int);
 extern int FUN_0024de88(int, int, int);
 
-int FUN_00096c2c(Obj *self, int mode)
+/* Returns 1 straight away for modes 1, 3, 8, 11 and 14 when any of the three checks 17..19 passes; otherwise defers to FUN_0024de88. */
+int FUN_00096c2c(SlotPlayer *player, int mode)
 {
   switch (mode) {
   case 1:
@@ -24,5 +26,5 @@ int FUN_00096c2c(Obj *self, int mode)
     break;
   }
   return FUN_0024de88(DAT_0034a77c, mode,
-                      DAT_00341837[self->index * 0x120]);
+                      DAT_00341837[player->index * 0x120]);
 }

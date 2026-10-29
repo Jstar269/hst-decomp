@@ -1,88 +1,95 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002321f0 end=0x002323e0 symbol=FUN_002321f0 lang=c++ rodata=0x002c9c68 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. matching idiom: the tests read `int m = self->mode;` back after the store (the parameter itself then stays in a1 for the store). */
-struct Ctl {
+#include "hst/challenge_menu.h"
+
+/* Pane object with an enable switch. */
+struct PaneCtl {
     virtual void v0();
     virtual void SetEnabled(bool on);
 };
 
-struct Item {
+/* Menu part with two values that are always written together. */
+struct Part {
     char pad[0x24];
-    int a;
-    int b;
+    int unk24;
+    int unk28;
 };
 
+/* Record returned by the shared getter. */
 struct Shared {
     char pad0[0x138];
-    int f138;
-    unsigned char f13c;
+    int unk138;
+    unsigned char unk13c;
 };
 
-struct Obj {
+struct LobbyMenu {
     char pad0[0x5c];
-    Ctl *ctl5c;
-    Ctl *ctl60;
-    Item *items[94];
+    PaneCtl *pane2;
+    PaneCtl *pane3;
+    Part *parts[CHALLENGE_PARTS];
+    char pad1[0x1dc - 0x64 - CHALLENGE_PARTS * 4];
     int mode;
-    int sub;
-    char pad1[0x200 - 0x1e4];
-    int sel[10];
+    int selected;
+    char pad2[0x200 - 0x1e4];
+    int status[POINT_COUNT];
 };
 
 extern "C" {
 Shared *FUN_0022cd60(void);
-void FUN_000ffb3c(Item *, bool);
-void FUN_00232558(Obj *, int);
+void FUN_000ffb3c(Part *, bool);
+void FUN_00232558(LobbyMenu *, int);
 extern int DAT_002f3af4;
 extern int DAT_002f39f0[];
 }
 
-extern "C" void FUN_002321f0(Obj *self, int param_2)
+/* Switches the menu to a new mode and updates which panes and parts are enabled and what values they show. */
+extern "C" void FUN_002321f0(LobbyMenu *self, int new_mode)
 {
-    self->mode = param_2;
+    self->mode = new_mode;
     int m = self->mode;
     bool notOne = !(m == 1);
-    Shared *sh = FUN_0022cd60();
-    bool u = sh->f138 == 0;
-    unsigned char c13c = sh->f13c;
-    self->ctl5c->SetEnabled(!(m == 0));
-    self->ctl60->SetEnabled(notOne);
+    Shared *shared = FUN_0022cd60();
+    bool no_unk138 = shared->unk138 == 0;
+    unsigned char flag13c = shared->unk13c;
+    self->pane2->SetEnabled(!(m == 0));
+    self->pane3->SetEnabled(notOne);
     for (int i = 25; i <= 34; i++) {
-        FUN_000ffb3c(self->items[i], 1);
+        FUN_000ffb3c(self->parts[i], 1);
     }
-    FUN_000ffb3c(self->items[22], notOne);
-    FUN_000ffb3c(self->items[23], notOne);
-    FUN_000ffb3c(self->items[19], !u);
-    bool b = !c13c;
-    FUN_000ffb3c(self->items[20], b);
-    FUN_000ffb3c(self->items[21], b);
-    int v = DAT_002f3af4 + u;
-    Item *it = self->items[21];
-    it->a = v;
-    it->b = v;
+    FUN_000ffb3c(self->parts[22], notOne);
+    FUN_000ffb3c(self->parts[23], notOne);
+    FUN_000ffb3c(self->parts[19], !no_unk138);
+    bool b = !flag13c;
+    FUN_000ffb3c(self->parts[20], b);
+    FUN_000ffb3c(self->parts[21], b);
+    int v = DAT_002f3af4 + no_unk138;
+    Part *it = self->parts[21];
+    it->unk24 = v;
+    it->unk28 = v;
     switch (self->mode) {
     case 0:
-        for (int i = 0; i < 10; i++) {
-            int m = self->sel[i];
+        for (int i = 0; i < POINT_COUNT; i++) {
+            int m = self->status[i];
             switch (m) {
             case 0:
             case 1:
-                FUN_000ffb3c(self->items[45 + i], 1);
+                FUN_000ffb3c(self->parts[CHALLENGE_FIRST_POINT_PART + i], 1);
                 break;
             case 2:
             case 3:
             case 4:
             case 5:
                 m = (m == 4) ? 2 : m;
-                FUN_000ffb3c(self->items[45 + i], 0);
+                FUN_000ffb3c(self->parts[CHALLENGE_FIRST_POINT_PART + i], 0);
                 int val = m - 2 + DAT_002f39f0[i * 3 + 0x89];
-                Item *p = self->items[45 + i];
-                p->a = val;
-                p->b = val;
+                Part *p = self->parts[CHALLENGE_FIRST_POINT_PART + i];
+                p->unk24 = val;
+                p->unk28 = val;
             }
         }
         break;
     case 1:
-        FUN_00232558(self, self->sub);
+        FUN_00232558(self, self->selected);
         break;
     }
 }

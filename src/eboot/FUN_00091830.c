@@ -1,27 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00091830 end=0x000918ac symbol=FUN_00091830 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/model_set_full.h"
 
 extern u8 DAT_00307264;
 extern void FUN_00091af4();
 extern void FUN_00091cbc();
 extern u32 * FUN_0009444c();
 
-u32 * FUN_00091830(u32 *param_1)
+/* Constructor: set the vtable, build the two bone sub-objects and the default vectors. */
+ModelSetFull * FUN_00091830(ModelSetFull *self)
 {
-  *param_1 = (unsigned int)(&DAT_00307264);
-  FUN_0009444c(param_1 + 0x20);
-  FUN_0009444c(param_1 + 0x2c);
-  param_1[10] = 0;
-  param_1[0xc] = 0xbf800000;
-  param_1[0xd] = 0xbf800000;
-  param_1[0xe] = 0xbf800000;
-  param_1[0xf] = 0xbf800000;
-  param_1[0x10] = 0;
-  param_1[0x11] = 0x3f800000;
-  param_1[0x12] = 0;
-  param_1[0x13] = 0;
-  FUN_00091af4(param_1);
-  FUN_00091cbc(param_1);
-  return param_1;
+  self->vtbl = &DAT_00307264;
+  FUN_0009444c(self->boneA);
+  FUN_0009444c(self->boneB);
+  self->level = 0;
+  self->vecA[0] = -1.0f;
+  self->vecA[1] = -1.0f;
+  self->vecA[2] = -1.0f;
+  self->vecA[3] = -1.0f;
+  self->vecB[0] = 0.0f;
+  self->vecB[1] = 1.0f;
+  self->vecB[2] = 0.0f;
+  self->vecB[3] = 0.0f;
+  FUN_00091af4(self);
+  FUN_00091cbc(self);
+  return self;
 }

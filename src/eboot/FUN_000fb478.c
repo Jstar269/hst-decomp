@@ -1,14 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000fb478 end=0x000fb4ac symbol=FUN_000fb478 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag p64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag p64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/mode_screen.h"
 
-extern void FUN_000f6998(int param_1,int param_2,float *param_3);
+extern void FUN_000f6998(void *target,int rank,float *pos);
 
-void FUN_000fb478(int param_1,int param_2,float *param_3)
+/* Forward (rank, pos) to the core's first target, if there is one. */
+void FUN_000fb478(ModeScreen *self,int rank,float *pos)
 {
-  int iVar1;
+  ModeTarget *target;
   
-  if ((*(int *)(param_1 + 0x3c) != 0) &&
-     (iVar1 = *(int *)(*(int *)(param_1 + 0x3c) + 0x8c), iVar1 != 0)) {
-    FUN_000f6998(iVar1,param_2,param_3);
+  if ((self->core != 0) &&
+     (target = self->core->targetA, target != 0)) {
+    FUN_000f6998(target,rank,pos);
   }
 }

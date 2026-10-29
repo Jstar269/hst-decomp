@@ -22,6 +22,7 @@ extern void FUN_001b71c4(void *);
 extern void FUN_001b7210(void *);
 extern void FUN_001b7218(void *);
 
+/* Run the handler for the given mode id on the object (ids without a handler do nothing); always returns 0. */
 int FUN_001b53f4(void *self, unsigned mode)
 {
   switch (mode) {

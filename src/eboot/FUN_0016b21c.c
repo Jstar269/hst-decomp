@@ -1,18 +1,21 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016b21c end=0x0016b270 symbol=FUN_0016b21c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a1), refined by hstperm.py tag p4 random mutation from try/gen-a1/v0/FUN_0016b21c.c; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1), refined by hstperm.py tag p4 random mutation from try/gen-a1/v0/FUN_0016b21c.c, corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/settings_block.h"
 
-extern int FUN_0016bb88();
+extern SettingsBlock * FUN_0016bb88();
 
-int FUN_0016b21c(int param_1)
+/* Returns entry `index` of the settings block, or null when the index is out of range. */
+SettingsEntry * FUN_0016b21c(int index)
 {
-  int iVar1;
+  SettingsBlock *settings;
+  SettingsEntry *entry;
   
-  iVar1 = FUN_0016bb88();
-  if (0 <= param_1 && (param_1 < 0xf)) {
-    iVar1 = iVar1 + param_1 * 0x38 + 4;
+  settings = FUN_0016bb88();
+  if (0 <= index && (index < SETTINGS_ENTRY_COUNT)) {
+    entry = &settings->entries[index];
   }
   else {
-    iVar1 = 0;
+    entry = 0;
   }
-  return iVar1;
+  return entry;
 }

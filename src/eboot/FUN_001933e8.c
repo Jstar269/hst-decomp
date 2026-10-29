@@ -1,27 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001933e8 end=0x0019346c symbol=FUN_001933e8 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. matching idiom: store the argument into the outgoing stack slot before the null guard (fills the beqz delay slot) and share a `goto ret0` for the two early returns. */
-#include "hst/types.h"
+#include "hst/challenge_tables.h"
 
-extern u8 * DAT_00341740;
-extern u32 DAT_00341748;
-extern void FUN_00196478();
+extern ChallengeTableSmall *DAT_00341740;
+extern ChallengeIndex *DAT_00341748;
+extern void FUN_00196478(TreeNode **, TreeMap *, const char **);
 
-int FUN_001933e8(u32 param_1)
+/* Finds the record with the given name through the name index; 0 when the table is not loaded or the name is unknown. */
+ChallengeRecSmall *FUN_001933e8(const char *name)
 {
-  int iVar1;
-  int local_4;
-  u32 local_8;
+  TreeNode *node;
+  const char *key;
 
-  local_8 = param_1;
+  key = name;
   if (DAT_00341740 == 0) {
     goto ret0;
   }
-  FUN_00196478(&local_4,DAT_00341748 + 0x20,&local_8);
-  if (local_4 == DAT_00341748 + 0x24) {
+  FUN_00196478(&node,&DAT_00341748->exhibition,&key);
+  if (node == (TreeNode *)&DAT_00341748->exhibition.root) {
     goto ret0;
   }
-  iVar1 = *(int *)(DAT_00341740 + 4) + *(int *)(local_4 + 0x10) * 0x6c;
-  return iVar1;
+  return DAT_00341740->records + node->value;
 ret0:
   return 0;
 }

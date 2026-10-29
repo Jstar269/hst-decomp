@@ -1,38 +1,40 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002180a8 end=0x002181a4 symbol=FUN_002180a8 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern char *DAT_00341508;
-extern int FUN_00165004(char *, int);
-extern float FUN_001646a0(int, int);
-extern float FUN_00164740(int, int);
-extern float FUN_001647ec(int, int);
-extern float FUN_00164ac4(int, int);
-extern float FUN_00164958(int, int);
+#include "hst/row_tables.h"
 
-float FUN_002180a8(int param_1, int param_2, int param_3, int param_4, int param_5)
+extern RowTables *DAT_00341508;
+extern int FUN_00165004(void *, int);
+extern float FUN_001646a0(RowEntry *, int);
+extern float FUN_00164740(RowEntry *, int);
+extern float FUN_001647ec(RowEntry *, int);
+extern float FUN_00164ac4(RowEntry *, int);
+extern float FUN_00164958(RowEntry *, int);
+
+float FUN_002180a8(int unused, int table_index, int row_key, int kind, int arg)
 {
-  int n;
-  int ptr;
-  float f;
+  int row_index;
+  RowEntry *row;
+  float result;
 
-  n = FUN_00165004(DAT_00341508 + param_2 * 24, param_3);
-  ptr = *(int *)(DAT_00341508 + param_2 * 24) + n * 556;
-  f = 0.0f;
-  switch (param_4) {
+  row_index = FUN_00165004(&DAT_00341508->tables[table_index], row_key);
+  row = (RowEntry *)((char *)DAT_00341508->tables[table_index].rows + row_index * sizeof(RowEntry));
+  result = 0.0f;
+  switch (kind) {
   case 0:
-    f = FUN_001646a0(ptr, param_5);
+    result = FUN_001646a0(row, arg);
     break;
   case 1:
-    f = FUN_00164740(ptr, param_5);
+    result = FUN_00164740(row, arg);
     break;
   case 2:
-    f = FUN_001647ec(ptr, param_5);
+    result = FUN_001647ec(row, arg);
     break;
   case 3:
-    f = FUN_00164ac4(ptr, param_5);
+    result = FUN_00164ac4(row, arg);
     break;
   case 4:
-    f = FUN_00164958(ptr, param_5);
+    result = FUN_00164958(row, arg);
     break;
   }
-  return f;
+  return result;
 }

@@ -9,31 +9,32 @@ struct VObj {
 };
 struct Main : VObj {
     char pad[0x5c - 4];
-    unsigned char f5c;
+    unsigned char flag5c; /* 0x5c */
 };
-struct Holder {
+struct Holder { /* object plus its state id */
     VObj *obj;
     int state;
 };
 struct Game {
     char pad[0xcc];
-    int fcc;
-    int fd0;
+    int unkcc;
+    int unkd0;
 };
-struct Self {
-    Main *f0;
-    VObj *f4;
-    VObj *f8;
-    VObj *fc;
-    VObj *f10;
-    VObj *f14;
-    VObj *f18;
-    VObj *f1c;
-    VObj *f20;
-    VObj *f24;
-    Holder *f28;
-    int f2c;
-    void *f30;
+/* Same layout as ModeParts (the part set reached through +0x3c), typed for the virtual calls. */
+struct PartSet {
+    Main *part00;
+    VObj *part04;
+    VObj *part08;
+    VObj *part0c;
+    VObj *part10;
+    VObj *part14;
+    VObj *part18;
+    VObj *part1c;
+    VObj *part20;
+    VObj *part24;
+    Holder *part28;
+    int part2c;
+    void *part30;
 };
 extern "C" {
 extern int DAT_0034a678;
@@ -49,37 +50,37 @@ void FUN_00042ff4(float f, int x);
 void FUN_000f6c48(void *p);
 }
 
-extern "C" void FUN_002256b8(Self *self)
+extern "C" void FUN_002256b8(PartSet *parts)
 {
     if (DAT_0034a678 == 0x20 || DAT_0034a678 == 2) {
-        if (self->f28->state != 11) {
-            FUN_0021ae88(self->f28);
+        if (parts->part28->state != 11) {
+            FUN_0021ae88(parts->part28);
         }
         if (DAT_002eff8c != 0) {
-            if (self->f28->state == 11) {
-                self->f0->v3();
-                self->f20->v3();
+            if (parts->part28->state == 11) {
+                parts->part00->v3();
+                parts->part20->v3();
                 if (DAT_0034a114 != 0 && FUN_001cd2a8(DAT_0034a114) == 0) {
-                    self->f4->v3();
+                    parts->part04->v3();
                 }
-            } else if (self->f28->state == 0) {
+            } else if (parts->part28->state == 0) {
                 Main *m;
-                FUN_0021b088(self->f0, DAT_0034a114->fcc + 1, DAT_0034a114->fd0 + 1, 1);
-                m = self->f0;
-                m->f5c = 1;
+                FUN_0021b088(parts->part00, DAT_0034a114->unkcc + 1, DAT_0034a114->unkd0 + 1, 1);
+                m = parts->part00;
+                m->flag5c = 1;
                 m->v2();
                 FUN_001031e8(m);
                 FUN_00042ff4(100000.0f, DAT_00310fc4);
             }
-            self->f8->v3();
-            self->fc->v3();
-            self->f10->v3();
-            self->f18->v3();
-            self->f1c->v3();
-            self->f24->v3();
+            parts->part08->v3();
+            parts->part0c->v3();
+            parts->part10->v3();
+            parts->part18->v3();
+            parts->part1c->v3();
+            parts->part24->v3();
         }
         if (DAT_002eff8d != 0) {
-            FUN_000f6c48(self->f30);
+            FUN_000f6c48(parts->part30);
         }
     }
 }

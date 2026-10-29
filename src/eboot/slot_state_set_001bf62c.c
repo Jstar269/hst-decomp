@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001bf62c end=0x001bf884 symbol=FUN_001bf62c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag km4 near miss, wip/best_001bf62c.c) corrected by hand: last byte-threshold test written `uVar8 > 1u` instead of `>= 2u` (gives the sltiu at / bnez at pair); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag km4 near miss, wip/best_001bf62c.c) corrected by hand: last byte-threshold test written `diff > 1u` instead of `>= 2u` (gives the sltiu at / bnez at pair); readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/item_table.h"
 
 extern int FUN_001bb8b8();
 extern void FUN_001bbab8();
@@ -8,85 +9,85 @@ extern void FUN_001bf948();
 extern void FUN_001bf980();
 extern void FUN_001bf9b8();
 
-void FUN_001bf62c(int param_1,int param_2,u8 param_3)
+/* Set the state of slot `index`; when it becomes state A or B, give the linked items state A too. */
+void FUN_001bf62c(ItemTable *table,int index,u8 state)
 {
-  u8 bVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  u32 uVar8;
-  u8 *pbVar6;
-  u8 *pbVar7;
+  int link_a;
+  int link_b;
+  int link_c;
+  int link_d;
+  u32 diff;
+  u8 *flag;
+  ItemSlot *slot;
   
-  if ((param_2 >= 0) && (param_2 < 0xf)) {
-    pbVar7 = (u8 *)(param_1 + param_2 * 0x38 + 4);
+  if ((index >= 0) && (index < ITEM_SLOT_COUNT)) {
+    slot = &table->slot[index];
   }
   else {
-    pbVar7 = (u8 *)0x0;
+    slot = (ItemSlot *)0x0;
   }
-  if (pbVar7 != (u8 *)0x0) {
-    *pbVar7 = param_3;
-    uVar8 = (u32)*pbVar7 - 4u;
-    if (uVar8 < 2u) {
-      iVar2 = FUN_001bb8b8(1,param_2);
-      iVar3 = FUN_001bb8b8(1,param_2);
-      iVar4 = FUN_001bb8b8(3,param_2);
-      iVar5 = FUN_001bb8b8(4,param_2);
-      if ((iVar2 >= 0) && (iVar2 < 0x280)) {
-        pbVar6 = (u8 *)(param_1 + iVar2 + 0x84c);
+  if (slot != (ItemSlot *)0x0) {
+    slot->state = state;
+    diff = (u32)slot->state - ITEM_STATE_A;
+    if (diff < 2u) {
+      link_a = FUN_001bb8b8(1,index);
+      link_b = FUN_001bb8b8(1,index);
+      link_c = FUN_001bb8b8(3,index);
+      link_d = FUN_001bb8b8(4,index);
+      if ((link_a >= 0) && (link_a < ITEM_FLAG_COUNT)) {
+        flag = &table->flag_a[link_a];
       }
       else {
-        pbVar6 = (u8 *)0x0;
+        flag = (u8 *)0x0;
       }
-      uVar8 = (u32)(*pbVar6 - 4);
-      if (uVar8 > 1u) {
-        FUN_001bf948(param_1,iVar2,4);
+      diff = (u32)(*flag - ITEM_STATE_A);
+      if (diff > 1u) {
+        FUN_001bf948(table,link_a,ITEM_STATE_A);
       }
-      if ((iVar3 >= 0) && (iVar3 < 0x280)) {
-        pbVar6 = (u8 *)(param_1 + iVar3 + 0xacc);
+      if ((link_b >= 0) && (link_b < ITEM_FLAG_COUNT)) {
+        flag = &table->flag_b[link_b];
       }
       else {
-        pbVar6 = (u8 *)0x0;
+        flag = (u8 *)0x0;
       }
-      uVar8 = (u32)(*pbVar6 - 4);
-      if (uVar8 > 1u) {
-        FUN_001bf980(param_1,iVar3,4);
+      diff = (u32)(*flag - ITEM_STATE_A);
+      if (diff > 1u) {
+        FUN_001bf980(table,link_b,ITEM_STATE_A);
       }
-      if (iVar4 != 0) {
-        if ((iVar4 >= 0) && (iVar4 < 0x280)) {
-          pbVar6 = (u8 *)(param_1 + iVar4 + 0xd4c);
+      if (link_c != 0) {
+        if ((link_c >= 0) && (link_c < ITEM_FLAG_COUNT)) {
+          flag = &table->flag_c[link_c];
         }
         else {
-          pbVar6 = (u8 *)0x0;
+          flag = (u8 *)0x0;
         }
-        uVar8 = (u32)(*pbVar6 - 4);
-      if (uVar8 > 1u) {
-          FUN_001bf9b8(param_1,iVar4,4);
+        diff = (u32)(*flag - ITEM_STATE_A);
+      if (diff > 1u) {
+          FUN_001bf9b8(table,link_c,ITEM_STATE_A);
         }
       }
-      if (iVar5 != 0) {
-        if ((iVar5 >= 0) && (iVar5 < 0x280)) {
-          pbVar6 = (u8 *)(param_1 + iVar5 + 0xd4c);
+      if (link_d != 0) {
+        if ((link_d >= 0) && (link_d < ITEM_FLAG_COUNT)) {
+          flag = &table->flag_c[link_d];
         }
         else {
-          pbVar6 = (u8 *)0x0;
+          flag = (u8 *)0x0;
         }
-        uVar8 = (u32)(*pbVar6 - 4);
-      if (uVar8 > 1u) {
-          FUN_001bf9b8(param_1,iVar5,4);
+        diff = (u32)(*flag - ITEM_STATE_A);
+      if (diff > 1u) {
+          FUN_001bf9b8(table,link_d,ITEM_STATE_A);
         }
       }
-      if (param_2 == 0xb) {
-        uVar8 = (u32)*(u8 *)(param_1 + 0xacf) - 4u;
-        if (uVar8 > 1u) {
-          FUN_001bf980(param_1,3,4);
+      if (index == 0xb) {
+        diff = (u32)table->flag_b[3] - ITEM_STATE_A;
+        if (diff > 1u) {
+          FUN_001bf980(table,3,ITEM_STATE_A);
         }
       }
     }
-    uVar8 = (u32)*pbVar7 - 4u;
-    if (uVar8 < 2u) {
-      FUN_001bbab8(pbVar7);
+    diff = (u32)slot->state - ITEM_STATE_A;
+    if (diff < 2u) {
+      FUN_001bbab8(slot);
     }
   }
 }

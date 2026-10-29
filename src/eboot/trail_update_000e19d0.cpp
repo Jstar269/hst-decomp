@@ -1,6 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000e19d0 end=0x000e1d28 symbol=FUN_000e19d0 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 
+#define FADE_STEP 0.2f
+
 extern "C" {
 extern float DAT_002d6b64;
 extern float DAT_002d6b68;
@@ -18,134 +20,135 @@ struct Vec4 {
     Vec4(const Vec4 &o) : x(o.x), y(o.y), z(o.z), w(o.w) {}
 };
 
-struct Config {
+struct TrailConfig {
     char pad[4];
-    float min_dot;
-    float min_len;
+    float min_dot;   /* 0x04 smallest accepted dot of the new segment with the previous direction */
+    float min_len;   /* 0x08 smallest accepted segment length */
 };
 
 struct Trail {
     char pad[0x3c];
-    Config *cfg;
+    TrailConfig *cfg;       /* 0x3c */
     char pad40[0x4c - 0x40];
-    int max_count;
+    int max_count;          /* 0x4c ring capacity */
     char pad50[0x54 - 0x50];
-    Vec4 *buf;
+    Vec4 *buf;              /* 0x54 ring of points */
     char pad58[0x60 - 0x58];
-    unsigned char f60;
-    unsigned char f61;
+    unsigned char enabled;
+    unsigned char holding;
     char pad62[0x64 - 0x62];
-    int count;
-    int start;
-    int head;
+    int count;              /* 0x64 points in the ring */
+    int start;              /* 0x68 oldest point */
+    int head;               /* 0x6c next slot to write */
     char pad70[0x74 - 0x70];
-    float f74;
+    float fade;             /* 0x74 reduced each frame by FADE_STEP, clamped */
     char pad78[0x90 - 0x78];
-    int f90;
+    int holdTimer;          /* 0x90 frames left while holding */
     char pad94[0xa0 - 0x94];
-    Vec4 cur_pos;
+    Vec4 cur_pos;           /* 0xa0 */
 };
 
 inline float clamp(const float &v, const float &lo, const float &hi) {
     return v < lo ? lo : (v > hi ? hi : v);
 }
 
-extern "C" void FUN_000e19d0(Trail *param_1)
+/* Per-frame update: appends the current position to the ring of points unless the new segment is too short or turns back too far, then updates the fade. */
+extern "C" void FUN_000e19d0(Trail *trail)
 {
-    Vec4 local_10;
-    Vec4 local_20;
-    Vec4 local_30;
-    Vec4 local_40;
-    Vec4 local_50;
-    Vec4 local_60;
-    Vec4 local_70;
-    Vec4 local_80;
+    Vec4 newSeg;
+    Vec4 prevDir;
+    Vec4 prevSeg;
+    Vec4 delta;
+    Vec4 tmpNew;
+    Vec4 tmpDir;
+    Vec4 tmpDelta;
+    Vec4 tmpPrev;
 
-    if (param_1->f60 == 0) return;
+    if (trail->enabled == 0) return;
 
-    if (param_1->f61 == 0) {
-        if (param_1->f90 < 1 && param_1->f74 > 0.0f) {
-            param_1->f74 = param_1->f74 - 0.2f;
-            param_1->f74 = clamp(param_1->f74, DAT_002d6b64, DAT_002d6b68);
+    if (trail->holding == 0) {
+        if (trail->holdTimer < 1 && trail->fade > 0.0f) {
+            trail->fade = trail->fade - FADE_STEP;
+            trail->fade = clamp(trail->fade, DAT_002d6b64, DAT_002d6b68);
         }
     }
 
-    int count = param_1->count;
-    bool bVar1 = true;
+    int count = trail->count;
+    bool accept = true;
 
     if (count > 1) {
-        int iVar3 = param_1->head - 1;
-        if (iVar3 < 0) {
-            iVar3 = param_1->max_count - 1;
+        int idx = trail->head - 1;
+        if (idx < 0) {
+            idx = trail->max_count - 1;
         }
-        iVar3--;
-        if (iVar3 < 0) {
-            iVar3 = param_1->max_count - 1;
+        idx--;
+        if (idx < 0) {
+            idx = trail->max_count - 1;
         }
 
         if (count > 2) {
-            int iVar5 = iVar3 - 1;
-            if (iVar5 < 0) {
-                iVar5 = param_1->max_count - 1;
+            int idx2 = idx - 1;
+            if (idx2 < 0) {
+                idx2 = trail->max_count - 1;
             }
 
-            FUN_00022434(&local_50, &param_1->cur_pos, &param_1->buf[iVar3]);
-            local_10 = local_50;
+            FUN_00022434(&tmpNew, &trail->cur_pos, &trail->buf[idx]);
+            newSeg = tmpNew;
 
-            FUN_00022434(&local_80, &param_1->buf[iVar3], &param_1->buf[iVar5]);
-            local_30 = local_80;
+            FUN_00022434(&tmpPrev, &trail->buf[idx], &trail->buf[idx2]);
+            prevSeg = tmpPrev;
 
-            FUN_00022518(&local_60, &local_30);
-            local_20 = local_60;
+            FUN_00022518(&tmpDir, &prevSeg);
+            prevDir = tmpDir;
 
-            local_60.w = 0.0f;
-            local_20.w = 0.0f;
+            tmpDir.w = 0.0f;
+            prevDir.w = 0.0f;
 
-            float dot = FUN_0001d940(&local_10, &local_20);
-            if (dot < param_1->cfg->min_dot) {
-                bVar1 = false;
+            float dot = FUN_0001d940(&newSeg, &prevDir);
+            if (dot < trail->cfg->min_dot) {
+                accept = false;
             }
         }
 
-        if (bVar1) {
-            FUN_00022434(&local_70, &param_1->cur_pos, &param_1->buf[iVar3]);
-            local_40 = local_70;
+        if (accept) {
+            FUN_00022434(&tmpDelta, &trail->cur_pos, &trail->buf[idx]);
+            delta = tmpDelta;
 
-            float len_sq = FUN_000224d8(&local_40, &local_40);
+            float len_sq = FUN_000224d8(&delta, &delta);
             float len = FUN_00022e44(len_sq);
-            if (len < param_1->cfg->min_len) {
-                bVar1 = false;
+            if (len < trail->cfg->min_len) {
+                accept = false;
             }
         }
     }
 
-    if (bVar1) {
-        param_1->buf[param_1->head] = param_1->cur_pos;
-        int head = param_1->head + 1;
-        param_1->head = head;
-        if (head == param_1->max_count) {
-            param_1->head = 0;
+    if (accept) {
+        trail->buf[trail->head] = trail->cur_pos;
+        int head = trail->head + 1;
+        trail->head = head;
+        if (head == trail->max_count) {
+            trail->head = 0;
         }
-        int max = param_1->max_count;
+        int max = trail->max_count;
 
-        if (param_1->count < max) {
-            param_1->count++;
+        if (trail->count < max) {
+            trail->count++;
         } else {
-            if (++param_1->start == max) {
-                param_1->start = 0;
+            if (++trail->start == max) {
+                trail->start = 0;
             }
         }
     } else {
-        int last = param_1->head - 1;
+        int last = trail->head - 1;
         if (last < 0) {
-            last = param_1->max_count - 1;
+            last = trail->max_count - 1;
         }
-        param_1->buf[last] = param_1->cur_pos;
+        trail->buf[last] = trail->cur_pos;
     }
 
-    if (param_1->f60) {
-        if (--param_1->f90 <= 0) param_1->f61 = 0;
+    if (trail->enabled) {
+        if (--trail->holdTimer <= 0) trail->holding = 0;
     } else {
-        param_1->f74 = 0.0f;
+        trail->fade = 0.0f;
     }
 }

@@ -1,19 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a44f0 end=0x002a4558 symbol=FUN_002a44f0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a2); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/state_owner.h"
 
-extern u8 * DAT_003415a8;
+extern RequestFlags * DAT_003415a8;
 extern void FUN_002a2488();
 
-void FUN_002a44f0(int param_1,u32 param_2,u32 param_3,int *param_4,u32 param_5, u32 param_6,u32 param_7,u32 param_8)
+/* First request only: switch to mode 1 and tell the handler, unless the owner is locked. */
+void FUN_002a44f0(StateOwner *self,u32 unused2,u32 unused3,int *extra4,u32 extra5, u32 extra6,u32 extra7,u32 extra8)
 {
-  u32 *puVar1;
+  u32 *flags;
   
-  puVar1 = (u32 *)(DAT_003415a8 + 0x86d10);
-  if (((*puVar1 & 2) == 0) && (*puVar1 = *puVar1 | 2, *(int *)(param_1 + 0x1b0) != 5)) {
-    *(u32 *)(param_1 + 0x1c0) = *(u32 *)(param_1 + 0x1b8);
-    *(u32 *)(param_1 + 0x1b8) = 1;
-    *(u32 *)(param_1 + 0x1bc) = 0;
-    FUN_002a2488(param_1,1,puVar1,param_4,param_5,param_6,param_7,param_8);
+  flags = &DAT_003415a8->flags;
+  if (((*flags & MODE_REQUESTED_1) == 0) && (*flags = *flags | MODE_REQUESTED_1, self->state != OWNER_STATE_LOCKED)) {
+    self->prevMode = self->mode;
+    self->mode = 1;
+    self->unk1bc = 0;
+    FUN_002a2488(self,1,flags,extra4,extra5,extra6,extra7,extra8);
   }
 }

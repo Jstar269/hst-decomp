@@ -4,10 +4,11 @@
 
 extern int FUN_0001100c();
 
-bool FUN_002bd64c(u32 param_1,u32 param_2)
+/* True when the two 16-byte blocks are equal. */
+bool FUN_002bd64c(u32 a,u32 b)
 {
-  int iVar1;
+  int diff;
   
-  iVar1 = FUN_0001100c(param_1,param_2,0x10);
-  return iVar1 == 0;
+  diff = FUN_0001100c(a,b,0x10);
+  return diff == 0;
 }

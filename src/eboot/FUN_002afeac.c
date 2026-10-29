@@ -1,18 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002afeac end=0x002aff04 symbol=FUN_002afeac lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/slot_array_obj.h"
 
 extern void FUN_00000a00();
 extern int * FUN_002b3c04();
 
-int FUN_002afeac(int param_1,short param_2)
+/* Destructor of one slot vector; frees the memory itself when deleteFlag is positive. */
+SlotVec * FUN_002afeac(SlotVec *vec,short deleteFlag)
 {
-  if (param_1 != 0) {
-    if (param_1 != 0) {
-      FUN_002b3c04(param_1,0);
+  if (vec != 0) {
+    if (vec != 0) {
+      FUN_002b3c04(vec,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < deleteFlag) {
+      FUN_00000a00(vec);
     }
   }
-  return param_1;
+  return vec;
 }

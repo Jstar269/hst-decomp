@@ -10,15 +10,15 @@ struct Vec4 {
 
 struct Obj {
     char pad0[0x150];
-    float f150;
-    float f154;
+    float weight_a;
+    float weight_b;
     char pad158[8];
-    Vec4 v160;
-    Vec4 v170;
-    Vec4 v180;
+    Vec4 move;
+    Vec4 dir_a;
+    Vec4 dir_b;
     int state;
     char pad194[0x1b0 - 0x194];
-    Vec4 v1b0;
+    Vec4 pos;
 };
 
 extern "C" {
@@ -53,15 +53,17 @@ inline void Vec4::Add(Vec4 v)
     FUN_00022418(this, this, &v);
 }
 
+/* Steers the avatar: the move vector is a weighted sum of two directions; short vectors stop the movement,
+   otherwise the position advances and the heading is updated. */
 extern "C" void FUN_00128298(Obj *self)
 {
-    float s0 = self->f150;
-    self->v160 = Combine(Scale(self->v170, s0), Scale(self->v180, self->f154));
-    float l2 = FUN_000224d8(&self->v160, &self->v160);
-    if (self->state == 5 && l2 < DAT_002da3ac * DAT_002da3ac) {
+    float weight = self->weight_a;
+    self->move = Combine(Scale(self->dir_a, weight), Scale(self->dir_b, self->weight_b));
+    float len_sq = FUN_000224d8(&self->move, &self->move);
+    if (self->state == 5 && len_sq < DAT_002da3ac * DAT_002da3ac) {
         FUN_0012a254(self, 4, -1, 0);
     }
-    if (l2 < 0.0001f) {
+    if (len_sq < 0.0001f) {
         switch (self->state) {
         case 4:
         case 5:
@@ -69,21 +71,21 @@ extern "C" void FUN_00128298(Obj *self)
             break;
         }
     } else {
-        float len = sqrtf(l2);
+        float len = sqrtf(len_sq);
         if (len > 1.0f) {
-            FUN_00022518(&self->v160, &self->v160);
-            self->v160.w = 0.0f;
+            FUN_00022518(&self->move, &self->move);
+            self->move.w = 0.0f;
         }
         if (len < DAT_002da3b0) {
-            FUN_00022518(&self->v160, &self->v160);
-            self->v160.w = 0.0f;
-            FUN_00022498(&self->v160, &self->v160, DAT_002da3b0);
+            FUN_00022518(&self->move, &self->move);
+            self->move.w = 0.0f;
+            FUN_00022498(&self->move, &self->move, DAT_002da3b0);
         }
         if (self->state == 5)
-            self->v1b0.Add(Scale(self->v160, DAT_002da3a8));
+            self->pos.Add(Scale(self->move, DAT_002da3a8));
         else
-            self->v1b0.Add(Scale(self->v160, DAT_002da3a0));
-        FUN_00128c94(self, &self->v160, 0);
+            self->pos.Add(Scale(self->move, DAT_002da3a0));
+        FUN_00128c94(self, &self->move, 0);
         switch (self->state) {
         case 0:
             if (FUN_0012c1c4(1) != 0)

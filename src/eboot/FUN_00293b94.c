@@ -1,13 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00293b94 end=0x00293bd4 symbol=FUN_00293b94 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/shop_items.h"
 
-short * FUN_00293b94(int param_1,int param_2,int param_3)
+/* Returns the record at index of the category's vector, or null for an unused record. */
+ShopRec * FUN_00293b94(ShopItemSet *set,int category,int index)
 {
-  short *psVar1;
+  ShopRec *rec;
   
-  psVar1 = (short *)(*(int *)(param_1 + param_2 * 0xc) + param_3 * 10);
-  if (*psVar1 == -1) {
-    psVar1 = (short *)0x0;
+  rec = &set->vecs[category].data[index];
+  if (rec->col[0] == SHOP_REC_EMPTY) {
+    rec = (ShopRec *)0x0;
   }
-  return psVar1;
+  return rec;
 }

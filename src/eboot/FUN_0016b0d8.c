@@ -1,22 +1,23 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016b0d8 end=0x0016b110 symbol=FUN_0016b0d8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#define LOOKUP_COUNT 3   /* entries in the table */
 
-extern u8 DAT_002c1e34;
+extern int DAT_002c1e34[LOOKUP_COUNT];
 
-int FUN_0016b0d8(int param_1)
+/* Returns the index of value in the table, or 0 when it is absent. */
+int FUN_0016b0d8(int value)
 {
-  int iVar1;
-  int *piVar2;
+  int index;
+  int *entry;
   
-  iVar1 = 0;
-  piVar2 = (int *)(&DAT_002c1e34);
+  index = 0;
+  entry = DAT_002c1e34;
   do {
-    if (param_1 == *piVar2) {
-      return iVar1;
+    if (value == *entry) {
+      return index;
     }
-    iVar1 = iVar1 + 1;
-    piVar2 = piVar2 + 1;
-  } while (iVar1 < 3);
+    index = index + 1;
+    entry = entry + 1;
+  } while (index < LOOKUP_COUNT);
   return 0;
 }

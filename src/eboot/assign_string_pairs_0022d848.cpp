@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0022d848 end=0x0022da30 symbol=FUN_0022d848 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; readability pass; exact match verified; names and types await human review. */
 /* Matching idiom: the 12-byte second part of a temporary is zeroed through an int pointer (`int *p = &r.a; p[0..2] = 0`);
    direct member stores, an array member, an inline Clear() member or a member-init list schedule the stores after the
    argument set-up of the following assignment call. */
@@ -58,40 +58,42 @@ struct VC {
     virtual void s1(int);
 };
 
+/* Record handed to FUN_00199244; its sub-record at 0x70 receives two string lengths. */
 struct Ent {
     char pad[0x70];
     struct {
         char pad[0x1c];
-        int f1c;
-        int f20;
-    } *p70;
+        int len1c;
+        int len20;
+    } *sub70;
 };
 
-struct Obj {
+struct PairScreen {
     char pad0[0x58];
-    StrPair p58;
-    StrPair p70;
-    StrPair p88;
+    StrPair pair58;   /* 0x58 */
+    StrPair pair70;   /* 0x70 */
+    StrPair pair88;   /* 0x88 */
     char pad1[0x210 - 0xa0];
-    VC *p210;
-    void *p214;
+    VC *view210;      /* 0x210 */
+    void *obj214;     /* 0x214 */
 };
 
-extern "C" void FUN_0022d848(Obj *o, int flag)
+/* Resets the screen's string pairs to blank and (optionally) the setup string, then stores the lengths of two of them in the entry. */
+extern "C" void FUN_0022d848(PairScreen *o, int set_first)
 {
     FUN_00103628(DAT_003415ac, 1);
-    o->p70 = StrPair(&DAT_002f3538);
-    o->p88 = StrPair(&DAT_002f3538);
+    o->pair70 = StrPair(&DAT_002f3538);
+    o->pair88 = StrPair(&DAT_002f3538);
     Ent *ent = (Ent *)FUN_00190830(DAT_003415d4);
-    if (flag != 0) {
-        o->p58 = StrPair(DAT_003415a8 + 0x20);
+    if (set_first != 0) {
+        o->pair58 = StrPair(DAT_003415a8 + 0x20);
     }
-    o->p88 = StrPair(FUN_001fea10(0x11, 0xd, 2));
-    ent->p70->f1c = FUN_0004577c(&o->p88.s);
-    ent->p70->f20 = FUN_0004577c(&o->p58.s);
+    o->pair88 = StrPair(FUN_001fea10(0x11, 0xd, 2));
+    ent->sub70->len1c = FUN_0004577c(&o->pair88.s);
+    ent->sub70->len20 = FUN_0004577c(&o->pair58.s);
     FUN_00199244((int)ent);
-    o->p210->s1(1);
-    if (o->p214 != 0) {
-        FUN_00103628(o->p214, 1);
+    o->view210->s1(1);
+    if (o->obj214 != 0) {
+        FUN_00103628(o->obj214, 1);
     }
 }

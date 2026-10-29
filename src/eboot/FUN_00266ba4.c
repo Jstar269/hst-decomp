@@ -1,32 +1,42 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00266ba4 end=0x00266c48 symbol=FUN_00266ba4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+
+/* Object whose destructor tears down two sub-objects that live inside the member block at 0x80. */
+typedef struct HeldObj {
+  const void *vtable;      /* 0x00 */
+  char pad04[0x80 - 4];
+  char block80[0xf0 - 0x80]; /* 0x80, member block */
+  char subf0[0x14];        /* 0xf0, destroyed by FUN_000e88e4 */
+  char sub104[0x0c];       /* 0x104, destroyed by FUN_000e88e4 */
+} HeldObj;
 
 extern u8 DAT_00309afc;
 extern void FUN_00000a00();
 extern int * FUN_000e88e4();
 extern u32 * FUN_0028686c();
 
-u32 * FUN_00266ba4(u32 *param_1,short param_2)
+/* Destructor: releases the two sub-objects, runs the base destructor and frees the object when flag > 0. */
+HeldObj * FUN_00266ba4(HeldObj *self,short flag)
 {
-  int *piVar1;
+  void *sub;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00309afc);
-    if ((char *)param_1 + 0x80 != (char *)0) {
-      piVar1 = (int *)(param_1 + 0x41);
-      if ((piVar1 != (int *)0x0) && (piVar1 != (int *)0x0)) {
-        FUN_000e88e4(piVar1,0);
+  if (self != (HeldObj *)0x0) {
+    self->vtable = &DAT_00309afc;
+    if ((char *)self + 0x80 != (char *)0) {
+      sub = self->sub104;
+      if ((sub != 0) && (sub != 0)) {
+        FUN_000e88e4(sub,0);
       }
-      piVar1 = (int *)(param_1 + 0x3c);
-      if ((piVar1 != (int *)0x0) && (piVar1 != (int *)0x0)) {
-        FUN_000e88e4(piVar1,0);
+      sub = self->subf0;
+      if ((sub != 0) && (sub != 0)) {
+        FUN_000e88e4(sub,0);
       }
     }
-    FUN_0028686c(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0028686c(self,0);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

@@ -1,30 +1,32 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017dab8 end=0x0017db50 symbol=FUN_0017dab8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag s256a, variant v0) corrected by hand: if/else order inverted and the float product regrouped to the retail evaluation order; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a, variant v0) corrected by hand: if/else order inverted and the float product regrouped to the retail evaluation order; readability pass; exact match verified; names and types await human review. */
+#include "hst/slot_mgr.h"
 
 extern int FUN_0016bc7c();
 extern int FUN_00204400();
 
-float FUN_0017dab8(int param_1,int param_2)
+/* Value of slot `slot` scaled by the settings, and by a per-id factor when the slot's model id is in range. */
+float FUN_0017dab8(SlotMgr *self,int slot)
 {
-  int iVar1;
-  float *pfVar2;
-  float *pfVar3;
-  int iVar4;
-  float fVar5;
+  SlotObj *obj;
+  float *id_scale;
+  float *settings;
+  int id;
+  float result;
   
-  iVar1 = *(int *)(*(int *)(*(int *)(param_1 + 8) + param_2 * 4) + 0x60);
-  iVar4 = 0;
-  if (iVar1 != 0) {
-    iVar4 = *(int *)(iVar1 + 0x1b4);
+  obj = self->entries[slot]->obj;
+  id = 0;
+  if (obj != 0) {
+    id = obj->id;
   }
-  if ((iVar4 >= 0) && (iVar4 <= 0xe)) {
-    pfVar2 = (float *)FUN_00204400();
-    pfVar3 = (float *)FUN_0016bc7c();
-    fVar5 = *pfVar2 * (*(float *)(param_1 + 0x4c) * *pfVar3);
+  if ((id >= 0) && (id <= 0xe)) {
+    id_scale = (float *)FUN_00204400();
+    settings = (float *)FUN_0016bc7c();
+    result = *id_scale * (self->value * *settings);
   }
   else {
-    pfVar2 = (float *)FUN_0016bc7c();
-    fVar5 = *(float *)(param_1 + 0x4c) * *pfVar2;
+    settings = (float *)FUN_0016bc7c();
+    result = self->value * *settings;
   }
-  return fVar5;
+  return result;
 }

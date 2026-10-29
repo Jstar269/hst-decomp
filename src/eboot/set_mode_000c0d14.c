@@ -1,44 +1,22 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c0d14 end=0x000c0fb8 symbol=FUN_000c0d14 lang=c99 rodata=0x002c00f8 */
 /* Hand-written reconstruction from disassembly; exact match verified. */
+#include "hst/data_pack.h"
 
-struct Vec4 {
-    float x, y, z, w;
-};
-
-struct Vec3 {
-    float x, y, z;
-};
-
-struct Transform {
-    struct Vec4 r[4];
-    struct Vec3 pos;
-};
-
-struct Obj {
-    char pad_00[0x3c];
-    int mode;           /* 0x3c */
-    char pad_40[4];     /* 0x40 */
-    signed char f44;    /* 0x44 */
-    char pad_45[3];     /* 0x45 */
-    struct Transform tf;/* 0x48 .. 0x93 */
-    char pad_94[0x600]; /* 0x94 .. 0x693 */
-    int f694;           /* 0x694 */
-    char pad_698[0x94]; /* 0x698 .. 0x72b */
-    void *f72c;         /* 0x72c */
-    char pad_730[0x3c]; /* 0x730 .. 0x76b */
-    void *f76c;         /* 0x76c */
-    char pad_770[0x10]; /* 0x770 .. 0x77f */
-    int count;          /* 0x780 */
+enum {
+    PACK_MODE_WITH_TABLES = 4,   /* allocates the two work tables */
+    PACK_MODE_FLAGGED = 9,       /* sets unk694 without tables */
+    PACK_FIRST_HIGH_MODE = 5     /* modes below this set unk44 */
 };
 
 extern int DAT_00338ad0;
 
-void FUN_000c1624(struct Transform *tf);
+void FUN_000c1624(PackTransform *tf);
 void *FUN_00000a90(unsigned int size);
 void FUN_000114c0(void *dest, int val, unsigned int size);
-void FUN_000c0fb8(struct Obj *self, int arg);
+void FUN_000c0fb8(DataPack *self, int layout);
 
-int FUN_000c0d14(struct Obj *self, int mode, const struct Transform *tf)
+/* Stores the mode and optional transform, then runs the per-mode set-up. */
+int FUN_000c0d14(DataPack *self, int mode, const PackTransform *tf)
 {
     DAT_00338ad0 = 0;
     self->mode = mode;
@@ -52,10 +30,10 @@ int FUN_000c0d14(struct Obj *self, int mode, const struct Transform *tf)
         FUN_000c1624(&self->tf);
     }
 
-    if (self->mode < 5) {
-        self->f44 = 1;
+    if (self->mode < PACK_FIRST_HIGH_MODE) {
+        self->unk44 = 1;
     } else {
-        self->f44 = 0;
+        self->unk44 = 0;
     }
 
     switch (self->mode) {
@@ -83,16 +61,16 @@ int FUN_000c0d14(struct Obj *self, int mode, const struct Transform *tf)
     case 8:
         FUN_000c0fb8(self, 2);
         break;
-    case 4:
-        self->f694 = 1;
-        self->f72c = FUN_00000a90(self->count * 0x50);
-        FUN_000114c0(self->f72c, 0, self->count * 0x50);
-        self->f76c = FUN_00000a90(self->count * 0x18);
-        FUN_000114c0(self->f76c, 0, self->count * 0x18);
+    case PACK_MODE_WITH_TABLES:
+        self->unk694 = 1;
+        self->table72c = FUN_00000a90(self->items.count * 0x50);
+        FUN_000114c0(self->table72c, 0, self->items.count * 0x50);
+        self->table76c = FUN_00000a90(self->items.count * 0x18);
+        FUN_000114c0(self->table76c, 0, self->items.count * 0x18);
         FUN_000c0fb8(self, 3);
         break;
-    case 9:
-        self->f694 = 1;
+    case PACK_MODE_FLAGGED:
+        self->unk694 = 1;
         FUN_000c0fb8(self, 6);
         break;
     case 10:

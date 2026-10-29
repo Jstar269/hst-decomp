@@ -9,45 +9,47 @@ struct M4 {
     V4 r0, r1, r2, r3;
 };
 
-struct SubObj {
+/* Object that owns a transform matrix and a scale value. */
+struct Target {
     char pad[0x30];
-    M4 mtx;
+    M4 mtx;            /* 0x30 */
     char pad2[8];
-    float scale;
+    float scale;       /* 0x78 */
 };
 
-struct Self {
+struct Screen {
     char pad[4];
-    SubObj **sub;
+    Target **target;   /* 0x04 handle of the object whose matrix is rebuilt */
     char pad2[0x5c - 8];
-    float scale;
-    M4 mtx;
+    float scale;       /* 0x5c */
+    M4 mtx;            /* 0x60 */
 };
 
 extern "C" {
 extern const M4 DAT_002bc410;
 void FUN_00022570(M4 *, M4 *, const M4 *);
-void FUN_00103480(Self *);
+void FUN_00103480(Screen *);
 }
 
-extern "C" void FUN_00199f78(Self *self)
+/* Reset the target's matrix to identity with the screen centre (240, 136) as translation, then scale it and apply the screen matrix. */
+extern "C" void FUN_00199f78(Screen *self)
 {
     M4 scale_mat = DAT_002bc410;
     scale_mat.r0.x = self->scale;
     scale_mat.r1.y = self->scale;
 
-    SubObj *s = *self->sub;
-    M4 *m = (M4 *)s;
-    if (s != 0) {
+    Target *target = *self->target;
+    M4 *m = (M4 *)target;
+    if (target != 0) {
         m = (M4 *)((char *)m + 48);
     }
     *m = DAT_002bc410;
 
-    (*self->sub)->mtx.r3.x = 240.0f;
-    (*self->sub)->mtx.r3.y = 136.0f;
-    (*self->sub)->scale = self->scale;
+    (*self->target)->mtx.r3.x = 240.0f;
+    (*self->target)->mtx.r3.y = 136.0f;
+    (*self->target)->scale = self->scale;
 
-    FUN_00022570(&(*self->sub)->mtx, &(*self->sub)->mtx, &scale_mat);
-    FUN_00022570(&(*self->sub)->mtx, &(*self->sub)->mtx, &self->mtx);
+    FUN_00022570(&(*self->target)->mtx, &(*self->target)->mtx, &scale_mat);
+    FUN_00022570(&(*self->target)->mtx, &(*self->target)->mtx, &self->mtx);
     FUN_00103480(self);
 }

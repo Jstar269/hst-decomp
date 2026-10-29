@@ -1,17 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00092258 end=0x00092630 symbol=FUN_00092258 lang=c++ data=0x002d2908 */
 /* Hand-written reconstruction from the disassembly (restructured from the hstgen.py tag a3 candidate); exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002d2908-0x002d292e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* Matching idioms: the four state flags are `bool`s read from signed 4-bit field bits (`e->hi62 & 1`, `& 2`) and the second accumulates with `b2 |= e->hi62 & 1` (a `||` short-circuits); `if (b4 || (b1 && b3))` is one shared block; the loop counts go through an inline `Count(c)` ternary in a `while` condition (rotated test with entry jump); the per-index value is `v9 != 0 && !(flags & 2)` (the `^ 1` and bool-variable spellings add an extra sltu/andi); `(v9 != 0) ^ 1` is kept for the later call (sltu;xori). Names provisional. */
-struct List;
-struct Ctrl {
-    char pad0[8];
-    List *list;
-};
-struct Item {
-    char pad0[0x8c];
-    Ctrl *ctrl;
-    char pad90[0x1b4 - 0x90];
-    unsigned id;
-};
+#include "hst/char_model.h"
+
+/* Bone-entry record: the signed 4-bit fields carry the state flags. */
 struct Ent {
     char pad0[0x62];
     signed char lo62 : 4;
@@ -20,107 +12,98 @@ struct Ent {
     signed char lo64 : 4;
 };
 struct Reg;
-struct Self {
-    char pad0[0x50];
-    Item *f50;
-    Item *f54;
-    Item *f58;
-    Item *f5c;
-    Item *f60;
-    char pad64[0x74 - 0x64];
-    char flags;
-    unsigned char f75;
-};
 extern "C" {
 extern Reg *DAT_00338b08;
 Ent *FUN_000d8c24(Reg *, int, unsigned);
-unsigned FUN_0002fe08(List *);
-int FUN_0002fe80(List *, char *);
-void FUN_00054464(Ctrl *, int, int, int, int);
+unsigned FUN_0002fe08(struct List *);
+int FUN_0002fe80(struct List *, char *);
+void FUN_00054464(ModelCtrl *, int, int, int, int);
 }
-static inline int Count(Ctrl *c)
+static inline int Count(ModelCtrl *c)
 {
     return c->list == 0 ? 0 : FUN_0002fe08(c->list);
 }
-static inline int Find(List *l, char *name)
+static inline int Find(struct List *l, char *name)
 {
     if (l != 0)
         return FUN_0002fe80(l, name);
     return -1;
 }
-extern "C" void FUN_00092258(Self *s)
+/* Rebuilds the character's flag bits from the entry-table records of items 1..4, and shows or hides
+   the hat bones ("Bip01Head9for_hat" / "Bip01Head9for_org") of items 0 and 1 to match. */
+extern "C" void FUN_00092258(CharModel *self)
 {
-    bool b1 = false;
-    bool b2 = false;
-    bool b3 = false;
-    bool b4 = false;
-    s->flags = s->flags & 0x20;
-    if (s->f54 != 0) {
-        Ent *e = FUN_000d8c24(DAT_00338b08, 1, s->f54->id);
+    bool item1_on = false;
+    bool item34_on = false;
+    bool item2_on = false;
+    bool item2_alt = false;
+    self->flags = self->flags & 0x20;
+    if (self->item[1] != 0) {
+        Ent *e = FUN_000d8c24(DAT_00338b08, 1, self->item[1]->id);
         if (e != 0)
-            b1 = e->hi62 & 1;
+            item1_on = e->hi62 & 1;
     }
-    if (s->f5c != 0) {
-        Ent *e = FUN_000d8c24(DAT_00338b08, 3, s->f5c->id);
+    if (self->item[3] != 0) {
+        Ent *e = FUN_000d8c24(DAT_00338b08, 3, self->item[3]->id);
         if (e != 0)
-            b2 = e->hi62 & 1;
+            item34_on = e->hi62 & 1;
     }
-    if (s->f60 != 0) {
-        Ent *e = FUN_000d8c24(DAT_00338b08, 4, s->f60->id);
+    if (self->item[4] != 0) {
+        Ent *e = FUN_000d8c24(DAT_00338b08, 4, self->item[4]->id);
         if (e != 0)
-            b2 |= e->hi62 & 1;
+            item34_on |= e->hi62 & 1;
     }
-    if (s->f58 != 0) {
-        Ent *e = FUN_000d8c24(DAT_00338b08, 2, s->f58->id);
+    if (self->item[2] != 0) {
+        Ent *e = FUN_000d8c24(DAT_00338b08, 2, self->item[2]->id);
         if (e != 0) {
-            b3 = e->hi62 & 1;
-            b4 = e->hi62 & 2;
+            item2_on = e->hi62 & 1;
+            item2_alt = e->hi62 & 2;
         }
     }
-    if (b4 || (b1 && b3)) {
-        b1 = false;
-        s->flags |= 2;
+    if (item2_alt || (item1_on && item2_on)) {
+        item1_on = false;
+        self->flags |= 2;
     }
-    if (b1 || b3) {
-        if (b2)
-            s->flags |= 8;
+    if (item1_on || item2_on) {
+        if (item34_on)
+            self->flags |= 8;
     }
-    if (s->f50 != 0 && s->f50->ctrl != 0 && s->f54 != 0 && s->f54->ctrl != 0) {
-        unsigned v9 = s->f75;
-        Ent *e = FUN_000d8c24(DAT_00338b08, 1, s->f54->id);
+    if (self->item[0] != 0 && self->item[0]->ctrl != 0 && self->item[1] != 0 && self->item[1]->ctrl != 0) {
+        unsigned show = self->unk75;
+        Ent *e = FUN_000d8c24(DAT_00338b08, 1, self->item[1]->id);
         if (e != 0) {
             if (e->lo64 != 1)
-                v9 = 0;
+                show = 0;
         }
-        int idx = Find(s->f50->ctrl->list, "Bip01Head9for_hat");
-        if (idx >= 0) {
-            if (v9 != 0 && b2) {
-                b2 = false;
-                Ctrl *c = s->f50->ctrl;
+        int bone = Find(self->item[0]->ctrl->list, "Bip01Head9for_hat");
+        if (bone >= 0) {
+            if (show != 0 && item34_on) {
+                item34_on = false;
+                ModelCtrl *c = self->item[0]->ctrl;
                 int i = 0;
                 while (i < Count(c)) {
-                    FUN_00054464(c, -1, i, i == idx, 0);
+                    FUN_00054464(c, -1, i, i == bone, 0);
                     i++;
                 }
             } else {
-                Ctrl *c = s->f50->ctrl;
+                ModelCtrl *c = self->item[0]->ctrl;
                 int i = 0;
                 while (i < Count(c)) {
                     int v = 1;
-                    if (i == idx)
-                        v = v9 != 0 && !(s->flags & 2);
+                    if (i == bone)
+                        v = show != 0 && !(self->flags & 2);
                     FUN_00054464(c, -1, i, v, 0);
                     i++;
                 }
             }
         }
-        idx = Find(s->f54->ctrl->list, "Bip01Head9for_hat");
-        if (idx >= 0)
-            FUN_00054464(s->f54->ctrl, -1, idx, (v9 != 0) ^ 1, 0);
-        idx = Find(s->f54->ctrl->list, "Bip01Head9for_org");
-        if (idx >= 0)
-            FUN_00054464(s->f54->ctrl, -1, idx, v9, 0);
+        bone = Find(self->item[1]->ctrl->list, "Bip01Head9for_hat");
+        if (bone >= 0)
+            FUN_00054464(self->item[1]->ctrl, -1, bone, (show != 0) ^ 1, 0);
+        bone = Find(self->item[1]->ctrl->list, "Bip01Head9for_org");
+        if (bone >= 0)
+            FUN_00054464(self->item[1]->ctrl, -1, bone, show, 0);
     }
-    if (b1 || b2 || b3)
-        s->flags |= 1;
+    if (item1_on || item34_on || item2_on)
+        self->flags |= 1;
 }

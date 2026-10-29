@@ -1,39 +1,22 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000fa884 end=0x000fa98c symbol=FUN_000fa884 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-struct VC_000fa884 { virtual void s0(); virtual void s1(); };
-struct Rec_000fa884 {
-    unsigned char f0;
-    int f4, f8, fc, f10, f14;
+#include "hst/hud_scene.h"
+
+#define HUD_REC_COUNT 16
+
+struct HudWidget { virtual void s0(); virtual void s1(); };
+struct HudRec {
+    unsigned char unk0;
+    int unk4, unk8, unkc, unk10, unk14;
     char pad18[8];
-    int f20, f24, f28;
-    float f2c;
-    int f30;
+    int unk20, unk24, unk28;
+    float unk2c;
+    int unk30;
     char pad34[0xc];
 };
-struct Obj88_000fa884 {
+struct HudPanel {
     char pad0[0xa0];
-    Rec_000fa884 recs[16];
-};
-struct Blk_000fa884 {
-    unsigned char f0;
-    char pad1[7];
-    float f8;
-};
-struct Self_000fa884 {
-    char pad0[0x54];
-    void *f54;
-    char pad58[0x6c - 0x58];
-    VC_000fa884 *f6c;
-    VC_000fa884 *f70;
-    VC_000fa884 *f74;
-    VC_000fa884 *f78;
-    unsigned char *f7c;
-    Blk_000fa884 *f80;
-    char pad84[4];
-    Obj88_000fa884 *f88;
-    void *f8c;
-    void *f90;
-    void *f94;
+    HudRec recs[HUD_REC_COUNT];
 };
 extern "C" {
 extern void FUN_000f3640(void *);
@@ -41,37 +24,39 @@ extern void FUN_000f6b0c(void *, int);
 extern void FUN_001ec518(void *, int);
 }
 
+/* Reset the scene's state: restart the widgets, set the flag and block, clear the 16 panel records
+   to their defaults and refresh the remaining parts. */
 #pragma opt_unroll_loops off
-extern "C" void FUN_000fa884(Self_000fa884 *self)
+extern "C" void FUN_000fa884(HudScene *self)
 {
-    FUN_000f3640(self->f54);
-    self->f70->s1();
-    self->f6c->s1();
-    self->f74->s1();
-    self->f78->s1();
-    *self->f7c = 1;
-    Blk_000fa884 *b = self->f80;
-    b->f0 = 1;
-    b->f8 = -1.0f;
+    FUN_000f3640(self->top);
+    self->unk70->s1();
+    self->unk6c->s1();
+    self->unk74->s1();
+    self->unk78->s1();
+    *self->unk7c = 1;
+    HudBlock *b = self->unk80;
+    b->flag = 1;
+    b->unk8 = -1.0f;
     unsigned i = 0;
-    char *p = (char *)self->f88;
+    char *p = (char *)self->unk88;
     do {
-        Rec_000fa884 *r = (Rec_000fa884 *)(p + 0xa0);
-        r->f0 = 0;
-        r->f4 = 0x10;
-        r->f8 = 0;
-        r->fc = -1;
-        r->f10 = 0;
-        r->f14 = 0;
-        r->f20 = 0;
-        r->f24 = 0;
-        r->f28 = 0;
-        r->f2c = 1.0f;
-        r->f30 = 0;
+        HudRec *r = (HudRec *)(p + 0xa0);
+        r->unk0 = 0;
+        r->unk4 = 0x10;
+        r->unk8 = 0;
+        r->unkc = -1;
+        r->unk10 = 0;
+        r->unk14 = 0;
+        r->unk20 = 0;
+        r->unk24 = 0;
+        r->unk28 = 0;
+        r->unk2c = 1.0f;
+        r->unk30 = 0;
         i++;
         p += 0x40;
-    } while (i < 16);
-    FUN_000f6b0c(self->f8c, 0);
-    FUN_000f6b0c(self->f90, 0);
-    FUN_001ec518(self->f94, 1);
+    } while (i < HUD_REC_COUNT);
+    FUN_000f6b0c(self->unk8c, 0);
+    FUN_000f6b0c(self->unk90, 0);
+    FUN_001ec518(self->unk94, 1);
 }

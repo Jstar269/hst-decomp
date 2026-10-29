@@ -1,41 +1,43 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002314f8 end=0x002315c4 symbol=FUN_002314f8 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a7), refined by hstperm.py tag p4 random mutation from try/gen-a7/v20c/FUN_002314f8.cpp; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/singleton_holder.h"
 
 extern "C" {
 extern u8 DAT_00309820;
-extern int * DAT_0034a65c;
+extern SingletonHolder * DAT_0034a65c;  /* the singleton holder */
 extern u32 DAT_0034a660;
 extern void FUN_00000a00(...);
 extern u32 * FUN_0001f0f0(...);
 }
-struct VC_0 { virtual ~VC_0(); };
+struct Target { virtual ~Target(); };
 
-extern "C" u32 * FUN_002314f8(u32 *param_1,short param_2)
+/* Deleting destructor of the singleton's owner: tear down the holder and its target, then the base. */
+extern "C" u32 * FUN_002314f8(u32 *self,short flags)
 {
-  int *piVar1;
-  int *piVar2;
+  SingletonHolder *holder;
+  Target *target;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00309820);
+  if (self != (u32 *)0x0) {
+    *self = (unsigned int)(&DAT_00309820);
     DAT_0034a660 = 0;
-    piVar1 = DAT_0034a65c;
-    if (DAT_0034a65c != (int *)0x0) {
-      if (DAT_0034a65c != (int *)0x0) {
-        DAT_0034a65c = (int *)0x0;
-        piVar2 = (int *)*piVar1;
-        if (piVar2 != (int *)0x0) {
-          delete ((VC_0 *)(piVar2));
-          *piVar1 = 0;
+    holder = DAT_0034a65c;
+    if (DAT_0034a65c != (SingletonHolder *)0x0) {
+      if (DAT_0034a65c != (SingletonHolder *)0x0) {
+        DAT_0034a65c = (SingletonHolder *)0x0;
+        target = (Target *)holder->target;
+        if (target != (Target *)0x0) {
+          delete target;
+          holder->target = 0;
         }
-        FUN_00000a00(piVar1);
+        FUN_00000a00(holder);
       }
-      DAT_0034a65c = (int *)0x0;
+      DAT_0034a65c = (SingletonHolder *)0x0;
     }
-    FUN_0001f0f0(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0001f0f0(self,0);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

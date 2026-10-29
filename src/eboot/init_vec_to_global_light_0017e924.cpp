@@ -1,38 +1,33 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0017e924 end=0x0017e9b0 symbol=FUN_0017e924 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-struct Obj_0017e924 {
-    char pad0[0x10];
-    char sub[0x590];
-    float x, y, z, w;
-};
-struct Src_0017e924 {
+#include "hst/light_obj.h"
+
+/* Light settings; only the value at +8 is read. */
+struct Settings_0017e924 {
     char pad0[8];
     float f8;
 };
-struct Glob_0017e924 {
-    char pad0[0x1d0];
-    float x, y, z, w;
-};
 extern "C" {
-extern Glob_0017e924 *DAT_003313c4;
-extern void FUN_0005ba78(void *, Glob_0017e924 *);
-extern void FUN_0005bc58(Glob_0017e924 *);
-extern void FUN_0017e6c0(Obj_0017e924 *, Src_0017e924 *);
+extern CameraPose *DAT_003313c4;
+extern void FUN_0005ba78(void *, CameraPose *);
+extern void FUN_0005bc58(CameraPose *);
+extern void FUN_0017e6c0(LightObj *, Settings_0017e924 *);
 }
 
-extern "C" void FUN_0017e924(Obj_0017e924 *o, Src_0017e924 *s)
+/* Apply the light settings, set the light position to (0, f8, 5, 0) and publish it into the global block. */
+extern "C" void FUN_0017e924(LightObj *light, Settings_0017e924 *settings)
 {
-    FUN_0017e6c0(o, s);
-    float t = s->f8;
-    o->x = 0.0f;
-    o->y = t;
-    o->z = 5.0f;
-    o->w = 0.0f;
-    Glob_0017e924 *g = DAT_003313c4;
-    g->x = o->x;
-    g->y = o->y;
-    g->z = o->z;
-    g->w = o->w;
+    FUN_0017e6c0(light, settings);
+    float height = settings->f8;
+    light->pos.x = 0.0f;
+    light->pos.y = height;
+    light->pos.z = 5.0f;
+    light->pos.w = 0.0f;
+    CameraPose *cam = DAT_003313c4;
+    cam->pos.x = light->pos.x;
+    cam->pos.y = light->pos.y;
+    cam->pos.z = light->pos.z;
+    cam->pos.w = light->pos.w;
     FUN_0005bc58(DAT_003313c4);
-    FUN_0005ba78(o->sub, DAT_003313c4);
+    FUN_0005ba78(light->sub10, DAT_003313c4);
 }

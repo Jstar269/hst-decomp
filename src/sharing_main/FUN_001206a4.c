@@ -7,20 +7,21 @@ extern void FUN_00000a00();
 extern u32 * FUN_001087a8();
 extern int * FUN_001212c4();
 
-u32 * FUN_001206a4(u32 *param_1,short param_2)
+/* Destructor: destroys the member object at 0x8c, runs the base destructor, frees the object when flag > 0. */
+u32 * FUN_001206a4(u32 *self,short flag)
 {
-  u32 *puVar1;
+  u32 *member;
   
-  if (param_1 != (u32 *)0x0) {
-    puVar1 = param_1 + 0x23;
-    *param_1 = (unsigned int)(&DAT_003b0ea4);
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_001212c4(puVar1,0);
+  if (self != (u32 *)0x0) {
+    member = self + 0x23;
+    *self = (unsigned int)(&DAT_003b0ea4);
+    if ((member != (u32 *)0x0) && (member != (u32 *)0x0)) {
+      FUN_001212c4(member,0);
     }
-    FUN_001087a8(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_001087a8(self,0);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

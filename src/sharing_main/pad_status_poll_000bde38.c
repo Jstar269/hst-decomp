@@ -6,13 +6,14 @@ extern u8 DAT_0037b8cc[];
 extern void FUN_000bd6f0();
 extern int FUN_002c7b48(void);
 
+/* Shuts the ad-hoc matching library down and logs the outcome; returns 1 on success. */
 bool FUN_000bde38(void)
 {
-  int r;
+  int result;
 
-  r = FUN_002c7b48();
-  if (r < 0) {
-    FUN_000bd6f0(DAT_0037b8a4,r);
+  result = FUN_002c7b48();
+  if (result < 0) {
+    FUN_000bd6f0(DAT_0037b8a4,result);
     return 0;
   }
   FUN_000bd6f0(DAT_0037b8cc);

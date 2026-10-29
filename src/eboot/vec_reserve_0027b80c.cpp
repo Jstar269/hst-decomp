@@ -2,29 +2,28 @@
 /* Container reserve for a 48-byte element type (template instance, hsttmpl.py tag t2): length check
    against max_size, allocate n elements through an allocator temporary, report failures on newlib stderr
    and abort. Names provisional. */
+#include "hst/vec_reserve.h"
+
 extern "C" {
-struct Reent_0027b80c { int pad[3]; void *err; };
-Reent_0027b80c *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
-void FUN_0000d518(void);
-void *FUN_00000bcc(unsigned size);
 extern char DAT_002fe6ac[];
 extern char DAT_002ca9cc[];
 }
-struct Elem_0027b80c { int w[12]; };
-struct Alloc_0027b80c { Elem_0027b80c *allocate(unsigned n) { return (Elem_0027b80c *)FUN_00000bcc(n * sizeof(Elem_0027b80c)); } };
-struct Vec_0027b80c { Elem_0027b80c *data; int size; unsigned capacity; };
-extern "C" void FUN_0027b80c(Vec_0027b80c *v, unsigned n)
+struct Elem48 { int w[12]; };
+struct Alloc48 { Elem48 *allocate(unsigned n) { return (Elem48 *)FUN_00000bcc(n * sizeof(Elem48)); } };
+
+/* Allocate storage for n elements and set the capacity; aborts when n is too large or allocation fails. */
+extern "C" void FUN_0027b80c(RawVec *vec, unsigned n)
 {
-    if (n > 0xffffffffu / sizeof(Elem_0027b80c)) {
+    if (n > 0xffffffffu / sizeof(Elem48)) {
         FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002fe6ac);
         FUN_0000d518();
     }
-    Elem_0027b80c *p = Alloc_0027b80c().allocate(n);
+    Elem48 *p = Alloc48().allocate(n);
     if (p == 0) {
         FUN_0000f3e8(FUN_0000fe3c()->err, DAT_002ca9cc);
         FUN_0000d518();
     }
-    v->data = p;
-    v->capacity = n;
+    vec->data = p;
+    vec->capacity = n;
 }

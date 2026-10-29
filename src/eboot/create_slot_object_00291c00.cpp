@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00291c00 end=0x00291cdc symbol=FUN_00291c00 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/material_set.h"
+
 extern float DAT_002ffabc;
 extern float DAT_002ffac0;
 extern float DAT_002ffac4;
@@ -13,8 +15,9 @@ extern "C" void *FUN_00050fc0(void *);
 extern "C" void FUN_000511c4(void *, void *, int);
 extern "C" void FUN_00051398(float, void *);
 
-extern "C" void FUN_00291c00(char *o, int i) {
-    if (*(void **)((i << 2) + (int)o + 0x18) != 0) return;
+/* Creates slot i of the set on first use; the new object gets the i-th entry of a 7-entry table. */
+extern "C" void FUN_00291c00(MaterialSet *set, int i) {
+    if (set->slot[i] != 0) return;
     float names[7];
     void *p;
     names[0] = DAT_002ffabc;
@@ -26,7 +29,7 @@ extern "C" void FUN_00291c00(char *o, int i) {
     names[6] = DAT_002ffad4;
     p = FUN_00000bcc(0x48);
     if (p != 0) p = FUN_00050fc0(p);
-    *(void **)((i << 2) + (int)o + 0x18) = p;
+    set->slot[i] = p;
     FUN_000511c4(p, ((void **)names)[i], 0);
-    FUN_00051398(203010.0f, *(void **)((i << 2) + (int)o + 0x18));
+    FUN_00051398(203010.0f, set->slot[i]);
 }

@@ -1,30 +1,24 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001c3974 end=0x001c3cb0 symbol=FUN_001c3974 lang=c++ data=0x00391570 */
 /* Hand-written reconstruction (port of src/eboot/FUN_001b5cb4.cpp, its twin: addresses substituted by try/twins-20261026/port.py; no other change); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00391570-0x0039157b) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+#include "hst/scene.h"
+#include "hst/ball.h"
+#include "hst/court_view.h"
+
 struct Vec4 {
   float x, y, z, w;
 } __attribute__((aligned(16)));
 
-struct Sub1 {
-  char pad[0x234];
-  int f234;
-};
-struct Sub3 {
+/* Player object seen through one field only. */
+struct Obj {
   char pad[0x4e8];
-  int f4e8;
-};
-struct Ctx {
-  char pad0[0x70];
-  Sub3 *arr[6];
-  Sub1 *f88;
-};
-struct G2 {
-  char pad[0x1364];
-  int f1364;
+  int unk4e8;
 };
 
+#define NO_SOUND 0x75 /* sound id meaning "this kind makes no sound" */
+
 extern "C" {
-extern G2 *DAT_003e95e0;
-extern Ctx *DAT_003e19f0;
+extern CourtView *DAT_003e95e0;
+extern Scene *DAT_003e19f0;
 extern char DAT_003eaad8[];
 extern float DAT_0039155c;
 extern float DAT_00391560;
@@ -59,90 +53,93 @@ static inline float Clamp(const float &value, const float &lo, const float &hi)
   return value < lo ? lo : (!(value > hi) ? value : hi);
 }
 
-extern "C" int FUN_001c3974(int unused, int kind, int p3, const Vec4 *p4, const Vec4 *p5)
+/* Play the sound for an event kind. The volume comes from the length of vec's component along axis plus a
+   weighted part of the component across it, clamped; the sound only starts when the volume reaches a
+   threshold. Returns the sound handle (-1 when none was started). */
+extern "C" int FUN_001c3974(int unused, int kind, int arg, const Vec4 *vec, const Vec4 *axis)
 {
-  int id = 0x75;
+  int sound = NO_SOUND;
   switch (kind) {
   case 1:
   case 12:
   case 0x22:
-    id = 0x54;
+    sound = 0x54;
     break;
   case 0x2:
-    id = 0x1e;
+    sound = 0x1e;
     break;
   case 0x1a:
-    id = 0x1d;
+    sound = 0x1d;
     break;
   case 0x16:
-    id = 0x1f;
+    sound = 0x1f;
     break;
   case 0x30:
-    id = 0x23;
+    sound = 0x23;
     break;
   case 0xd:
-    id = 0x20;
+    sound = 0x20;
     break;
   case 0xe:
-    id = 0x26;
+    sound = 0x26;
     break;
   case 0x18:
-    id = 0x27;
+    sound = 0x27;
     break;
   case 0x19:
-    id = 0x25;
+    sound = 0x25;
     break;
   case 0x15:
-    id = 0x28;
+    sound = 0x28;
     break;
   case 0x17:
-    id = 0x2a;
+    sound = 0x2a;
     break;
   case 0x20:
-    id = 0x21;
+    sound = 0x21;
     break;
   case 0x1c:
-    id = 0x2b;
+    sound = 0x2b;
     break;
   case 0x1d:
-    id = 0x2c;
+    sound = 0x2c;
     break;
   case 0x1f:
-    id = 0x2d;
+    sound = 0x2d;
     break;
   case 0x2b:
-    id = 0x22;
+    sound = 0x22;
     break;
   }
-  int result = -1;
-  if (id != 0x75) {
-    Vec4 t;
-    Vec4 d;
-    t = Scale(*p5, FUN_00022500(p4, p5));
-    d = Sub(*p4, t);
-    float lenD = FUN_00022e6c(FUN_00022500(&d, &d));
-    float lenT = FUN_00022e6c(FUN_00022500(&t, &t));
-    float s = lenT + DAT_00391560 * lenD; float w = s * DAT_0039155c;
-    float v = Clamp(w, DAT_00391568, DAT_0039156c);
-    if (v >= DAT_00391564) {
-      result = FUN_001bfd3c(DAT_003eaad8, id, p3, 0);
-      FUN_001c01a0(DAT_003eaad8, &result, v, v);
+  int handle = -1;
+  if (sound != NO_SOUND) {
+    Vec4 along;
+    Vec4 across;
+    along = Scale(*axis, FUN_00022500(vec, axis));
+    across = Sub(*vec, along);
+    float lenAcross = FUN_00022e6c(FUN_00022500(&across, &across));
+    float lenAlong = FUN_00022e6c(FUN_00022500(&along, &along));
+    float weighted = lenAlong + DAT_00391560 * lenAcross; float scaled = weighted * DAT_0039155c;
+    float volume = Clamp(scaled, DAT_00391568, DAT_0039156c);
+    if (volume >= DAT_00391564) {
+      handle = FUN_001bfd3c(DAT_003eaad8, sound, arg, 0);
+      FUN_001c01a0(DAT_003eaad8, &handle, volume, volume);
     }
   }
-  if (DAT_003e95e0->f1364 == 9) {
+  if (DAT_003e95e0->mode == 9) {
     switch (kind) {
     case 2:
     case 0x1a:
     case 0x16: {
-      int idx = DAT_003e19f0->f88->f234;
+      int idx = DAT_003e19f0->ball->unk234;
       if (idx >= 0) {
-        Sub3 *s = DAT_003e19f0->arr[idx];
-        if (s != 0 && s->f4e8 == 1)
+        Obj *player = DAT_003e19f0->players[idx];
+        if (player != 0 && player->unk4e8 == 1)
           FUN_001c0984(DAT_003eaad8, "court_beep");
       }
       break;
     }
     }
   }
-  return result;
+  return handle;
 }

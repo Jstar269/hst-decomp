@@ -1,29 +1,30 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ff3dc end=0x001ff4a0 symbol=FUN_001ff3dc lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/adhoc_net.h"
+#include "hst/record_bank.h"
 
-typedef unsigned char u8;
-
-extern void *DAT_003386c8;
-extern void *DAT_00338ac4;
+extern RecordRoot *DAT_003386c8;
+extern AdhocNet *DAT_00338ac4;
 extern int FUN_000be7b4(void *arg);
 
-int FUN_001ff3dc(int param_1) {
+/* Return 1 when the active bank is in use and id is non-zero and equals both of its ids at 0x3b0 and 0x3b4. */
+int FUN_001ff3dc(int id) {
     int res = 0;
     if (DAT_003386c8 != 0) {
         if (DAT_00338ac4 != 0) {
             if (FUN_000be7b4(DAT_00338ac4) != 0) {
-                char *sub = 0;
+                RecordBank *bank = 0;
                 if (DAT_003386c8 != 0) {
                     if (DAT_00338ac4 != 0) {
-                        char *base = *(char **)((char *)DAT_003386c8 + 0x40);
-                        if (*(u8 *)((char *)DAT_00338ac4 + 0x178) != 0) {
-                            sub = base + 0x1ef8;
+                        RecordOwner *owner = DAT_003386c8->owner;
+                        if (DAT_00338ac4->unk178 != 0) {
+                            bank = &owner->banks[1];
                         } else {
-                            sub = base + 0x1aa0;
+                            bank = &owner->banks[0];
                         }
                     }
                 }
-                if (*(u8 *)(sub + 0x12d) != 0 && param_1 != 0 && param_1 == *(int *)(sub + 0x3b0) && param_1 == *(int *)(sub + 0x3b4)) {
+                if (bank->unk12d != 0 && id != 0 && id == bank->unk3b0 && id == bank->unk3b4) {
                     res = 1;
                 }
             }

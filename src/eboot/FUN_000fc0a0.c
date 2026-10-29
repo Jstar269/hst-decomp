@@ -1,20 +1,37 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000fc0a0 end=0x000fc0e0 symbol=FUN_000fc0a0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern u8 DAT_00307b6c;
 
-u32 * FUN_000fc0a0(u32 *param_1)
+#define LIMIT_DEFAULT 100000.0f
+
+typedef struct LimitObj {
+  u32 vtable;           /* 0x00 */
+  u32 unk04;
+  u32 unk08;
+  u32 unk0c;
+  u32 unk10;
+  u32 unk14;
+  u32 unk18;
+  u8 unk1c;
+  char pad1d[3];
+  float limit;          /* 0x20 */
+  u8 unk24;
+} LimitObj;
+
+/* Constructor: zeroes the fields and sets the default limit. */
+LimitObj * FUN_000fc0a0(LimitObj *self)
 {
-  *param_1 = (unsigned int)(&DAT_00307b6c);
-  param_1[1] = 0;
-  param_1[2] = 0;
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[6] = 0;
-  *(u8 *)(param_1 + 7) = 0;
-  param_1[8] = 0x47c35000;
-  *(u8 *)(param_1 + 9) = 0;
-  return param_1;
+  self->vtable = (unsigned int)(&DAT_00307b6c);
+  self->unk04 = 0;
+  self->unk08 = 0;
+  self->unk0c = 0;
+  self->unk10 = 0;
+  self->unk14 = 0;
+  self->unk18 = 0;
+  self->unk1c = 0;
+  self->limit = LIMIT_DEFAULT;
+  self->unk24 = 0;
+  return self;
 }

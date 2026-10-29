@@ -1,10 +1,12 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001268b8 end=0x001268c4 symbol=FUN_001268b8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/ring_owner.h"
 
 extern u32 FUN_000ff678();
 
-void FUN_001268b8(int param_1,u32 param_2,u32 param_3)
+/* Same ring call as the read above with the last argument set to 1. */
+void FUN_001268b8(RingOwner *self,u32 buf,u32 len)
 {
-  FUN_000ff678(*(u32 *)(param_1 + 0x1c),param_2,param_3,1);
+  FUN_000ff678(self->ring,buf,len,1);
 }

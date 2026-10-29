@@ -2,6 +2,8 @@
 /* Clone of src/eboot/FUN_0012d464.c (hstclone.py tag x14): addresses substituted; exact match verified; names and types await human review. Data: its string literals (5 strings, 0x00381dd4-0x00381ec8) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 #include "hst/types.h"
 
+#define PATH_BUF_SIZE 256
+
 extern void FUN_000143b0();
 extern void FUN_0014cd64();
 extern void FUN_0014cee8();
@@ -9,18 +11,19 @@ extern void FUN_0014d288();
 extern void FUN_0014d4bc();
 extern void FUN_00151a24();
 
-void FUN_00138964(u32 param_1,int param_2,int param_3)
+/* Load the five script files (event area, route, point, item, patrol) of one lobby area. */
+void FUN_00138964(u32 loader,int lobbyIndex,int areaIndex)
 {
-  u8 auStack_100 [256];
+  u8 path [PATH_BUF_SIZE];
   
-  FUN_000143b0(auStack_100,"data/script/script_bin/lobby%02d/eventarea%02d.dat",param_2 + 1,param_3 + 1);
-  FUN_0014cd64(param_1,auStack_100);
-  FUN_000143b0(auStack_100,"data/script/script_bin/lobby%02d/route%02d.dat",param_2 + 1,param_3 + 1);
-  FUN_00151a24(param_1,auStack_100);
-  FUN_000143b0(auStack_100,"data/script/script_bin/lobby%02d/point%02d.dat",param_2 + 1,param_3 + 1);
-  FUN_0014cee8(param_1,auStack_100);
-  FUN_000143b0(auStack_100,"data/script/script_bin/lobby%02d/item%02d.dat",param_2 + 1,param_3 + 1);
-  FUN_0014d288(param_1,auStack_100);
-  FUN_000143b0(auStack_100,"data/script/script_bin/lobby%02d/patrol%02d.dat",param_2 + 1,param_3 + 1);
-  FUN_0014d4bc(param_1,auStack_100);
+  FUN_000143b0(path,"data/script/script_bin/lobby%02d/eventarea%02d.dat",lobbyIndex + 1,areaIndex + 1);
+  FUN_0014cd64(loader,path);
+  FUN_000143b0(path,"data/script/script_bin/lobby%02d/route%02d.dat",lobbyIndex + 1,areaIndex + 1);
+  FUN_00151a24(loader,path);
+  FUN_000143b0(path,"data/script/script_bin/lobby%02d/point%02d.dat",lobbyIndex + 1,areaIndex + 1);
+  FUN_0014cee8(loader,path);
+  FUN_000143b0(path,"data/script/script_bin/lobby%02d/item%02d.dat",lobbyIndex + 1,areaIndex + 1);
+  FUN_0014d288(loader,path);
+  FUN_000143b0(path,"data/script/script_bin/lobby%02d/patrol%02d.dat",lobbyIndex + 1,areaIndex + 1);
+  FUN_0014d4bc(loader,path);
 }

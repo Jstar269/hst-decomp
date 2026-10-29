@@ -1,25 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0010ba20 end=0x0010bc70 symbol=FUN_0010ba20 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. matching idiom: the two sound-mask objects are volatile (unused second word kept in memory) and the inline helper takes a plain struct pointer. */
 #include "hst/types.h"
+#include "hst/mode_list.h"
 
-struct Item {
-    char pad0[0xe];
-    u16 f0e;             /* 0x0e */
-};
-
-struct Self {
-    char pad0[0x10];
-    struct Item **items;    /* 0x10 */
-    char pad14[0xc0];       /* 0x14..0xd3 */
-    int f0d4;               /* 0xd4 */
-    int f0d8;               /* 0xd8 */
-    char pad_dc[0x24];      /* 0xdc..0xff */
-    int key100;             /* 0x100 */
-    int pad104;             /* 0x104 */
-    int key108;             /* 0x108 */
-    char pad10c[0xc];       /* 0x10c..0x117 */
-    int f118;               /* 0x118 */
-};
+/* Pad button masks of the two cursor directions (orient 1: up/down, otherwise left/right). */
+#define BUTTON_UP 0x10
+#define BUTTON_RIGHT 0x20
+#define BUTTON_DOWN 0x40
+#define BUTTON_LEFT 0x80
+#define KEY_REPEAT_WINDOW 2
+#define KEY_REPEAT_LIMIT 9
 
 /* Button mask pair for one direction; both words are always written. */
 struct Snd {
@@ -27,51 +17,53 @@ struct Snd {
     int alt;                /* 0x04 */
 };
 
-extern void *DAT_002cfc8c;
+extern void *DAT_002cfc8c;  /* pad state */
 extern void FUN_0001e23c(void *p, int a, int b);
 extern int FUN_0001ea64(void *p, void *key, int mask, int n, int m);
 
+/* True while the direction's button is held (with key repeat tracked in `key`). */
 static inline int Play(void *p, int *key, struct Snd *snd)
 {
-    return FUN_0001ea64(p, key, snd->mask, 2, 9);
+    return FUN_0001ea64(p, key, snd->mask, KEY_REPEAT_WINDOW, KEY_REPEAT_LIMIT);
 }
 
-int FUN_0010ba20(struct Self *self, int *cursor, int count, int wrap)
+/* Step `cursor` back or forward on a pad press (wrapping when `wrap` is set); returns 1 when it moved. */
+int FUN_0010ba20(ModeList *self, int *cursor, int count, int wrap)
 {
-    struct Item *item;
+    ModeItem *item;
     int idx;
     int mode;
     int result = 0;
     volatile struct Snd down, up;
 
-    mode = self->f118;
-    idx = self->f0d4;
+    mode = self->mode;
+    idx = self->first;
     switch (mode) {
     case 1:
         item = self->items[idx];
         break;
     case 2:
-        item = *(struct Item **)((char *)self->items + (idx + 2) * 4);
+        item = *(ModeItem **)((char *)self->items + (idx + 2) * 4);
         break;
     case 0:
     default:
-        item = *(struct Item **)((char *)self->items + (idx + 1) * 4);
+        item = *(ModeItem **)((char *)self->items + (idx + 1) * 4);
         break;
     }
-    if ((item->f0e & 3) != 0)
+    if ((item->flags & MODE_ITEM_LOCKED) != 0)
         return 0;
-    if (self->f0d8 == 1) {
-        down.mask = 0x10;
-        down.alt = 0x10000;
-        up.mask = 0x40;
-        up.alt = 0x40000;
+    if (self->orient == 1) {
+        down.mask = BUTTON_UP;
+        down.alt = BUTTON_UP << 12;
+        up.mask = BUTTON_DOWN;
+        up.alt = BUTTON_DOWN << 12;
     } else {
-        down.mask = 0x80;
-        down.alt = 0x80000;
-        up.mask = 0x20;
-        up.alt = 0x20000;
+        down.mask = BUTTON_LEFT;
+        down.alt = BUTTON_LEFT << 12;
+        up.mask = BUTTON_RIGHT;
+        up.alt = BUTTON_RIGHT << 12;
     }
-    if (Play(DAT_002cfc8c, &self->key100, (struct Snd *)&down) != 0) {
+    if (Play(DAT_002cfc8c, &self->keys[4], (struct Snd *)&down) != 0) {
         if (wrap != 0) {
             *cursor = (*cursor - 1 + count) % count;
             result = 1;
@@ -82,10 +74,10 @@ int FUN_0010ba20(struct Self *self, int *cursor, int count, int wrap)
             }
         }
         if (*cursor == 0) {
-            FUN_0001e23c(DAT_002cfc8c, 0x80, 1);
-            FUN_0001e23c(DAT_002cfc8c, 0x80, 1);
+            FUN_0001e23c(DAT_002cfc8c, BUTTON_LEFT, 1);
+            FUN_0001e23c(DAT_002cfc8c, BUTTON_LEFT, 1);
         }
-    } else if (Play(DAT_002cfc8c, &self->key108, (struct Snd *)&up) != 0) {
+    } else if (Play(DAT_002cfc8c, &self->keys[6], (struct Snd *)&up) != 0) {
         if (wrap != 0) {
             *cursor = (*cursor + 1) % count;
             result = 1;
@@ -96,8 +88,8 @@ int FUN_0010ba20(struct Self *self, int *cursor, int count, int wrap)
             }
         }
         if (*cursor == count - 1) {
-            FUN_0001e23c(DAT_002cfc8c, 0x20, 1);
-            FUN_0001e23c(DAT_002cfc8c, 0x20, 1);
+            FUN_0001e23c(DAT_002cfc8c, BUTTON_RIGHT, 1);
+            FUN_0001e23c(DAT_002cfc8c, BUTTON_RIGHT, 1);
         }
     }
     return result;

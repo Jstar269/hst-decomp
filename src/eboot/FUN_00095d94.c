@@ -1,25 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00095d94 end=0x00095da8 symbol=FUN_00095d94 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe1); exact match verified; names and types await human review. */
-typedef unsigned char undefined;
-typedef unsigned char byte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long long ulonglong;
-typedef long long longlong;
-typedef unsigned char uchar;
-typedef unsigned char bool;
-typedef unsigned long long undefined8;
-typedef int code();
-#define true 1
-#define false 0
-typedef signed char undefined1;
-typedef short undefined2;
-typedef int undefined4;
+/* Ghidra pseudocode (hstgen.py tag probe1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/types.h"
 
-
-undefined1 * FUN_00095d94(undefined1 *param_1)
+/* Constructor: first byte cleared, second byte set to 0xff (none). */
+s8 * FUN_00095d94(s8 *self)
 {
-  *param_1 = 0;
-  param_1[1] = 0xff;
-  return param_1;
+  self[0] = 0;
+  self[1] = 0xff;
+  return self;
 }

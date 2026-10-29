@@ -7,29 +7,30 @@
    ("extern char DAT_0030840c[];" plus "self->vtable = DAT_0030840c;") so that mwccpsp emits the
    lui/addiu pair; the eight byte reads have to be a do/while with an unsigned counter (a plain
    for loop over the constant 8 is unrolled). */
-typedef struct {
-  void *vtable;
-  unsigned char f4;
-  char pad05[3];
-  unsigned char f8[8];
-} Obj;
+#include "hst/script_node.h"
+
+/* Script node followed by eight payload bytes. */
+typedef struct ByteNode {
+  ScriptNode base;      /* 0x00 */
+  unsigned char bytes[8]; /* 0x08 */
+} ByteNode;
 
 extern char DAT_0030840c[];
 extern char DAT_00308280[];
-extern void FUN_0014f050(void *p);
-extern int FUN_0014f000(void *p);
+extern void FUN_0014f050(void *stream);
+extern int FUN_0014f000(void *stream);
 
-Obj *FUN_0014e7d0(Obj *self, void *arg)
+ByteNode *FUN_0014e7d0(ByteNode *self, void *stream)
 {
   unsigned i;
 
-  self->vtable = DAT_0030840c;
-  self->f4 = 0;
-  self->vtable = DAT_00308280;
-  FUN_0014f050(arg);
+  self->base.vtable = DAT_0030840c;
+  self->base.unk04 = 0;
+  self->base.vtable = DAT_00308280;
+  FUN_0014f050(stream);
   i = 0;
   do {
-    self->f8[i] = FUN_0014f000(arg);
+    self->bytes[i] = FUN_0014f000(stream);
   } while (++i < 8);
   return self;
 }

@@ -1,23 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011d5ac end=0x0011d5fc symbol=FUN_0011d5ac lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/block_deque.h"
 
-void FUN_0011d5ac(u32 *param_1,u32 *param_2)
+/* Swap two block maps word by word. */
+void FUN_0011d5ac(BlockMap *a, BlockMap *b)
 {
-  u32 uVar1;
+  int tmp;
+  void **blocks;
   
-  if (param_1 != param_2) {
-    uVar1 = *param_1;
-    *param_1 = *param_2;
-    *param_2 = uVar1;
-    uVar1 = param_1[1];
-    param_1[1] = param_2[1];
-    param_2[1] = uVar1;
-    uVar1 = param_1[2];
-    param_1[2] = param_2[2];
-    param_2[2] = uVar1;
-    uVar1 = param_1[3];
-    param_1[3] = param_2[3];
-    param_2[3] = uVar1;
+  if (a != b) {
+    tmp = a->capacity;
+    a->capacity = b->capacity;
+    b->capacity = tmp;
+    tmp = a->count;
+    a->count = b->count;
+    b->count = tmp;
+    tmp = a->head;
+    a->head = b->head;
+    b->head = tmp;
+    blocks = a->blocks;
+    a->blocks = b->blocks;
+    b->blocks = blocks;
   }
 }

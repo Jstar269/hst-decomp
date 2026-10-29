@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002292a8 end=0x002293d4 symbol=FUN_002292a8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reconstructed FUN_002293d4(param_1) delay-slot save, Pair local layout at 36(sp), and branch structure; exact match verified; names and types await human review. */
-
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reconstructed FUN_002293d4(param_1) delay-slot save, Pair local layout at 36(sp), and branch structure; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/tree_map.h"
 
 extern void FUN_000009e4(u32);
 extern u32 FUN_00000a90(int);
@@ -9,54 +9,56 @@ extern void FUN_000104e0(void *);
 extern void *FUN_000149a8(u32, void *);
 extern int FUN_00014a40(void *);
 extern void *FUN_0004cad0(int, int *, int, int);
-extern void FUN_002293d4(int);
-extern void FUN_00229868(void *, int, void *);
-extern void FUN_0022999c(void *, int, void *);
+extern void FUN_002293d4(TreeMap *);
+extern void FUN_00229868(void *, TreeMap *, void *);
+extern void FUN_0022999c(void *, TreeMap *, void *);
 
+/* One name-table entry: the heap string and its position in the file. */
 struct Pair {
     u32 key;
     int val;
 };
 
-int FUN_002292a8(int param_1, int param_2)
+/* Reloads the name tree from a file: a count, then offsets of NUL-terminated strings. Returns 1 on success. */
+int FUN_002292a8(TreeMap *map, int file)
 {
-    int local_4;
-    u32 local_8;
-    int local_c;
-    u8 auStack_14[8];
-    struct Pair local_pair;
+    int file_size;
+    u32 name;
+    TreeNode *found;
+    u8 insert_out[8];
+    struct Pair entry;
 
-    FUN_002293d4(param_1);
-    int *piVar1 = (int *)FUN_0004cad0(param_2, &local_4, 16, 1);
-    if (piVar1 == 0 || local_4 <= 0) {
+    FUN_002293d4(map);
+    int *data = (int *)FUN_0004cad0(file, &file_size, 16, 1);
+    if (data == 0 || file_size <= 0) {
         return 0;
     }
-    *(u8 *)(local_4 + (int)piVar1 + -1) = 0;
+    *(u8 *)(file_size + (int)data + -1) = 0;
 
-    int count = *piVar1;
-    int *piVar7 = piVar1 + 1;
+    int count = *data;
+    int *offsets = data + 1;
     int i = 0;
 
     if (count > 0) {
         do {
-            int iVar3 = *piVar7++;
-            void *str = (char *)piVar1 + iVar3;
+            int offset = *offsets++;
+            void *str = (char *)data + offset;
             int slen = FUN_00014a40(str);
-            local_8 = FUN_00000a90(slen + 1);
-            FUN_000149a8(local_8, str);
+            name = FUN_00000a90(slen + 1);
+            FUN_000149a8(name, str);
 
-            FUN_00229868(&local_c, param_1, &local_8);
-            if (local_c != param_1 + 4) {
-                FUN_000009e4(local_8);
+            FUN_00229868(&found, map, &name);
+            if (found != (TreeNode *)&map->root) {
+                FUN_000009e4(name);
             } else {
-                local_pair.key = local_8;
-                local_pair.val = i;
-                FUN_0022999c(auStack_14, param_1, &local_pair);
+                entry.key = name;
+                entry.val = i;
+                FUN_0022999c(insert_out, map, &entry);
             }
             i++;
         } while (i < count);
     }
 
-    FUN_000104e0(piVar1);
+    FUN_000104e0(data);
     return 1;
 }

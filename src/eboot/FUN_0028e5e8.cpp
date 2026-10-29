@@ -1,15 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0028e5e8 end=0x0028e62c symbol=FUN_0028e5e8 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/titleinfo_menu.h"
 
 extern "C" {
 extern void FUN_00103628(...);
 extern void FUN_0028e62c(...);
 }
-struct VC_0 { virtual void d0(); virtual void d1(); virtual void m(int); };
+struct TitleInfoNotify { virtual void d0(); virtual void d1(); virtual void m(int); };
 
-extern "C" void FUN_0028e5e8(int param_1)
+extern "C" void FUN_0028e5e8(TitleInfoHead *self)
 {
-  FUN_00103628(param_1,1);
-  ((VC_0 *)(*(int **)(param_1 + 0x650)))->m((int)(0));
-  FUN_0028e62c(param_1);
+  FUN_00103628(self,1);
+  self->notify->m(0);
+  FUN_0028e62c(self);
 }

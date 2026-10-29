@@ -2,16 +2,16 @@
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Ghidra pseudocode (hstgen.py) corrected by hand: OR chain written as an assignment chain (`if (!b) b = ...; return b;`) to get the xor/sltiu/bnez short-circuit; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/motion_obj.h"
 
-extern u32 DAT_0033b528;
-extern u32 DAT_0033b52c;
-extern u32 DAT_0033b534;
+extern u32 DAT_0033b4f0[ID_TABLE_COUNT];
 
-int FUN_00127a20(int param_1)
+/* True when id is one of three entries (14, 15 and 17) of the global id table. */
+int FUN_00127a20(int id)
 {
-  int b;
-  b = param_1 == DAT_0033b528;
-  if (!b) b = param_1 == DAT_0033b52c;
-  if (!b) b = param_1 == DAT_0033b534;
-  return b;
+  int found;
+  found = id == DAT_0033b4f0[14];
+  if (!found) found = id == DAT_0033b4f0[15];
+  if (!found) found = id == DAT_0033b4f0[17];
+  return found;
 }

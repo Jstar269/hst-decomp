@@ -2,17 +2,18 @@
 /* Clone of src/eboot/FUN_0022c484.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u8 * DAT_003ea8e8;
+extern u8 * DAT_003ea8e8;  /* address of the global system block */
 
+/* Returns the magnitude of the field when it is negative, otherwise 0. */
 int FUN_0023bf04(void)
 {
-  int iVar1;
+  int result;
   
   if (*(int *)(DAT_003ea8e8 + 0xd4d0) < 0) {
-    iVar1 = -*(int *)(DAT_003ea8e8 + 0xd4d0);
+    result = -*(int *)(DAT_003ea8e8 + 0xd4d0);
   }
   else {
-    iVar1 = 0;
+    result = 0;
   }
-  return iVar1;
+  return result;
 }

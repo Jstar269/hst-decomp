@@ -1,18 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00197208 end=0x001972d0 symbol=FUN_00197208 lang=c++ data=0x002e1608 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string-pointer tables (1 tables, 30 strings, 0x002e1608-0x002e17a8) are defined in place and placed with data= (tools/hstdatapool.py tables); before, the source named them through address externs. */
-struct Obj {
+#include "hst/text_ctx.h"
+
+struct TextLayoutObj {
     virtual void m0();
     virtual void m1();
     virtual void m2();
 };
 
-struct Ctx {
-    Obj *obj;
-    int a[30];
-    int b[30];
-};
-
-extern "C" Ctx *DAT_00341768;
+extern "C" TextCtx *DAT_00341768;
 extern "C" char DAT_002e17a8[];
 extern "C" char DAT_002e17c8[];
 extern "C" char *DAT_002e1730[] = {
@@ -48,32 +44,33 @@ extern "C" char *DAT_002e1730[] = {
     "btn_bg11",
 };
 extern "C" void FUN_00104118(void *, void *, int);
-extern "C" Obj *FUN_001039d8(void *, void *, int);
-extern "C" void *FUN_001026b8(Obj *, void *);
+extern "C" TextLayoutObj *FUN_001039d8(void *, void *, int);
+extern "C" void *FUN_001026b8(TextLayoutObj *, void *);
 
+/* Load the button layout and record each named button's lookup result and its stored word. */
 extern "C" void FUN_00197208(void)
 {
-    Ctx *c;
-    Obj *o;
+    TextCtx *ctx;
+    TextLayoutObj *group;
     int i;
-    char **p;
-    int *q;
+    char **name;
+    int *slot; /* walks the context words: btn_ref at +1, btn_data at +31 */
 
-    c = DAT_00341768;
-    if (c != 0) {
-        FUN_00104118(c->obj, DAT_002e17a8, 0);
-        o = FUN_001039d8(c->obj, DAT_002e17c8, 0);
+    ctx = DAT_00341768;
+    if (ctx != 0) {
+        FUN_00104118(ctx->obj, DAT_002e17a8, 0);
+        group = FUN_001039d8(ctx->obj, DAT_002e17c8, 0);
         i = 0;
-        p = DAT_002e1730;
-        q = (int *)c;
+        name = DAT_002e1730;
+        slot = (int *)ctx;
         do {
-            int *r = (int *)FUN_001026b8(o, *p);
-            q[1] = (int)r;
+            int *ref = (int *)FUN_001026b8(group, *name);
+            slot[1] = (int)ref;
             i++;
-            p++;
-            q[31] = r[9];
-            q++;
-        } while (i < 30);
-        c->obj->m2();
+            name++;
+            slot[31] = ref[9];
+            slot++;
+        } while (i < TEXT_BUTTON_COUNT);
+        ctx->obj->m2();
     }
 }

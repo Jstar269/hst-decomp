@@ -2,37 +2,36 @@
 /* Hand-written reconstruction from the disassembly (started from hstgen.py tag a1/v0); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-struct Vec { int *data; u32 size; u32 capacity; };
-struct Pair { char pad[4]; Vec first; Vec second; };
-struct Entry { char pad[0x74]; u32 value; };
+struct PtrVec { int *data; u32 size; u32 capacity; };
+struct ListPair { char pad[4]; PtrVec first; PtrVec second; };
+struct Entry { char pad[0x74]; u32 index; };
 struct Tag {};
 
-extern "C" void FUN_001073ac(Vec *, int *, Tag);
+extern "C" void FUN_001073ac(PtrVec *, int *, Tag);
 
-extern "C" void FUN_0019cec4(int param_1,int param_2)
+/* Record the entry's position in the first list, then append it to both lists. */
+extern "C" void FUN_0019cec4(ListPair *lists,Entry *entry)
 {
-  Pair *pair = (Pair *)param_1;
-  Entry *entry = (Entry *)param_2;
-  int local_14 [5];
+  int entryTmp [5];
 
-  local_14[0] = param_2;
-  entry->value = pair->first.size;
-  if (pair->first.size < pair->first.capacity) {
-    u32 next = ++pair->first.size;
-    int offset = (next - 1) * 4;
-    int *slot = (int *)((char *)pair->first.data + offset);
-    *slot = local_14[0];
+  entryTmp[0] = (int)entry;
+  entry->index = lists->first.size;
+  if (lists->first.size < lists->first.capacity) {
+    u32 count = ++lists->first.size;
+    int offset = (count - 1) * 4;
+    int *slot = (int *)((char *)lists->first.data + offset);
+    *slot = entryTmp[0];
   }
   else {
-    FUN_001073ac(&pair->first,&local_14[0],Tag());
+    FUN_001073ac(&lists->first,&entryTmp[0],Tag());
   }
-  if (pair->second.size < pair->second.capacity) {
-    u32 next = ++pair->second.size;
-    int offset = (next - 1) * 4;
-    int *slot = (int *)((char *)pair->second.data + offset);
-    *slot = local_14[0];
+  if (lists->second.size < lists->second.capacity) {
+    u32 count = ++lists->second.size;
+    int offset = (count - 1) * 4;
+    int *slot = (int *)((char *)lists->second.data + offset);
+    *slot = entryTmp[0];
   }
   else {
-    FUN_001073ac(&pair->second,&local_14[0],Tag());
+    FUN_001073ac(&lists->second,&entryTmp[0],Tag());
   }
 }

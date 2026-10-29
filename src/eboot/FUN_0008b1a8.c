@@ -1,7 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0008b1a8 end=0x0008b1b8 symbol=FUN_0008b1a8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
-void FUN_0008b1a8(int param_1,int param_2)
+/* Object whose second word is a running count. */
+typedef struct CountedObj {
+  char pad0[4];
+  int count; /* 0x4 */
+} CountedObj;
+
+void FUN_0008b1a8(CountedObj *self, int amount)
 {
-  *(int *)(param_1 + 4) = *(int *)(param_1 + 4) - param_2;
+  self->count -= amount;
 }

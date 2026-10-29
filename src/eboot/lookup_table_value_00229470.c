@@ -1,22 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00229470 end=0x002294f4 symbol=FUN_00229470 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reversed the sentinel conditional and indexed through a typed int pointer; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: reversed the sentinel conditional and indexed through a typed int pointer; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/tree_map.h"
+#include "hst/text_bank_lookup.h"
 
 extern void FUN_00229868();
 
-u32 FUN_00229470(int param_1,int param_2,u32 param_3)
+/* Looks up key in the name tree and returns the string count of the matching text group, or 0. */
+u32 FUN_00229470(TreeMap *map,TextBank *bank,u32 key)
 {
-  int iVar2;
-  u32 local_4;
-  int local_c [2];
+  int id;
+  u32 search_key;
+  TreeNode *found [2];
   
-  local_4 = param_3;
-  FUN_00229868(local_c,param_1,&local_4);
-  iVar2 = (local_c[0] != param_1 + 4) ? *(int *)(local_c[0] + 0x10) : -1;
-  if ((param_2 != 0) && (iVar2 >= 0)) {
-    int offset = iVar2 * 3;
-    int *base = *(int **)(param_2 + 0xc);
-    return base[offset + 1];
+  search_key = key;
+  FUN_00229868(found,map,&search_key);
+  id = (found[0] != (TreeNode *)&map->root) ? found[0]->value : -1;
+  if ((bank != 0) && (id >= 0)) {
+    TextGroup *groups = bank->groups;
+    return groups[id].count;
   }
   return 0;
 }

@@ -1,38 +1,35 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0024dd8c end=0x0024de20 symbol=FUN_0024dd8c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: used a signed nonnegative loop edge and an offset-first sample address; exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: used a signed nonnegative loop edge; readability pass; exact match verified; names and types await human review. */
+#include "hst/aityaku_table.h"
 
-float FUN_0024dd8c(float param_1,int param_2)
+/* Progress (0..1) of a value through the level it has reached; 1.0 once the top level is reached. */
+float FUN_0024dd8c(float value,AityakuTable *table)
 {
-  bool bVar1;
-  int iVar2;
-  int iVar3;
-  float fVar4;
+  bool found;
+  int level;
+  float base;
+  float progress;
   
-  fVar4 = 0.0f;
-  bVar1 = false;
-  iVar3 = 8;
-  iVar2 = param_2 + 0x20;
+  progress = 0.0f;
+  found = false;
+  level = AITYAKU_LEVELS - 1;
   do {
-    if (*(float *)(iVar2 + 0x30) < param_1) {
-      if (iVar3 == 8) {
-        fVar4 = 1.0f;
-        bVar1 = true;
+    if (table->threshold[level] < value) {
+      if (level == AITYAKU_LEVELS - 1) {
+        progress = 1.0f;
+        found = true;
       }
       else {
-        iVar2 = iVar3 * 4;
-        iVar2 = iVar2 + param_2;
-        fVar4 = *(float *)(iVar2 + 0x30);
-        bVar1 = true;
-        fVar4 = (param_1 - fVar4) / (*(float *)(iVar2 + 0x34) - fVar4);
+        base = table->threshold[level];
+        found = true;
+        progress = (value - base) / (table->threshold[level + 1] - base);
       }
       break;
     }
-    iVar3 = iVar3 + -1;
-    iVar2 = iVar2 + -4;
-  } while (iVar3 >= 0);
-  if (!bVar1) {
-    fVar4 = param_1 / *(float *)(param_2 + 0x30);
+    level = level + -1;
+  } while (level >= 0);
+  if (!found) {
+    progress = value / table->threshold[0];
   }
-  return fVar4;
+  return progress;
 }

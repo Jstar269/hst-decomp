@@ -8,19 +8,31 @@ extern u32 * FUN_0001ec44();
 extern void FUN_000e5bdc();
 extern void FUN_000e5d60();
 
-u32 * FUN_000e5aec(u32 *param_1,u32 param_2,u32 param_3,int param_4)
+typedef struct TrailObj {
+  u32 vtable;             /* 0x00 */
+  char pad04[0x3c - 4];
+  u32 cfg;                /* 0x3c */
+  u32 unk40;              /* 0x40 */
+  u32 unk44;              /* 0x44 */
+  char pad48[0x54 - 0x48];
+  u32 buf;                /* 0x54 */
+  u32 owner;              /* 0x58 */
+} TrailObj;
+
+/* Constructor: base init, then stores the owner, a second argument and the config (default config when none is given). */
+TrailObj * FUN_000e5aec(TrailObj *self,u32 owner,u32 arg,int cfg)
 {
-  FUN_0001ec44(param_1);
-  *param_1 = (unsigned int)(&DAT_003b0978);
-  param_1[0x15] = 0;
-  param_1[0x10] = 0;
-  param_1[0x16] = param_2;
-  param_1[0x11] = param_3;
-  param_1[0xf] = (unsigned int)(&DAT_0037d870);
-  if (param_4 != 0) {
-    param_1[0xf] = param_4;
+  FUN_0001ec44(self);
+  self->vtable = (unsigned int)(&DAT_003b0978);
+  self->buf = 0;
+  self->unk40 = 0;
+  self->owner = owner;
+  self->unk44 = arg;
+  self->cfg = (unsigned int)(&DAT_0037d870);
+  if (cfg != 0) {
+    self->cfg = cfg;
   }
-  FUN_000e5bdc((int)param_1);
-  FUN_000e5d60(param_1);
-  return param_1;
+  FUN_000e5bdc((int)self);
+  FUN_000e5d60(self);
+  return self;
 }

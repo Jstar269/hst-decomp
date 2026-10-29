@@ -1,58 +1,35 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00110bfc end=0x00111010 symbol=FUN_00110bfc lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/messe_layout.h"
 
 struct GlobalState {
     char pad[0x86bd0];
     int diff_mode;
 };
 
-struct Sub;
-
 extern "C" {
 extern GlobalState *DAT_003415a8;
 extern int DAT_003417a4;
 extern void FUN_00103128(void *);
-extern void FUN_0010d4a8(Sub *);
+extern void FUN_0010d4a8(MessePane *);
 }
 
-struct Sub {
-    char pad[0xfc];
-    short fc;
-    short fe;
-    short f100;
-    short f102;
-    char pad104[4];
-    float f108;
-    float f10c;
-};
-
-struct Obj {
-    char pad[0x58];
-    Sub *s58;
-    Sub *s5c;
-    int f60;
-    char pad64[4];
-    int f68;
-    float f6c;
-    float f70;
-    float f74;
-    float f78;
-};
-
-static inline void update_sub(Sub *s, float f, short val)
+/* Move a pane to (x, y) and shift the pane's mirrored coordinates by the same deltas. */
+static inline void place_pane(MessePane *pane, float x, short y)
 {
-    short new_fc = (short)(int)f;
-    short old_fc = s->fc;
-    s->fc = new_fc;
-    s->f100 += (new_fc - old_fc);
-    short diff_fe = val - s->fe;
-    s->fe = val;
-    s->f102 += diff_fe;
+    short new_x = (short)(int)x;
+    short old_x = pane->pos_x;
+    pane->pos_x = new_x;
+    pane->unk100 += (new_x - old_x);
+    short diff_y = y - pane->pos_y;
+    pane->pos_y = y;
+    pane->unk102 += diff_y;
 }
 
-extern "C" void FUN_00110bfc(Obj *param_1)
+/* Per-frame ticker update: advance the scroll state machine, then position both text panes. */
+extern "C" void FUN_00110bfc(MesseLayout *self)
 {
-    int d = DAT_003415a8->diff_mode;
+    int d = DAT_003415a8->diff_mode; /* picks the scroll speed */
     float step;
     if (d == 2) goto L4;
     if (d == 1) goto L3;
@@ -70,74 +47,74 @@ L4:
     step = 4.0f;
 Ldone:
 
-    FUN_00103128(param_1);
+    FUN_00103128(self);
 
-    switch (param_1->f60) {
-    case 0: {
-        param_1->f6c = 480.0f;
-        param_1->f70 = param_1->f74 + 480.0f;
-        int cnt = param_1->f68 - 1;
-        param_1->f68 = cnt;
-        if (cnt <= 0) {
-            param_1->f68 = 0;
-            param_1->f60 = 1;
+    switch (self->state) {
+    case MESSE_WAIT: {
+        self->pos0 = 480.0f;
+        self->pos1 = self->gap + 480.0f;
+        int count = self->timer - 1;
+        self->timer = count;
+        if (count <= 0) {
+            self->timer = 0;
+            self->state = MESSE_EASE_IN;
         }
         break;
     }
-    case 1: {
-        float f = param_1->f6c * 0.5f + 10.0f;
-        param_1->f6c = f;
-        param_1->f70 = f + param_1->f74;
-        if (param_1->f6c < 20.1f) {
-            param_1->f6c = 20.1f;
-            param_1->f68 = 30;
-            param_1->f60 = 2;
+    case MESSE_EASE_IN: {
+        float pos = self->pos0 * 0.5f + 10.0f;
+        self->pos0 = pos;
+        self->pos1 = pos + self->gap;
+        if (self->pos0 < 20.1f) {
+            self->pos0 = 20.1f;
+            self->timer = 30;
+            self->state = MESSE_HOLD;
         }
         break;
     }
-    case 2: {
-        int cnt = param_1->f68 - 1;
-        param_1->f68 = cnt;
-        if (cnt <= 0 && param_1->f78 >= 460.0f) {
-            param_1->f68 = 0;
-            param_1->f60 = 3;
+    case MESSE_HOLD: {
+        int count = self->timer - 1;
+        self->timer = count;
+        if (count <= 0 && self->width >= 460.0f) {
+            self->timer = 0;
+            self->state = MESSE_SCROLL;
         }
         break;
     }
-    case 3:
-        param_1->f6c -= step;
-        param_1->f70 -= step;
+    case MESSE_SCROLL:
+        self->pos0 -= step;
+        self->pos1 -= step;
         break;
     }
 
     switch (DAT_003417a4) {
     case 9: {
-        Sub *s = param_1->s58;
-        s->f108 = 0.8f;
-        s->f10c = 0.8f;
-        FUN_0010d4a8(s);
-        s = param_1->s5c;
-        s->f108 = 0.8f;
-        s->f10c = 0.8f;
-        FUN_0010d4a8(s);
-        update_sub(param_1->s58, param_1->f6c, 2);
-        update_sub(param_1->s5c, param_1->f70, 2);
+        MessePane *pane = self->text0;
+        pane->unk108 = 0.8f;
+        pane->unk10c = 0.8f;
+        FUN_0010d4a8(pane);
+        pane = self->text1;
+        pane->unk108 = 0.8f;
+        pane->unk10c = 0.8f;
+        FUN_0010d4a8(pane);
+        place_pane(self->text0, self->pos0, 2);
+        place_pane(self->text1, self->pos1, 2);
         break;
     }
     case 10:
-        update_sub(param_1->s58, param_1->f6c, 0);
-        update_sub(param_1->s5c, param_1->f70, 0);
+        place_pane(self->text0, self->pos0, 0);
+        place_pane(self->text1, self->pos1, 0);
         break;
     default:
-        update_sub(param_1->s58, param_1->f6c, 1);
-        update_sub(param_1->s5c, param_1->f70, 1);
+        place_pane(self->text0, self->pos0, 1);
+        place_pane(self->text1, self->pos1, 1);
         break;
     }
 
-    if (param_1->f6c + param_1->f78 < 0.0f) {
-        param_1->f6c = param_1->f70 + param_1->f74;
+    if (self->pos0 + self->width < 0.0f) {
+        self->pos0 = self->pos1 + self->gap;
     }
-    if (param_1->f70 + param_1->f78 < 0.0f) {
-        param_1->f70 = param_1->f6c + param_1->f74;
+    if (self->pos1 + self->width < 0.0f) {
+        self->pos1 = self->pos0 + self->gap;
     }
 }

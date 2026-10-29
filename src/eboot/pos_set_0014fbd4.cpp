@@ -17,9 +17,13 @@ struct Obj {
 };
 struct PBase { char pad0[0xe0]; };
 struct Player : PBase, Obj {};
+
+/* Object ids of the "SetPos" command: -1 is the global player, other negatives mean the context object. */
+enum { OBJ_ID_PLAYER = -1, OBJ_ID_TABLE_LIMIT = 100, OBJ_ID_LOOKUP_LIMIT = 1000 };
+
 struct Mgr { char pad0[0x4c]; Obj **objs; };
-struct Ctx { int a; int b; int c; Obj *obj; };
-struct Cmd { void *vt; int a; int id; int pos; };
+struct Ctx { int unk0; int unk4; int unk8; Obj *obj; };
+struct Cmd { void *vt; int unk4; int id; int posIndex; };
 extern "C" {
 extern unsigned char DAT_003402f0;
 extern Mgr *DAT_0034a114;
@@ -36,42 +40,42 @@ inline Obj *Find(Cmd *self, Ctx *ctx)
 {
     Obj *obj = ctx->obj;
     int id = self->id;
-    if (id == -1)
+    if (id == OBJ_ID_PLAYER)
         return DAT_0034a118;
     if (id < 0)
         return obj;
-    if (id < 100)
+    if (id < OBJ_ID_TABLE_LIMIT)
         return DAT_0034a114->objs[id];
-    if (id < 1000)
+    if (id < OBJ_ID_LOOKUP_LIMIT)
         return FUN_001c6f70(DAT_0034a114, id, 0);
     return FUN_001c70c0(DAT_0034a114);
 }
 extern "C" int FUN_0014fbd4(Cmd *self, Ctx *ctx)
 {
-    Vec4 d;
-    Vec4 c;
-    Vec4 b;
-    Vec4 a;
-    Obj *p = Find(self, ctx);
-    if (FUN_001caee4(DAT_0034a114, self->pos, &d, &c) == 0) {
-        d.x = DAT_002bc440[0];
-        d.y = DAT_002bc440[1];
-        d.z = DAT_002bc440[2];
-        d.w = DAT_002bc440[3];
-        b.x = 0.0f;
-        b.y = 0.0f;
-        b.z = 1.0f;
-        b.w = 0.0f;
-        FUN_00022418(&a, DAT_002bc440, &b);
-        c = a;
+    Vec4 pos;
+    Vec4 rot;
+    Vec4 axis;
+    Vec4 defaultRot;
+    Obj *target = Find(self, ctx);
+    if (FUN_001caee4(DAT_0034a114, self->posIndex, &pos, &rot) == 0) {
+        pos.x = DAT_002bc440[0];
+        pos.y = DAT_002bc440[1];
+        pos.z = DAT_002bc440[2];
+        pos.w = DAT_002bc440[3];
+        axis.x = 0.0f;
+        axis.y = 0.0f;
+        axis.z = 1.0f;
+        axis.w = 0.0f;
+        FUN_00022418(&defaultRot, DAT_002bc440, &axis);
+        rot = defaultRot;
     }
     if (DAT_003402f0 != 0) {
         FUN_0014d044(ctx);
         FUN_0014fd94("SetPos:%d\n", self->id);
     }
-    if (p != 0) {
-        p->setPos(&d);
-        p->setRot(&c);
+    if (target != 0) {
+        target->setPos(&pos);
+        target->setRot(&rot);
     }
     return 0;
 }

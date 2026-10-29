@@ -1,29 +1,31 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00233fc4 end=0x0023404c symbol=FUN_00233fc4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/challenge_lobby.h"
 
-extern int * DAT_0034a664;
+extern ChallengeLobby * DAT_0034a664;
 extern u8 DAT_0034a678;
 extern void FUN_00233518();
 extern void FUN_00234158();
 extern void FUN_0023466c();
 
-void FUN_00233fc4(u32 param_1,u32 param_2,u32 param_3,u32 param_4, u32 param_5,u32 param_6,u32 param_7,u32 param_8)
+/* Forwards the call to the lobby, then starts the follow-up action for lobby states 6, 7 (action 2) and 9. */
+void FUN_00233fc4(u32 arg0,u32 arg1,u32 arg2,u32 arg3, u32 arg4,u32 arg5,u32 arg6,u32 arg7)
 {
-  bool bVar1;
-  int iVar2;
+  bool is_6_or_7;
+  int state;
   
-  if (DAT_0034a664 != (int *)0x0) {
-    FUN_00233518(DAT_0034a664,param_2,param_3,param_4,param_5,param_6,param_7,param_8);
-    iVar2 = DAT_0034a664[3];
-    bVar1 = true;
-    if ((iVar2 != 6) && (iVar2 != 7)) {
-      bVar1 = false;
+  if (DAT_0034a664 != 0) {
+    FUN_00233518(DAT_0034a664,arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+    state = DAT_0034a664->state;
+    is_6_or_7 = true;
+    if ((state != 6) && (state != 7)) {
+      is_6_or_7 = false;
     }
-    if (bVar1) {
+    if (is_6_or_7) {
       FUN_00234158((int *)&DAT_0034a678,2);
     }
-    else if (iVar2 == 9) {
+    else if (state == 9) {
       FUN_0023466c((int *)&DAT_0034a678);
     }
   }

@@ -3,9 +3,12 @@
 
 #pragma opt_unroll_loops off
 
+/* Version of the script data format that is accepted. */
+enum { SCRIPT_DATA_VERSION = 1 };
+
 struct Entry {
     int id;
-    void *item;
+    void *item; /* loaded module resource */
 };
 
 void *operator new(unsigned size);
@@ -55,39 +58,40 @@ inline void push_back(Table *t, const Entry &e, Tag) {
     }
 }
 
-extern "C" Table *FUN_0014c454(void *param_1, unsigned param_2, int param_3)
+/* Read a script data file ("ESD " header, version, size) into a table of modules keyed by id; 0 on a bad header. */
+extern "C" Table *FUN_0014c454(void *ctx, unsigned data, int size)
 {
-    unsigned local_4 = param_2;
-    unsigned end = param_2 + param_3;
+    unsigned cursor = data;
+    unsigned end = data + size;
 
-    if (FUN_00014a58(param_2, "ESD ", 4) != 0) {
-        FUN_0014c610("error! Script data code is wrong -> %s\n", local_4);
+    if (FUN_00014a58(data, "ESD ", 4) != 0) {
+        FUN_0014c610("error! Script data code is wrong -> %s\n", cursor);
         return 0;
     }
 
-    local_4 += 4;
-    int v1 = FUN_0014f03c(&local_4);
-    if (v1 != 1) {
-        FUN_0014c610("error! Script data version is wrong -> %d\n", v1);
+    cursor += 4;
+    int version = FUN_0014f03c(&cursor);
+    if (version != SCRIPT_DATA_VERSION) {
+        FUN_0014c610("error! Script data version is wrong -> %d\n", version);
         return 0;
     }
 
-    int v2 = FUN_0014f03c(&local_4);
-    if (v2 != param_3) {
-        FUN_0014c610("error! Script data size is wrong -> (data:%d, file:%d)\n", v2, param_3);
+    int storedSize = FUN_0014f03c(&cursor);
+    if (storedSize != size) {
+        FUN_0014c610("error! Script data size is wrong -> (data:%d, file:%d)\n", storedSize, size);
         return 0;
     }
 
-    local_4 += 4;
-    Table *t = new Table;
+    cursor += 4;
+    Table *table = new Table;
 
-    while (local_4 < end) {
-        Res *r = FUN_0014c63c(param_1, &local_4);
-        Entry e;
-        e.id = r->id;
-        e.item = r;
-        push_back(t, e, Tag());
+    while (cursor < end) {
+        Res *res = FUN_0014c63c(ctx, &cursor);
+        Entry entry;
+        entry.id = res->id;
+        entry.item = res;
+        push_back(table, entry, Tag());
     }
 
-    return t;
+    return table;
 }

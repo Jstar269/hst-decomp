@@ -1,27 +1,30 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0018a4f4 end=0x0018a5a0 symbol=FUN_0018a4f4 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/layout_list.h"
+
 extern void FUN_002174bc(void *);
 
-void FUN_0018a4f4(int param_1, int *param_2)
+/* Place every item of the list: write its quad's rectangle from the list origin, item offset and list size. */
+void FUN_0018a4f4(LayoutList *self, LayoutItem *item)
 {
   int count;
   int i;
 
-  FUN_002174bc((char *)param_1 + 0xd0);
+  FUN_002174bc(&self->vtableD0);
   i = 0;
-  if (0 < *(int *)(param_1 + 0x104)) {
+  if (0 < self->count) {
     do {
-      if (*param_2 != 0) {
-        int x = *(int *)(param_1 + 0xe4) + param_2[2];
-        int y = *(int *)(param_1 + 0xe8) + *(int *)(param_1 + 0xec) + param_2[3];
-        *(short *)(*param_2 + 4) = x;
-        *(short *)(*param_2 + 8) = x + *(int *)(param_1 + 0xdc);
-        *(short *)(*param_2 + 6) = y;
-        *(short *)(*param_2 + 10) = y + *(int *)(param_1 + 0xe0);
+      if (item->quad != 0) {
+        int x = self->originX + item->x;
+        int y = self->originY + self->scrollY + item->y;
+        item->quad->left = x;
+        item->quad->right = x + self->width;
+        item->quad->top = y;
+        item->quad->bottom = y + self->height;
       }
-      count = *(int *)(param_1 + 0x104);
+      count = self->count;
       ++i;
-      param_2 += 5;
+      item++;
     } while (i < count);
   }
 }

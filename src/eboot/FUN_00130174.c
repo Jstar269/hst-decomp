@@ -3,6 +3,7 @@
 #include "hst/types.h"
 extern char DAT_002db094[]; extern char DAT_002db0a4[]; extern char DAT_002db0b0[]; extern char DAT_002db0bc; extern char DAT_002db0c4[]; extern char DAT_002db0d4[]; extern char DAT_002db0dc[];
 extern int FUN_00014d64(const char *, const char *);
+/* Maps a keyword string (substring match) to its id; null or unmatched gives 0. */
 int FUN_00130174(u32 unused, const char *name) {
   int result = 0;
   if (name == 0) {

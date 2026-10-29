@@ -1,6 +1,12 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0012f248 end=0x0012f3f0 symbol=FUN_0012f248 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-/* State switch of the camera object (0 = query manager, 1/default = follow, 2 = from source object, 3 = blend). Matching idioms: case 1 and default share one body (case 1: default:), the manager call is the 38th declared virtual (vtable offset 156), Basis b is declared before Mat local_90 (slots 80 and 16), and the pointer base+0x30 is computed before the first call (s1 in the delay slot). */
+/* State switch of the camera object (0 = query manager, 1/default = follow, 2 = from source object, 3 = blend). Matching idioms: case 1 and default share one body (case 1: default:), the manager call is the 38th declared virtual (vtable offset 156), Basis basis is declared before Mat srcMat (slots 80 and 16), and the translation pointer base+0x30 is computed before the first call (s1 in the delay slot). */
+#include "hst/camera_obj.h"
+
+/* Radians to degrees, and the blend factor added per update in blend mode. */
+#define RAD_TO_DEG 57.29578f
+#define BLEND_STEP 0.02f
+
 struct Vec4 {
   float x, y, z, w;
 } __attribute__((aligned(16)));
@@ -9,10 +15,12 @@ struct Mat {
 } __attribute__((aligned(16)));
 struct Basis {
   Mat m;
-  float f40, f44, f48;
+  float angleDeg; /* 0x40 */
+  float unk44;
+  float unk48;
 };
 
-struct Source {
+struct CameraSource {
   int *base;
 };
 
@@ -57,68 +65,58 @@ struct Mgr {
   virtual int v37();
 };
 
-struct Camera {
-  char pad00[0xf0];
-  int state;
-  int padf4;
-  Source *src;
-  char padfc[4];
-  char vec100[0x140];
-  float t;
-};
-
 extern "C" {
 extern Mgr *DAT_0034a118;
-void FUN_0012e1e8(Camera *, int);
-void FUN_0012e028(Camera *);
-void FUN_0012e7b4(Camera *, Basis *);
-void FUN_0012e924(Camera *, Basis *);
-void FUN_0012e67c(Camera *);
+void FUN_0012e1e8(CameraObj *, int);
+void FUN_0012e028(CameraObj *);
+void FUN_0012e7b4(CameraObj *, Basis *);
+void FUN_0012e924(CameraObj *, Basis *);
+void FUN_0012e67c(CameraObj *);
 void FUN_0012eef8(float, Basis *, void *);
-void FUN_00049774(Source *);
-void FUN_00049970(Mat *, Source *);
+void FUN_00049774(CameraSource *);
+void FUN_00049970(Mat *, CameraSource *);
 void FUN_00022570(Mat *, void *, Mat *);
-float FUN_00049da4(Source *);
-float FUN_00049e68(Source *);
-float FUN_00049ec4(Source *);
+float FUN_00049da4(CameraSource *);
+float FUN_00049e68(CameraSource *);
+float FUN_00049ec4(CameraSource *);
 
-void FUN_0012f248(Camera *self)
+void FUN_0012f248(CameraObj *self)
 {
-  Basis b;
-  Mat local_90;
+  Basis basis;
+  Mat srcMat;
   switch (self->state) {
-  case 0:
+  case CAM_STATE_QUERY_MANAGER:
     FUN_0012e1e8(self, DAT_0034a118->v37());
-    FUN_0012e7b4(self, &b);
-    FUN_0012e924(self, &b);
+    FUN_0012e7b4(self, &basis);
+    FUN_0012e924(self, &basis);
     FUN_0012e67c(self);
     break;
-  case 1:
+  case CAM_STATE_FOLLOW:
   default:
     FUN_0012e028(self);
-    FUN_0012e7b4(self, &b);
-    FUN_0012e924(self, &b);
+    FUN_0012e7b4(self, &basis);
+    FUN_0012e924(self, &basis);
     FUN_0012e67c(self);
     break;
-  case 2: {
+  case CAM_STATE_FROM_SOURCE: {
     FUN_00049774(self->src);
-    Source *s = self->src;
-    char *q = (char *)s->base + 0x30;
-    FUN_00049970(&local_90, s);
-    FUN_00022570(&b.m, q, &local_90);
-    b.f40 = FUN_00049da4(s) * 57.29578f;
-    b.f44 = FUN_00049e68(s);
-    b.f48 = FUN_00049ec4(s);
-    FUN_0012e924(self, &b);
+    CameraSource *src = self->src;
+    char *translation = (char *)src->base + 0x30;
+    FUN_00049970(&srcMat, src);
+    FUN_00022570(&basis.m, translation, &srcMat);
+    basis.angleDeg = FUN_00049da4(src) * RAD_TO_DEG;
+    basis.unk44 = FUN_00049e68(src);
+    basis.unk48 = FUN_00049ec4(src);
+    FUN_0012e924(self, &basis);
     break;
   }
-  case 3:
-    FUN_0012eef8(self->t, &b, self->vec100);
-    self->t = self->t + 0.02f;
+  case CAM_STATE_BLEND:
+    FUN_0012eef8(self->t, &basis, &self->unk100);
+    self->t = self->t + BLEND_STEP;
     if (self->t >= 1.0f) {
-      self->state = 2;
+      self->state = CAM_STATE_FROM_SOURCE;
     }
-    FUN_0012e924(self, &b);
+    FUN_0012e924(self, &basis);
     break;
   }
 }

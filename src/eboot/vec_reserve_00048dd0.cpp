@@ -13,17 +13,17 @@ extern char DAT_002bc204[];
 struct Elem_00048dd0 { int w[4]; };
 struct Alloc_00048dd0 { Elem_00048dd0 *allocate(unsigned n) { return (Elem_00048dd0 *)FUN_00000bcc(n * sizeof(Elem_00048dd0)); } };
 struct Vec_00048dd0 { Elem_00048dd0 *data; int size; unsigned capacity; };
-extern "C" void FUN_00048dd0(Vec_00048dd0 *v, unsigned n)
+extern "C" void FUN_00048dd0(Vec_00048dd0 *vec, unsigned count)
 {
-    if (n > 0xffffffffu / sizeof(Elem_00048dd0)) {
+    if (count > 0xffffffffu / sizeof(Elem_00048dd0)) {
         FUN_00046564(FUN_0000fe3c()->err, "vector length error");
         FUN_0000d518();
     }
-    Elem_00048dd0 *p = Alloc_00048dd0().allocate(n);
-    if (p == 0) {
+    Elem_00048dd0 *storage = Alloc_00048dd0().allocate(count);
+    if (storage == 0) {
         FUN_00046564(FUN_0000fe3c()->err, DAT_002bc204);
         FUN_0000d518();
     }
-    v->data = p;
-    v->capacity = n;
+    vec->data = storage;
+    vec->capacity = count;
 }
