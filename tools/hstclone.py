@@ -328,7 +328,7 @@ def main() -> int:
             accepted += 1
             accepted_bytes += functions[t_start][0] - t_start
             # commit the symbol entries this clone actually linked against (hstmatch's syms.ld)
-            linked = M.ROOT / "build" / args.module / f"{cand.parent.name}__{cand.stem}" / "syms.ld"
+            linked = M.ROOT / "build" / args.module / M.build_key(cand) / "syms.ld"
             used = set(re.findall(r"^(\S+) = ", linked.read_text(encoding="utf-8"), re.M)) if linked.exists() else set()
             for symbol, address in owned.get(cand, {}).items():
                 # a name the target's symbol file already defines at this address needs no second line

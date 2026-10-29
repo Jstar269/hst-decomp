@@ -528,7 +528,7 @@ def build_locked(module: str, args: argparse.Namespace) -> int:
             report["excluded"].append({"path": rel, "reason": f"not EXACT in isolation ({row['status'] if row else 'no result'})"})
             continue
         h = M.parse_header(p)
-        build_dir = ROOT / "build" / module / f"{p.resolve().parent.name}__{p.stem}"
+        build_dir = ROOT / "build" / module / M.build_key(p)
         try:
             obj_bytes = (build_dir / "obj.o").read_bytes()
         except FileNotFoundError:

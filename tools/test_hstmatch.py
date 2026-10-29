@@ -53,6 +53,42 @@ def tiny_object(funcs: list[tuple[str, bytes]], extra_in_first: str | None = Non
     return ehdr + body + b"".join(struct.pack("<10I", *s) for s in sections)
 
 
+class BuildKey(unittest.TestCase):
+    """Regression: build products were keyed `<folder>__<stem>`, so try/gen-a1/v0/FUN_x.c and try/gen-a2/v0/FUN_x.c
+    shared one directory and each could read the other's text.bin."""
+
+    def test_same_folder_and_stem_in_different_trees_get_different_keys(self) -> None:
+        a = M.ROOT / "try" / "gen-a1" / "v0" / "FUN_00010000.c"
+        b = M.ROOT / "try" / "gen-a2" / "v0" / "FUN_00010000.c"
+        self.assertNotEqual(M.build_key(a), M.build_key(b))
+        self.assertTrue(M.build_key(a).startswith("v0__FUN_00010000__"))
+        with tempfile.TemporaryDirectory() as d:     # outside the checkout: keyed by the absolute path
+            c, e = Path(d) / "x" / "v0" / "FUN_00010000.c", Path(d) / "y" / "v0" / "FUN_00010000.c"
+            self.assertNotEqual(M.build_key(c), M.build_key(e))
+            self.assertNotIn(M.build_key(c), (M.build_key(a), M.build_key(b)))
+
+    def test_key_is_stable_and_independent_of_the_checkout_location(self) -> None:
+        p = M.ROOT / "src" / "eboot" / "FUN_00010000.c"
+        self.assertEqual(M.build_key(p), M.build_key(Path(os.path.relpath(p))))     # relative spelling, same key
+        import hashlib
+        rel = os.path.normcase("src/eboot/FUN_00010000.c")
+        self.assertEqual(M.build_key(p), "eboot__FUN_00010000__" + hashlib.sha1(rel.encode()).hexdigest()[:10])
+
+    def test_matcher_and_independent_verifier_agree(self) -> None:
+        import hstxverify
+        with tempfile.TemporaryDirectory() as d:
+            for p in (M.ROOT / "src" / "eboot" / "a_00010000.c", M.ROOT / "try" / "gen-a1" / "v0" / "FUN_00010000.cpp",
+                      Path(d) / "v0" / "FUN_00010000.c"):
+                self.assertEqual(M.build_key(p), hstxverify.build_key(p))
+
+    def test_every_tool_uses_the_shared_key(self) -> None:
+        old = "parent.name}__{"
+        for f in sorted(M.ROOT.joinpath("tools").glob("hst*.py")):
+            if f.name in ("hstmatch.py", "hstxverify.py"):
+                continue
+            self.assertNotIn(old, f.read_text(encoding="utf-8"), f"{f.name} builds its own key")
+
+
 class HelperHeader(unittest.TestCase):
     def header(self, extra: str) -> dict:
         with tempfile.TemporaryDirectory() as d:
@@ -152,7 +188,7 @@ class CompilePhaseFailure(unittest.TestCase):
 
             def fake_run_wsl(lines, name, native=None):
                 if name == "compile":
-                    out_dir = build_root / "EBOOT.BIN" / "src__test"
+                    out_dir = build_root / "EBOOT.BIN" / M.build_key(src)
                     out_dir.mkdir(parents=True, exist_ok=True)
                     (out_dir / "compile.log").write_text("error: 'syntax_error' undeclared\n", encoding="utf-8")
 

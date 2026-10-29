@@ -3,8 +3,8 @@
   "comparison_code": {
    "tools/hstconfig.py": "4f097a51607b3d5e8ebabd5f45503db2a119e3563d4135e7e465b9389e39d495",
    "tools/hstgate.py": "1f1402334b3ac022a9e827bdc12e725c609fdbc42e0326fc3dec2549ac0ac66b",
-   "tools/hstmatch.py": "31a3791b5b61b3271910dc121df95597c4b38c06a9d39bc828991450d25b13ba",
-   "tools/hstpromote.py": "ea42919b65374fae63b4fc281e0e4b545adb350bbc60478f3ab9541b150c5b83",
+   "tools/hstmatch.py": "3c99980959685818a05994daa7db89b39e4ca2427c2c63ac326e6eca54b44c90",
+   "tools/hstpromote.py": "c38f92571f7e1ad994f946fa76640ad19e8fea410f5cf8c3b6e515abf6bbffef",
    "tools/hstproof.py": "8ffa635480ee4215cb935a16586800b6f351e3bf5af1c11707cf192ffd1d2c87"
   },
   "environment": {
@@ -1137,7 +1137,7 @@
    }
   }
  },
- "core_digest": "f9594ca25d88e38edaab0d1e11af2233e9cb76819d011ccca74891194b911c63",
+ "core_digest": "8cc965bb1c231fca7bb719d092d6b988b83fb43f5cf687a170a0f63e4542c0c4",
  "history": [
   {
    "digest": "9493e6106636aff84e57adce4cf0c985983ac492b1ed6d40292a0f87ce79ae7e",
@@ -1583,6 +1583,21 @@
    "scope": "include",
    "to": "f9594ca25d88e38edaab0d1e11af2233e9cb76819d011ccca74891194b911c63",
    "utc": "2026-10-29T02:30:16Z"
+  },
+  {
+   "changes": [
+    "tools/hstmatch.py changed",
+    "tools/hstpromote.py changed"
+   ],
+   "event": "migrate-toolchain",
+   "from": "f9594ca25d88e38edaab0d1e11af2233e9cb76819d011ccca74891194b911c63",
+   "journal_seq": 221,
+   "reason": "hstmatch build_key(): build products keyed <folder>__<stem>__<path digest>, so equally named sources in different trees no longer share a build directory (found by lane dsn3); every key site uses it; hstxverify keeps an independent copy",
+   "reverified": 14560,
+   "run": "20261029T152034Z-e65c31",
+   "scope": "full",
+   "to": "8cc965bb1c231fca7bb719d092d6b988b83fb43f5cf687a170a0f63e4542c0c4",
+   "utc": "2026-10-29T17:42:20Z"
   }
  ],
  "schema": "hst-decomp.toolchain-manifest.v1",

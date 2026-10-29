@@ -31,6 +31,7 @@ Usage: hstmatch.py [paths...]   (default: every source under src/)
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -130,6 +131,22 @@ def __getattr__(name: str):  # PEP 562: lazy module attributes (the old constant
 def to_wsl(path: Path) -> str:
     p = str(path.resolve()).replace("\\", "/")
     return f"/mnt/{p[0].lower()}{p[2:]}"
+
+
+def build_key(path: Path) -> str:
+    """The directory name of one source's build products under build/<module>/: `<folder>__<stem>__<digest>`, the
+    digest being the first 10 hex digits of the SHA-1 of the source's path (relative to the checkout when inside it,
+    so a lane and the main tree use the same key for the same file; absolute otherwise; case-folded on Windows).
+    `<folder>__<stem>` alone gave try/gen-a1/v0/FUN_x.c and try/gen-a2/v0/FUN_x.c one directory, so each could read
+    the other's text.bin. tools/hstxverify.py has its own copy (it must not import this module); the tests keep them
+    equal."""
+    p = Path(path).resolve()
+    try:
+        ident = p.relative_to(ROOT).as_posix()
+    except ValueError:
+        ident = p.as_posix()
+    digest = hashlib.sha1(os.path.normcase(ident).encode("utf-8")).hexdigest()[:10]
+    return f"{p.parent.name}__{p.stem}__{digest}"
 
 
 def parse_header(path: Path) -> dict:
@@ -437,7 +454,7 @@ def main() -> int:
     build_root = Path(os.environ["HSTMATCH_BUILD_ROOT"]) if os.environ.get("HSTMATCH_BUILD_ROOT") else ROOT / "build"
     for p in paths:
         h = parse_header(p)
-        out = build_root / h["module"] / f"{p.resolve().parent.name}__{p.stem}"
+        out = build_root / h["module"] / build_key(p)
         out.mkdir(parents=True, exist_ok=True)
         for f in out.glob("*"):
             f.unlink()

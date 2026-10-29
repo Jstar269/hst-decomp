@@ -19,9 +19,12 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+import hstmatch as M  # noqa: E402
 LOAD_SIGN = {(0x20, 0x24), (0x24, 0x20), (0x21, 0x25), (0x25, 0x21)}  # lb/lbu, lh/lhu
 LIKELY = {0x04: 0x14, 0x05: 0x15, 0x06: 0x16, 0x07: 0x17}  # beq/bne/blez/bgtz -> likely forms
 
@@ -76,7 +79,7 @@ def main() -> int:
         source = ROOT / row["source"]
         if row["status"] != "MISMATCH" or source.parent.name != args.variant or row["start"] in exact:
             continue
-        out = ROOT / "build" / args.module / f"{source.parent.name}__{source.stem}"
+        out = ROOT / "build" / args.module / M.build_key(source)
         if not (out / "text.bin").exists() or not (out / "target.bin").exists():
             continue
         theirs = words((out / "target.bin").read_bytes())

@@ -387,7 +387,7 @@ def measure(path: Path, status: str, detail: str, origin: dict[str, str], src_in
     src_row = src_index.get((h["module"], h["start"]))
     ours = theirs = relocated = None
     if status in ("MISMATCH",):
-        out = ROOT / "build" / h["module"] / f"{path.resolve().parent.name}__{path.stem}"
+        out = ROOT / "build" / h["module"] / M.build_key(path)
         body = our_body(out, h)
         data, seg = M.module_bytes(data_cache, h["module"])
         off = seg["file_offset"] + h["start"] - seg["start"]
@@ -428,7 +428,7 @@ def example_diff(row: dict, context: int = 2, limit: int = 40) -> list[str]:
     import hstdiff as D
     path = ROOT / row["wip"]
     h = M.parse_header(path)
-    out = ROOT / "build" / h["module"] / f"{path.resolve().parent.name}__{path.stem}"
+    out = ROOT / "build" / h["module"] / M.build_key(path)
     body = our_body(out, h)
     if body is None:
         return []

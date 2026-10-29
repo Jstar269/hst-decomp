@@ -127,7 +127,7 @@ class MainTests(unittest.TestCase):
             (gen_dir / "summary-0.json").write_text(json.dumps(summary_data), encoding="utf-8")
 
             # Create build binary files for v0/func_frame.c
-            build_dir = tmp_path / "build" / "EBOOT.BIN" / "v0__func_frame"
+            build_dir = tmp_path / "build" / "EBOOT.BIN" / C.M.build_key(tmp_path / "v0" / "func_frame.c")
             build_dir.mkdir(parents=True)
 
             ours_bytes = ((0x27BD << 16) | 0xFFE0).to_bytes(4, "little") + b"\x00\x00\x00\x00"

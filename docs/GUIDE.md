@@ -12,9 +12,9 @@ the tiers progress is reported in, are defined in [`COMPLETION.md`](COMPLETION.m
   address names from Ghidra (`FUN_0011d894`), and types are provisional. Every note line says "names and types
   await human review" until a person has reviewed the source.
   <!-- hstprogress:begin guide-source-kinds -->
-- Of the 12,510 sources (measured 2026-10-29), 7,095 are address-substituted **clones** of another matched source
-  (retail contains the same code many times), 1,053 are mechanical translations of Ghidra pseudocode, 1,856 are such
-  translations corrected by hand, 2,241 are hand-written, 136 are instances of container templates, and 85 are newlib
+- Of the 12,522 sources (measured 2026-10-29), 7,100 are address-substituted **clones** of another matched source
+  (retail contains the same code many times), 1,053 are mechanical translations of Ghidra pseudocode, 1,857 are such
+  translations corrected by hand, 2,247 are hand-written, 136 are instances of container templates, and 85 are newlib
   library functions translated from newlib sources (37 more are clones of them, counted among the clones), and 44 have
   no known note kind.
 - 122 of the sources are newlib library functions compiled with Sony's `psp-gcc` kits; all others are game code
@@ -123,7 +123,7 @@ status is 0 only when everything is EXACT. Statuses: `EXACT`, `MISMATCH` (with t
 `COMPILE_FAILED`, `LINK_FAILED`, `MISSING_SYMBOLS`, `UNPLACED_SECTION`, `SECTION_MISMATCH`, `NO_SYMBOL`,
 `MISPLACED`, `EXACT_EXTRA_FLAGS` (an experiment with `--flags` or a header `extra=`, which never counts as a
 match) and `EXACT_FAILS_GATE` (the bytes match but the source fails the fake-match gate of `hstgate.py`: `asm` that emits
-instructions (other than VFPU-only inline asm under the `asm=vfpu` rule), `.word`/`.byte`/`.incbin`, code-emitting pragmas, or `extra=` in `src/`; it never counts either), and `UNPLACED_FUNCTION` (a `helpers=` source defines a function its header does not place). `--json out.json` writes the results (with `words_differ` per source). A source whose target depends on a `static` helper defined earlier in the same file lists it in the header, `helpers=NAME@0xSTART-0xEND[,...]`: mwccpsp emits every function in its own `.text` section, so each function is linked and compared at its own retail address, and the file is EXACT only when all of them match (docs/AGENT-BRIEF.md, "Same-file static helpers"); the source claims only the target's range. Build products go to `build/<module>/<dir>__<stem>/`; a full rebuild
+instructions (other than VFPU-only inline asm under the `asm=vfpu` rule), `.word`/`.byte`/`.incbin`, code-emitting pragmas, or `extra=` in `src/`; it never counts either), and `UNPLACED_FUNCTION` (a `helpers=` source defines a function its header does not place). `--json out.json` writes the results (with `words_differ` per source). A source whose target depends on a `static` helper defined earlier in the same file lists it in the header, `helpers=NAME@0xSTART-0xEND[,...]`: mwccpsp emits every function in its own `.text` section, so each function is linked and compared at its own retail address, and the file is EXACT only when all of them match (docs/AGENT-BRIEF.md, "Same-file static helpers"); the source claims only the target's range. Build products go to `build/<module>/<dir>__<stem>__<digest>/` (the digest is a short hash of the source's path, so equally named sources in different trees never share them); a full rebuild
 shares `build/` with any concurrent run, so run one at a time.
 
 ## Whole-module build
@@ -216,7 +216,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full rules; the format in shor
   hashed by the toolchain lock). Use it only for functions no gcc131/gcc171 profile reproduces (later-compiler
   shapes: duplicated epilogues, tail calls, word loads where GCC 3.3 narrows).
   <!-- hstprogress:begin guide-profiles -->
-  Measured 2026-10-29, the public sources use `mwcc219` (12,388 sources), `gcc171-O2` (103 sources), `gcc171x-O2` (17
+  Measured 2026-10-29, the public sources use `mwcc219` (12,400 sources), `gcc171-O2` (103 sources), `gcc171x-O2` (17
   sources) and `gcc171x-O1` (2 sources).
   <!-- hstprogress:end -->
 - `rodata=0xADDR`, `data=`, `sdata=`, `bss=`, `sbss=`: where the object's sections go when the function refers to

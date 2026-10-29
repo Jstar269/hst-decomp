@@ -159,7 +159,7 @@ class GenerateIntegrationTests(unittest.TestCase):
             src_file.write_text("/* HSTMATCH module=TEST.BIN start=0x00001000 end=0x00001020 symbol=FUN_00001000 lang=c99 */\n")
 
             # Mock hstmatch build output
-            build_dir = tmp_root / "build" / "TEST.BIN" / "src__test"
+            build_dir = tmp_root / "build" / "TEST.BIN" / O.M.build_key(src_file)
             build_dir.mkdir(parents=True, exist_ok=True)
             (build_dir / "text.bin").write_bytes(bytes(32))
             (build_dir / "obj.o").write_bytes(O.elf32(0x1000, bytes(32), [("FUN_00001000", 0x1000, 32)]))

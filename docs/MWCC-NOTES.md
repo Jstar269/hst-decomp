@@ -3338,3 +3338,754 @@ every two calls (`s2 = s1 + 0xdc`, `s2 = s1 + 0xf4`); writing `char *d = self->s
 `d = self->sub + 0x18; d = self->sub + 0x30;` between call pairs reproduces that exactly, and drops the 32-byte
 frame that a second source-pointer local costs. The remaining gap on 0x00236890 is the char[15] member's copy-loop
 colouring (retail a1=src/a0=dst/v1=count vs ours a2/a1/a0), a cascade that shifts every later word by one.
+- (lane dsn3, unreviewed by the main session)
+### Struct-member stores and symbol-address sanity (2026-10-29; 0x000c3a1c)
+Writing `*(float *)(local + 0xNN) = DAT_x` through a character buffer forces an `addiu` per store (410 words); declaring the same layout as a struct with members at those offsets gives direct `swc1 0xNN(sp)` forms and drops 36 words at once (410 -> 374). For any `lui` + negative-offset load, compute the effective address explicitly: retail `lui v0,0x34; lw v0,-29884(v0)` is 0x338B44, not 0x348B44 - the symbol had to move down 0x10000, after which the word matched. Arrays of 8-byte members copy as a counted loop of 9 iterations when the source is `li a0,9; addiu a0,-1; bgtz`.
+2026-10-29 (0x000ede98 EXACT, lane dsn3, phase 3): a one-word `bc1t` vs retail `bc1tl` residual on a float compare is decided by WHICH ARM holds the copy, not by the compare spelling. `float d = b - a; if (fabsf(d) >= lim) a = a + s*d; else a = b; return a;` gives retail's `c.nge.s` + `bc1tl` with `mov.s f12,f13` in the delay slot, because the copy is needed only on the taken path, so the delay is skippable and mwcc picks the branch-likely form and accumulates into the parameter's return register. Writing `a = b;` first (a precondition) makes the copy unconditional, which forces a plain `bc1t`; spelling the test as `!(fabsf(d) < lim)` lowers to `c.lt.s`, one compare code off. Rule: to get a branch-likely FP branch, put the single-statement arm in the TAKEN position and leave the arithmetic in the fall-through.
+2026-10-29 (0x001c2714 NEAR 2/88, lane dsn3, phase 3): a 16-byte aggregate zero-initialiser (`undefined4 tmp[4] = {0,0,0,0};`) compiles to a 16-iteration `sb zero` loop (+4 words against retail's four `sw zero`); write the four element stores out explicitly instead. And when an optional pointer argument falls back to that temp, the POSITIVE first arm (`if (p != 0) s = p; else { tmp[i] = 0 ...; s = tmp; }`) is what produces retail's `beqz p,<zero block>` + `b <copy>` + load-in-branch-delay layout; the mirrored `if (p == 0) {...} else s = p;` lays the block out inline and branches over it.
+- 2026-10-29 (0x00114f38; lane dsn3): a load whose value mwcc keeps live across a branch (here the `d / 2` -> `bgez` pair) can be forced to RE-READ from memory by spelling the second access as a distinct tree - `*(short *)((char *)q + 6)` instead of `q->f6` - because mwcc's load CSE is value-numbered on the expression, not on (base, offset). The reload is not just one extra `lh`: it also kills the live range that was pinning the first access to a callee-saved-style temp, so the whole surrounding block re-colours (t0/v1/a3/a2 permutation) and the function went from 31/32 words with 32 differing to 32/32 EXACT. Also re-confirmed: an `int` temporary divided by 2 needs no `seh` (a `short` one adds `seh` after the second `sra`) - use the retail `seh` list to type the temporaries before re-spelling anything.
+- 2026-10-29 (0x000bd568; lane dsn3): two adjacent `float` fields written as separate assignments can NEVER reproduce a batched forward copy - mwcc emits the two loads in REVERSE store order (load b / load a / store a / store b), and swapping the assignment order only swaps the stores (verified three ways). Declaring the pair as a 2-float struct member and assigning it in one go (`t.ab = *(F2 *)(self + 636);`) gives the batched forward form `lwc1 f1,636 / lwc1 f0,640 / swc1 f1,52 / swc1 f0,56` and dropped that function from 7 to 4 differing words on the spot. Use a small struct type whenever retail batches two adjacent same-size loads into different registers before the stores.
+- 2026-10-29 (0x0012b72c; lane dsn3): a sparse `switch` over three cases compiles to a linear compare ladder whose DIRECTION depends on the presence of a `default` label, not on the source order of the cases (mwcc sorts cases by value either way): `switch (m) { case 0: ... case 4: ... case 5: ... }` with no default is ascending (0,4,5; lowest case's body out of line, `beql` for the rest), while the identical switch with `default: break;` appended is DESCENDING (5,4,0; highest case's body out of line, `beql`/`beqzl` with the arm's load in the delay slot). Same word count, 9 differing words between them - so when retail's ladder runs high-to-low, add the default rather than reordering cases.
+- 2026-10-29 (0x0029c794; lane dsn3): a lone `move aN,v0` immediately before the branch that tests the same register is almost always an ARGUMENT move for a later call, not a register-colour tie - read the branch's delay slot and the callee's register usage before spending spellings on it. Here the notify call actually takes `(char *buf, int r)`; with the one-argument prototype mwcc tests v0 directly (14/15 words, 9 differing) and with `(char *, int)` it emits `move a1,v0` / `beqzl a1` / `lw ra` exactly (15/15 EXACT). Adding the parameter changed no other instruction.
+2026-10-29 0x002a761c (dsn3): a call whose callee overwrites its own a0 must be declared WITHOUT that parameter - 0x20f5c reads only f12 and does `addiu a0,sp,16` itself, so `long long FUN_00020f5c(float)` stops mwcc from setting a0 and removes one move per call site; and when a call result and a base pointer both need a saved register, `rec = f(base = <expr>, ...)` (assignment inside the argument) colours the result to s0 and the base to s1, where `base = <expr>; rec = f(base, ...)` does the opposite.
+2026-10-29 0x0027f480 (dsn3): a count-capacity vector's growth ladder is recognisable at a glance - max_size = 0xffffffff/sizeof(T) computed as a `lui/ori` pair (0x06666666 for a 40-byte element), band tests against max/3 and 2max/3 (0x02222222/0x04444444), candidates 3*(cap+1)/5 (magic 0xcccccccd, mfhi/srl 2) and (cap+1)/2 (srl 1), else max, then `extra = max(cand, size+n-cap)` selected through a stack-slot address pair (`addiu v0,sp,56` / `addiu v0,sp,52` then `lw v0,0(v0)`) - that address-pair select is the source `cond ? a : b` on two spilled values, and the new capacity is `cap + extra`. The temporary is 5 words (data,size,cap,&this->cap,offset), built by an out-of-line helper and torn down by a `(guard,-1)` destructor call; a reallocation therefore constructs its n copies BEFORE shifting the old elements, unlike the usual insert order.
+2026-10-29 0x0027f480 (dsn3): when a reallocation body reaches the exact word COUNT but every word still differs and the first diff is +0x0, the remaining variable is the frame, and the frame is set by the number of objects declared, not by their live ranges - merging the exception guard into the single 5-word temporary (its `&owner->capacity` member initialiser removing a separate 3-word `Vec tmp`) cut the frame from 112 to 64 with the body unchanged at 229 words. A too-SMALL frame (64 vs 96) means retail declared further locals that never appear in the visible listing; naming extra scalars does not grow it (measured), only declared objects do.
+2026-10-29 0x000b657c (dsn3): a naive `bool operator()(T a, T b)` comparator taking its operands BY VALUE is what produces two full struct copies per comparison plus a float-only spill slot in the loop head - if a merge/insert loop shows paired 80-byte copies into stack temporaries at the top, the comparator takes T by value, and the per-arm 8-byte copies are the by-value output-iterator temporaries. Also: matching saved registers (ra,s0..s4) with a much SMALLER frame (256 vs 304) means the body is short, not mis-coloured - count the calls before shaping registers.
+2026-10-29 0x000b74d4 (dsn3): `lwc1 a,0(p); lwc1 b,4(p); swc1 a,X(sp); swc1 b,Y(sp)` at a function's entry is a copy of TWO FLOATS (a two-float struct or float pair) - declaring the same 8-byte parameter copy as a pointer/iterator struct emits lw/sw instead and changes the whole colouring (measured: 157 vs 136 words on the same body). Also: a `static` helper defined in the same source makes hstmatch report MISPLACED, because same-file helpers must be placed with a `helpers=NAME@0xSTART-0xEND` header line, not linked implicitly.
+2026-10-29 0x000b74d4 (dsn3): a function whose two paths each declare 80-byte temporaries will allocate 2 x 3 Items (frame 496) where retail shows only 3 total; retail's single set means the paths share one loop body (two entries into the same block), so a duplicated branch body is the wrong model even when each branch reads correctly. Also measured: a comparator called by value (`comp(val, x)`) reuses the callee's parameter slots as two of the three temporaries - naming those operands as locals adds a whole 80-byte Item to the frame and still compiles (221 vs 219 words, same frame).
+2026-10-29 0x000b74d4 (dsn3): a small frame does not imply a small body - merging two paths into one loop dropped the frame from 496 to 256 but also deleted ~56 words of real element-copy code, because each path's 80-byte element copies are themselves the body. When word count and frame move in opposite directions on the same edit, the edit changed which code exists rather than how it is allocated; check the copy loops before believing an allocation theory.
+2026-10-29 0x001ea814 (dsn3, verified on the existing external-lane source): a one-statement `else` arm is what makes MWCC emit a branch-LIKELY (`beqzl`) with that store scheduled into the delay slot; writing the same logic as `if (p) f();` or as an early return gives plain `beqz` and differs by exactly that one word (measured: 6 spellings, only the if/else-with-store-in-else matched 16/16).
+2026-10-29 0x00071720 (dsn3): on the GCC profiles the ext `min` instruction takes its operands in REVERSE source order - `a < b ? a : b` becomes `min dst, b, a`, so `min v0,v0,v1` implies the source wrote `result < other ? result : other`. Swapping only the ternary operands moved it from 1 differing word to exact.
+2026-10-29 pass 57 audit (dsn3): `ins rd,zero,pos,size` (here `ins v0,zero,0xc,1`) is a single-bit CLEAR and is NOT what this toolchain emits for any mask spelling - `x & 0xefff`, `x & ~0x1000`, a widened `uint` temp, and a real `unsigned short` bitfield store all compile to `andi v0,v0,0xefff` (measured, four compiles). Two opcodes can therefore be semantically identical and still differ; when the residual is a lone opcode of this family, expect a source construct outside the mask family (macro/intrinsic/union) rather than another mask spelling.
+2026-10-29 pass 58 (dsn3, ledger hygiene): wip/ near-miss parks go stale the moment another lane installs the same function - 144 of 225 measured band entries already had an exact src/ file. Always build the addr->src index from each src file's first-line HSTMATCH header (fast, one read per file) and subtract it from the wip ranking before spending compiles; a 200+ entry band can shrink to a few dozen real units.
+2026-10-29 0x0001cb88 (dsn3): when retail fills a `jal` delay slot with a store and ours fills it with the callee's own address `addiu`, the source written with the store AFTER the call cannot win - MWCC prefers the address fixup for the slot. Writing the store BEFORE the call is semantically identical (a jal slot executes before the callee body) and makes MWCC materialise the full address early and schedule the store into the slot: 2 differing words -> exact.
+2026-10-29 pass 61 (dsn3): the `li v0,-1` vs `li v1,-1` residual is NOT a constant-spelling problem - `-1`, `~0`, `(int)0xffffffffu` and a named `int m = -1;` local all compile identically (measured four ways on 0x000829bc, same 22/22 and same 2 differing words). gcc171 assigns the scratch register from the live-set at the store, so a residual of this shape means retail had a different live-set - typically one constant reused by a second store - and the spelling to change is the neighbouring code, not the constant.
+2026-10-29 0x000829bc + 0x0008417c (dn3, gcc171): a `li v0,-1` vs `li v1,-1` residual is fixed by the CALLEE SIGNATURES, not the constant - declaring a preceding `void` callee as `int` (result unused) keeps v0 live across the store and forces the constant into v1. Two units with the identical residual fell to the same edit, so this is the spelling to try first for any scratch-register choice that looks arbitrary.
+2026-10-29 pass 64 (dsn3, sweep method): the `void`->`int` callee rewrite is worth one mechanical compile per unmatched park - it converted 2 of the 2 units that carry the defect and changed NOTHING on the other 31 units the rewrite could apply to (33 of 80 band entries declare an `extern void FUN_*` at all, not even a one-word improvement). The method is cheap and safe (results unused, no codegen change beyond liveness), so run it as a first pass when a residual is an arbitrary scratch-register choice, but do not expect a broad yield: the live-set defect is rare.
+2026-10-29 0x000f175c (dsn3, MWCC): a `bc1tl` with a store in the delay slot where retail has `bc1t`+`nop` is not fixed by arm placement - ternary, both-arms-store, inverted and negated conditions all measure worse (6/8/38/9 differ vs 2) and all first differ at the FLOAT CHAIN before the branch. When changing an if/else shape recolours instructions earlier in the block than the branch you are targeting, the branch is a symptom: the store was sunk into the slot by the scheduler and the fix belongs to the value chain feeding it.
+2026-10-29 0x00114190 (dsn3, C++): when a residual pair is an address `addiu` and a `seb` in one call, check whether the sign-extended argument is a CONSTRUCTED object (`Tag()` with Tag a class), not a function returning char - then the seb is a conversion inside the constructor's return and the only lever is where the named temporary is declared relative to the other arguments' computations. Three char-typed hoists fail to compile for exactly this reason (measured).
+2026-10-29 0x00114190 (dsn3): hoisting a constructed argument (`Tag()`) into a named temporary to control argument-evaluation order is counterproductive - all four placements measured 17 differing words from +0x20, while the inline temporary sits at 2 differ. Two independent argument computations whose order differs are reordered by the late scheduler, so source order cannot be the lever there; if hoisting recolours the head, the axis is dead and the call shape itself must change.
+2026-10-29 0x0006391c (dsn3): two prologue saves of independent parameters that appear in the opposite ORDER have no source lever - hoisting either parameter's value (int or float) leaves the pair at 2 differ, and the float form recolours the whole head (60 differ). Treat a save-order-only residual as a post-reload tie: mark the unit and spend the budget on a unit whose residual is a discrete code shape instead.
+2026-10-29 0x00074694 (dn3): a back-jump whose target is one word later than retail's, with the loop's flag load sitting in the jump delay slot instead of at the loop top, is NOT a loop-shape problem - do/while rotation, a fresh flag local, operand order and break polarity all leave it at 2 differ, and hoisting the load in the source recolours the head (12 differ). It is the scheduler sinking the loop-invariant-looking load into the delay slot; mark it and move on.
+2026-10-29 pass 70 (dsn3, tie class): re-compiling the five tie-marked parks under gcc171-O1/O2/O3/Os, gcc131-O2 and gcc171x-O2 (30 compiles) closes NONE of them - the ties are not profile artifacts, they are genuine scheduling decisions of the one profile retail was built with. A profile retarget can also break placement (0x000f175c became UNPLACED_SECTION because a new constant pool appeared), so a profile sweep needs rodata= in the header to be meaningful, and `cc=` is experiment-only in any case.
+2026-10-29 0x001b043c (dn3): the operand order of an `addu` in an `addu v0,s3,v0`-style address computation cannot be steered from source - mwcc canonicalises `a + b` vs `b + a` and the array-index and pointer-walk forms all recolour (5-6 differ) while the plain form sits at 1. Treat a single swapped `addu` operand as a register-allocation tie.
+2026-10-29 0x000f175c (dn3): a cc-profile retarget that makes a .rodata pool appear where the standard build had inline `lui/ori` constants is evidence the profile is wrong, not a test gap - the pool itself (8 bytes) is a structural mismatch with retail's listing.
+2026-10-29 0x00032748 (dn3): moving a store relative to a dependent load via source order does not work when the two alias - `count--; item = items[count];`, a named `idx` local and `--count` all compile to the same three permuted words. If the residual is a store/load swap around an array base that could alias the struct being written, treat it as a scheduling tie.
+- 2026-10-29 0x000a3018: **a small switch's cases are tested in REVERSE source order.** A two-case switch written `case 1: ... case 11: ...` is emitted `li v0,11; beq a0,v0` FIRST and `li v0,1` second; writing the cases in the opposite source order reproduces retail's ascending test order and moved the unit from 7 to 4 differing words. Corollary: when retail's compare chain reads `li v0,1` before `li v1,11`, the source listed the 11 case first. Do not reach for if-chains to fix compare order - an if-chain with early returns compiles to `bnel` + xori/sltu, a completely different 16-word shape.
+- 2026-10-29 (lane dsn3, pass 73): **classify a near miss by the mnemonic of its FIRST differing word, and fold neighbour swaps out of the "discrete" bucket.** A differing pair whose two mnemonics differ only because one instruction moved by a slot (`jal`<->`addiu`, `move`<->`nop`, `lw`<->`addu`, `sw`<->`li` where the li is the value being stored) is a scheduler/delay-slot tie, not a semantic defect: 35 of 75 parks look "discrete" by raw mnemonic comparison, but only one (0x000a3018) actually carried a source-level defect. Tool: try/classify.py -> try/discrete_units.txt; curated list try/discrete_ranked.txt.
+- 2026-10-29 0x000a3018: **a labelled goto tail shared by several early-out cases forces ONE shared zero epilogue block.** With `case 1: return 0;` plus `goto zero;` for the other cases and a single `zero: return 0;` at the end, MWCC emits retail's `move v0,zero` block at 0xa3048 and plain `beq`/`beqz` branches to it, instead of inlining the zero into each `beql`/`beqzl` delay slot (took the unit from 4 to 2 differing words). The leftover is one compare that MWCC still peep-holes into `beql`+slot; six different source shapes produce byte-identical code, so that decision is not source-reachable.
+- 2026-10-29 0x000ce954: **a temp whose value is a compile-time constant is rematerialised at each use, losing the single-register reuse.** `int on = i + 1;` (used as a store value and a call argument) coalesces into one `addiu a1,s2,1`; every constant spelling (`int on = 1;`, literal `1`, hoisted init, `unsigned char on = 1;`) makes MWCC emit two separate `li ... ,1` and re-schedules the store after the following load, costing 17 words. If retail shows a single `li rd,K` feeding two sites, the source's variable was NOT a constant.
+- 2026-10-29 0x001c25b0: **sum operand order inside a parenthesised subtraction is canonicalised; the choice is addu-then-subu vs two subu, and only the parenthesised form keeps the surrounding colours.** `a - (x + y)` emits `addu v1,x,y; subu a0,a0,v1` in retail's register set; every spelling that forces two `subu` (explicit `+ -y`, unsigned casts, a negated local, a pointer load) moves the first difference from +0x108 back to +0xf8 and costs 3-5 words. If retail shows two chained `subu` with the same destination, the accumulation register is the one the minuend arrives in, not a fresh colour.
+- 2026-10-29 0x00014934: **GCC ignores `__builtin_expect` polarity for a loop back edge's branch-likely choice.** `if (__builtin_expect(d1 == d2, 0)) continue;` and `(…, 1)` compile to byte-identical code; the only source shape that turns `beql` into plain `beq` here is hoisting the next load above the loop and re-reading it on the continue arm, which then breaks the pointer-increment placement. Arm-placement rules from MWCC do not transfer to the GCC profiles.
+- 2026-10-29 (PENDING workflow): **measure the generated candidate before editing it, and fix the frame before touching statement order.** On 0x002ab5ac the candidate sits at 25 differ with the first difference at +0x0 (frame 32 vs retail 48: two 12-byte stack temps vs one array plus three overlapping words). Moving a single store below a preceding call - a change that looks local - recoloured the whole body and took the unit from 25 to 95 differing words; adding the missing temp on top of that still measured 92. Statement order in the candidate is load-bearing until the frame matches.
+- 2026-10-29 0x002ab5ac: **distinct 12-byte stack temps are what turn a 32-byte frame into retail's 48; the compiler then assigns the LOWER slot to the temp used LATER.** Two `undefined1 x[12]` locals with every statement untouched flipped the prologue from `addiu sp,sp,-32` to `-48` and moved the first difference from +0x0 to +0x94 (nine leading words byte-identical). Declaring them in the other order changes nothing, so slot order is not declaration order - it has to be steered some other way. Also: an if-converted duplicate store (`sw s1,140(s0)` in both arms) survives a correct frame; moving the store below the following call costs 35 more differing words even with the frame right.
+- 2026-10-29 0x002ab5ac: **stack-slot order is invariant to how the objects are expressed.** A 24-byte buffer with views at +0/+12, a struct holding both temps as members, and moving which temp is used last all compile byte-identically (96/94, 58 differ) and keep the temp used first at sp+36. Under MWCC the only thing that moved slots was statement order, which is load-bearing for the body - so treat "wrong stack slot" as unsteerable once the frame is right, and stop spending compiles on it.
+- 2026-10-29 0x001c2cc4: **for a four-argument call, MWCC puts the FIRST argument's setup in the jal delay slot; pre-computing the arguments into locals does not move it.** Hoisting all four address expressions into locals before the guard made the unit far worse (44 -> 73 differing words) because every argument then had to be materialised ahead of the branch, and restructuring the guard as an assignment plus a nested if measured 60. If retail shows `addiu a3` in the slot and `move a0` before the call, that ordering is a colouring decision of the call block, not something the argument expressions can steer.
+- 2026-10-29 0x001fd180: **a base pointer that MWCC hoists into a register costs exactly two words per object, and inline casts are canonicalised straight back to the displacement form.** Retail's `addiu s2,s1,off; ... ; move a0,s2; ... ; addiu a0,s2,16` is what a real pointer local compiles to, and it is 2 words longer than repeating `addiu a0,s1,off` per call. Writing `(unsigned int *)(param_1 + 0x1294)` inline at each call reproduces the short displacement form bit-for-bit, so a word-count gap of 2 per repeated base address is evidence that the original source had a pointer variable - but declaring that pointer at function scope costs a stack slot and re-frames everything (first diff jumps to +0x0), so it must be scoped to stay in a register.
+- 2026-10-29 0x001fd180: **scoping a base pointer does not stop MWCC spilling it; a 16-byte frame on a function whose retail frame is pure save area means register pressure, not locals.** Five shapes (per-object blocks, one enclosing block, `&obj[0]`, and reuse of an existing pointer local) all restored the missing four words and all re-framed to -32 with retail at -16. When retail's whole frame is ra/s2/s1/s0 with no local slots, any extra frame bytes in the reconstruction are a spill: fix the number of live values before the block, not the pointer's declaration form.
+- 2026-10-29 0x0021b088: **a `goto` into a join point duplicates the load on both paths and inverts a branch-likely.** The generated source loaded `*(int *)(param_1 + 0x58)` inside the guard, jumped to the label and loaded it again after; MWCC emitted `beqzl a3` (retail: `bnezl`), an extra `b`, and a duplicate `lw v1,88(s2)`. Writing the guard as a plain nested `if` (no label, one load at the join) cut the differing words from 61 to 33 and moved the first difference from +0x20 to +0x6c. The ternary equivalent restores the exact 80-word length but recolours from +0x14 - so prefer the control-flow form when the branch structure is wrong and the ternary only when the length is wrong.
+- 2026-10-29 0x0021b088: **`swc1` versus `sw` is the fingerprint of a float field, and the missing `mtc1`s are worth two words.** Retail stored `mtc1 zero,$f0` / `lui` / `mtc1 v0,$f0` / `swc1 $f0,100(v0)`; the reconstruction stored the same bit pattern 0xc1800000 with `move/lui/sw` - one word short. Declaring the destination a `float` and writing `(cond) ? -16.0f : 0.0f` restored the exact length. Also: `bVar2 ^ 1` on a `byte` gives `andi/xori/andi`, while `!bVar2` gives retail's `sltu v0,zero,s0 / xori / andi` - the boolean-not form marks the value as normalised, the xor form does not.
+- 2026-10-29 0x00125750: **the fifty-percent hit rate of the mechanism checklist is worth stating: on this unit the float-field item was the only one that applied, and it fixed the frame as a side effect.** Twelve `undefined4` locals that retail copies with `lwc1`/`swc1` were three Vec4s of floats; regrouping them into a `float x,y,z,w` struct made the frame `-64` (retail) from `-32`, byte-identical prologue, and dropped 5 differing words. The other checklist items (goto-into-join, `!x` normalisation, callee return types, switch case order, store-before-call) were not implicated by the diff at all, and the two probes derived from the residual (table-as-pointer, hoisted index) both measured negative or neutral.
+- 2026-10-29 (materialisation): **a 32-bit constant whose low half has bit 15 set is emitted `lui hi+1; addiu rd,rd,-lo` by MWCC when the value is an address-like addend, and `lui hi; ori rd,lo` when it is a literal.** On 0x00125750 retail builds 0x33b5d1 as `lui v1,0x34; addiu v1,v1,-18991`, our reconstruction as `lui v1,0x33; ori v1,0xb5d1` - identical value, different instruction pair, and the pair follows the expression's shape rather than the constant.
+- 2026-10-29 0x00125750 (correcting the earlier note): **the `lui+addiu` versus `lui+ori` pairing is not reachable from source-level signedness.** Four shapes - a signed int local holding 0x33b5d1, a negative-offset base plus positive delta, an index hoisted ahead of the parameter copies, and the combination - all leave `lui 0x33; ori 0xb5d1` byte-identical (63 differing words), and the split-base form that does change it costs 22 words (85 differ). Treat the pairing as a compiler address-model decision, not a source defect, and do not spend budget on it.
+- 2026-10-29 (checklist triage): **run the checklist only where the diff gives evidence; two of three PENDING candidates yielded no implicated item at all.** On 0x000c13e0 the switch case-order item applied but the dispatch is a `sltiu`+jump table, so two order probes were byte-identical. On 0x0027eedc and 0x0017b554 the only signal was a larger retail frame with NO sp-relative access anywhere in either listing - that is reserved-but-unreferenced space (an aligned temp the generator elided), not a "distinct temps" defect, and no source shape can be derived from it. Spending compiles there would have been guesses.
+- 2026-10-29 0x0017b554: **`subu rd,rs,rs` in a reconstruction is a dataflow bug, not a colouring artefact.** Retail loads `lw v0,12(s2)`, subtracts the loop index and stores into the following call's delay slot; the generated source had `param_1[3] = iVar1 - iVar4;` where iVar1 had been rebound to iVar4, so MWCC emitted `subu v0,a0,a0` and stored zero. Whenever a reconstruction contains a self-subtraction or a self-xor, the generator's variable was aliased and the expression must be rewritten from the disassembly rather than re-spelled - it is also the reason the function is three words short and 16 frame bytes light.
+- 2026-10-29 (self-operation class): **a self-operation in the EMITTED code (`subu rd,rs,rs`, `xor rd,rs,rs`, `and/or`, `mul rd,rs,rs`) is a generator dataflow defect, and the fix is a comparison, not a respelling.** A textual scan of 72 candidates finds ZERO hits because the alias is created by value numbering, not by the source text: the generator writes `param_1[0x10] = iVar1 - iVar2;` where iVar1 and iVar2 are distinct names that turn out to hold the same value on that path. Detect it in the assembled listing - tool `try/pend/scan_code_selfops.py` compiles every candidate with `--parallel 4`, diffs it and greps our side for a doubled source register. First run: 71 candidates, 4 sites, 2 units (0x0017b554 x2, 0x000d3298 x2), and every retail counterpart at those sites is `addu/xor/sltiu/xori` - a boolean comparison. Repairing the 0x000d3298 site as `(iVar1 != iVar2)` took the unit from 94/95 words / 82 differ to 95/95 / 38.
+- 2026-10-29 (self-op sites cluster per source line): **all self-op sites in a unit usually come from ONE aliased expression, so count sites, not defects.** 0x000d3298's two `subu v0,a1,a1` sites and 0x0017b554's two `subu v0,a0,a0` sites each trace to a single line (the join store in the first, the empty/loop guard in the second); repairing the line clears every site. `try/pend/scan_code_selfops.py` now writes the per-unit list with each site's retail counterpart (try/pend/DEFECTS.md). Repair direction by retail counterpart: `addu/xor/sltiu/xori` chain = the source was a **comparison** (write `(a != b)`); `subu rd,rs,rt` with a *reload* = a genuine **subtraction of two values that are equal by construction** (write `field -= cached;`). Negative worth keeping: forcing the subtraction at 0x000d3298's join costs the exact length (4 spellings, 84-86 differ vs 38 for the comparison), because retail's `-=` lives in a different loop shape - fix the shape first, the operator second. And `!(a == b)` in a for-condition compiles to a direct `beql` compare, not to the materialised xor/sltiu/xori bool, so a materialised pointer comparison in retail means the bool is used as a value.
+- 2026-10-29 (materialised boolean guard rule, measured on 0x0017b554): **retail's `xor/sltiu/xori` pointer comparison means the condition is a named local consumed by an `if`, not an inline condition.** Six shapes: `bool/int more = (p != end); if (more) { do {...} while (more = (p != end)); }` materialises (84/87 words, 82/77 differ, emits `xor`), while the inline `while (p != end)` emits a plain `beql` (80/87, 73) - so a materialised comparison in retail is evidence of a condition *variable*, and the variable is then branched on with the likely-branch form. Opcode shape follows the spelling: `!=` -> `xor; sltu v0,zero,v0`; `!(a == b)` -> `xor; sltiu v0,v0,1; xori v0,v0,0x1`, which is retail's exact sequence here. Two type/structure rules fall out: a `bool` local appends `andi v0,v0,0xff` (use `int` to avoid it), and the guard must be `if (more) { loop }` - writing `if (!more) {...} else {...}` inverts the branch to `bnezl` + `b` and adds words (93/87).
+- 2026-10-29 (guard rule refinement, from 0x0017b554's 70 -> 60): **the count in the materialised guard lands in `a1`, not `a0`, when the count is a local refreshed at the LOOP TAIL rather than reloaded once after the loop.** With `int more = !(p == (int *)(param_1[2] + n*4)); if (more) { do { ...; p = p + 1; n = param_1[3]; more = !(p == (int *)(param_1[2] + n*4)); } while (more); }` the emitted guard is byte-identical to retail (`lw a1,12(s2); lw s0,8(s2); sll v0,a1,2; addu; xor; sltiu; xori; beqzl`) and so is the whole loop tail. Two things were load-bearing: `int` (not `bool` - a bool adds `andi v0,v0,0xff`), and writing the guard positively (`if (more) { loop }`) - `if (!more) {...} else {...}` inverts it to `bnezl`+`b` and costs 8 words. A post-loop reload of `n` is inert (same codegen), so the tail refresh is the form that matters.
+- 2026-10-29 (frame space is not always a variadic argument area): **an untouched 16-byte frame gap is NOT explained by declaring a callee variadic unless that callee is actually called with enough arguments.** Measured on 0x0017b554 (frame 32 vs retail 48): `extern void FUN_00000a00(void,...)` with the same call sites produces byte-identical code and the same frame; making `FUN_00092c38(undefined4,...)` variadic *adds* a 16-byte argument area inside the inner loop and costs 3 words / +27 differ without touching the outer frame. So the "unused frame bytes = variadic" heuristic is false as stated; only a variadic call whose argument build needs the area moves the frame, and a per-call setup can shrink the outer frame's headroom instead.
+- 2026-10-29 (two-null-test fingerprint, 0x0017b554 60 -> 17 differ at exact length): **retail's dead `beqz s4,` + `nop` pair is the source shape `if (x != 0) { release(x); } if (x != 0) { free(x); }`** - two separate null tests on the same local. Writing it as one `if` with both calls inside merges the tests and loses 2 words (85/87); writing the second test against a *reloaded* field (`if (*p != 0)`) is worse again (88/87, 62 differ). The pair is worth 2 words and 43 differing words, so it is the single highest-yield shape fix found in this unit.
+- 2026-10-29 (frame gap = escaping by-address temporary, mechanism confirmed): a 16-byte frame gap that no instruction in the listing addresses appears when a 16-byte local's address *escapes* into a call (`FUN_00000a00(&ctx)` restores retail's -48 exactly, with no stores to ctx). Merely declaring the object does not reserve it: two 8-byte iterator-like structs whose stores are dead leave the frame at -32. So "unused frame = variadic area" is false and "unused frame = declared-but-untouched aggregate" is also false; the requirement is an address escape.
+- 2026-10-29 (frame = escaping by-address temporary, confirmed on three sites; 0x0017b554 17 -> 15): handing a 16-byte local's address to ANY call in the function restores retail's frame exactly (-48) at exact word count, and moves the first difference from +0x0 to +0x60. Three different hosts measured - the release call (0x918ac), the join call (0x17bc60), and the free (0xa00) - each costing exactly one word at that call (retail's a0 is elem-derived). Therefore when a frame gap survives every declaration/type probe but no `addiu a0,sp,N` appears in retail, the escaping address belongs to an **inlined callee** and cannot be reproduced from C: it needs the C++ source form (an inline member/helper that takes the object by address and is then elided). This also explains the wrong turns: the gap is not a variadic area, not an untouched aggregate, and not reachable by ordering.
+- 2026-10-29 (s3/s4 tie is not an ordering axis, 0x0017b554): the inner-loop counter and the element pointer swap s3/s4 against retail. Measured inert: statement order (`i = 0` before `elem = *p`), declaration order, and testing the index at the loop top instead of the bottom. Measured worse: typing the element as a pointer with casts (90/87 words, 86 differ). The tie survives all four, so it is a live-range/colour decision, not a spelling one.
+- 2026-10-29 (C++ guard object as the frame source; 0x0017b554): a 16-byte local class with an inline empty destructor (`struct Guard { int q[4]; ~Guard() { } };`) reproduces retail's unused 16-byte frame slot exactly - prologue byte-identical at -48, first difference pushed past the prologue. But the C++ translation costs **one word** (88 vs 87, visible as the early-exit target shifting by 4) and **recolours the body** (69 differing words vs 15 for the same logic in C, with the count landing in a0 instead of a1). So the guard idiom is the right *explanation* of the frame, not a cheaper *spelling* of it: prove the frame mechanism with it, then keep the C body for matching. Two C++ practicalities for this lane: wrap both the extern declarations and the definition in `extern "C"`, otherwise hstmatch reports MISSING_SYMBOLS (mangled callees) or NO_SYMBOL (mangled target).
+- 2026-10-29 (correction: bulk hstmatch silently fails): passing all 71 candidate paths to `tools/hstmatch.py` in one call exceeds the Windows command-line limit, and the tool produced NO result lines while the caller still printed its header - so any earlier claim of the form "scanned 71 candidates" that relied on one bulk call only measured the files with existing builds. Compile in chunks of about 8 (`sweep_fingerprints.py` does) and check that the number of result lines equals the number of files before trusting a sweep.
+- 2026-10-29 (fingerprint detector precision): F1 (dead duplicate compare) must require the SAME register compared against ZERO twice - `beqzl rX,label` then `beqz rX,label2` with a `nop` between - otherwise it fires on switch dispatch, where every case compares the same selector against a different constant (`beql a3,a2 / beql a3,a1 / beql a3,v1`). That false positive appeared on 0x000c13e0. F3 is a diagnosis plus a one-word trade: an escaping 16-byte local fixes the frame and pushes the first differing word (0x0027eedc 70 -> 69 differ, first diff +0x0 -> +0x20) but cannot reach zero from C, because the real host is an inlined callee.
+- 2026-10-29 (F5 is not a mechanical cast swap): the float-field fingerprint identifies *where* retail uses lwc1/swc1, but not what to rewrite. Across 36 flagged candidates a cast-keyed rewriter applied zero times: after a one-word drift the diff rows pair an unrelated instruction with the swc1, and the generated sources usually carry the value in an int local (`uVar3 = 0xc1800000;`) with the store made through that local, so there is no `*(undefined4 *)(base + off)` at the float offset. Converting the literal alone is worse (0x0021b088: 79/80 / 61 -> 77/80 / 62). The conversion that works changes the *store* to a float expression and, where the value is conditional, uses a float ternary - that is a per-unit source edit, not a sweep.
+- 2026-10-29 (s3/s4 assignment follows the read expression, not ordering; 0x0017b554): the element/counter register split is decided by HOW the element is read, not by declaration or statement order. `elem = *p;` hoisted at the loop top compiles the element into s3 with the inner counter in s4; reading `*p` directly inside the inner loop compiles the loaded value into s4 with the counter in s3 - retail's assignment. A local read *after* the inner loop does not join that value: the inner-loop load and the late local occupy separate registers (s4 and s3), i.e. a split. The cost of the s4 form is the delete block: when the two null tests are separated by the release call, MWCC reloads for the second test, so the exact two-test shape (which needs one shared value) is lost. That trade is why the unit still parks at 15 differ with s3.
+- 2026-10-29 (a retail dead duplicate is not two live tests; 0x0017b554): `beqzl s4,skip; <delay>; beqz s4,cont; nop; ...` is ONE null test whose duplicate branch targets the continuation, i.e. the second test is dead code, not a second live guard. Writing the source as nested `if (x != 0) { if (x != 0) { ... } ... }` produces a LIVE branch and costs a word (88/87, 59 differ vs 15 for the two-sequential-`if` form that reproduces the dead pair at 87/87). So: match the branch *targets*, not the branch count - a duplicate branch that lands on the continuation means one test in the source.
+- 2026-10-29 (element register does not follow the load site): moving `elem = *p;` from before the inner loop to inside it (where retail's `lw s4,0(s0)` sits) leaves the element in s3 and the counter in s4 - 87/87 words, 19 differ, no assignment change. Combined with the earlier pass, the s3/s4 split follows whether the element is a hoisted local (s3) or a direct `*p` read (s4), not where the load is placed.
+- 2026-10-29 (branch-target screen definitions and precision): classify from RETAIL's branch targets, not from the source. D (dead duplicate) = two conditional branches on the same register within five rows where the far skip is followed by a near skip to the continuation (`beqzl s4,0x17b608` then `beqz s4,0x17b604` on 0x0017b554); verified true there, but the rule also fires on unrelated nested conditions, so read the block before rewriting. B (materialised condition) = xor + sltiu + xori producing a register that the *next branch tests* - verified on 0x0017b554 at 0x17b5a0. S (sunk store) = a store in a branch delay slot; 38 hits, the most common pattern in the band, and it is a shape to reproduce rather than a defect to repair. Rewriting D mechanically (splitting one `if (X != 0) { call; call; }` into two sequential tests) matched none of the 37 candidates, so this screen produces candidates, not conversions.
+- 2026-10-29 (correction: the D split is not a universal repair): splitting a merged `if (X != 0) { call; call; }` into two sequential tests was expressible on exactly one of the 37 D-flagged candidates, and there it made the unit worse (0x0017b554 generated candidate 71 -> 74 differ, 86/87 words). The split only helps when the surrounding body already matches retail's — on the hand-built park the same change was worth 60 -> 17 differ *because* the guard, the count-in-a1 and the loop tail were already exact. Treat D as a locator and apply the split last, after the body matches.
+- 2026-10-29 (tooling: bulk compiles MUST be chunked and asserted): a single `tools/hstmatch.py`
+  call with more than about 60 source paths exceeds the Windows command-line limit. The tool prints
+  its own header and then emits **no result lines at all**, exit code 0 -- so a sweep that "compiled
+  71 candidates" can have compiled two. Correct invocation: chunks of **8** files, with the assertion
+  `result lines == files in chunk + 1` (the trailing `EXACT n/n` summary counts as one). Helper:
+  `try/chunked_match.py` (`compile_files(paths)` raises on a short chunk). This is why the earlier
+  "71 candidates, n hits" numbers were wrong and were replaced by the chunk-asserted sweeps.
+- 2026-10-29 (tooling: `EXACT` lines carry no word count): `hstmatch.py` prints
+  `EXACT  EBOOT.BIN 0x001bf948 src\eboot\x.c` and no `N/M words` field, so any parser written for the
+  `MISMATCH` form reads an exact source as `NO RESULT`. Three set_byte_bounded sources
+  (0x001bf948/0x001bf980/0x001bf9b8) were counted "not exact" for exactly this reason; all three build
+  EXACT. `try/chunked_match.py:parse()` handles both forms.
+- 2026-10-29 (tooling: nine-digit `start` headers): three sources declare a nine-digit `start` field
+  (0x001bf948, 0x001bf980, 0x001bf9b8) instead of the usual eight hex digits; a regex that assumes
+  exactly 8 digits truncates them to 0x0001bf94-style addresses and then reports NO SYMBOL. Normalise
+  with `0x%08x` of the parsed integer, never by string slicing.
+- 2026-10-29 (a two-armed null test where retail has one `beqzl` is a merge, and it pays): on 0x000bc13c the
+  generated source had `if (field == 0) { p = alloc(12); if (p == 0) { field = 0; } else { *p = 0; p[1] = 0;
+  p[2] = 0; field = p; } }` - an if/else pair, 93/92 words, 74 differ. Retail has ONE test and the store of
+  the allocation result unconditionally (two `sw v0,76(s4)` with the zero stores between them). Merging the
+  arms into `if (field == 0) { p = alloc(12); if (p != 0) { *p = 0; p[1] = 0; p[2] = 0; field = p; } }`
+  measured 92/92 words, **49 differ** (25 fixed) and frame -48 = retail. So when retail shows a single
+  branch around an allocation, the source has one guarded arm, not an if/else - and getting the word count
+  exact is what makes the rest of the diff readable.
+- 2026-10-29 (store-before-test does NOT buy a branch-likely, measured): moving the allocation store ahead
+  of the null test (`field = p; if (p != 0) { ... }`) on the same unit measured 91/92 words, 65 differ and
+  still emitted `beqz v0` + nop, not `beqzl`. So the likely form on 0x000bc13c is not reachable by moving
+  the store; v2 (store inside the arm) stays best at 49.
+- 2026-10-29 (beqz vs beqzl on 0x000bc13c is not arm-shape-reachable; six shapes measured): starting from
+  the 49-differ single-test park, six source shapes all failed to produce the likely form: sole-store arm
+  (53), negative polarity with empty taken arm (49 - byte-identical to the base, MWCC canonicalises the
+  polarity away), store in both arms (74, 94/92 words), test on a reloaded field (65, 91/92), store then
+  call after the guard (91), and an int-typed unconditional store before the test (65, 91/92). Ours always
+  emits `beqz v0,0xbc1b4` + `nop` where retail has `beqzl v0,0xbc1b4` + `sw v0,76(s4)`, i.e. retail's delay
+  slot holds a store that executes on BOTH paths, so its source stores the allocation result
+  unconditionally - yet moving the store ahead of the test costs a word (91/92) and still does not buy the
+  likely annotation. Conclusion: the likely annotation here is a scheduling decision, not an arm shape;
+  treat this unit's residual as a scheduling wall rather than a source-shape target.
+- 2026-10-29 (a spurious call argument is a word-level defect, and it pays): 0x000bc2ac's generated
+  source called `FUN_000ba3ac(DAT_002d5378, param_3)` where retail passes one argument. Dropping the
+  extra argument fixed the word count (99/98 -> 98/98) and 12 differing words (79 -> 67). Combined with
+  the same two-armed-null-test merge proven on 0x000bc13c, the unit reached 98/98 / 54 differ. So for an
+  arity-suspect call, compare the retail `jal` prelude (how many arg registers are set) rather than
+  trusting the generator's parameter count.
+- 2026-10-29 (tooling: generator variants share one address, so results MUST be keyed by path): when a
+  unit has variants v0/v1/v2... in `hst-decomp/try/gen-a1/*/`, an address-keyed result dict keeps only
+  the LAST compiled variant and "best variant" selection silently compares one file against itself.
+  `chunked_match.compile_by_path()` now runs one subprocess per file and keys by path. Also: a chunk
+  whose files failed to compile is not a silent failure -- each emits `COMPILE_FAILED` and must be
+  counted as a result, or the assertion fires on a legitimate all-invalid chunk (7 of 9 variants for
+  0x000bc2ac do not compile).
+- 2026-10-29 (lb vs lbu is a use-driven difference, not a cast difference): 0x002872a0 reads byte fields
+  at +0x57/+0x5a/+0x54/+0x56 that retail loads with `lbu`; ours emitted `lb`. Spelling the casts as
+  `unsigned char` changed nothing (91/94, 76 differ), because MWCC only compares the value against zero
+  and signedness is then irrelevant. Reading each field into a `uchar` local DID convert every site to
+  `lbu` (0 `lb` left) and fixed the word count (94/94) - but the reads hoist to the function top, so
+  differ went 76 -> 77. Use-driven: the load type follows what the value is used for, and forcing a
+  wider use costs scheduling.
+- 2026-10-29 (byte-load signedness is use-driven in BOTH directions; and the diff cannot score it):
+  0x000bc2ac's 2-byte copy loop retailed `lb v1,1(s2)` / `lb v0,0(s2)` while ours emitted `lbu`, because
+  the generator typed the source pointer `undefined1 *` (unsigned). Changing the parameter to `char *` and
+  the temporary to `char` converted both loads to `lb` - instruction-identical to retail - yet the differ
+  count stayed at 54, because the first difference is a prologue scheduling swap (`sw s0,4(sp)` vs
+  `lui a0,0x2d`) at +0x20 and every row after it is offset. Lesson: when the first diff is in the
+  prologue, later instruction-identical regions still score as differences; judge byte-load fixes from the
+  mnemonics, not the differ count.
+- 2026-10-29 (arity and merge interact - measure them together): on 0x000bc2ac, dropping the second
+  argument of `FUN_000ba3ac` alone gave 79 -> 67, but with the single-arm merge the one-argument form was
+  97/98 / 85 while the two-argument form was 98/98 / 54. So the merge only pays when the call keeps its
+  generator arity; "drop the spurious argument" is not a free win and must be re-measured after a
+  structural edit rather than carried as a rule.
+- 2026-10-29 (SELECTION RULE: rank parks by first-difference offset, not differ count): a one-word
+  prologue schedule swap offsets every later row, so a source can be instruction-identical past the swap
+  and still read as 50+ differing words (0x000bc2ac: 54 differ with an identical body after +0x20). Rank
+  by `first` offset DESCENDING (larger = more of the function already matches), differ count only as the
+  tiebreak. Regenerate with `python try/pend/rank_by_offset.py`, which writes `try/pend/RANK-BY-OFFSET.md`
+  and `try/pend/rank_by_offset.json`; addresses are read from each file's HSTMATCH header, never from the
+  filename (`p_ab5ac_10_pair.c` is 0x002ab5ac). First measured ranking (12 distinct addresses):
+  0x002ab5ac +0x94/58, 0x0017b554 +0x60/15, 0x001c2cc4 +0x48/51, 0x001fd180 +0x3c/58, 0x000bc2ac +0x20/54,
+  0x0027eedc +0x20/69, 0x000bc13c +0x1c/49, 0x00125750 +0x14/63, 0x002872a0 +0x14/76, 0x000dc6a4 +0x14/88.
+- 2026-10-29 (saved-register assignment is allocation-driven on 0x0017b554; four axes inert): at +0x60 the
+  only remaining difference is that ours loads the element into s3 and zeroes the counter into s4 while
+  retail has element s4 / counter s3. Swapping the two initialisations, swapping the two declarations,
+  hoisting `i = 0` out of the loop and initialising `i` at its declaration were measured: 15 / 15 / 70 /
+  44 differ, and the last two throw the first diff back to +0x18. So the split follows MWCC's internal
+  allocation, not source order or live-range start - treat it as a colouring wall.
+- 2026-10-29 (a per-arm bool makes bnel chains; a switch makes beql chains, and case order matters):
+  0x001c2cc4's `bVar1 = false; if (k==3) { store; bVar1 = true; } else if (k==2) ... else if (k==1) ...`
+  emitted `bnel` chains with `li s1,1` inside each arm (92/94, 51 differ). Rewriting the same arms as a
+  `switch` with `case` + `break` emitted retail's `beql` chain and moved the flag materialisation to the
+  join: 93/94, 50 differ. Writing the cases in ASCENDING order (1,2,3) rather than descending gave 93/94,
+  44 differ - the best measured for the unit, 7 words better than the if-chain. An explicit `default`
+  arm was much worse (86/94, 92 differ), so this switch has no default in the source. Moving the flag
+  computation after the chain (both the ||-form and the `(k-1)<3` range form) broke the early schedule
+  (89/94, first diff +0x8).
+- 2026-10-29 (argument-materialisation order is not reachable by arg spelling on 0x001c2cc4): six shapes
+  for the `FUN_001fcfc0` first argument (object pointer with address args, object pointer keeping the
+  field loads, named-arg locals with either value, plain a0=field with address args) measured 47-49
+  differ against the 44-differ switch park. The a0 value and the order MWCC picks are therefore already
+  correct in the park; the one missing word is not in this call's setup.
+- 2026-10-29 (a hoisted base pointer can restore the word count and destroy the prologue): on 0x001fd180,
+  rewriting `param_1+0x4a5 / +0x4a9 / +0x4ad` as one cached pointer `p` with `p`, `p+4`, `p+8` gave
+  exactly 88/88 words (retail's length) but 87 differing words with the first difference at +0x0 - the
+  extra live pointer changes the prologue/frame, so the whole body is offset. When a "missing words"
+  fix lands at exact length but the first diff jumps to +0x0, the fix is a frame/live-set cost, not a
+  win; compare by offset, not length.
+- 2026-10-29 (rank the RAW generator baselines too, not just parks): the PENDING candidates were being
+  chosen from `sweep.json` by differ count, which buried 0x001c2714 (84/88 words, only 27 differ, first
+  diff at +0x88 - three quarters of the function already matches) behind units with 200+ differ. Tool:
+  `try/pend/rank_gen_by_offset.py` copies every `gen-a1/*/FUN_<addr>.c` variant into `try/pend/gen/`,
+  builds each, keeps the best per address by (offset DESC, differ ASC), and writes
+  `RANK-GEN-BY-OFFSET.md`. 834 variants / 84 addresses; only 432 build, 402 fail
+  (`COMPILE_FAILED`, `MISPLACED`, `UNPLACED_SECTION` - rodata needs `rodata=0x...`). Offset still has to
+  be sanity-checked against residual size: 0x001acf64 has +0x78 but 209 differ and 18 words missing, so
+  its head matches while the whole tail does not.
+- 2026-10-29 (float copy is a store-type property, and it only shows at the store): 0x001c2714 copies four
+  values into +0x80..0x8c; the generator stores them as ints (`lw v1,0(s0); sw v1,128(s5)`), retail copies
+  floats (`lwc1 $f0,0(s0); swc1 $f0,128(s5)`). Retyping ONLY the four destination stores as `float`
+  (`*(float *)(param_1 + 0x80) = *(float *)(&uVar3);`) recovered 2 words (84 -> 86 of 88) and made the
+  copy instruction-identical, with the differ count unchanged at 27 because the first diff stays at
+  +0x88. Adding a 4-float local buffer instead changed the frame and threw the first diff to +0x0 (85/88,
+  28 differ) - the same frame-cost pattern as the 0x001fd180 base pointer.
+- 2026-10-29 (zero-init width follows the DECLARED locals, not the copy; and `$at` vs a real register):
+  on 0x001c2714 the null branch zeroed only three of its four stack words (`local_c = local_8 = local_4 = 0`
+  with `local_10` missed), so retail's four `sw zero` at sp+32..44 became three, and the copy bridged
+  through an extra word. Adding the missing `local_10 = 0` recovered exactly one word (86 -> 87 of 88) with
+  the differ count unchanged at 27. Assigning the `param_2 < 0` compare to an int local made no difference
+  ($at vs v0 is still MWCC's pick), and replacing the four scalars with `float f[4]` grew the frame and
+  threw the first diff to +0x0 (86/88, 28 differ). Reading all four stores through one base pointer cost
+  four words (83/88) because the zero stores folded away. Lesson: fix zero-init width by naming every
+  declared word in the zero block; do NOT restructure the buffer to chase it.
+- 2026-10-29 (stack-slot placement is NOT steerable by declaration/zero/copy order - settled): on
+  0x001c2714, four `undefined4` locals whose zeroed group should occupy sp+32..44 stay at sp+40/44 with a
+  sp+44 bridge no matter how they are ordered. Four shapes measured byte-identical at 87/88, 27 differ,
+  first +0x88: reversed declaration order, middle-swapped declaration, reversed zero-store order, reversed
+  copy-statement order. So when retail's temp sits at a lower slot than ours, reordering declarations or
+  statements will not move it - the difference is that MWCC folded two zero-only lifetimes into fewer
+  slots. Do not spend further passes on ordering for slot placement; either make the lifetimes opaque
+  (which risks the frame, as `float f[4]` did at +0x0) or accept the one-word floor.
+- 2026-10-29 (a float range test returning bool is NOT an && spelling): 0x000a8810 and 0x000a8c18 both
+  compute `if (-(f*0.01f) < b) { if (b < 0.0f) r = 1; else r = 0; } else r = 0;`. Retail's shape is
+  `c.ngt.s` + `c.lt.s` with `bc1tl`/`bc1f`; the generator's nested form gives two `c.lt.s` with `bc1fl`.
+  Rewriting it as `return (A < B) && (B < 0.0f);` was WORSE on both units (15 -> 17 and 18 -> 22 differ),
+  the `!(B <= A)` negated spelling was identical (15), and flattening to one `if` with a zero default was
+  17. So this idiom's residual is float-register colour plus the likely-branch form, not the boolean
+  spelling - do not spend `&&` rewrites on it.
+- 2026-10-29 (an if/else dispatch chain rasterises to `bne`; the same arms as a switch in ASCENDING case
+  order rasterise to retail's descending `beql` chain): 0x000c13e0's inner dispatch on `*(int*)(p+0x40)`
+  was generated as `if (k==6) ... else if (k==5) ... else if (k==4) ... else if (k==3)`, emitting a `bne`
+  chain (69 differ). Rewriting exactly the same arms as `switch (k)` with cases written 6,5,4,3 measured 68
+  differ and first diff +0x10 (MWCC sorted them ascending anyway). Writing the cases ASCENDING in the
+  source (3,4,5,6) made MWCC emit the comparisons descending 6,5,4,3 - retail's order - and dropped the
+  unit from 68 to **47** differ. So for a small integer dispatch, case *source order* is a real lever:
+  ascending source order produces descending compare chains.
+- 2026-10-29 (store with displacement beats a materialised base): after the dispatch fix, 0x000c13e0's
+  remaining extra word is `addiu t0,a0,64` - ours computes the address for `*(undefined4*)(p+0x40) = 9`
+  into a register while retail stores with the displacement (`sw v1,64(a0)`). One extra word shifts every
+  later branch target by 4 and accounts for most of the residual's size, so it is worth fixing before any
+  colour work.
+- 2026-10-29 (indexed store spelling removes a materialised base, and it is worth ~16 words): on
+  0x000c13e0 the same logical store `*(undefined4 *)(param_1 + 0x40) = 9` compiled to a base computation
+  (`addiu t0,a0,64` + `sw v1,0(t0)`) which shifted every later branch target by one word. Writing it as
+  `((int *)param_1)[0x10] = 9` let MWCC use the displacement form (`sw v1,64(a0)`) and the unit went
+  47 -> **31** differ with an exact 85/85 word count. So when the residual opens with a stray `addiu`
+  computing an object base, try the indexed-member spelling before touching control flow or colour.
+- 2026-10-29 (structural staging works: dispatch -> case order -> store spelling): 0x000c13e0 went
+  69 -> 68 -> 47 -> 31 differ across three structural stages (if/else chain -> switch; descending compare
+  order via ascending source order; indexed store removing a base). Each stage's first diff moved later
+  (+0x8 -> +0x10 -> +0x8 -> +0x48), which is the signal that the stage addressed the right layer. Only
+  after the store fix does the residual reach a polarity/arm-placement difference, which is the known wall.
+- 2026-10-29 (a float-typed global is a word multiplier): on 0x002ad758 the counter `DAT_0034b590` was
+  declared `extern float` by the generator. Every integer use then compiled through the FPU
+  (`lwc1` + `mtc1` + `c.lt.s` + `add.s` + `mul.s` + `trunc.w.s` + `mfc1` for what retail does with
+  `lw`/`slti`/`sll`/`sw`), so the unit ran 8 words long with the excess spread across two blocks.
+  Declaring it `int` dropped it to 92/93 and 75 differ in one build. Check the *declared type of every
+  global* the function touches before staging control flow: the `lwc1`/`swc1` fingerprint is not only
+  for struct fields, and a mismatch here is worth ~7 words.
+- 2026-10-29 (raw address literals can be wrong by 0x10000): 0x002ad758 indexed a mask table with the
+  literal `0x2cc2f4` while retail materialises `lui 0x2d; addiu v1,v1,-15628` = `0x2dc2f4`. The
+  generated symbol names in this unit were *misleading* (`&DAT_002cc394` compiles to `0x2dc394`), so
+  the only reliable check is the decoded address pair in retail's listing: `lui h; ori l` vs
+  `lui h'; addiu l'` tells you both the value and whether the low half was signed. A literal embedded
+  as an integer is a common generator defect - grep the source for `0x<addr>` literals and compare each
+  with retail's materialisation before attributing the diff to colour.
+- 2026-10-29 (staging signal, negative case): on 0x002ad758 stage 1 reduced the word count 101 -> 95
+  and the differ count 83 -> 81 but left the first difference at +0x20; retail's ladder is signed
+  (`bltz` + `slti at`) and the merge produced `sltiu`, so the layer was wrong despite the better numbers.
+  A word-count improvement with an unmoved boundary means the change is a coincidence of size, not the
+  structural layer; step back and read retail's own instruction pair before keeping it.
+- 2026-10-29 (a single missing word hides every conversion behind it): on 0x002ad758 three source
+  defects were fixed in one pass - `char` -> `unsigned char` for a callee result (`seb` -> retail's
+  `andi ...,0xff`), the slot-store-before-counter-store order (`addiu a0,v1,1` restored), and a signed
+  range test rewritten `((uint)(*pbVar3 - 4) > 1u)` (`slti` -> retail's `sltiu`) - and **none of them
+  moved the differ count**, because the function was one word short and the address-aligned diff scores
+  every row past the gap as a mismatch. Verify conversions by grepping the emitted word (as above),
+  not by the differ count, until the total word count matches retail exactly; a 92/93 unit can absorb
+  three correct fixes invisibly.
+- 2026-10-29 (constant folding can eat the displacement word): retail materialised `+0x1058` as the last
+  step of an address chain (`addu v1,s5,v1` then `addiu v1,v1,4184` in a branch delay slot). Writing
+  `param_2 + iVar7 * 0x14 + 0x1058` as one expression let MWCC fold the constant into the earlier add,
+  so the unit came out exactly one word short. When the word count is short by one and the residual is a
+  missing `addiu` with a small displacement, split the expression so the constant is added to a distinct
+  intermediate object rather than appended to a sum.
+- 2026-10-29 (splitting an expression does not stop constant folding; the *operand* does): on
+  0x002ad758, `param_2 + iVar7 * 0x14 + 0x1058` was split through a distinct `byte *t` temp in two
+  different orders and both times MWCC copy-propagated the temp and re-folded - the `addiu` never
+  appeared (92/93 both). Hoisting `param_2 + 0x1058` into a base computed outside the loop did make the
+  constant materialise (94/93, and the unit's best differ count of 70), but as a value live across the
+  loop it cost two words and threw the prologue (`+0x0`), which by this lane's rule is a cost, not a win.
+  The one shape that materialised the constant *without* a live base added it to the wrong operand
+  (`addiu a0,s5,4184`, constant on param_2) where retail adds it to the composed index
+  (`addu v1,s5,v1` then `addiu v1,v1,4184`). Rule: to keep a displacement from being folded away, control
+  which operand it attaches to (cast the composed sum to an integer and add there); splitting into temps
+  does nothing.
+- 2026-10-29 (defeating constant folding: cast the COMPOSED sum, not the operands): on 0x002ad758,
+  `(byte *)(param_2 + iVar7 * 0x14 + 0x1058)` was folded so the `+0x1058` vanished (unit one word short).
+  Splitting it through temps failed twice (copy-propagation re-folded). The spelling that works is
+  `(byte *)((uint)(param_2 + iVar7 * 0x14) + 0x1058u)`: the integer cast on the composed sum stops MWCC
+  reassociating the constant onto `param_2`, and the emitted code becomes retail's
+  `addu v1,s5,v1` + `addiu v1,v1,4184`. `(int)`, a separate uint offset variable, and a uint local
+  incremented in two statements all canonicalise to the same result. So: to materialise a displacement,
+  cast the finished address to integer and add there; splitting into temporaries does nothing.
+- 2026-10-29 (ascending switch cases produce test-descending/body-ascending layout - third confirmation):
+  on 0x000dc6a4 the generated if/else chain (case 1 then case 0) inlined case 1's body at the test and
+  jumped away; retail tests 3,2,1,0 with `beql` but lays case 0's body out first (0xdc6e8) and case 1's
+  later (0xdc758). Rewriting as `switch (param_2)` with the cases written ASCENDING (0, then 1, then the
+  empty 2/3 labels) reproduced exactly that and halved the differ count 80 -> 40 with the first
+  difference moving +0x2c -> +0xb4. The two near neighbours both failed hard (arms swapped 89/95 91
+  differ; descending switch 90/95 92 differ), so the ascending-source rule is the operative one, not
+  merely "use a switch".
+- 2026-10-29 (unsigned field read and indexed byte store, again as a pair): after the switch fix the next
+  boundary was `lb v1,176(s0)` vs retail's `lbu` plus our `addiu a0,s0,176; sb zero,0(a0)` against
+  retail's `sb zero,176(s0)`. Reading the field as `*(uchar *)` took 40 -> 39 differ (+0xb4 -> +0xb8) and
+  additionally writing the store as `((uchar *)param_1)[0xb0] = 0` took it to 36 differ at +0xdc. Both are
+  the same two mechanisms already recorded for 0x00125750/0x000c13e0, and they stack.
+- 2026-10-29 (arm polarity is reachable by writing the POSITIVE condition so the call is the fall-through):
+  0x000dc6a4's last layer was an `if (*(int *)(param_1 + 0x9c) < 0) { ...zero block... } else { call }`.
+  As written, MWCC branched on `>= 0` to reach the call (`bgezl`) and left the zero block as the
+  fall-through. Writing the condition positively - `if (*(int *)(param_1 + 0x9c) >= 0) {
+  FUN_000db868(param_1); } else { ...zero block... }` - produced retail's `bltzl v1,<zero block>` with the
+  call as the fall-through, and took the unit from 36 to **8** differ and then, unchanged, to EXACT once
+  the store placement was right. So the earlier "arm placement/polarity is a wall" conclusion is too
+  strong: what the compiler places is decided by which arm is written as the *fall-through/else*, and
+  putting the short call arm first is a steerable source choice.
+- 2026-10-29 (a store that retail keeps in a branch-likely delay slot belongs INSIDE the arm): the same
+  layer first probed with the `*(param_1 + 0x5c) = 0` store hoisted out of the `if` (as retail's
+  `bltzl` delay slot might suggest) measured **37** differ - a regression from 8 - because the hoist made
+  the store unconditional and MWCC scheduled it before the test load. Keeping the store as the first
+  statement *inside* the arm let it be placed in the delay slot, which is exactly where retail has it.
+  Rule: a branch-likely delay-slot store is evidence the store is inside that arm, not hoisted.
+## CORRECTION - 2026-10-29: "arm polarity / arm placement is a wall" was WRONG
+Earlier entries in this file (many passes) treated branch polarity and arm placement as unreachable.
+That was retracted by 0x000dc6a4, which went to EXACT when the `if (<0) { zeros } else { call }` was
+rewritten with the POSITIVE condition so the short *call* arm became the else/fall-through
+(`if (>= 0) { call } else { zeros }`), producing retail's `bltzl`. Re-confirmed on 0x000f175c: the
+empty-then form (`if (test) { } else { update }` + a shared store after) restored retail's float
+registers and took it 6 -> 2 differ. Do not park a unit as "polarity" without first rewriting the
+condition so the short arm is the fall-through.
+## What is still a wall - the branch KIND bit (`beql`/`bnel`/`bc1tl`/`bc1fl`)
+The likely bit is a different axis and is NOT steerable by arm placement. Measured:
+- 0x00014934: `beql` vs retail `beq` on the loop-back survives dropping `__builtin_expect`,
+  `__builtin_expect(...,1)`, an explicit `goto` label, do-while + `break`, and only regresses with a
+  do-while `return` (31/29) or an unconditional `continue` (31/29). Six shapes, same `beql`.
+- 0x000f175c: `bc1fl` + `swc1` in the delay slot vs retail `bc1t` + `nop` onto the shared store survives
+  the empty-then arm, the then-arm form, an explicit keep-arm, and storing inside BOTH arms.
+So: arm *placement* steers which arm is branched to; arm *kind* (annul/likely) does not follow it.
+## Compiler scoping of both rules
+The arm-placement rule is MWCC-specific. 0x00079cc8 is a GCC unit (`cc=gcc171-Os`,
+`module=hstp_trans_main.prx`) whose residue is a post-reload float schedule; MWCC source-shape rules must
+not be applied to `try/prof` or other `cc=` units. Check the HSTMATCH header's `cc=` field before
+spending a batch on arm shapes.
+## THE BRANCH-KIND TABLE (measured 2026-10-29 with `tools/hstcc.py`, probes in `try/probe/branch_kind*.c`)
+`hstcc.py <file> --lang c99` compiles a scratch file with the retail MWCC profile and prints the listing,
+so a construct can be measured without a retail address. 23 synthetic functions, one construct each:
+| construct | emitted branch |
+|---|---|
+| for, test at top (P1) | back-edge plain `bnez` |
+| while, increment folded into the condition (P2) | back-edge plain `bnez` |
+| do-while, simple test (P3) | back-edge plain `bnez` |
+| **do-while, comparison bottom test, exits are `break`s only (P13)** | **back-edge plain `beq`** |
+| while, test at top, reload at the bottom (P14) | `beql` back-edge |
+| **for(;;) + `goto out` + `continue` (= 0x00014934 verbatim, P15)** | **`beql` back-edge** |
+| do-while + `goto out` (P16) | `beql` back-edge |
+| do-while + break-merges, pointer walk, in-body `return` (P19) / result local (P20) | `beql` back-edge |
+| for(;;) + field load + bool local + `break` (P12) | `beqzl` guard, plain `b` back-edge |
+| both arms of the test `continue` (P4) | `bnezl` guard |
+| comparison stored in an int local (P5) | `bnezl` |
+| comparison feeding a second condition (P6) | `bnezl` |
+| arm containing only a call (P7) | `bnezl` |
+| arm containing only a store (P8) | `bnezl` |
+| float guard, arm adds (P9) | `bc1tl` |
+| float guard, arm is only a store (P10) | `bc1tl` |
+| **float guard, EMPTY then-arm + shared store after the join, inside a loop (P11)** | **plain `bc1f`** |
+| same shape at function scope (P17) | `bc1fl` |
+| same shape in a loop but storing `v[i]` (P18) | `bc1fl` |
+| float guard, negated empty-then (P21) / explicit keep-arm (P22) / store inside both arms (P23) | `bc1tl` |
+What the table says:
+1. A **plain conditional back-edge** (`beq`) needs the comparison to be the loop's own bottom test *and*
+   a body whose only exits are `break`s that fall out of the loop (P13). Adding the 14934 pointer walk and
+   an in-body `return` (P19) flips it back to `beql`, which is exactly why that unit resists.
+2. A **plain float guard** (`bc1f`) appeared in one construct only: empty then-arm, shared store after the
+   join, inside a loop with a loop-invariant store (P11). The same shape at function scope (P17) or with an
+   indexed store (P18) is likely. Non-loop units therefore cannot reach it by shape.
+3. Everything else - every simple guarded arm - is emitted likely (`bnezl`/`bc1tl`/`beqzl`). The likely bit
+   is the default for an `if`, so a retail listing showing a plain `beq`/`bc1t` over an arm means the
+   retail source was NOT an ordered if/else but a bottom-tested loop or a merge-with-empty-arm.
+Consequence for the parks: 0x00014934 (body has an in-body return) and 0x000f175c (function scope, no
+loop) have no construct in this table that produces their retail form. Both stay parked with their
+measured residuals; the axis is closed with evidence rather than re-discovered.
+### Int guard recipe (added 2026-10-29, probes P24/P25/P26 in `try/probe/branch_kind4.c`)
+The float recipe generalises to int guards, but only through a *value merge*, not a store inside the arm:
+| construct | emitted |
+|---|---|
+| `if (a[i]==1) { } else { *v = 1; }` (P24) | `beql` |
+| `int t = s; if (a[i]==1) { } else { t = 1; } *v = t;` (P25) | **plain `beq`** |
+| `if (a[i]!=1) { *v = 1; }` (P26) | `beql` |
+So for a plain int conditional the arm must be **empty** and the merged value carried through a local that
+is stored *after* the join. Storing inside the arm - even a constant - keeps the likely form.
+### Screen of the 101 likely-bit parks (2026-10-29)
+Every park whose header named a branch-kind residual was re-measured and its differing words classified;
+13 unique units came out at <=5 differ, of which only four had a purely branch-kind residual:
+| unit | retail branch | table recipe that applies | outcome |
+|---|---|---|---|
+| `0x00134414` | `beqzl` (we had `beqz`) | already installed - park is stale | **EXACT in src/eboot**, park to be ignored |
+| `0x000a3018` | plain `beq` to the shared zero label | none: this is a **switch dispatch**, not a loop or a merge | 3 shapes (ascending cases, both `return 0`, descending) all regress 2->4/6/4; park open, structural |
+| `0x0026d5fc` | plain `bne` + `nop` onto the loop tail | none: ordered if-arm inside a loop; the plain form is a rotation artifact (same class as 0x00074694, whose reshapes all regressed) | park open, structural |
+| `0x001a1754` | plain `bnez` + `nop` on the first guard, likely on the second (the two are *swapped* vs ours) | partial: P25's value-merge recipe is the named next construct for the first guard | park open, placement swap |
+Conclusion recorded so later passes stop re-deriving it: a plain branch in retail over a **switch arm** or
+over an **if-arm inside a loop** is not reachable by the merge recipes - those rows cover loop bottom tests
+and value merges only.
+- 2026-10-29 (a statement duplicated in both arms is what makes a branch look "likely"): on 0x0026d5fc
+  the residual read as a branch-kind tie - there `bnel v1,a0,<tail>` with the count load in the delay slot,
+  retail plain `bne v1,a0` + `nop` - and had been parked as such. The cause was source shape, not the
+  compiler: `count = items->count;` was written in BOTH arms of the `if/else`, so MWCC duplicated the load
+  into each arm's delay slot and marked each branch likely. Hoisting the assignment to a single load after
+  the merge made the branch plain with a `nop` slot, restored the shared load, and the unit went EXACT.
+  Rule: before treating a likely/plain difference as a branch-kind wall, check whether one statement was
+  duplicated across the arms - hoisting it is a one-line fix and outranks every arm-shape recipe.
+**Source duplication is only a candidate; retail's listing is the authority** (measured, pass 124).
+`0x001a1754` is a detector hit of the strongest kind - eight statements (`FUN_0017788c(...)`, `n = ...`,
+`Info *in = ...`, `c0..c3 = in->h*`, `v = ...`) identical in both arms, differing only by an extra
+`FUN_0017788c(0);` in the first - yet hoisting them regresses **4 -> 329 differ** and loses 25 words
+(692/717, first +0x30): retail genuinely carries both arms fully expanded, and the park at 4 differ was
+already faithful. So the detector ranks candidates; a unit converts only when retail's own code shows the
+single shared copy after the join (`0x0026d5fc`: one `lw` at the merge, not one per arm). Also from
+0x0026d5fc: the hoist must be a MOVE - deleting a re-read instead (the `item = items->data[index];`) gave
+67/70 words, 31 differ.
+### The rule is bidirectional, and the listing test decides (pass 125)
+Both directions exist and only one of them is worth compiling:
+| retail's listing | our source | fix |
+|---|---|---|
+| one shared load after the join | statement written in both arms | **hoist** to one copy after the merge (0x0026d5fc, EXACT) |
+| the same load/store in BOTH delay slots of two likely branches | one copy after the merge | **duplicate** the statement into both arms |
+Detector for the second direction: `try/pend/scan_dup_retail.py` reads retail bytes with no compile
+(hstmatch.module_bytes + hstdiff.disasm), finds identical memory instructions in the delay slots of two
+likely branches within 96 instructions, and does NOT require the two branches to be textually equal -
+the arms of one if/else carry opposite polarity (`beql` vs `bnel`). NOTE: disasm rows are
+`<encoding> <mnemonic> <operands>`, so the mnemonic is field 1, not field 0 (this silently returned zero
+hits until fixed).
+**Precision, measured over 486 candidate parks (<=60 differ, best file per address):** 50 hits in 40
+functions; 43 are object-field duplicates, 7 are `(sp)` stack-temp duplicates. Counting the instruction
+on BOTH sides is mandatory, and the count must be normalised for the base register as well as the
+destination - a colouring shift otherwise fakes a hoist (`0x000b793c` read 5 vs 0 on the raw text, 5 vs 5
+once `lw a1,168(s2)` vs `lw a1,168(s3)` are compared by offset). After normalisation **42 of 43
+object-field hits already match retail exactly**: our sources duplicate what retail duplicates. The
+result is that the inverse direction is mostly a *confirmation* test, not a conversion source.
+The one true object-field hoist, `0x00294f8c` (`lw a0,812(s0)` retail 4 / ours 1), cannot be paid for:
+inlining the field at every use gives 52/55 words, 52 differ, and the mixed form (local for the guard,
+re-reads at the two call sites) gives the same - both worse than the 55/55, 40-differ park. The local is
+load-bearing for the word count, and retail's extra loads are the guard re-read landing in the earlier
+branch's slot plus two argument re-reads.
+The 7 stack-temp hits are the memory-resident-temporary wall, not a source duplicate: `lw v0,12(sp)` x6
+(0x001c70c0, by-value one-word struct ABI - header already rules out the scalar forms), `lw v1,32(sp)`
+(0x001c67e8), `lw a3,40(sp)` (0x00108ca8).
+**And the forward rule must be measured per pair, not per function:** `0x00290da4` carries two arms with
+`iVar1 = *(int *)(param_1 + 0xe0);` duplicated and one *fewer* load than ours, but hoisting them costs a
+word (113 -> 114) and does not reduce the differ count - loop pair only 54 differ, LAB pair only 56, both
+54 -> 56. Retail's smaller count there is scheduling, not a missing duplicate in our source. The same
+applies to `0x002060f8` (we have one extra `lw v0,16(s3)`, no duplicated-arm statement in the source).
+So: use the counts to *rank*, the listing to *decide*, and always confirm a pair by compiling the hoist.
+### Precision of the forward detector on GENERATED sources (pass 126)
+`try/pend/scan_dup_pending.py` compiles the 71 PENDING candidates in asserted chunks of 8, then counts
+every memory access by mnemonic+offset with BOTH destination and base register normalised, and flags any
+key where ours > retail. Measured over 70 units (one `.rodata` candidate cannot be placed):
+| class | count |
+|---|---|
+| units flagged (some access we perform more often) | 66 / 70 |
+| flags whose retail count is **0** - our source reads an offset retail never touches (struct layout / semantic, not duplication) | 45 |
+| units within 4 words of retail with a flag | 21 |
+| of those, units whose source ALSO has a statement duplicated in both arms | 12 |
+| of those, compiler-only (no source duplicate) | 9 |
+So the actionable band - word parity AND a source duplicate - is 12 units, and none of them is a
+`0x0026d5fc` in disguise. The dominant flag class is the one that cannot be a duplicate at all: retail
+never loads that offset, so our struct/field layout differs.
+**The 12-unit band still does not convert.** `0x000d3298` (the closest, 94/95 w, 82 differ) has three
+source duplicates and a matching count disagreement (`lw a0,1960(s2)` twice in ours, once in retail at
+the `beqzl` join):
+| hoisted | words | differ | first |
+|---|---|---|---|
+| none (baseline) | 94/95 | 82 | +0x18 |
+| `iVar2 = param_1[0x1ea]` (both arms) | 92/95 | **80** | +0x0 |
+| `iVar2 = param_1[0x10]` (both arms) | 92/95 | 83 | +0x0 |
+| `*piVar5 = 0` (both arms) | 91/95 | 84 | +0x0 |
+| all three | 89/95 | 84 | +0x0 |
+Hoisting always *costs* words here (94 -> 92/91/89 against retail's 95), and the first difference moves
+to `+0x0`: the generator's duplicated loads are load-bearing in these bodies. And `0x002ab5ac`
+(25 differ, the closest PENDING item) carries an extra `sw 140(s0)` with **no** duplicated-arm statement
+in its source - one store statement that the compiler sank into two paths - so that flag is scheduling,
+not duplication.
+Rule from both passes: the duplicate detector is a *ranking* tool. On parks it confirms 42/43; on
+generated sources it is dominated by retail-count-0 layout flags. Compile only inside the intersection
+(word parity <= 4 AND a duplicated-arm statement AND retail's count strictly between 0 and ours).
+### The "retail never touches this offset" class is mostly a measurement artifact (pass 127)
+A layout-error screen sounds strong: flag every memory access whose offset retail never uses. Measured
+on the 70 PENDING candidates it starts at **57 units and ends at 1** once three formatting facts are
+handled. All three bit this lane and each produced a false class:
+1. **Address-only uses.** Retail may use the offset without a memory op: `0x001fd180` has
+   `addiu s2,s1,4756` and never `sw 4756(s1)`. Search retail for the *number* anywhere, not just in
+   memory operands. This alone accounted for 48 of the 57.
+2. **objdump prints positive offsets in hex and negative ones in decimal** - `sw 0x2211(s1)` but
+   `lw -19056(v1)`, and offset 0 as `0(a0)`. A decimal-only or hex-only search misses most of them;
+   parse every operand numerically and compare integers (`int(tok, 0)` also throws on tokens like `06`).
+3. **Address computation folds.** The same field can appear as `lw 0x6bc(s0)` in one arm and as
+   `addiu v1,s0,0x6bc` in another, so a count of memory ops is not a count of uses.
+After all three the class is 14 units, and exactly **one** carries a hard signature: `0x001c9e1c` emits
+`swl/swr` at `0x2211/0x2214/0x2215` (misaligned 4-byte stores) while retail uses no unaligned access at
+all. Its source contains no `0x2211` literal, so the odd address comes from a computed base/stride, not
+from a member declaration.
+**The three closest derived cases, all base-pointer model errors rather than member-order errors:**
+| unit | our offset | retail | derivation |
+|---|---|---|---|
+| `0x0025967c` (207 diff) | `lh 0x1ae2` | absent | odd halfword offset: a stride/x4 error in the computed base, no literal in source |
+| `0x001c9e1c` (223) | `swl/swr 0x2211/0x2214/0x2215` | no unaligned access at all | misaligned element copy: the generator's stride is off by 1 byte |
+| `0x0023d714` (228) | `lw 0x6d4` x6, slot array `0x6d0`, second array `0x860` | `lw 0x6bc`, `*slot`, `addiu s1,0x6bc` | the generator modelled an array-of-structs where retail walks pointers; the derived -0x18 shift (0x6d4->0x6bc, 0x6d0->0x6b8, 0x860->0x848) compiled to **the same 228 differ** |
+So a wrong field layout does explain residuals - `0x0023d714` reads a *different word* than retail - but
+in these generated bodies the error lives in the base-pointer/stride model, not in a struct declaration
+that can be corrected one member at a time. Screen with the class, derive from retail's offset set, and
+expect the fix to be a rewritten expression rather than a member reorder.
+**Measured on 0x0023d714 (pass 128): the delta is one STRIDE, and the shape must be a stepped
+pointer.** The loop advances `iVar8 += 0x14`, so the generator's bases `0x6d0/0x6d4/0x860/0x864` are
+retail's `0x6bc/0x6c0/0x84c/0x850` *plus one element* - the shift is -0x14, not the -0x18 that the raw
+`0x6d4 vs 0x6bc` comparison suggests (that comparison is off by exactly one stride). Retail also folds
+the base into a register (`addiu s1,0x6bc` ... `lw v0,0(s3)`), so an indexed expression is not enough:
+| form | words | differ | first |
+|---|---|---|---|
+| baseline (array-of-structs) | 231/233 | 228 | +0x0 |
+| B: base pointer + single index (`baseA + iVar8`, load at displacement) | 225/233 | 228 | +0x0 |
+| **A: stepped pointer** (`int *pa = obj+0x6bc`, `pa += 0x14` per iteration, loads through `pa`) | 217/233 | **217** | **+0x20** |
+Only the stepped pointer reproduces retail's `lw 0(reg)` addressing; the base+index form emits a
+displacement and leaves the first difference at `+0x0`. Also: the six `*(int *)(base + 0x6d4)` loads are
+not loads at all in retail - retail stores the *address* `s1 + 0x6bc (+0xc)` - so the value expression
+must be `(int)pa`, never a dereference. Rule: when a layout probe shows a constant offset mismatch,
+check the loop stride first (the delta is usually a multiple of it), and prefer a pointer local advanced
+by that stride over any indexed form.
+**Scoping the pointer locals does not move 0x0023d714's first difference (pass 129).** With `pa`/`pb`
+declared at function scope the first diff is `+0x20` (`move s6,a0` vs retail `move s1,a0`: our `param_1`
+loses s1 to the long-lived pointer locals). Moving the same pointers *inside* each loop body:
+| form | words | differ | first |
+|---|---|---|---|
+| A: function-scope stepped pointers | 217/233 | 217 | +0x20 |
+| C: loop-scoped pointer locals (recomputed from `param_1 + 0x6bc + iVar8` each iteration) | 225/233 | 216 | +0x20 |
+One fewer differing word, but the boundary does not move - `+0x20` is the entry copy set, i.e. register
+allocation, not arity/flow/spelling/frame. So the layering (arity, flow, spelling, frame) is exhausted on
+this unit and what remains is colour; it is parked at form A (217/233, 217 differ, +0x20) as the better
+base by word count, with C recorded as the lower-differ alternative.
+`0x001c9e1c`: the `swl/swr` at decimal `8721/8724/8725` is **not an unaligned access at all** (pass 131).
+The preceding `addiu v1,s0,32767` folds into the displacement, so the effective store is
+`s0 + 0x7FFF + 0x2211 = s0 + 0xA210` - a 4-aligned address. MWCC splits any displacement above 0x7FFF that
+way (`addiu base,0x7fff` + `swr/swl base,0x2211`), which objdump then prints as an unaligned pair. Retail
+reaches the same address with `addiu s0,v0,8728` (0x2218) plus the remaining 0x7FF8 already in the base.
+Fix shape that reproduces retail's displacement: hold the target in a pointer local
+(`int *pt = (int *)((char *)obj + 0xa210); *pt = v;`) - it emitted `addiu ...,8728` twice and zero `8721`
+displacements, at a cost of 237/232 words and 232 differ (vs 223), so it was measured but not installed.
+**Rule: before calling swl/swr an unaligned access, add the preceding `addiu` into the displacement and
+check `effective % 4`.** With that, the unaligned sub-class is empty (0 units), and the layout class of 14
+stands on the offsets alone. **A pass-129 "correction" that
+declared this signature stale was itself the phantom**: it searched the listing for `0x2211` while objdump
+prints that offset in DECIMAL (`8753`, `8721`), and it read a build directory that a previous cleanup had
+already removed. Re-measured from a fresh, correctly-keyed build the signature is present and the class of 14
+stands.
+**Two build-system facts learned the hard way (pass 130).** (1) `hstmatch`/`hstdiff` keyed build products by
+parent folder + stem, so candidates for one address in different generator trees (`try/gen-a1/v0/FUN_x.c` and
+`try/gen-a2/v0/FUN_x.c`) shared one directory - **63,566 colliding (folder, stem) groups** existed. Every tool
+now calls `hstmatch.build_key()`, which uses the path relative to the checkout for in-tree sources (so `src/`
+keys are unchanged and the tool tests still pass) and `tail-of-path + sha1(path)[:8]` for sources outside it.
+The lane's build cache was renamed out of the way (`build/<module>.poisoned-20261029`). (2) A class sweep must
+disassemble IMMEDIATELY after its own compile: reading a `text.bin` left by an earlier run is how both the
+phantom class and the phantom correction happened.
+### Duplicate-arm hoisting does NOT apply to sibling if-arms (pass 132)
+`0x0026d5fc`'s rule (a statement written in both arms of ONE if/else, hoisted to a single load after the
+merge) does not extend to the same expression read in two SIBLING arms of an outer if/else-if. On
+`0x000c13e0` the five reads of `*(int *)(param_1 + 0x774)` live in the `iVar1 == 6` and `iVar1 == 5` arms;
+hoisting them to one local before the dispatch gave **80/85 words, 70 differ** (baseline 84/85, 69) - the
+shared local lengthens every path that does not need it. Keep the rule scoped to a single conditional.
+### Aligning two listings by instruction, not by address (pass 133)
+When a unit is one word short, positional diffing hides the cause because every later row shifts. Align the
+two instruction streams with a sequence matcher (`difflib.SequenceMatcher` over the `mnemonic operands` text):
+the `insert`/`replace` opcodes then name the exact missing instruction and its arm. On `0x000c13e0` this
+showed retail's switch chain is **descending** (6, 5, 4, 3) with out-of-line arms and a **plain `beq` + `nop`**
+for the `== 4` test, while ours emits `bnel` there: one word, which shifts every later target by +4
+(`0xc1528` vs `0xc152c`) and drags the switch index from t0 to t1. Corollary already visible in the same
+alignment: retail re-loads `lw v1,1908(a0)` per arm, so per-arm inline reads are correct for this body even
+though pass 132's pre-dispatch hoist regressed.
+### Switch compare-chain order: write the cases ascending (pass 134)
+To get retail's **descending** compare chain (`== 6`, `== 5`, `== 4`, `== 3`) out of MWCC, the source switch must
+list its cases **ascending**. Measured on `0x000c13e0`: ascending source 47 differ, descending source 68 differ
+(same as the original if/else-if chain). The earlier note that said "ascending source cases to get retail's
+descending compare chain" was right; the pass-133 reading of the arm layout ("the ==4 test's fall-through
+continues the chain") was not - the chain falls out of the case order alone.
+Second correction: a plain `beq`+`nop` versus `beql` is not a source-polarity defect when the *slot* is
+contested. Retail's `beql a3,a2,0xc14f0` carries the arm's own `lw` in its slot; if MWCC has already
+materialised an address (`addiu t0,a0,64`) before the dispatch, the slot is taken, the branch must be plain, and
+the arm's load costs a word. Fix the hoist, not the branch.
+### The case-order law's population is small (pass 135)
+Measured over 57 switch-bearing addresses: only two listed their cases descending, and only one gained from
+reordering (31 words on `0x000b35f4`). Screen before rewriting - compile, then compare the likely-branch count in
+the first 44 instructions of both sides; a unit whose source is already ascending cannot be helped by the law,
+and a unit with missing words has a different defect. Also: a hoisted address base (`addiu t0,a0,64`) that
+contests a dispatch slot is **not** removable by store spelling - byte width, address locals, early return,
+`char *` casts, array indexing and two `goto`-to-shared-store forms all left it in place (five spellings, one
+result: 47 differ). It is a CSE decision about two stores to the same field in separate arms; the untested lever
+is deleting one of them, not respelling either.
+### Second conversion of the case-order law (pass 136)
+`0x001f20d8` went from 62 differ (100/99) to **EXACT** (99/99) by converting an if/else-if ladder over `n == 2`,
+`n == 1`, `n == 0` into an **ascending `switch (n)` over 0,1,2**. MWCC then emits the arms out of line and the
+compares **descending** (`beql a0,2`, `beql a0,1`, `beqzl a0`), which is retail's shape. The same switch written
+descending (2,1,0) gives 63 differ, and the ladder inlines the 2-arm. Two conversions now (this and the
+`0x000c13e0` 69->47 drop) make the law the highest-yield dispatch mechanism in the lane.
+### A non-monotonic retail chain cannot be a switch (pass 136)
+Retail's `0x000b35f4` chain runs `0x9a, 0x98, 0x52, 0x80, 0x7e, ... 0x44` - not sorted - so no `switch` body can
+produce it (MWCC sorts cases). The candidates are an ordered if/else-if ladder, which measured **148/122 words**
+(MWCC merges the 31 arms) or a grouped `||` chain, which **folded the range into one compare (81/122)**. When a
+retail chain is non-monotonic, price the ladder before writing it: the merge cost is about one word per arm.
+### Ledger universe
+`tools/ledger.py` counts only addresses present in `try/agent-queue/*.json`. A conversion of a wip park outside
+that list installs and verifies normally but does not move `mission=`; that is expected, not a broken ledger.
+### Ladder-to-switch: group the identical arms (pass 137)
+Converting an `if (x == a) S; else if (x == b) S; else if (x == c) S;` ladder into a switch is only half the win if
+each case gets its own body: three separate `S; break;` blocks cost 5 words and measure **51 differ** on
+`0x001b3bac`, while writing them as one label run (`case a: case b: case c: S; break;`) gives **44 differ** at
+78/79. Always merge arms whose bodies are textually identical before compiling.
+Automation caveat: a regex/line transformer that captures arm bodies by indentation produces invalid C on braced
+or multi-line arms (silently - `hstmatch` printed only `EXACT 0/1` with no MISMATCH line, the same silent-failure
+signature the chunk assertion exists for). Verify a generated transform by compiling it on its own before folding
+it into a batch, and treat "no result line" as a compile error rather than a zero-differ result.
+### Colour pairs are not steerable by live-range endpoints (pass 138)
+On `0x001b3bac` retail puts `self` in s1 and the index in s0; ours is the reverse. Starting `self`'s range later
+(assignment moved past the flag block) gave 77/79 at 70 differ; removing the index local gave 82/79 at 74; both
+together 78. All three are worse than the 44-differ park, so an s0/s1 swap is not bought by moving where a range
+begins. When the first difference is a colour pair, count the *other* side's duplication first - here our source
+emits three copies of the 0x79c load where retail shares one, which is the real defect and also explains the
+one-word deficit.
+### Brace-aware ladder-to-switch (pass 138)
+`try/pend/ladder2switch2.py` parses arms as blocks or single statements, groups identical bodies, and keeps a
+trailing `else` as `default`. It compiles `0x0001bc6c` (128/134, 109 differ, no change) and still fails on a nested
+chain (`0x001f15d0`), because the picked `if` is not at statement scope and the enclosing `else` survives. Before
+using it on a unit, compile the output alone and read `COMPILE_FAILED` as a failure, never as zero differ.
+### Folding a duplicated load can lose the delay-slot word (pass 139)
+Removing a duplicated field read (two arms -> one post-branch load) is right in principle but not free: on
+`0x001b3bac` it cut 78 -> 76 words while differ rose 44 -> 47, because retail's single read sits **in the delay slot
+of the branch** (`beqzl v0` + `lw v1,1948(s1)`) and a post-branch load cannot occupy that slot. Before folding, ask
+whether retail's copy is in a slot; if it is, the fold costs the slot word back. Corollary measured in the same
+batch: a scheduler-placed instruction (here `addu` for the index inside a `bgez` delay slot) is not reachable by
+moving the source statement to either side of the guard - both positions measured 48 differ at 76/79.
+### Ladder-to-switch on generated sources: yield is proportional to locality (pass 140)
+Across the nine generated candidates that carry a real ladder, the grouped switch moved differ by 1-30 words and
+converted none, because those candidates sit 200-500 differing words from retail: the dispatch is a real defect but
+a small fraction of the total. Apply the law where the unit is already local (tens of differ at exact length); on a
+global candidate it is cleanup, not a conversion.
+Two operational notes from the same batch: a transformed 19-case switch can need a `.rodata` jump table and will
+report `UNPLACED_SECTION` (200 bytes for `0x00067e54`), which is a missing `rodata=` header rather than a source
+error; and the chunk assertion must exclude the `EXACT n/m` summary line, or every chunk looks like an extra
+result and the sweep aborts on a false positive.
+### A generated ninth parameter is a frame defect, not a signature detail (pass 141)
+`0x00185970`'s generator emitted a ninth parameter (`uStackX_0`) whose only use was being forwarded to one call.
+On MIPS O32 only four arguments fit in `a0..a3`; a ninth forces the callee to reserve outgoing-argument space and
+spill parameters that retail keeps in registers. Dropping the parameter **and** the extra call argument took the
+frame from -96 to retail's -80, made the prologue byte-identical through `addiu sp,sp,-80`, and moved the first
+difference from +0x0 to +0x4 (502 -> 473 differ). Dropping the parameter while still passing a ninth constant (v141A)
+left the frame at -96: it is the **arity at the call site**, not the declaration, that allocates the frame.
+### UNPLACED_SECTION can mean the transform is wrong (pass 142)
+A transformed switch that demands a `.rodata` jump table when retail has **no** `jr`-through-table anywhere is not
+a missing-header problem: it is the compiler telling you the source shape changed class. On `0x00067e54` retail's
+only `jr` is the epilogue return, so its 19-value dispatch is a compare chain and the ladder was correct; the switch
+transform was abandoned rather than given a `rodata=` guess. Before recovering a header, count the `jr`s in retail's
+function - one (the return) means no table, many means a table exists and the header is worth deriving.
+### Save-block placement is not bought by object count or declaration order (pass 142)
+On `0x00185970` the frame matches (-80) but saves sit at 8..44 with `ra`@44 where retail has 24..60 with `ra`@60,
+and `t0` is spilled at 68 where retail holds it in `s8`. Merging the two zeroed locals into one 8-byte object (and
+declaring it first) left the save block exactly where it was and cost 6 differ (473 -> 479). The parameter spill is
+pressure-driven - `param_5` is already passed straight through - so this delta sits below the declaration layer.
+### The forwarded-only-parameter class needs an arity test, not a usage test (pass 143)
+Dropping a parameter whose only use is a later call is only a frame fix when the parameter sits past the point where
+the ABI needs outgoing stack space. Measured: `0x00185970` (9 params, 9th forwarded) went -96 -> -80 and 502 -> 473
+differ at +0x0 -> +0x4; `0x000bc13c` (5 params, `param_5` forwarded) regressed 74 -> 82 at 93 -> 89 words with the
+frame unchanged at -48, and `0x000bc2ac` (6 params) regressed 79 -> 88. The first four arguments use `a0..a3`, so a
+5th/6th parameter costs no frame space and removing it only renumbers the call. Screen by arity (>= 9 parameters,
+i.e. a stack-passed one) and confirm by reading `addiu sp`: if the frame does not change, the edit cannot pay.
+### Arity screen precision (pass 144)
+Eleven distinct functions declare nine or more parameters across the candidate corpus. Exactly one has a frame
+larger than retail's (`0x00185970`, 96 vs 80, the pass-141 win); the rest already match, and one is *smaller* than
+retail (`0x002a805c`, 1008 vs 1024, so its frame defect is missing space, not surplus space). The arity screen is
+therefore a cheap *candidate generator* with a low false-negative rate but a ~1/11 hit rate; the deciding test is
+still `addiu sp` in both prologues. Do not drop a parameter when the frames already agree - on this ABI a 5th-8th
+argument travels in t0..t3 and deleting it only renumbers the call, which costs 8-9 differ.
+### Dead-register reuse is the last word on two of the closest units (pass 145)
+`0x001bb6e0` (2 differ) wants `slti v0,v0,22` where we emit `slti at,v0,22`, and `0x0019dc20` (10 differ) wants the
+sum in `a0` where we emit it in `v0`; in both cases retail overwrites a value that is dead at that point, and our
+build keeps it live. Introducing locals to make the value dead does not work: on `0x001bb6e0` three such forms cost
+54-56 differing words (118/118 at 2 differ -> 119-121 words at 56-58). This is the same wall as the s0/s1 pair on
+`0x001b3bac` - register reuse decisions sit below declarations and statement order, so treat a single colour pair
+on an otherwise exact body as a floor unless the value's *producer* can be changed, not its storage.
+### Producer changes do not buy the $at destination either (pass 146)
+On `0x001bb6e0` the comparison's destination (`slti at,v0,22` vs retail `slti v0,v0,22`) survived every producer-side
+rewrite: direct memory reads in two separate tests (56 differ), a `signed char *` local making the load and compare one
+expression (3 differ, but it converts the `lbu` into a `seb` and keeps `$at`), and else-if arms (56 differ). Together
+with the nine localising forms of pass 145 this makes a dozen spellings, so a single word whose only difference is a
+`$at` destination is a genuine floor on this compiler - stop at two to three probes and move on.
+### Floor taxonomy - do not spend passes on these without a producer change (pass 147)
+Three signatures are measured floors in this lane; each park header now says so:
+1. **`$at` destination** - a single word where retail writes the comparison into a real register (`slti v0,v0,22`)
+   and we write `$at`. Twelve spellings fail (nine localising, three producer-side), so only a change to what makes
+   the operand dead could move it.
+2. **Single colour pair on an otherwise exact body** - e.g. the sum landing in `v0` where retail reuses a dead `a0`
+   (`0x0019dc20`), or `self` in s0 vs s1 (`0x001b3bac`). Live-range endpoints do not buy these; three endpoint
+   variants each regressed.
+3. **Scheduler-permuted store** - the same `sb`/`sw` placed before or after a neighbouring base materialisation
+   (`0x00204c88`, and the fill-insert examples in the wall list). Pure scheduling, no source shape.
+For each, the test before spending a compile is: does the value's *producer* have an alternative? If not, label the
+park and move to a unit whose residual is a discrete opcode, arity, dispatch or store-shape difference.
+### Four divide-and-store statements become four temporaries plus four stores (pass 148)
+`0x00051894` went 46 -> 12 differ at unchanged 95/95 words by writing the colour conversion as four named quotient
+temporaries (`float fw = (float)p[3]/128.0f; ...`) followed by four field stores, instead of four `col.x = ... / ...`
+assignments. The listing shows why: retail materialises all four quotients into distinct float registers (`f2,f3,f4,f0`)
+and stores them afterwards, which a divide-and-store statement cannot express. Do not hoist the byte loads into int
+locals to "help" - that collapsed the function to 59 words, because the `lbu`/`bltz`/`cvt.s.w` sequence must stay
+inside each division expression.
+### Store order, not declaration order, controls quotient sequencing (pass 149)
+On `0x00051894` four controls isolate the mechanism: reversed declarations and split declaration/assignment both
+measure byte-identical to the original (12 differ), while issuing the four field stores in the same order as the
+emitted divisions gives 10 differ. The compiler picks the compute order itself (`z,y,x,w` here, retail `w,z,y,x`);
+what source can influence is that the stores follow it. When a float-quotient unit is within a dozen words, match the
+store order to the emitted compute order before touching declarations.
+### Fourth floor: compiler-chosen quotient order (pass 150)
+When retail materialises several float quotients in one order (`w,z,y,x`) and our build picks another (`z,y,x,w`),
+five source controls are inert: declaration order, split declaration/assignment, a named `const float` scale, a
+decoupled producer pointer for the odd quotient, and all of them combined - each compiles byte-identically. What
+*does* matter is that the stores follow the emitted compute order (12 -> 10 on `0x00051894`), so match that and then
+stop: the sequence itself is chosen below source level. Treat this as the fourth floor signature alongside `$at`
+destinations, single colour pairs and scheduler-permuted stores.
+### First-word floor screening: scope and limits (pass 151)
+`try/pend/floor_screen.py` classifies a park by its first differing word into `at` / `colour` / `sched` / `quot`, with
+everything else queued as a non-floor candidate. Two limits worth remembering: it is a *first-word* test, so a park
+classified `colour` can still hide a discrete defect later, and it is expensive - each park needs a compile plus a
+diff, and 60 parks overrun a 600 s tool call. Run it in slices of ~12 and record counts per slice rather than treating
+one long run as the corpus figure. In the first slice of 12: colour 6, sched 3, other 3, at 0, quot 0.
+### Screens must drop installed addresses before ranking (pass 152)
+The first slice ranked `0x0001cb88` second-nearest at 2 differ, but that address has had an installed source for many
+passes - a stale park, not a workable unit. The floor screen now removes any park whose `start=` address appears in
+`src/eboot/` before ranking (287 parks dropped on the current corpus), which is cheaper than checking each candidate
+by compile and stops the work list from pointing at finished units. Corpus size after that filter is still 1118 files
+because the lane keeps many per-address variants; expect roughly forty 26-park slices to classify it completely.
+### Constant hoisting at +0x0 is a floor, and it hides the whole body (pass 154)
+`0x00040194` differs at its first word because our build lifts `lui v1,0x2c; lwc1 $f3,-16400(v1)` above the
+`andi`/`srl`/`mtc1` chain that retail runs first. The instruction multiset is identical, so the unit is a scheduler
+floor, not a body defect - and because the first difference is +0x0, the positional differ count (21 of 22) is
+inflated by the offset rather than reflecting 21 real mismatches. Rule: when the first difference is at +0x0 and the
+first two words are a hoisted constant load, label the park and skip it; only a screen that counts instruction
+multisets could have said this, which is why the floor screen diffs by word rather than by differ count alone.
+## Genuine-difference ranking (pass 155)
+Positional differ counts are wrong for selection whenever an instruction is hoisted: one extra word at the head offsets every later row, so an identical instruction multiset scores ~all words. Rank by alignment instead: `python try/pend/genuine_rank.py N` builds both streams from hstdiff, aligns with difflib and counts instructions in non-equal blocks. 0 is a floor signature (pure reordering / hoisted constant); a nonzero genuine count with a small positional count is a true localised residual. Report both columns so the correction stays visible.
+## Prologue save order is a schedule floor (pass 156)
+`sw ra,12(sp)` interleaved with `li s2,6` / `move s1,a0` / `move s0,zero` in retail, against a grouped save block in ours, is not reachable by statement order: it is the prologue scheduler. Signature: genuine count 2 with first diff at +0x4. Treat genuine<=2 with first diff inside the save block as a floor, not a target.
+## Tail-merging of a second return (pass 157)
+When two arms both end in `return p + k` GCC merges the later exit into an earlier one with `j`, losing retail's duplicated `sw` + `jr ra` + distinct return value. Signature: one genuine block at the function tail, ours `j <earlier exit>` against retail's store/jr pair. Probes: second-arm return value changed (param_2) and distinct exit expression; see PROGRESS pass 157 for the measured result.
+## Second-exit tail merge: compute the return value before the final store (pass 158)
+If the fall-through arm's return value is formed after its last store, GCC routes it through `j <first exit>`. Forming the pointer into a local first is the attempt recorded in pass 158; see PROGRESS for the measured outcome.
+## Second-exit merge is not reachable from the return expression (pass 159)
+Four forms - parameter returned directly, local copy of the parameter, blocked store, duplicated store with early return - all fail to produce retail's distinct `sw/jr/move v0,a1` exit. A fall-through arm ending in `return` is merged into an earlier exit by the compiler; treat a single genuine tail block of this shape as a floor signature.
+## Mis-attributed candidates (pass 172)
+A candidate whose compiled listing has no instruction at its own start= address is a different function, not a frame defect: every GCC function needing a frame emits `addiu sp` first. Gate: compile, accept only if the first instruction at start= is `addiu sp`. Under this gate all fifteen +0x0 units (00211270, 0023028c, 001ab7e0, 001eb000, 0026bf18, 001173f8, 002ad758, 000d3298, 0026ce14, 0022b6a0, 0027d34c, 00185970, 0027f480, 001c9e1c, 0020f83c) fail, which retracts the earlier boundaries recorded for 002ad758 and 00185970 (three missing words; frame -48).

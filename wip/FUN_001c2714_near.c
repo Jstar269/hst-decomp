@@ -60,20 +60,24 @@ void FUN_001c2714(int param_1,int param_2,undefined4 param_3,undefined4 param_4,
   FUN_0022977c(param_1 + 0x34,0,param_2);
   *(undefined4 *)(param_1 + 0x74) = param_3;
   *(undefined4 *)(param_1 + 0x78) = param_4;
-  if (param_6 == (undefined4 *)0x0) {
-    local_c = 0;
-    local_8 = 0;
-    local_4 = 0;
-    param_6 = &local_10;
-    uVar3 = 0;
+  {
+    undefined4 tmp[4];
+    undefined4 *s;
+
+    if (param_6 != (undefined4 *)0x0) {
+      s = param_6;
+    } else {
+      tmp[0] = 0;
+      tmp[1] = 0;
+      tmp[2] = 0;
+      tmp[3] = 0;
+      s = tmp;
+    }
+    *(float *)(param_1 + 0x80) = ((float *)s)[0];
+    *(float *)(param_1 + 0x84) = ((float *)s)[1];
+    *(float *)(param_1 + 0x88) = ((float *)s)[2];
+    *(float *)(param_1 + 0x8c) = ((float *)s)[3];
   }
-  else {
-    uVar3 = *param_6;
-  }
-  *(undefined4 *)(param_1 + 0x80) = uVar3;
-  *(undefined4 *)(param_1 + 0x84) = param_6[1];
-  *(undefined4 *)(param_1 + 0x88) = param_6[2];
-  *(undefined4 *)(param_1 + 0x8c) = param_6[3];
   return;
 }
-// near miss from lane dsn3 (unreviewed)
+// improved by lane dsn3 (unreviewed): 27 -> 2 differing words

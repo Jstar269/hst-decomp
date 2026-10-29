@@ -138,7 +138,7 @@ def function_name(start: int) -> str:
 
 def build_dir(src: Path, module: str) -> Path:
     """hstmatch.py's output directory for one source (its unique parent-name + stem directory)."""
-    return ROOT / "build" / module / f"{src.parent.name}__{src.stem}"
+    return ROOT / "build" / module / M.build_key(src)
 
 
 def object_symbol(src: Path, module: str, symbol: str) -> tuple[int, int] | None:

@@ -25,6 +25,18 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hstconfig as CFG  # path lookup only
 
+
+def build_key(path: Path) -> str:
+    """hstmatch.py's build directory name for a source (`<folder>__<stem>__<digest>`), written out again here because
+    this module must not import hstmatch; tools/test_hstxverify.py checks the two agree."""
+    p = Path(path).resolve()
+    try:
+        ident = p.relative_to(ROOT).as_posix()
+    except ValueError:
+        ident = p.as_posix()
+    return f"{p.parent.name}__{p.stem}__{hashlib.sha1(os.path.normcase(ident).encode('utf-8')).hexdigest()[:10]}"
+
+
 LOAD = 1
 SHT_SYMTAB = 2
 SHT_STRTAB = 3
@@ -851,7 +863,7 @@ def artifact_directory(source: Path, header: dict) -> Path:
         ROOT
         / "build"
         / str(header["module"])
-        / f"{source.resolve().parent.name}__{source.stem}"
+        / build_key(source)
     )
 
 
@@ -971,7 +983,7 @@ def verify_one(
                     "span_start": int(header["start"]),
                 }
         if mode in ("rebuild", "both"):
-            key = f"{module}/{source.resolve().parent.name}__{source.stem}"
+            key = f"{module}/{build_key(source)}"
             out = run_root / key
             try:
                 result = check_rebuild(
