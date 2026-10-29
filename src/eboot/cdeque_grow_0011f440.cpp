@@ -5,24 +5,23 @@
    value 0x2c1330; store-then-decrement keeps 0x3fffffff - 1 unfolded); start from capacity (1 when empty)
    and double until n fits, clamping at max_size(). `cap ? cap - 1 : 1` (not `cap == 0 ? 1 : cap - 1`) puts
    the 1 in retail's beqzl delay slot; `n > c` gives the sltu at loop test. Names provisional. */
+#include "hst/vec_reserve.h"
+
 extern "C" {
-struct Reent_0011f440 { int pad[3]; void *err; };
-Reent_0011f440 *FUN_0000fe3c(void);
-int FUN_0000f3e8(void *stream, const char *format, ...);
-void FUN_0000d518(void);
+int FUN_0000f3e8(void *stream, const char *format, ...); /* fprintf */
 extern char DAT_002da188[]; /* "cdeque max_size error" */
 extern char DAT_0033b492;     /* max_size() static guard */
 extern unsigned DAT_002c1330; /* max_size() static value */
 }
-inline void Error_0011f440(const char *msg)
+inline void Error(const char *msg)
 {
     FUN_0000f3e8(FUN_0000fe3c()->err, msg);
     FUN_0000d518();
 }
-struct Alloc_0011f440 {
+struct Alloc {
     unsigned max_size() const { return 0x3fffffff; }
 };
-struct Cdeque_0011f440 {
+struct Cdeque {
     unsigned cap_;
     unsigned size_;
     unsigned start_;
@@ -31,20 +30,21 @@ struct Cdeque_0011f440 {
     unsigned max_size() const
     {
         if (!DAT_0033b492) {
-            DAT_002c1330 = Alloc_0011f440().max_size();
+            DAT_002c1330 = Alloc().max_size();
             --DAT_002c1330;
             DAT_0033b492 = 1;
         }
         return DAT_002c1330;
     }
 };
-extern "C" unsigned FUN_0011f440(const Cdeque_0011f440 *self, unsigned n)
+/* Smallest capacity (starting from the current one, doubling up to max_size) that holds n elements. */
+extern "C" unsigned FUN_0011f440(const Cdeque *self, unsigned n)
 {
-    unsigned m = self->max_size();
-    if (n > m)
-        Error_0011f440(DAT_002da188);
-    unsigned c = self->cap_ ? self->cap_ - 1 : 1;
-    while (n > c)
-        c = c < m / 2 ? 2 * c : m;
-    return c;
+    unsigned limit = self->max_size();
+    if (n > limit)
+        Error(DAT_002da188);
+    unsigned cap = self->cap_ ? self->cap_ - 1 : 1;
+    while (n > cap)
+        cap = cap < limit / 2 ? 2 * cap : limit;
+    return cap;
 }

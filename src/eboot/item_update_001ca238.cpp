@@ -4,6 +4,10 @@
    0x7c/0x80/0xa4); MWCC puts declared slot i at byte offset 4*(i+2) here, so two leading entries are implied.
    Matching idiom: the four Vec4 locals have to be declared in this order for retail's stack slots. */
 
+#include "hst/event_owner.h"
+
+enum { ITEM_STRIDE = 0x30 }; /* bytes per item record */
+
 struct Vec4 {
   float x, y, z, w;
 };
@@ -75,13 +79,14 @@ struct Renderer {
 
 extern Renderer *DAT_0034a118;
 extern "C" void FUN_00022418(Vec4 *, Vec4 *, Vec4 *);
-extern "C" void FUN_001caa90(int);
-extern "C" Actor *FUN_001cd30c(int);
+extern "C" void FUN_001caa90(EventOwner *);
+extern "C" Actor *FUN_001cd30c(EventOwner *);
 extern "C" char *FUN_0022a930();
 extern "C" void FUN_00288e50(Actor *, int);
 extern "C" void FUN_0028bb2c(float, int *, int *);
 
-extern "C" void FUN_001ca238(int param_1)
+/* Apply every live item record to its object (type 3) or to the renderer (type 2), then update the active object and the pointer at +0x17c. */
+extern "C" void FUN_001ca238(EventOwner *self)
 {
   Item *it;
   Actor *obj;
@@ -100,7 +105,7 @@ extern "C" void FUN_001ca238(int param_1)
     do {
       it = (Item *)((char *)(off + (int)FUN_0022a930()) + 0xa210);
       if (it->type == 3) {
-        obj = *(Actor **)(*(int *)(param_1 + 0x4c) + it->idx * 4);
+        obj = (Actor *)self->table[it->idx];
         if (obj != 0) {
           obj->av5(&it->v10);
           FUN_00022418(&m0, &it->v10, &it->v20);
@@ -115,22 +120,22 @@ extern "C" void FUN_001ca238(int param_1)
         m2 = m1;
         DAT_0034a118->rv30(&m2);
       }
-      off += 0x30;
+      off += ITEM_STRIDE;
       n++;
     } while (n < *(int *)(FUN_0022a930() + 0xab28));
   }
   if (*(unsigned char *)(FUN_0022a930() + 0xab4d) != 0) {
-    FUN_001caa90(param_1);
-    obj = FUN_001cd30c(param_1);
+    FUN_001caa90(self);
+    obj = FUN_001cd30c(self);
     if (obj != 0) {
       p = obj->av6();
       DAT_0034a118->rv30(p);
       DAT_0034a118->rv39();
     }
   } else {
-    *(char *)(param_1 + 0xf3) = 0;
+    self->unkf3 = 0;
   }
-  i = *(int *)(param_1 + 0x17c);
+  i = (int)self->unk17c;
   if (i != 0) {
     int *q = (int *)DAT_0034a118;
     if (q != 0)

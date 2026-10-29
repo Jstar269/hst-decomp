@@ -1,10 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00114fdc end=0x00115000 symbol=FUN_00114fdc lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
-int FUN_00114fdc(int param_1,int param_2)
+typedef struct Span { char pad0[4]; short start; /* 0x4 */ short pad6; short end; /* 0x8 */ } Span;
+typedef struct SpanList { char pad0[0x10]; Span **items; /* 0x10 */ } SpanList;
+
+/* Length (end - start) of the index-th entry. */
+int FUN_00114fdc(SpanList *self,int index)
 {
-  int iVar1;
+  Span *entry;
   
-  iVar1 = *(int *)(*(int *)(param_1 + 0x10) + param_2 * 4);
-  return (int)(short)(*(short *)(iVar1 + 8) - *(short *)(iVar1 + 4));
+  entry = self->items[index];
+  return (int)(short)(entry->end - entry->start);
 }

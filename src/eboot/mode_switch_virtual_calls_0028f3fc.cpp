@@ -44,19 +44,20 @@ extern "C" VC4 *FUN_0008d994(void *);
 extern "C" VC13 *DAT_003386c0;
 extern "C" void *DAT_003386c8;
 
-extern "C" void FUN_0028f3fc(Self *o) {
-    if (o->d8() == 0) return;
+/* Runs the per-mode update steps once the object reports it is ready (modes 0 and 3 share one path, 1, 2 and 4 another). */
+extern "C" void FUN_0028f3fc(Self *self) {
+    if (self->d8() == 0) return;
     DAT_003386c0->m12(1);
-    switch (o->mode) {
+    switch (self->mode) {
     case 0:
     case 3:
-        FUN_0028e5e8(o);
-        FUN_00259cd8(o);
+        FUN_0028e5e8(self);
+        FUN_00259cd8(self);
         break;
     case 1:
     case 2:
     case 4:
-        FUN_00259cd8(o);
+        FUN_00259cd8(self);
         FUN_0008d994(DAT_003386c8)->m3();
         break;
     }

@@ -1,12 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001eab18 end=0x001eab2c symbol=FUN_001eab18 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/two_quad_screen.h"
 
-void FUN_001eab18(int *param_1)
+/* Marks the screen active and restarts its counter. */
+void FUN_001eab18(TwoQuadRef *ref)
 {
-  int iVar1;
+  TwoQuadScreen *screen;
   
-  iVar1 = *param_1;
-  *(u8 *)(iVar1 + 0x43c) = 1;
-  *(u32 *)(iVar1 + 0x440) = 0;
+  screen = ref->screen;
+  screen->active = 1;
+  screen->counter = 0;
 }

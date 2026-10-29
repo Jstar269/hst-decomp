@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ca60c end=0x001ca8e8 symbol=FUN_001ca60c lang=c++ data=0x002eaa50 */
-/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: Vec4 copies written field by field (a struct copy batches the loads), the scratch Vec4 w2 declared before w (frame slots 64/48), the matrix copied by initialisation, FUN_00022498 declared (out, in, float) so the float move lands in the jal slot, the outer loop as do/while (i < 2) with the epilogue after it; names and types await human review. Data: its string literals (1 strings, 0x002eaa50-0x002eaa61) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+/* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: Vec4 copies written field by field (a struct copy batches the loads), the scratch Vec4 w2 declared before w (frame slots 64/48), the matrix copied by initialisation, FUN_00022498 declared (out, in, float) so the float move lands in the jal slot, the outer loop as do/while (i < RING_COUNT) with the epilogue after it; names and types await human review. Data: its string literals (1 strings, 0x002eaa50-0x002eaa61) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 struct Vec4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
@@ -46,6 +46,8 @@ struct Cam {
     virtual void m36();
     virtual Vec4 *Pos();
 };
+enum { RING_COUNT = 2, STEP_COUNT = 24 }; /* candidate rings, candidate angles per ring */
+
 extern Cam *DAT_0034a118;
 extern Mat4 DAT_002bc410;
 extern char DAT_002eaa64[];
@@ -61,20 +63,21 @@ int FUN_001293b4(float, Vec4 *, Vec4 *, int *);
 int FUN_00128f60(float, int, Vec4 *);
 }
 
+/* Try candidate positions around the start position (24 rotations of dir, two lengths); store the first free one in out and return 1, else restore the start position and return 0. */
 extern "C" int FUN_001ca60c(int unused, Vec4 *dir, Vec4 *out)
 {
-    Vec4 *p = DAT_0034a118->Pos();
+    Vec4 *start = DAT_0034a118->Pos();
     Vec4 pos;
-    pos.x = p->x;
-    pos.y = p->y;
-    pos.z = p->z;
-    pos.w = p->w;
-    int local4 = 0;
+    pos.x = start->x;
+    pos.y = start->y;
+    pos.z = start->z;
+    pos.w = start->w;
+    int hit = 0;
     FUN_001c5018("search Apl Pos: ");
     int i = 0;
     do {
         int j = 0;
-        int cnt = 0;
+        int label = 0;
         do {
             out->x = pos.x;
             out->y = pos.y;
@@ -93,16 +96,16 @@ extern "C" int FUN_001ca60c(int unused, Vec4 *dir, Vec4 *out)
             FUN_00022498(&w, &v, 1.5f - (float)i * 0.5f);
             w2 = w;
             FUN_00022418(out, out, &w2);
-            FUN_001c5018(DAT_002eaa64, cnt);
-            if (FUN_001293b4(0.0f, out, &pos, &local4) == 0 && FUN_00128f60(0.0f, 0, out) == 0) {
+            FUN_001c5018(DAT_002eaa64, label);
+            if (FUN_001293b4(0.0f, out, &pos, &hit) == 0 && FUN_00128f60(0.0f, 0, out) == 0) {
                 FUN_001c5018(DAT_002eaa68);
                 return 1;
             }
             j++;
-            cnt += 10;
-        } while (j < 24);
+            label += 10;
+        } while (j < STEP_COUNT);
         i++;
-    } while (i < 2);
+    } while (i < RING_COUNT);
     FUN_001c5018(DAT_002eaa6c);
     out->x = pos.x;
     out->y = pos.y;

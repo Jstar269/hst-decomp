@@ -5,22 +5,22 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 struct Node {
-    void *f00;
-    int f04;
+    void *names;   /* 0x0 name table */
+    int count;     /* 0x4 number of names */
 };
 
 struct Self {
-    Node *f00;
-    u16 *f04;
+    Node *list;    /* 0x00 */
+    u16 *table;    /* 0x04 output: [0] = count, then one lookup result per name (0xffff = not found) */
     u8 f08;
-    u8 f09;
-    u16 f0a;
-    u16 f0c;
+    u8 lr_mode;    /* 0x09 when set, names with certain prefixes get 'L'/'R' at position 5 */
+    u16 idx_a;     /* 0x0a result for the first special name */
+    u16 idx_b;     /* 0x0c result for the second special name */
 };
 
 struct Tgt {
     char pad[8];
-    void *f08;
+    void *lookup;  /* 0x08 object resolving a name to an index */
 };
 
 extern "C" void FUN_000104e0(void *p);
@@ -37,53 +37,54 @@ extern "C" char DAT_002d0f20[];
 extern "C" char DAT_002d0f28[];
 extern "C" char DAT_002d0f38[];
 
+/* Build the per-name index table of self->list by looking each name up in tgt. */
 extern "C" void FUN_000562d8(Self *self, Tgt *tgt, u8 mode)
 {
-    if (self->f04 != 0) {
-        FUN_000104e0(self->f04);
-        self->f04 = 0;
+    if (self->table != 0) {
+        FUN_000104e0(self->table);
+        self->table = 0;
     }
     if (tgt == 0)
         return;
-    if (self->f00 == 0)
+    if (self->list == 0)
         return;
 
     FUN_00049194();
-    self->f09 = mode;
+    self->lr_mode = mode;
 
-    int count = self->f00->f04;
+    int count = self->list->count;
     u16 *buf = (u16 *)FUN_000104b0((count + 1) * 2);
-    self->f04 = buf;
+    self->table = buf;
     buf[0] = (u16)count;
 
     for (int i = 0; i < count; i++) {
         char local[256];
         int v;
 
-        strcpy(local, self->f00->f00 != 0 ? FUN_000301e0(self->f00->f00, i & 0xffff) : 0);
+        strcpy(local, self->list->names != 0 ? FUN_000301e0(self->list->names, i & 0xffff) : 0);
 
-        if (self->f09 != 0) {
+        if (self->lr_mode != 0) {
             if (FUN_00014d64(local, DAT_002d0f18) == local)
                 local[5] = 'L';
             else if (FUN_00014d64(local, DAT_002d0f20) == local)
                 local[5] = 'R';
         }
 
-        v = tgt->f08 != 0 ? FUN_0002fe80(tgt->f08, local) : -1;
+        v = tgt->lookup != 0 ? FUN_0002fe80(tgt->lookup, local) : -1;
 
-        if (self->f09 != 0 && v < 0) {
-            const char *raw = self->f00->f00 != 0 ? FUN_000301e0(self->f00->f00, i & 0xffff) : 0;
-            v = tgt->f08 != 0 ? FUN_0002fe80(tgt->f08, raw) : -1;
+        if (self->lr_mode != 0 && v < 0) {
+            const char *raw = self->list->names != 0 ? FUN_000301e0(self->list->names, i & 0xffff) : 0;
+            v = tgt->lookup != 0 ? FUN_0002fe80(tgt->lookup, raw) : -1;
         }
 
-        if (self->f09 != 0) {
+        if (self->lr_mode != 0) {
             if (FUN_00014934(local, DAT_002d0f28) == 0)
-                self->f0a = (u16)v;
+                self->idx_a = (u16)v;
             else if (FUN_00014934(local, DAT_002d0f38) == 0)
-                self->f0c = (u16)v;
+                self->idx_b = (u16)v;
         }
 
-        self->f04[i + 1] = (u16)(v < 0 ? 0xffff : v);
+        self->table[i + 1] = (u16)(v < 0 ? 0xffff : v);
     }
 
     FUN_000491cc();

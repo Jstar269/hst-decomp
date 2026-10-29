@@ -10,17 +10,28 @@ extern u32 * FUN_0001ed28();
 extern u32 * FUN_000519d4();
 extern void FUN_0005bbd8();
 
-u32 * FUN_002c53c4(u32 *param_1,short param_2)
+#define ITEM_COUNT 0x14   /* elements in the item array */
+#define ITEM_STRIDE 0x70  /* bytes per element */
+
+typedef struct ItemArrayObj {
+  u32 vtable;                              /* 0x00 */
+  char pad04[0x3c];
+  char sub[0x50];                          /* 0x40 embedded sub-object */
+  char items[ITEM_COUNT][ITEM_STRIDE];     /* 0x90 */
+} ItemArrayObj;
+
+/* Deleting destructor: reset the global, destroy the item array and sub-object, run the base teardown, free when flag > 0. */
+ItemArrayObj * FUN_002c53c4(ItemArrayObj *self,short flag)
 {
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b32a0);
+  if (self != (ItemArrayObj *)0x0) {
+    self->vtable = (unsigned int)(&DAT_003b32a0);
     DAT_003f491c = 0;
-    FUN_00000788(param_1 + 0x24,FUN_0005bbd8,0x70,0x14);
-    FUN_000519d4(param_1 + 0x10,0xffffffff);
-    FUN_0001ed28(param_1,0);
-    if (param_2 > 0) {
-      FUN_00000a00(param_1);
+    FUN_00000788(self->items,FUN_0005bbd8,ITEM_STRIDE,ITEM_COUNT);
+    FUN_000519d4(self->sub,0xffffffff);
+    FUN_0001ed28(self,0);
+    if (flag > 0) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

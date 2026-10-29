@@ -1,14 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025a2c0 end=0x0025a2ec symbol=FUN_0025a2c0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/types.h"
+#include "hst/block_deque.h"
 
-int * FUN_0025a2c0(int *param_1)
+/* Advance a map cursor by one slot, wrapping to the start of the map at its end. */
+BlockDequePos * FUN_0025a2c0(BlockDequePos *pos)
 {
-  int iVar1;
-  
-  iVar1 = *param_1;
-  *param_1 = iVar1 + 4;
-  if (iVar1 + 4 == param_1[3]) {
-    *param_1 = param_1[1];
+  void **next;
+
+  next = pos->map_cur + 1;
+  pos->map_cur = next;
+  if (next == pos->map_end) {
+    pos->map_cur = pos->map_begin;
   }
-  return param_1;
+  return pos;
 }

@@ -15,10 +15,10 @@ extern unsigned FUN_00001040(unsigned, int *);
 
 void FUN_00002408(unsigned key, Out *out)
 {
-    int hi;
-    int lo;
     int i;
     Entry *e;
+    int lo;
+    int hi;
     unsigned key2;
     unsigned v;
     unsigned rem;
@@ -35,30 +35,29 @@ void FUN_00002408(unsigned key, Out *out)
     key2 = key & ~1u;
     hi = (int)(out->end - out->begin) / 12 - 1;
     lo = 0;
-    e = 0;
     while (lo <= hi) {
         i = (lo + hi) >> 1;
         e = (Entry *)(out->begin + i * 12);
         if (key2 < e->value) {
             hi = i - 1;
-            e = 0;
         } else if (e->value + (e->len & ~1u) < key2) {
             lo = i + 1;
-            e = 0;
         } else {
-            break;
+            goto found;
         }
     }
+    e = 0;
+found:
     if (e != 0) {
-        if ((e->len & 1) == 0)
-            out->cur = e->data;
+        if (e->len & 1)
+            out->cur = (unsigned)&e->data;
         else
-            out->cur = (unsigned)(e + 2);
+            out->cur = e->data;
         out->key = e->value;
         v = e->value;
+        rem = key2 - v;
         n = FUN_00002688(out->cur);
         total = 0;
-        rem = key2 - v;
         do {
             n = FUN_00001040(n, &c);
             if (c == 0)
@@ -72,13 +71,11 @@ void FUN_00002408(unsigned key, Out *out)
         out->next = out->cur + a;
     }
 }
-// 0x00002408: 102/101 words, 79 differ. Structure complete: out->cur/out->next = 0;
-// if (FUN_000026d8(out,key)==0) return; key2 = key & ~1; hi = (end-begin)/12 - 1;
-// binary search over 12-byte {value,len,data} entries (do-while, hi/lo), found entry:
-// out->cur = (len&1) ? (unsigned)(e+2) : e->data; out->key = e->value;
-// n = FUN_00002688(out->cur); rem = key2 - e->value; loop FUN_00001040(n,&c/&b/&a):
-// if (c==0) return; if (rem < total+c) return; total += c+b; while (total < rem);
-// out->next = out->cur + a.
-// Remainder: `out` lands in s2 in ours and s1 in retail (retail: key=s0, out=s1, total=s2),
-// and the whole search loop is one register class off (ours a1/a3/t0/t1/t2 vs ret a2/a3/t1/t2/t3).
-// near miss from lane fm11 (unreviewed)
+// NEAR (lane sx1): 100/101 words, 67 differ (was 102/101, 79 differ). Findings: (1) key2 is a temp (v1) when `rem = key2 - e->value` is computed BEFORE the
+// FUN_00002688 call (retail's subu sits in that jal's slot); (2) the search leaves e = the last probed entry and sets `e = 0` only after the loop exits by
+// range (`else goto found;` out of the loop, `e = 0; found:`), which gives retail's `move t3,zero` + `beqz t3`; (3) hi/e registers (t1/t3) follow the
+// declaration order `Entry *e; int lo; int hi;`; (4) out->cur is `(len & 1) ? (unsigned)&e->data : e->data` as an if/else with the &e->data arm first
+// (field address, +8, not e+2).
+// Still open: retail keeps a duplicate of each likely-branch slot instruction at the branch target (`beqzl at,L; lw a0,4(t3)` ... L: lw a0,4(t3)), twice
+// (bsearch compare and the cur select), so retail has 101 words and ours 100; and out/total land in s2/s1 here vs s1/s2 in retail.
+// improved by lane sx1 (unreviewed): 79 -> 67 differing words

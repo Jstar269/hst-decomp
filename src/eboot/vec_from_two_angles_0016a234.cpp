@@ -17,32 +17,34 @@ float FUN_000224d8(Vec4 *, Vec4 *);
 float FUN_00022e44(float);
 void FUN_00022418(Vec4 *, Vec4 *, Vec4 *);
 
-void FUN_0016a234(Vec4 *out, float *p2, float *p3, float *p4)
+/* Builds a vector from a length and two angles: tilts (0, radius, 0) by the pitch, takes the length of its
+   horizontal part, swings a vector of that length by the yaw and adds the two. */
+void FUN_0016a234(Vec4 *out, float *radius, float *yaw, float *pitch)
 {
-    Vec4 c;
-    Vec4 a;
-    Mat m;
-    Vec4 b;
-    Vec4 r;
-    a = Vec4(0.0f, *p2, 0.0f, 1.0f);
-    FUN_0004d278(&m, &DAT_002bc410, *p4);
-    FUN_00022548(&a, &m, &a);
-    b.x = a.x;
-    b.y = 0.0f;
-    b.z = a.z;
-    b.w = 1.0f;
-    float len = FUN_00022e44(FUN_000224d8(&b, &b));
-    c.x = 0.0f;
-    c.y = 0.0f;
-    c.z = len;
-    c.w = 1.0f;
-    FUN_0004d2cc(&m, &DAT_002bc410, *p3);
-    FUN_00022548(&c, &m, &c);
-    a = Vec4(0.0f, a.y, 0.0f, 1.0f);
-    c = Vec4(c.x, 0.0f, c.z, 1.0f);
-    FUN_00022418(&r, &c, &a);
-    Vec4 t = r;
-    t.w = 1.0f;
-    *out = t;
+    Vec4 side;
+    Vec4 up;
+    Mat rot;
+    Vec4 flat;
+    Vec4 sum;
+    up = Vec4(0.0f, *radius, 0.0f, 1.0f);
+    FUN_0004d278(&rot, &DAT_002bc410, *pitch);
+    FUN_00022548(&up, &rot, &up);
+    flat.x = up.x;
+    flat.y = 0.0f;
+    flat.z = up.z;
+    flat.w = 1.0f;
+    float len = FUN_00022e44(FUN_000224d8(&flat, &flat));
+    side.x = 0.0f;
+    side.y = 0.0f;
+    side.z = len;
+    side.w = 1.0f;
+    FUN_0004d2cc(&rot, &DAT_002bc410, *yaw);
+    FUN_00022548(&side, &rot, &side);
+    up = Vec4(0.0f, up.y, 0.0f, 1.0f);
+    side = Vec4(side.x, 0.0f, side.z, 1.0f);
+    FUN_00022418(&sum, &side, &up);
+    Vec4 result = sum;
+    result.w = 1.0f;
+    *out = result;
 }
 }

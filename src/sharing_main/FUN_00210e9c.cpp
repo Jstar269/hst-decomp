@@ -5,24 +5,33 @@
 extern "C" {
 extern void FUN_00000a00(...);
 }
-struct VC_0 { virtual ~VC_0(); };
-struct VC_1 { virtual ~VC_1(); };
+struct OwnedA { virtual ~OwnedA(); };
+struct OwnedB { virtual ~OwnedB(); };
 
-extern "C" int FUN_00210e9c(int param_1,short param_2)
+/* Object that owns two polymorphic members. */
+struct TwoOwner {
+  char pad0[0x520];
+  OwnedB *second;  /* 0x520 */
+  OwnedA *first;   /* 0x524 */
+};
+
+/* Deleting destructor body (short flag): releases both owned members, frees self when flag > 0. */
+extern "C" TwoOwner *FUN_00210e9c(TwoOwner *self,short flag)
 {
-  int *piVar1;
+  OwnedA *a;
+  OwnedB *b;
   
-  if (param_1 != 0) {
-    piVar1 = *(int **)(param_1 + 0x524);
-    delete ((VC_0 *)(piVar1));
-    piVar1 = *(int **)(param_1 + 0x520);
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_1 *)(piVar1));
-      *(u32 *)(param_1 + 0x520) = 0;
+  if (self != 0) {
+    a = self->first;
+    delete a;
+    b = self->second;
+    if (b != 0) {
+      delete b;
+      self->second = 0;
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

@@ -29,6 +29,7 @@ inline void Push(int &slot)
     slot = 0;
 }
 
+/* Deleting destructor: moves both slot values into the global pool and frees self when mode is positive. */
 extern "C" Cmd2 *FUN_0005a410(Cmd2 *self, short mode)
 {
     if (self) {

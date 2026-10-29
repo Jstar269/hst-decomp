@@ -10,6 +10,7 @@ static inline float Clamp(const float &v, const float &lo, const float &hi)
   return v < lo ? lo : (!(v > hi) ? v : hi);
 }
 
+/* Ratio num/den clamped (0 when den is 0), then scaled to a percentage and clamped again. */
 extern "C" float FUN_001bc060(int num, int den)
 {
   float ratio = 0.0f;

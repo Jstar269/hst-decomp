@@ -1,50 +1,29 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00288be8 end=0x00288c74 symbol=FUN_00288be8 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: C++ mode, struct member access and virtual method call on slot 11; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: C++ mode, struct member access and virtual method call on slot 11; readability pass; exact match verified; names and types await human review. */
+#include "hst/npc_obj.h"
 
-struct Sub2 {
-    char pad[0x40];
-    short id;
-};
+extern "C" void FUN_00288c74(NpcObj *npc);
 
-struct Obj {
-    virtual int v0();
-    virtual int v1();
-    virtual int v2();
-    virtual int v3();
-    virtual int v4();
-    virtual int v5();
-    virtual int v6();
-    virtual int v7();
-    virtual int v8();
-    virtual int v9();
-    virtual int v10();
-    virtual int v11();
-
-    char pad[0x60 - 4];
-    Sub2 *sub;
-};
-
-extern "C" void FUN_00288c74(Obj *param_1);
-
-extern "C" bool FUN_00288be8(Obj *param_1, int param_2)
+/* In mode 2 or 3: look the sub record up if needed and compare its id with `id`. */
+extern "C" bool FUN_00288be8(NpcObj *npc, int id)
 {
-  bool bVar1;
-  int iVar2;
+  bool match;
+  int mode;
   
-  iVar2 = param_1->v11();
-  bVar1 = iVar2 == 2;
-  if (!bVar1) {
-    iVar2 = param_1->v11();
-    bVar1 = iVar2 == 3;
+  mode = npc->mode();
+  match = mode == 2;
+  if (!match) {
+    mode = npc->mode();
+    match = mode == 3;
   }
-  if (bVar1) {
-    if (param_1->sub == 0) {
-      FUN_00288c74(param_1);
+  if (match) {
+    if (npc->sub == 0) {
+      FUN_00288c74(npc);
     }
-    bVar1 = param_1->sub->id == param_2;
+    match = npc->sub->id == id;
   }
   else {
-    bVar1 = false;
+    match = false;
   }
-  return bVar1;
+  return match;
 }

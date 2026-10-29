@@ -31,8 +31,11 @@ typedef struct Self {
   int *items;
 } Self;
 
+enum { ITEM_COUNT = 0x115, ROW_SIZE = 0x10 };
+
 #pragma opt_strength_reduction off
 
+/* Applies every item in the device table (skipping rows whose mode does not match), mirroring high items onto the secondary device. */
 void FUN_00098a0c(Self *self)
 {
   StateInfo *state;
@@ -63,8 +66,8 @@ void FUN_00098a0c(Self *self)
       }
 NEXT_ITEM:
       index++;
-      row += 0x10;
-    } while (index < 0x115);
+      row += ROW_SIZE;
+    } while (index < ITEM_COUNT);
     FUN_00098b64(self);
   }
 }

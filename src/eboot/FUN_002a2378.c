@@ -1,12 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a2378 end=0x002a23a8 symbol=FUN_002a2378 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/letter_host.h"
 
 extern void FUN_002a1f60();
 
-void FUN_002a2378(int param_1)
+/* Sets the panel to state 1. */
+void FUN_002a2378(LetterHost *host)
 {
-  if (*(int *)(param_1 + 0x1b0) == 5) {
-    FUN_002a1f60(*(u32 *)(param_1 + 0x1d0),1);
+  if (host->unk1b0 == 5) {
+    FUN_002a1f60(host->panel,1);
   }
 }

@@ -19,19 +19,22 @@ void FUN_002930c8(float, Snd *, int);
 void FUN_002932b8(float, Snd *, int);
 }
 
-extern "C" void FUN_0019da6c(int param_1)
+enum { STATE_22 = 0x16, STATE_23 = 0x17, STATE_25 = 0x19 }; /* state ids handled here */
+
+/* React to entering a state: fetch an input for states 22 and 25 (under extra conditions), call the sound object for 23 and for a fetched input, then make the camera call that matches the state. */
+extern "C" void FUN_0019da6c(int stateId)
 {
-    unsigned char flag = 0;
-    int v = 0;
-    bool b = false;
-    if (param_1 == 0x16) {
+    unsigned char flag = 0; /* set when an input was fetched */
+    int v = 0;               /* the fetched input */
+    bool alt = false;
+    if (stateId == STATE_22) {
         if (DAT_0034a678 == 0x29 && DAT_0034a820 != 0)
             FUN_001ff5f0(&flag, &v);
-    } else if (param_1 == 0x19) {
+    } else if (stateId == STATE_25) {
         if (DAT_0034a678 == 0x29 && DAT_00341784->b2a4 != 0 && DAT_00338ac4->b178 != 0 && DAT_0034a820 != 0)
             FUN_001ff5f0(&flag, &v);
-    } else if (param_1 == 0x17) {
-        b = true;
+    } else if (stateId == STATE_23) {
+        alt = true;
         if (DAT_0034a820 != 0)
             FUN_002932b8(65535.0f, DAT_0034a820, 6);
     }
@@ -39,7 +42,7 @@ extern "C" void FUN_0019da6c(int param_1)
         FUN_00292e40(DAT_0034a820, v);
         FUN_002930c8(65535.0f, DAT_0034a820, 1);
     }
-    if (b)
+    if (alt)
         FUN_0006391c(65535.0f, DAT_00331b84, 15);
     else
         FUN_00063830(65535.0f, -1.0f, DAT_00331b84, Q(), Q(), 10, 0, 0);

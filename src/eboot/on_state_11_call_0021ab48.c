@@ -1,20 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021ab48 end=0x0021ab8c symbol=FUN_0021ab48 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: the call to FUN_001b1c44 takes the module global by address and the state value 11 as the second argument Ghidra dropped (li a1,11 before the compare); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: the call to FUN_001b1c44 takes the module global by address and the state value 11 as the second argument Ghidra dropped (li a1,11 before the compare); readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
-
-typedef struct Obj_0021ab48 {
-  int f0;
-  int f4;
-} Obj_0021ab48;
+#include "hst/selection_menu.h"
 
 extern u8 DAT_0034179c;
 extern void FUN_001b1c44(u8 *, int);
-extern void FUN_0021abe0(Obj_0021ab48 *, int);
+extern void FUN_0021abe0(SelectionState *, int);
 
-void FUN_0021ab48(Obj_0021ab48 *param_1)
+/* When the state is 11, calls FUN_001b1c44 with 11 and switches to state 0. */
+void FUN_0021ab48(SelectionState *self)
 {
-  if (param_1->f4 == 0xb) {
+  if (self->state == 0xb) {
     FUN_001b1c44(&DAT_0034179c, 0xb);
-    FUN_0021abe0(param_1, 0);
+    FUN_0021abe0(self, 0);
   }
 }

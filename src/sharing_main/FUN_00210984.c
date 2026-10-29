@@ -2,9 +2,16 @@
 /* Clone of src/eboot/FUN_002021b4.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-void FUN_00210984(float param_1,u8 *param_2)
+typedef struct ActiveTimer {
+  u8 active;      /* 0x00 */
+  char pad1[0x13];
+  float timer;    /* 0x14 */
+} ActiveTimer;
+
+/* Adds dt to the timer while the object is active. */
+void FUN_00210984(float dt,ActiveTimer *obj)
 {
-  if (*param_2 != '\0') {
-    *(float *)(param_2 + 0x14) = *(float *)(param_2 + 0x14) + param_1;
+  if (obj->active != '\0') {
+    obj->timer = obj->timer + dt;
   }
 }

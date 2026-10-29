@@ -1,36 +1,39 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b0610 end=0x001b06d4 symbol=FUN_001b0610 lang=c99 */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-extern void FUN_00062418(int, int);
+/* Hand-written reconstruction from the disassembly; readability pass; exact match verified; names and types await human review. */
+#include "hst/slot_table.h"
 
-void FUN_001b0610(int *param_1, int param_2)
+extern void FUN_00062418(void *, int);
+
+/* Release reference `index` of the second 4-entry table: when no other entry refers to the same slot, delete that slot's object; then clear the entry. */
+void FUN_001b0610(SlotTable *table, int index)
 {
-  int *p = param_1;
-  int off = param_2 * 4;
-  int *t = (int *)(off + (int)p + 0x778);
-  int *q;
-  int *qe;
-  int n;
+  SlotTable *p = table;
+  int off = index * 4;
+  int *entry = (int *)(off + (int)p + 0x778);   /* unk778[index] */
+  int *cur;
+  int *end;
+  int matches;
   int i;
 
-  if (p[param_2 + 0x1de] == 0) return;
-  n = 0;
-  q = p + 0x1de;
-  qe = p + 0x1e2;
-  if (q != qe) {
+  if (p->unk778[index] == 0) return;
+  matches = 0;
+  cur = p->unk778;
+  end = &p->unk788;
+  if (cur != end) {
     do {
-      if (*q == *t) n++;
-      q++;
-    } while (q != qe);
+      if (*cur == *entry) matches++;
+      cur++;
+    } while (cur != end);
   }
-  if (n < 2) {
-    for (i = 0; i < 0x1da; i++) {
-      int c = p[i];
-      if (c == *t) {
-        int v = p[i];
-        if (v != 0) { FUN_00062418(v, 1); p[i] = 0; }
+  if (matches < 2) {
+    for (i = 0; i < SLOT_COUNT; i++) {
+      void *candidate = p->slot[i];
+      if ((int)candidate == *entry) {
+        void *object = p->slot[i];
+        if (object != 0) { FUN_00062418(object, 1); p->slot[i] = 0; }
         break;
       }
     }
   }
-  *t = 0;
+  *entry = 0;
 }

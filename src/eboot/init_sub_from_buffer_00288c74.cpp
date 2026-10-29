@@ -1,49 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00288c74 end=0x00288cf4 symbol=FUN_00288c74 lang=c++ data=0x002feb20 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ mode, struct member access and virtual method call on slot 11; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002feb20-0x002feb2e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: C++ mode, struct member access and virtual method call on slot 11; readability pass; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002feb20-0x002feb2e) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+#include "hst/npc_obj.h"
 
-struct Sub2 {
-    char pad[0x40];
-    short id;
-};
-
-struct Obj {
-    virtual int v0();
-    virtual int v1();
-    virtual int v2();
-    virtual int v3();
-    virtual int v4();
-    virtual int v5();
-    virtual int v6();
-    virtual int v7();
-    virtual int v8();
-    virtual int v9();
-    virtual int v10();
-    virtual int v11();
-
-    char pad[0x34 - 4];
-    int arg1;
-    int arg2;
-    char pad2[0x60 - 0x3c];
-    Sub2 *sub;
-};
+enum { NAME_BUFFER_SIZE = 64 };
 
 extern "C" void FUN_000143b0(void*, const void*, int, int);
-extern "C" Sub2* FUN_00193024(void*);
+extern "C" NpcSub* FUN_00193024(void*);
 
-extern "C" void FUN_00288c74(Obj *param_1)
+/* In mode 2 or 3: build the resource name from the two numbers and look the sub record up by it. */
+extern "C" void FUN_00288c74(NpcObj *npc)
 {
-  bool bVar1;
-  int iVar2;
-  char auStack_40[64];
+  bool match;
+  int mode;
+  char name[NAME_BUFFER_SIZE];
   
-  iVar2 = param_1->v11();
-  bVar1 = iVar2 == 2;
-  if (!bVar1) {
-    iVar2 = param_1->v11();
-    bVar1 = iVar2 == 3;
+  mode = npc->mode();
+  match = mode == 2;
+  if (!match) {
+    mode = npc->mode();
+    match = mode == 3;
   }
-  if (bVar1) {
-    FUN_000143b0(auStack_40, "Npc_%03d_%02d", param_1->arg1, param_1->arg2);
-    param_1->sub = FUN_00193024(auStack_40);
+  if (match) {
+    FUN_000143b0(name, "Npc_%03d_%02d", npc->npc_num, npc->sub_num);
+    npc->sub = FUN_00193024(name);
   }
 }

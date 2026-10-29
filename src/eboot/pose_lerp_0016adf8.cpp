@@ -36,9 +36,9 @@ inline Vec4 operator*(float s, const Vec4 &v)
 
 struct Pose {
     Mat4 m;
-    float f50;
+    float unk40;       /* 0x40 */
     Vec4 rot;
-    float f70;
+    float unk60;       /* 0x60 */
     float sx __attribute__((aligned(16)));
     float sy, sz;
 
@@ -53,6 +53,7 @@ struct Node {
 
 extern "C" void FUN_000609f8(Node *n);
 
+/* Copies the pose of `to` into dst, then blends position, rot and sx from `from` towards `to` by t. */
 extern "C" void FUN_0016adf8(Node *dst, Node *from, Node *to, float t)
 {
     Vec4 a, b;

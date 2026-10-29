@@ -10,14 +10,23 @@ static void FUN_002803d8(...)
 extern void FUN_00280830(void *, int, int);
 extern void FUN_002b7898(void *);
 extern void FUN_002807d0(void);
-void FUN_00280ff0(unsigned char *param_1, int param_2)
+
+typedef struct Host {
+  char pad0[4];
+  int value;                 /* 0x04 stored from the second argument */
+  char pad8[8];
+  char sub[0x2c00 - 0x10];   /* 0x10 sub-object passed to FUN_002b7898 */
+  unsigned char busy;        /* 0x2c00 */
+} Host;
+
+void FUN_00280ff0(Host *self, int value)
 {
-  if (param_1[0x2c00] != 0) {
+  if (self->busy != 0) {
     FUN_002803d8(DAT_002fe91c);
     return;
   }
-  FUN_00280830(param_1, 3, 0);
-  *(int *)(param_1 + 4) = param_2;
-  FUN_002b7898(param_1 + 0x10);
+  FUN_00280830(self, 3, 0);
+  self->value = value;
+  FUN_002b7898(self->sub);
   FUN_000bd924(DAT_00338ac4, FUN_002807d0);
 }

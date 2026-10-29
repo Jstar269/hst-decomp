@@ -1,15 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025d580 end=0x0025d5c4 symbol=FUN_0025d580 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
 extern "C" {
 extern void FUN_00103628(...);
 extern void FUN_0025d5c4(...);
 }
-struct VC_0 { virtual void d0(); virtual void d1(); virtual void m(int); };
+struct Widget { virtual void d0(); virtual void d1(); virtual void m(int); };
+struct Holder {
+  char pad00[0x68];
+  Widget *widget;  /* 0x68 */
+};
 
-extern "C" void FUN_0025d580(int param_1)
+extern "C" void FUN_0025d580(Holder *self)
 {
-  FUN_00103628(param_1,1);
-  ((VC_0 *)(*(int **)(param_1 + 0x68)))->m((int)(0));
-  FUN_0025d5c4(param_1);
+  FUN_00103628(self,1);
+  self->widget->m(0);
+  FUN_0025d5c4(self);
 }

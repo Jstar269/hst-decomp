@@ -12,7 +12,7 @@ struct Tag {};
 struct Gizmo {
   char pad[0x30];
   int index;
-  int f34;
+  int unk34;
 };
 struct GizmoVec;
 extern "C" {
@@ -53,7 +53,7 @@ void FUN_001d4f60(Mgr *self, int index, Gizmo *g)
   if (FUN_001d54e8(self, index) != 0)
     FUN_001d0468(DAT_00392420, index);
   g->index = index;
-  g->f34 = 0;
+  g->unk34 = 0;
   self->gizmos.push_back(g);
 }
 }

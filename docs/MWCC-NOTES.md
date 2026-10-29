@@ -2951,3 +2951,390 @@ scheduling on, and it is already the profile). Alignment is reachable only at so
 **Conclusion:** the nine word-count ties are unreachable by flag variation with this toolchain
 profile. Any further progress on that class has to come from the source shape (declaration order,
 address-taking, aggregate types), not from the build.
+- (lane sx1, unreviewed by the main session)
+- (lane sx1, unreviewed by the main session)
+2026-10-28 sx1 0x0015c4e0 EXACT: a printf-like variadic callee's format argument must be a typed pointer: with `FUN_0001cad0(int*,int,int)` and an int base the third argument was set up before the first two; `(int*,int,const char*,...)` with the base declared `char *param_1` puts `addiu a2,s0,880` in the jal slot like retail (a typed pointer arg is scheduled last).
+2026-10-28 sx1 0x002395f8 EXACT: parity-toggle test `((c+1)/n & 1) != (c/n & 1)` with a store between: retail divides the OLD count first (div before the sw), then reloads the global divisor after the store. Spell it `bool before = (c/n & 1) != 0; store c+1; bool after = (c1/G->n & 1) != 0; if (before != after)` (divisor read once into a local before, re-read after the store).
+2026-10-28 sx1 0x00297ec0 EXACT (gcc171-O0): the ASCII class test `(c>='A'&&c<='Z')||(c>='0'&&c<='9')` followed by `continue;` and a shared `result = ERR; goto cleanup;` reproduces retail's sltiu ladder (c<65 -> digit test, c<91 -> ok); the nested `if (c >= 'A') { if (c <= 'Z') continue; }` form adds a jump. A top-test loop with `i++; break;` on '.', and `if (c != '.') {err} else {for(; i<size; i++)...}` give the error-first layout.
+2026-10-28 sx1 0x0027db5c EXACT: a vtable call through `lw v0` ring is a C++ virtual with slot k=(off-8)/4; `lw t9,0(a0); lw t9,156(t9)` = 37 placeholder virtuals before the real one (write them out; a struct of function pointers gives v0). Vec4 copies from a call result schedule like retail only through three float temps (`float z=p->z,x=p->x,y=p->y; v.z=z; v.x=x; v.y=y; v.w=p->w;`): loads batch, stores z first.
+2026-10-28 sx1 0x001c67e8 EXACT: (a) a compare loop that reloads the iterator pointer before the deref (`lw v1,32(sp)` twice) and compares `bnel v1,a1` needs the loop condition split into tiny inline helpers `Ne(const It&,const It&)` and `Eq(const int&,const int&)` with `!Eq(*first,val)` (the direct `first.p_ != last.p_ && *first != val` CSEs the reload and flips the bnel operands in every spelling); (b) frame +16 with x at 16(sp): an inline `grow(const int&x, Tag)` that DROPS its Tag and rebuilds `Tag()` for the out-of-line call (forwarding the tag adds an `andi`).
+2026-10-28 sx1 0x001f9f70 EXACT: `if (G != K) exit; if (tbl[..] == 0) {body}` where the first exit is a separate `b` carrying its own copy of the epilogue's first load is a single-case SWITCH: `switch (G) { case K: if (cond) {...} break; }` (the && / early-return / nested-if forms always put the exit block last).
+2026-10-28 sx1 0x0010b76c EXACT: a 12-byte POD element copied as `lwc1 f2,f1,f0; swc1 f2,f1,f0` in a C++ TU needs a float view: `union Elem { struct {short x,y; uchar f4..f7; int f8;} s; float f[3]; }` (a plain struct of short/uchar/int copies member by member in C++ and block-copies only in C mode). The cached-index re-read after a short store needs `(Elem *)((char *)data + idx * 12)` for the 2nd and 3rd access (plain data[idx] puts the offset operand first in addu).
+2026-10-28 sx1 0x0017b030 EXACT: for a Ghidra draft with a double loop, (1) a callee returning float in $f0 must be declared float (an int declaration plus (float) casts adds cvt.s.w); (2) `#pragma opt_strength_reduction off` makes `param_4 * uVar11` a per-pass mult and removes the running offset register; (3) saved registers follow declaration order with the FIRST-declared highest: declaring outer index, running offset, inner index (in that order) gave s4/s3/s2.
+2026-10-28 sx1 0x0015a844 EXACT: Ghidra's inverted `if ((bit == 0) || F() != 0) {next} else {handler}` nests are a flat positive chain `if ((bits & 1) && F(self,0xd0) == 0) {handler} else if ((bits & 2) && ...) {...} else {fallback}`; plus types: flag byte signed char (lb + seb), global unsigned char (lbu), callee int (not bool: no andi).
+2026-10-28 sx1 0x000aba38 near (9 words): a retail run of `lb/lh ... andi rX,zero,N; sll; and mask; or; seb; sb` is a BITFIELD record (plain signed char/short containers, declared in memory order, assigned with literal 0s): 139/139 words from 99 differing. A store written before the call that takes `(char*)&rec + 44` fills the call's delay slot only when it precedes the call textually (check line endings when scripting source edits: CRLF broke my multi-line replaces silently).
+2026-10-28 sx1 0x001ac970 near (12 words): `lw t9,0(a0); lw t9,24(t9)` + a `(**(code **)..)` call in a C draft means lang=c++ with a Widget class (4 dummy virtuals); FUN_00103628 had a missing second argument (`move a1,zero` after `lw a0,0(s5)`); `#pragma opt_strength_reduction off` recomputes i*4.
+2026-10-28 sx1 0x000d0cfc near (+1 word): a template-struct copy from `extern const` globals pipelines one load ahead with a fresh lui per field; the same members non-const hoist the luis, and a 20-float table copied in a loop needs the NON-const array for retail's single $f0 interleave.
+- (lane sx2, unreviewed by the main session)
+2026-10-28 (lane sx2, 0x0028c0f8 EXACT): loop-invariant LOADS are only hoisted when they are written as locals before the loop. A `while (AtEnd(p, v->beg + v->count, Tag())) { if (p->f0 == G->fcc + 1 && p->f4 == G->fd0 + 1 ...) }` keeps `lw fcc; addiu 1` and the end-pointer recomputation inside the loop (73 words); retail's hoisted form (`lw a2,fcc(g); lw a1,fd0(g); addiu a3,a2,1; ...; addu a1,s0,v1` before the guard) is `Cfg *g = DAT; int c0 = g->fcc + 1; int c1 = g->fd0 + 1; Rec *p = v->beg; Rec *end = v->beg + v->count; while (AtEnd(p, end, Tag())) { if (p->f0 == c0 && p->f4 == c1 ...`. The 4 locals must be declared in that order (g, c0, c1 first; end after p).
+2026-10-28 (lane sx2, 0x0016fab8 EXACT): to get retail's "compare through the hoisted table base, but RELOAD the table in the match path" do three things: `volatile unsigned count` (bound reload per pass); `Entry **items = m->items;` taken INSIDE an explicit `if (m->count != 0) { ... do { if (items[i]->id == id) return ((Mgr2 *)m)->items[i]; i++; } while (i < m->count); }` (the explicit emptiness test puts the base load after the `beqz`; a local before a plain `for` puts `lw a1,table` before it; the identical-layout struct `Mgr2` cast defeats the CSE of `items[i]` with the compare's load, a same-type cast does not); `#pragma opt_strength_reduction off`; and `volatile int id` in the entry makes the call argument `FUN_x(e->id)` re-read the id (`lw a0,0(a0)` in the jal slot) instead of reusing the compare's register.
+2026-10-28 (lane sx2, 0x001553c8, 1 word): an int-to-float conversion that feeds two uses (`(float)lo` in `lo + (hi - lo) * rnd`) must be a float LOCAL declared before the expression (`float lo = (float)*(int *)(self + 0xc);`): then its `lwc1/cvt.s.w` is scheduled into the delay slot of the earlier unsigned-to-float diamond's `bltz` exactly like retail (13 words -> 1). Remaining difference is the operand order of the final `mul.s` (diff,rnd) vs ours (rnd,diff): a named float local that is already computed always becomes the FIRST mul operand whatever the source order; making the other factor a statement-level local or the first operand hoists its whole load chain above the diamond (+30 words).
+2026-10-28 (lane sx2, mwcc float operand order, hstcc probe): for `mul.s`, two named locals keep SOURCE order (`d*r` -> d,r), a named local beats a temporary (`d*(c*2.0f)` -> d,r) and two temporaries put the mul-result first regardless of source order.
+2026-10-28 (lane sx2, 0x00179560 EXACT): for a search loop whose table/id loads retail issues AFTER the emptiness `beqz` (with `move aN,zero` for the index in its delay slot), write `unsigned i = 0; if (self->countK != 0) { struct Entry **l = self->listK; unsigned short id = ids[K]; do { if (id == l[i]->value) { result = i; break; } i++; } while (i < self->countK); }` with `volatile unsigned countK` and `#pragma opt_strength_reduction off`. The ORDER of the two locals inside the if decides the colours: table first gives retail's id=a1/table=a2; id first gives the mirror (16 words). Index declared outside the if (before) is what puts `move a3,zero` into the guard's delay slot.
+2026-10-28 (lane sx2, 0x0027b8cc, parked): the wip's `DAT_0035a7e4` was the sign-extension trap (`lui 0x35; lw -22556` = 0x34a7e4, i.e. DAT_0034a7e4), and `FUN_0027c774(self, tmp)` returns the table index that Ghidra printed as `0 << 6` (`sll v1,v0,6` straight after the call). With `slot[i]`/`link[i]` as struct arrays the loop body is word-exact except that retail keeps an OFFSET induction (`addu v0,s2,s0`, `addiu s0,s0,4`, self stays s2) while mwcc with strength reduction on walks a POINTER (`move s0,s2`) and with it off recomputes `sll`; no spelling tried (explicit `off` variable, char* arithmetic, both pragma settings) gives the offset form.
+2026-10-28 (lane sx2, 0x001bbd30 EXACT): (1) a mode setter `if (mode != 0) { if (mode == 5) {*p=5; return;} if (mode == 4 && ...) {...} } else *p = 0;` is retail's `beqz a1,Lzero; li v1,5; beql a1,v1,END; sb v1,0(s0); li a0,4; beql a1,a0,L4; ...` only as `switch (mode) { case 4: ...; break; case 5: *p = 5; break; case 0: *p = 0; break; }` (cases written in REVERSE of the tested order 0,5,4; 71 words off -> 4). (2) `(unsigned)(x - 4) > 1` gives `sltiu at,v1,2; bnez at`, `>= 2` gives `sltiu v1,v1,2; bnez v1` (the same compare spelled with the adjusted constant picks the register). (3) A local struct filled by an out-pointer call sits at sp+16 only if it is 16 bytes: a 10-byte `{u16 x5}` lands at sp+20 and a lone `u16` at sp+30; the layout {six s16/u16 + one u32} (PSP datetime) gives +16 exactly.
+- (lane sx3, unreviewed by the main session)
+- 2026-10-28 sx3 0x0006dc58 (EXACT, 87 words; was a 4-word `c.ngt.s` vs `c.le.s` wall): a float -> byte pack with a 2^31 threshold block is simply the float->unsigned cast, `(u8)(unsigned int)x`. MWCC emits the whole block itself (`c.le.s K,x; bc1t fixup`, trunc fall-through, `sub.s; li -32768; trunc; mfc1; or` out of line); every hand-written threshold test (`K > x`, `K <= x`, early-return guard) only gives `c.ngt.s`/different layouts. Lesson: when retail contains `lui 0x4f00; mtc1; c.le.s; ... li -32768; or`, write the unsigned cast (the same block is in 0xee088's alpha byte).
+- 2026-10-28 sx3 0x0022cd78 (EXACT, 22 words; five earlier lanes had 15 words off): a 15-word global-to-global copy is the plain loop `for (i = 0; i < 15; i++) dst[i] = src[i];` over two extern int arrays. MWCC itself unrolls it 5x (three loads, three stores, two loads, `addiu 5`, `slti 15`, both pointer bumps); the hand-written 5-word body with `w0..w4` temps and pointer locals produced the same instructions in wrong registers. Lesson: when a retail loop body looks hand-unrolled (count step 5, odd trip count), try the element loop before writing the unrolled body.
+- 2026-10-28 sx3 0x0010ad1c (EXACT, 65 words): in a relocation loop that re-reads `ctx->base`/`ctx->entries` after every store, keep the table as an `int`-arithmetic address (`(int *)((int)ctx->entries + off)`, condition `*(int *)(off + (int)ctx->entries + 4)` as `j < ((Entry *)(off + (int)ctx->entries))->count`-style int sum with OFF FIRST) through plain `int *` temporaries; the typed `Entry *` spelling swaps `addu` operand order and the a1/a2 colouring. The 24 declaration orders of {i,off,j,p} split exactly in half (12 at 12 differ, 12 at 6 differ): j before i/off is the good half; the remaining 6 were the operand-order words.
+- 2026-10-28 sx3 0x0027c774 (EXACT, 75 words; wip had 33 off): a function that zeroes two stack arrays with `sb zero` loops guarded by `beqz addr` is `int a[128] = {0}; int b[128] = {0};` (not hand-written `while (p != 0)` byte loops); the table walk is `DAT[i].key` over a POINTER global (`extern Item *DAT_...`, retail re-reads it after the zeroing: `lui; lw a3`); `total += weights[n]` right after `weights[n] = 100` reads the stored value back (retail `addu s1,s1,v1` with v1 = 100, not `addiu 100`); and a parameter that is later overwritten as the result (`param_2 = indices[j]; break;`) must be copied to a local first (`int sel = param_2;`) or the entry offset `sll` reads the callee-saved copy instead of a1 (1 word). Lesson: before permuting registers on a Ghidra-shaped wip, rewrite it with real arrays/structs.
+- 2026-10-28 sx3 0x0015fe3c (NEAR 4 words): a Vec4 struct copy at the end (`self->m40 = z;`) is scheduled as pairs, while `Vec4 r = z; self->m40 = r;` gives retail's batched +4,+8,+12,+0 loads (12 -> 4 words); same trick as 0x611d0.
+- 2026-10-28 sx3 0x001b9b0c (EXACT, 129 words; wip 51 off, C draft): three levers together. (a) `(int)&DAT_x` passed twice is CSE'd into a callee-saved reg (lui+addiu once); declaring the extern as an ARRAY (`extern char DAT_x[]`) and the callees' parameter `const char *` makes MWCC rematerialise `lui/addiu` at each call (no pragma needed; `#pragma opt_common_subs off` made it far worse, 68 off). (b) the release `if (cam) { delete cam; cam = 0; }` on `struct Cam : CamBase { virtual ~Cam(); }` (4-byte non-polymorphic base) is retail's `beqzl; beqzl+sw zero in slot; lw t9,4(a0); lw t9,8(t9); jalr t9` block. (c) new/ctor `mem = bcc(..); if (mem) mem = ctor(mem,1); p->cam = mem;` gives `beqzl v0; sw v0,60(s3)` with the store duplicated in the likely slot; and the validation `if (cam != 0 && F(..) != 0) {ok} else {f40 = 1}` (positive form, ok inline) gives retail's layout (the `cam == 0 || F() == 0` negative form was +23 words).
+- 2026-10-28 sx3 0x0017b3bc (EXACT, 102 words; wip 65 off, Ghidra-shaped C): a constructor with a vector member whose inline push_back falls back to an out-of-line `grow(vec, &x, Tag())` is C++ with a typed struct: the 11 zero stores written one by one (a `for` over a field array folds into a loop, +1 word and 40 off), the allocation local `Node *p` kept separate from the address-taken `Node *x = p;` that is stored at 44(sp) in BOTH the null-skip delay slot and the join (retail `afb3002c` twice), inline push `{ unsigned s = size + 1; size = s; data[s - 1] = x; }`, and an empty `Tag` by-value third parameter of the out-of-line helper (the `seb a2,v0`). The frame (48 vs 32) comes from the address-taken x plus the tag.
+- 2026-10-28 sx3 0x0023c338 (EXACT, 122 words; wip 85 off with `*(volatile int *)&col` out-pointer hacks - 83 of the 85 were one shift): a callee that takes a hidden pointer in a0 and whose result word is later read as `addiu v0,sp,N; lw sN,0(v0)` (in the delay slot of the NEXT call) returns a one-word struct by value, and the word is read off the call TEMPORARY: `int c = F(args).Get();` (inline member) or `struct Color { int v; operator int() const { return v; } }; int c = F(args);`. Naming the result (`Color col = F(..); c = col.v;`) folds the load to `lw sN,60(sp)` and adds an lwc1/swc1 copy (+2..4 words), as does a user copy ctor, a pointer local or volatile. Check this before hand-writing out-pointer calls.
+- 2026-10-28 sx3 0x00044974 (EXACT, 92 words; wip said "only register colouring", 66 off, but it was 2 words short): (a) a nested `if (c) a = x/2; else a = x;` inside an outer then-block is threaded by MWCC, while retail keeps the join as its own block (`b join; nop` = 2 extra words): spell the inner choice as a TERNARY assignment `extra = F() ? (float)n / 2.0f : (float)n;`. (b) retail reloads an address-taken out-parameter (`unsigned short tag`, passed as `&tag` to the decoder) separately for the compare (`lhu v1,78(sp)`) and for the saved copy (`lhu s4,78(sp)` in the bnel slot); plain reads are merged into one load (and then the copy is not kept in a saved register at all, t11), so the second read needs a volatile access: `tag_val = *(volatile unsigned short *)&tag;` (a `volatile unsigned short tag` local + volatile pointer prototype also matches).
+- 2026-10-28 sx3 0x001b50a4 (EXACT, 102 words; wip 80 off, Ghidra-shaped): a destructor whose members are std::list-like containers is written from a small inline `ClearList(List *l)` = `if (l) { if (l) { if (l) { Iter out; Iter first; Iter last; last.p = (Node *)&l->sentinel /* +4 */; first.p = l->first /* +8 */; erase(&out, l, &first, &last); } } }`. The three nested null checks are the three `beqz a1` of retail, the `(char*)this+0x3c != 0` test of the second member is a plain `if (&self->listB)` that also guards the pre-dtor call, and the iterator slots (out 60, first 56, last 52 / 48,44,40) come from declaring out, first, last in that order. Ghidra's `local_c = param_1 + 0x3d` is the address of the +4 sentinel (check the byte offset: word index 0x3d from a +0xf0 base is +0xf4).
+- 2026-10-28 sx3 0x0010d948 (EXACT, 131 words; wip 107 off): a copy loop that moves a 36-byte record with `lw/sw` for the ints and `lh/sh` for the five shorts (skipping padding) is the implicit struct assignment of a C++ struct with a user constructor (`Elem() {}`): a plain C struct assignment becomes lwc1/swc1 bulk copies. The following 8x-unrolled rebasing loop (`sh zero,16; sh zero,18; sh w,20; sh h,22` per record) is a plain `for (i = 0; i < n; i++)` over the stack buffer, and the buffer size (frame 208 = 28 + 5 x 36) is the declared `Elem buf[5]`. Register choice for the loaded shorts depended on statement order: `fx = (float)x0; short w = x1 - x0; short h = y1 - y0; fy = (float)y0;` (reading all four shorts into locals first, then that order) picks retail's v0/v1; w/h computed first gave 5 words off in all 24 declaration orders of the four locals.
+- 2026-10-28 sx3 0x0021b5d8 (EXACT, 113 words; wip 91 off, only two shape errors): (a) `self->f84->f24 = v; self->f84->f28 = v;` is one load in retail (`lw v0,132(s0); sw 36; sw 40` before the jal): keep the sub-object pointer in a local. (b) a retail float clamp with two loads of the value (`lwc1 f1,X; ... lwc1 f2,X`), `c.lt.s v,lo; bc1f` then `c.ngt.s v,hi; bc1t` and the bounds RELOADED in the branch delay slots is the inline `Clamp(const float &v, const float &lo, const float &hi) { return v < lo ? lo : (!(v > hi) ? v : hi); }` with non-const extern float bounds (same helper as 0x15fe3c); a hand-written nested ternary on the globals gives `c.le.s` and different slots.
+- (lane sx4, unreviewed by the main session)
+2026-10-28 (0x0018a5a8; lane sx4): saved-register colouring of `this`/offset-accumulator/index in a member-array ctor loop is fixed by declaring `int i, off;` and writing BOTH updates in the for header: `for (i = 0, off = 0; i < 3; i++, off += 0x400) f(o + off + 0x9c, ..)` gives retail's o=s1, off=s2, i=s0; initialisers at declaration (`int off = 0; int i = 0;`), `off += 0x400` in the body (do/while) or `i * 0x400` all give o=s2/off=s1 or a different shape.
+2026-10-28 (0x000ea41c; lane sx4): a ctor that copies seven Vec4 arguments into `slots[cur]` (0x70-byte slot, `cur` at +0x11d0) is exact as `self->cur = 0; Copy(self->slots[self->cur].v[k], p)` with an inline field-by-field `d.x=s->x;..d.w=s->w` copy: the first copy folds cur==0 into `move v1,zero` plus the unfolded `sll 3 / subu / sll 4` index maths, every later one reloads `cur` (`lw a0,4560(s5)`) because the float stores may alias the int. Ghidra's `param_1[iVar1*0x1c+k]` words are Vec4 members of a 28-word slot struct; interleaved lwc1/swc1 = field-wise copy (no struct assignment).
+2026-10-28 (0x001cc354; lane sx4): Ghidra's float `DAT * 0x343fd + 0x269ec3` is an INT LCG (`lw; lui/ori; mult; mflo; addu; sw`); a Ghidra `(**(code **)(*p + 0x34))(p)` is a C++ virtual call (vtable slot (0x34-8)/4 = 11) and gives `lw t9,0(s0); lw t9,52(t9); jalr t9`. To stop MWCC keeping `item+0x34` in an s-reg across two calls (extra s3 and a 16-byte bigger frame), spell the first use `(char*)item+0x34` and the second `(void*)((int)item+0x34)`.
+2026-10-28 (0x0008cb68; lane sx4): a Ghidra `if (a==2 || a==0x20) { if (b!=0x26 && b!=0x25 && b!=0x24) F(); } else F();` that retail lays out as `beq 2,B; beq 0x20,B; b ELSE; B: beq 0x26..; jal; b END; ELSE: jal` is a pair of SWITCHES (`switch(a){case 0x20: case 2: switch(b){case 0x24: case 0x25: case 0x26: break; default: F();} break; default: F();}`, cases written reversed); the if/&&/|| spelling inverts the last test and drops the `b`. Also `if(m){FUN_dtor_body..;FUN_00000a00(m);} m=0;` + `new` is `if (m) {delete m; self->f=0;} self->f = new Big;` with INLINE ctor/dtor bodies (class with a `Big(){..}`/`~Big(){..}` that call the FUN_ helpers), and the second allocation (`jal bcc; nop; beqz v0; nop; jal ctor; move a0,v0; sw v0`) is `o=(T*)operator new(n); if (o) o = FUN_ctor(o); self->f = o;` with the ctor declared as returning the object type; `new T` with an extern-declared class ctor held the result in an s-reg instead (5 words off).
+2026-10-28 (0x001a9f74; lane sx4): three things made this loop exact. (1) `lw v0,4(s7)`/`lw a0,0(s8)` with `addiu s7,v0,852` = pointers to 12-byte {data,size,cap} vector members held in locals (`IntVec *flags = &FUN()->flags;`), read through an inline `operator[](unsigned)`: that keeps `sll v0,i,2` recomputed per iteration; plain `v->data[i]` gets an extra strength-reduced i*4 register and spills two values (157 vs 150 words). (2) retail's `addiu v0,s3,800; addu v0,self,v0; addiu s2,v0,32` per element is `Row *r = &self->e[40 + i];` (array starting at +0x20) kept in a local; writing `self->e[40+i].w` folds the offsets into every lw. (3) a switch on the level with cases 1,2,3 in source order tests 3,2,1 and lays bodies 1,2,3; the `show(r2c8,1)` that follows both arms of `if (i == sel) {..hide(r340)} else {show(r340)}` is a shared tail.
+2026-10-28 (0x002937b4; lane sx4): a Ghidra draft that is 29 words short (118 retail vs 89) usually means value-copied locals were dropped: here `local_40..local_4` are a 64-byte matrix copied by interleaved lwc1/swc1 = `Mat4 m = *getter(e);` with memberwise user copy ctors on Vec4 and Mat4 (four Vec4 members). `id = p ? *p : 0;` gives retail's `beqzl p; move s2,zero; lw s2,0(p)`; the if/else spelling gives bnezl with the move after. `lw a1,272(s3)` ahead of `bltzl a1` = the tested value is the callee's dropped second argument: `n = cfg->f; if (n >= 0) id = F(cfg, n);` with F declared (Cfg*, int).
+2026-10-28 (0x000b35f4; lane sx4): a large `switch` (28 + 3 labels, two bodies) matched by writing the case labels in ASCENDING value order inside each group and the group whose body appears first in retail first: retail tests `beq` in reverse source order (0x9a,0x98,0x52,0x80,..,0x44 means source 0x44..0x51,0x68..0x80, then 0x52,0x98,0x9a), and the second test `beql ..., move v1,zero` comes out by itself. Also a Ghidra `FUN(0x34179c, ...)` constant argument must be the DAT_ symbol (`lui;addiu`), not an int (`lui;ori`), and the 16-byte `Vec4 pos = a->b->pos;` copy with interleaved lwc1/swc1 needs the memberwise copy ctor.
+- (lane sy1, unreviewed by the main session)
+- 2026-10-28 sy1 (0x00196aac, EXACT): two parallel tables addressed `base + (idx+12)*4 + 4` and `+0x7c` are two ARRAY MEMBERS of one struct (`Sprite *slots[30]; int vals[30];`) indexed by the same `i = *n + 0xc`; written as `slots[i]` / `vals[i]` MWCC keeps the shifted offset in an s-reg and recomputes `addu v1,s6,s5` after the call (as retail), whereas the char-pointer spelling `*(T*)(off+(int)base+4)` caches the sum. A two-way remap `if(m==3)m=2;else if(m==2)m=3;` is `switch(m){case 2:m=3;break;case 3:m=2;break;}` (retail's `beql s2,a0` with the 3 kept in a0).
+- 2026-10-28 sy1 (0x0020507c, EXACT): the container-grow call's third argument `move v0,zero; seb a2,v0` in a branch-likely slot is an EMPTY `struct Tag{}` passed by value (C++), not a char 0; also declaring the 6th parameter of the callee `unsigned char` (it was `int`) changed the order `lw a0,0(s4)` vs `lbu t1,108(s4)` to retail's (the load of a narrow argument is scheduled after the wide ones).
+- 2026-10-28 sy1 (0x0016b7d0, EXACT): `Clamp(const int &v, const int &lo, const int &hi){return v<lo?lo:(hi<v?hi:v);}` returning by value gives retail's doubled `lw` of both limits even for plain `extern int` globals; the result stored through `unsigned short r = Clamp(...)` yields the trailing `andi a1,a3,0xffff`. A table pointer taken into a local BEFORE the clamp (`Tbl *t = &DAT_..; ... t->Get(idx)->v = r;`, getter returning 0 when `idx` is outside 0..14 and the caller dereferencing it unchecked) hoists the `lui a2/addiu a2` above the clamp as retail does; the same getter as a free inline using the global directly does not.
+- 2026-10-28 sy1 (0x000ecfbc, EXACT): iterator loops over two (data,size) vectors with `!(a==b)` free `operator!=` need `begin() const` and non-const `end()`; otherwise the entry test folds to `size*stride==0` (compare the first matching result `xor v1,v1,zero`). Both element-stride multiplies stay unfused (`sll/addu/sll`), the int field store is `it->state = 6`.
+- 2026-10-28 sy1 (0x00137570, EXACT): (a) a by-value index loop `for (int i = 0; i < n; i++)` over a 0x24-byte element array is strength-reduced (`s0 += 36`) even with an unsigned bound unless `#pragma opt_strength_reduction off`; (b) an address-taken local pointer (`&o` passed to an out-of-line grow) is RELOADED after every char/bool store through it (alias analysis), but a member function that does the three byte stores (`o->Mark()`, `this` copied to a register) shares ONE reload (`lw v1,76(sp)` then three `sb`); (c) `Vec4` locals with `__attribute__((aligned(16)))` go to the frame bottom BELOW the empty-Tag slots and the 4-byte address-taken pointer locals; with an unaligned Vec4 they sit above; (d) constants stored into two Vec4 locals are emitted grouped by value in the order of first occurrence in the source (write vb before va to get 12.0f first); (e) a two-float member copy `o->p = self->p` is interleaved lwc1/swc1 in C++, but a by-value setter `void SetP(Vec2 v){p=v;}` with a Vec2 that has a memberwise copy ctor gives retail's `lwc1 y; lw o; lwc1 x; swc1 x; swc1 y`.
+- 2026-10-28 sy1 (0x0008dba8, EXACT): a `Vec4` param passed BY VALUE is copied by the callee into its frame (lwc1 x3, swc1 x3, lwc1, swc1) only if Vec4 has NO user copy ctor (`Vec4(){}` is fine); `Item` with a memberwise copy ctor `Item(const Item&o):a(o.a),b(o.b),c(o.c),v(o.v){}` placed with `new (p) Item(x)` inside inline `push_back(const Item&, Tag)` gives retail's per-field `lwc1 f0 / swc1 f0` single-register copy while the batch copies (item.v = v) keep the 3-register pattern. Using a user copy ctor on Vec4 too passes the vec by reference (no callee copy, 8 words shorter).
+- 2026-10-28 sy1 (0x001bab98, EXACT): when a call result is kept as `unsigned char f = F(...)` and later passed to a callee whose parameter is declared `int`, MWCC re-masks (`andi a1,s5,0xff`); declaring that callee parameter `unsigned char` removes the second mask (retail `move a1,s5`). Check for a mis-assigned argument first: the wip passed the later call's result where retail passes the earlier one.
+- 2026-10-28 sy1 (0x000c3728, near, 188/189): a 3-way setting lookup read from a global is `switch(G){default:f=0;break;case 1:..;case 0:..;case 2:..}` (retail tests 2,0,1 and lays out default first), the global float read INSIDE each case, via an inline `Sel(const float&,const float&,const float&)`; `x = (d != 0.0f) ? (a-b)/d : 0.0f;` as a ternary gives retail's f1/f2 naming of the divide result while the `fVar3=0; if(zero!=d)` form does not.
+- 2026-10-28 sy1 (0x00057934, near, 117/117 with 5 words): zero-fill loops of 8 bytes behind `beqz v1` are `u32 ids[2]={id0,id1}; float vals[2]={f0,f1};` array initialisers; `Min(const int&,const int&)` returning `const int&` puts the loop variable in memory (`sw v1,44(sp)`, `addiu v0,sp,44; lw v0,0(v0)`); `if((int)id>=0 && id<cnt) p=tbl[id]; else p=0;` gives `bltz` to the shared zero block.
+- 2026-10-28 sy1 (0x00203680, near, 155/155): a by-value 16-byte `Quad` parameter with `__attribute__((aligned(16)))` puts the callee's copy at the frame bottom (sp+48) as retail; the 9th float argument of FUN_00051894 goes on the stack, floats 1-8 in f12..f19 in signature order; `MWCC` writes `left + ox` (value first) only for a non-const local `ox`, a literal first operand is emitted literal-first.
+- (lane sy2, unreviewed by the main session)
+- (lane sy2, unreviewed by the main session)
+2026-10-28 sy2 0x00118598 EXACT: the unroll threshold in a compiler-unrolled counted loop reveals the REAL trip count. Probe: `for (i=0;i<19;i++) a[i]=0` unrolls 6x with `slti i,13`; retail's 8x unroll with `slti 19` is a 27-element loop (threshold = N-8; 0x1b = 27 also appears later in that function), and an inner `slti 6` with 5 stores/pass is an 11-element row (2x11 int matrix, row stride 0x2c). Size arrays from the unrolled loop's tail (3 or 1 leftover stores), never from the first guess. Also: block-scoped counters (`for (int i = 0; ...) for (int j = 0; ...)`) changed the a0-a3 colouring of nested loops to retail's (function-level `int i, j` gave i=a0/row=a2/j=a3/p=a1; retail i=a3/row=a1/j=a2/p=a0).
+2026-10-28 sy2 0x000c16f0 EXACT: an 80-byte record vector erase(pos) is JUST `for (; src < end; ++src, ++dst) *dst = *src;` (src/dst declared inside the `if (end - first - 1 != 0)` block, Rec with a user memberwise copy ctor and a 64-byte char-array member). MWCC itself emits the 8x unrolled copy, the trip-count guard with the `lui 0x8000; and` overflow tests and the 32x2-byte block copy for the array member; the earlier wip that hand-unrolled eight copies and spelled the sign-bit guard was fighting the compiler. Declaring dst/src before the `if` changes the register naming (a3/t0 swap, 18 words).
+2026-10-28 sy2 0x00228c7c EXACT: (a) an event handler with six compares in descending order (24,14,22,8,19,4) is a `switch` whose cases are written ascending (4,19,8,22,14,24; 22 and 14 share a body) and whose cases all `break` to one trailing `return 0` (a `return event` in case 19 gives `move v0,a1`); the dead-looking `li v0,19; beql` is just the chain. (b) a 4x4 identity copied from an extern const global is row-batched (4 lwc1 then 4 swc1 per row, fresh lui per element) only when Mat4 has a user memberwise copy ctor (`Mat4(const Mat4 &o) : r0(o.r0), ...`) and the global is `extern const Mat4`; plain struct assignment gives an 8-byte lw/sw loop, per-field float externs give pair interleave.
+2026-10-28 sy2 0x00060fb0 + hstp_trans_main 0x00061e34 EXACT: `self->v40 = Op(self->v40, *b);` with `Vec4` having a user memberwise copy ctor and `static inline Vec4 Op(Vec4 a, const Vec4 &b) { Vec4 r; HELPER(&r, &a, &b); return r; }` reproduces the whole function (the by-value first operand is copied into a caller temp by the copy ctor, the result lands in `r` and is copied back as a batch). The old wip's const-ref/by-value/volatile attempts all let MWCC elide the copies.
+2026-10-28 sy2 0x0027af84 and 0x001a0d78 EXACT: both are resizes of known EXACT recipes. 0x27af84 = src/eboot/vector8_grow_append_000e9074.cpp with a 48-byte element (max 0x5555555, thresholds 0x1c71c71 / 0x38e38e2, `*dst = *src` copies as 3 groups of lwc1/swc1) in one compile; 0x1a0d78 = build_sorted_items_001a1068.cpp with a PtrVec passed in, `*p - 4U < 2` (Ghidra's `*(p-4)` is addiu -4 then sltiu), `bool ok` declared inside the non-null branch, push_back (data[size-1]) not push_back_b, and `if (tmp.cap < n)` for the second reserve. Search src/ for the family before writing from the pseudocode.
+2026-10-28 sy2 0x0016a93c EXACT: (a) an alternating-dx/dz `&&` chain with `if (dz == 0.0f) dz = 0.001f;` before an abs() needs the ternary `dz = (dz != zero) ? dz : 0.001f;` for retail's `bc1tl` then-block placement; (b) `c.eq.s $f3,$f0` (variable first) appears only when the zero is a NAMED float local (`float zero = 0.0f;`), the literal gives `c.eq.s $f0,$f3`; (c) declare dz before dx to get dx=f2/dz=f3 (declaration order picks FPRs).
+2026-10-28 sy2 0x000a4098 EXACT: retail's `addiu a1,a2,620` + `lw 4(a1)` (a sub-object limit read through a materialised pointer, not folded to 624(h)) comes from one `Sub *sub1 = &h->sub;` local declared right before the FIRST condition ladder and a second `Sub *sub2 = &h->sub;` right before the second ladder (a shared local is CSE'd and reused in a1; a pointer written inline folds). Write the limit test as `h->f268 < sub->limit`; a Below(int v) member loads f268 first and swaps v0/v1.
+2026-10-28 sy2 0x0009117c EXACT: a 32-byte element {int; u8; int; Vec4} where Vec4 is `__attribute__((aligned(16)))` with a user memberwise copy ctor puts the Vec4 at +16 (no member at +12, so no lwc1 at 12) and copies it as interleaved lwc1/swc1 pairs; an implicit Vec4 copy batches 4 lwc1 then 4 swc1 (7 words off). Vector dtor clearing size is `int n = size; shrink(n, Alloc()); if (data) operator delete(data);` (retail's `subu v1,v1,v1`).
+2026-10-28 sy2 0x0001f3ec EXACT: the retail dispatch `lw t9,0(a0); lw t9,12/16/20(t9); jalr t9` is a C++ virtual call (slots 1..3 after a leading virtual) and the frame's 16 spare bytes come from static inline wrappers taking an unused empty `Tag` by value (`Notify0(self, Tag())`). A callee-saved pair (&list head, &cursor) is s0/s1 when `cp = &self->cursor` is assigned BEFORE `head = (Link *)&self->prev` (assignment order, not declaration order, decided s0/s1 there), and the re-read of the cursor is one local `c = *cp` used for the compare, the `->next` load and nothing else.
+2026-10-28 sy2 0x0014de6c EXACT (with the static stub FUN_0014c610 placed by helpers=): `if (!IsDone(state)) { if (flag) {log; loop} log; }` where `static inline int IsDone(int s) { return s == 1 || s == 2; }` in a C TU gives the two `xori; sltiu; bnez` materialisations; the final log call sits OUTSIDE the second flag test (the never-taken `beqz a0` jumps to it); and addresses -15808/-15796/-15596 with lui 0x2e are 0x2dc240/0x2dc24c/0x2dc314 (sign-extended low half), not 0x2ec...
+2026-10-28 sy2 0x0016b90c EXACT: a hoisted `char *base = DAT;` local declared BEFORE an inline Clamp(const int&,...) call is what makes retail compute `addiu a2,a2,7372` ahead of the clamp (and push the clamp result into a3); element address `(Rec *)(base + idx * 56 + 200)` keeps idx*56 and +200 separate.
+2026-10-28 sy2 0x0012fdb0 EXACT: a flat `else if` string-to-index chain with `int r = 0;` still needs the null-name arm written `if (name == 0) { r = 0; } else { ... }` - a bare early `return r` folds to `move v0,zero` where retail has `move v0,s0`.
+2026-10-28 sy2 0x00003ae4 EXACT: Ghidra's "base ctor returns this" is a void callee here: retail copies self into s1 in the jal slot and stores the vptr through THAT copy; declare `extern void FUN_00002ad4(void *)` and write through `self`.
+2026-10-28 sy2 0x0021e14c EXACT: splitting a long division chain across a null check (`ratio = n * 100.0f / den;` before the branch, `ratio = ratio / 100.0f;` inside it) puts the first div.s in the beqz delay slot like retail; and the clamp `v < lo ? lo : (v > hi ? hi : v)` (v>hi, not v<=hi) gives c.ngt.s.
+2026-10-28 sy2 (measured walls/near misses): 0x12c1c4 - ascending `switch` cases give the descending 4,3,2,1,0 compare chain and the real bitfield struct (signed char b2:2, b4:2 at +0x8b) gives lb/sll/sra, but retail keeps two DEAD `move v0,zero; b end` bodies for cases 0 and 2 and plain `beq; nop` compares that no spelling reproduced (59-62 words vs 70). 0x61e8c - everything but the register colouring of the 32-entry init loop (retail p=v1,c=v0,i=a0, slt result in `at`) is exact. 0x9ba58 - control flow exact (102/102) but retail keeps the null-checked node in a1 not v0.
+- (lane sy3, unreviewed by the main session)
+- 2026-10-28 sy3 0x00102490 EXACT (for_each_bind2nd_rev_00102490.cpp, ~12 compiles, 116 words): a slot-grid near miss (97 differ, same code) came from three source facts. (a) retail's 8-byte reverse iterator copies via two lwc1/swc1 with the FIRST word never written = `struct RevIt { int unused_; It current_; }` (ctor sets only current_); a one-word RevIt gives a smaller frame. (b) the two temporaries of `rbegin()/rend()` sit at the frame top and the raw `end()/begin()` Its inside the inlined rbegin()/rend() bodies at the bottom: call `v.rbegin(), v.rend()` (member functions doing `RevIt(It(data_+size_))`) rather than building RevIt(v.end()) in the caller (that puts the raw Its high and adds 16 frame bytes). (c) for_each must advance its by-value parameter (`for (; first != last; ++first)`), not a local copy `I i = first`, or `first` lands in a register instead of retail's frame slot. (d) RevIt::operator* as `current_.p_[-1]`; a PTMF-bearing function's .data check needs the mangled member symbol in symbols/EBOOT.BIN.txt or hstmatch reports SECTION_MISMATCH with 0 differing words.
+- 2026-10-28 sy3 0x0015ced4 EXACT (rank_table_build_0015ced4.c, ~16 compiles, 135 words): a 114-word Ghidra near miss became exact with arrays + three rewrites. (a) Ghidra's `if(p==0||*p<0){err}else{ok}` is retail's `if(p!=0&&*p>=0){ok}else{err}` (ok block laid out first, `bltz`+nop, err block falls into the join). (b) exchange sort `for(i)for(j=i+1;..) if(B[i]>B[j])` : write the compare as `B[i] > B[j]` (the `B[j] < B[i]` spelling loads B[i] first), and use a DIFFERENT counter variable for each of the three loops (the first loop's `k`, the sort's `i/j`, and a block-scope `m` for the final 8x-unrolled loop): sharing one counter swapped the a0/a1 colouring of the last loop (22 words) and the t-regs of the sort. `for (int ...)` block-scope counters work in lang=c99.
+- 2026-10-28 sy3 0x0022e64c EXACT (param_change_table_0022e64c.cpp, 4 compiles after the wip): a 15-entry do/while with a switch that sets `changed = true` in some arms: retail returns `changed` in v0 WITHOUT `andi 0xff` and keeps its `1` in a register separate from the case-label constant 1 (the wip's `bool changed` + int return gave `andi` and the swapped t6/t7; `int changed` merged both 1s and lost a word) - both vanish when the function itself returns `bool` (`extern "C" bool F(..)` with `bool changed`). Also the per-element write-back is `*prev = *(int *)(p + 0x244);` (a second read of the same word, not the cached `v`), which gives retail's reload in the `beql` delay slot.
+- 2026-10-28 sy3 0x00047698 EXACT (boot_init_00047698.c, ~8 compiles after the wip, 109 words): (a) `if (g!=3){if(g==2)..else if(g==1)..else if(g==0)..}` Ghidra chains are `switch (g) { case 0: ..; case 1: ..; case 2: ..; case 3: break; }` (tests emitted 3,2,1,0, bodies in source order; matches the digest rule). (b) retail's block with TWO copies of `if (b) F(..) else F(..); store = b` plus a dead `lbu` in the else copy is the outer if/else with the whole tail (including a repeated `if (g==1 && flag!=0) b=0;`) written in BOTH arms, with the store after the inner if/else: the shared-tail spelling gives 90 words, the store-inside-each-inner-arm spelling gives 111. (c) ledger `end=` overran by one word (next function's lui), so check `hstdis.py`'s byte count against end= before counting a word miss.
+- 2026-10-28 sy3 0x001cc510 EXACT (setup_sub_001cc510.cpp, ~7 compiles after the ag4 wip, 111 words): (a) a `for_each`-style loop whose end is re-read every pass is `for (It it = self->begin(); it != self->end(); ++it)` with BOTH begin() and end() `const` members of the owner and `It` a one-pointer struct with `!=` = `!(a == b)`: with non-const accessors the entry test folds to `size*4 != 0` or reloads `data` (digest section 6 only mentions begin() const); const/const gives retail's `lw size; lw data; sll; addu; xor; sltiu; xori; beqz` entry and the in-loop reload. (b) a copy of the 4th row of a Matrix44 of four Vec4 members (`out[idx] = mat.r3;`) gives retail's sp-relative lwc1/swc1 run, not a pointer register (`(Vec4*)((char*)&mat+48)` spends s1). (c) a 4-byte frame hole above an out-parameter slot is `void *slot[2]` (only [0] used): the declared span decides. (d) `unsigned k` counter + all cursors initialised in the for-init puts `move s3,zero` first; declaring float locals a1 then b1 but assigning b1 first gives f21=a1/f20=b1 with b1's lwc1 first.
+- 2026-10-28 sy3 0x00065e64 EXACT (vec_swap_build_00065e64.cpp, 2 compiles after the km1 wip, 40 words): `move v0,zero; seb a2,v0` for a literal-0 argument to an out-of-line callee is NOT a `signed char` parameter (that folds to `seb a2,zero`): declare the callee parameter as an empty `struct Tag {}` by value and pass `Tag()`; the 16 extra frame bytes then come from the two out-of-line tags plus the inline helper's own by-value `Tag2` (`Swap3(a, b, Tag2())`) - the 0x179ad8/0x146500 recipe applied to a 40-word wrapper.
+- 2026-10-28 sy3 0x001cdf18 EXACT (range_check_001cdf18.cpp, 5 compiles after the ds11 wip, 66 words): (a) `lw v0,G; beqz v0,L; nop; addiu v0,v0,224; beq s0,v0,fail` is NOT `G != 0 && h == G + 0xe0`: it is `h != G` with G a pointer to a class that derives from a 0xe0-byte non-polymorphic base then the polymorphic class h points to (`struct Der : B0, Obj {}`; implicit Der*->Obj* conversion = null-checked +0xe0). (b) the shared `beqz v0,<move v0,zero>` fail block plus `beqzl v0,END; move v0,zero` on the first test is `bool r; if (A && B && C && D) { ...; r = x < y; } else r = false; return !r;` (return type int, `!r` gives sltu/xori); the nested-if and goto forms cost 3+ words. (c) two 16-byte buffers at sp+16/sp+32 with a float at sp+60 mean 16-aligned Vec4 locals (aligned(16)) declared float v, buf2, buf1 in that order: the aligned objects cannot overlap v's word at 60..63 and drop to 32 and 16.
+- 2026-10-28 sy3 0x001b66bc EXACT (slot_init_001b66bc.c, 4 compiles after the km4 wip, 107 words): (a) Ghidra's `volatile` double read of byte 0x94 and the shared `iVar1 = F(..); *(p+0x4c) = iVar1` were artefacts: retail is `if (f90) { if (f93) r=F(6); else if (f94) r=F(5); else r=F(4); } else if (f91) r=F(7); else r=F(4);` with the store `sw v0,76(s0)` written in EACH arm (it fills the `b` delay slot of every arm, 4 copies); a shared store after the chain does not. (b) retail's `lbu; sltu v1,zero,v1; xori v1,v1,1; bnezl` for `a == 0 || flag == 0`-style tests on a byte read through a global pointer is an inline `int IsClear(unsigned char *p) { return !*p; }` used as `a == 0 || !IsClear(p)` - plain `*p != 0` gives `lbu; beqzl` (2 words shorter), a `bool` returning helper gives 1 extra word.
+- (lane sy4, unreviewed by the main session)
+- 2026-10-28 sy4 (0x001c70c0, EXACT; also unlocks sibling 0x001c6f70 and the id->object dispatchers): retail's memory-resident one-word locals (`sw a1,16(sp); lwc1 f0,16(sp); swc1 f0,4(sp)`, cursor reloaded `lw v0,12(sp)` per use) are an inline `It Find(It first, It last, Key key)` taking ONE-WORD CLASSES WITH USER CTORS (`It(){}`, `It(Elem**)`, `Key(int)`) by value, called with temporaries `Find(It(m->beg), It(m->beg + m->count), Key(kid))` (key tmp 16, last tmp 20, first tmp 24; params 4/8/12). Loop `while (first.p != last.p && key.v != (*first.Ptr())->f30) ++first;` - compare through the field but deref through an inline getter gives retail's extra `lw v0,12(sp)` before the deref (both direct = CSE'd); final test is a free `operator!=` returning `(a.p == b.p) ^ 1` (xor/sltiu/xori) against a FRESH `It(m->beg + m->count)` (naming `e` first or reusing `end` swaps the sw/swc1 prologue order or loses the frame).
+- 2026-10-28 sy4 (0x001c6f70, EXACT, twin-style sibling of 0x001c70c0): same recipe with a 2-word `Key2(k,n)` class by value and a `Match()` member (`v == e->f30 && w == e->f34`) for the n>0 arm; `if (n < 1) {search1; if (it != It(end)) return *it;} else {search2; ...} return 0;` - ONE shared trailing `return 0` (a `return 0` in each arm adds `b` trampolines and flips arm order). Same trick fixed 0x0016bf78: two `switch(v){case 0x29: case 0x30: return 0;}` arms need ONE trailing `return 1`.
+- 2026-10-28 sy4 (0x00296a84, GCC EXACT): a gcc171-O2 near miss whose ONLY difference is temporaries in t0/t1 instead of v0 is the same source at `cc=gcc171-O3` (try every -O level before touching the source).
+- 2026-10-28 sy4 (0x001f0560, EXACT, was 91 words off in wip/attempt_001f0560.c): Ghidra's `*(int *)(param_1 + 0x1084)` offsets made MWCC hoist `addiu a1,s1,4228` pointers shared across the switch cases; a real `Stage` struct (state/count/target/cur members) removes them. Then: `next > 5` (not `next >= 6`) gives `slti at; bnez at` with the store in the delay slot; `if (busy != 0) ready = 0; else ready = bits == 0;` (not `busy == 0` first) gives `beqzl busy,COMPUTE; b JOIN; move v0,zero`; and `if (prev != self->cur)` after the if/else (no `iVar2 = self->cur` reload at the join) turns the case-5 `beqzl` into retail's `beqz; nop`. Bitfield `((int)*(char *)(p+0x8b) << 0x1c) >> 0x1e == 0` stays arithmetic (xor/sltiu form).
+- 2026-10-28 sy4 (0x001f37e4 near miss, 143 -> 87 words): declare `bool b = false;` FIRST in the function (gets the s-reg after the params) and set it with `if (e->id == 1) b = true;`; `int c = e->flags` (an unsigned char local adds `andi`); branch order `if (c != 0) {call A} else {call B}` follows retail's `beqzl c`. Open: retail copies a2 into v1 at entry and colours the table-offset temps a0/a1.
+- 2026-10-28 sy4 (0x000bc800 near miss, 47 -> 16 words): a 6-char name copied pair-wise as lb/lb/sb/sb (3 passes, src pointer bumped first) is `struct Name {char c[6];}` struct assignment (NOT a struct of two `signed char` members, which copies with lbu; explicit temps give lb but a different order); variadic stub `void *msg, ...` plus an `int r` local used as the stub's second argument; hdr floats read into locals `fy` then `fx` AFTER `hdr.f0 = 0;` keep count in a1; `(unsigned)self->f10` or an `int` prototype slot moves the `lhu` ahead of the `lw`.
+- 2026-10-28 sy4 (0x00064820 near miss): `for (p = s; *p != 0; p++) { c = *p; if (!((c >= '0' && c <= '9') || c == '.' || c == '-')) { invalid = 1; break; } if (c == '.') { dot = 1; break; } }` reproduces retail's loop word for word (frame 16 needs `long long` for the double-returning 0xd610 and 0x223a0 taking it); `c >= '0' && c <= '9'` gives retail's slti v0 (48) / slti at (58) order, `'/' < c` swaps them.
+- (lane dsn3, unreviewed by the main session)
+| FRAME FIRST stack layout | frame + saved set before body work | `FRAME FIRST` | 2891 |
+- A frame that is 16 bytes larger than `round16(locals + 4*saves)` with nothing referencing the extra
+  words (no `addiu aN,sp,M`, no store) is one elided by-value aggregate/allocator temporary in the
+  frame-top local region, shared by every such temporary in the function. Tested at `0x0017b554`
+  (2026-10-28): passing a by-value EMPTY class to the teardown calls gives retail's 48-byte frame but
+  adds `move v0,zero; seb aN,v0` per call, and a 4-byte class makes the temp addressable
+  (`lw aN,0(sM)`, frame +16 more); retail's plain `move aN,zero` therefore means the slot came from an
+  inline allocator form (`Alloc().allocate(n)`), which reserves the slot and emits no argument code.
+  An inline function *returning* the empty tag (`MakeAlloc()`) does NOT: the return value becomes an
+  addressable temp and the frame grows to 64 bytes (measured on `0x0017b554`, 2026-10-28).
+  Nor does ANY dead local: on `0x0027eedc` (2026-10-28) five forms all compiled to the identical
+  frame - `__attribute__((aligned(16))) char pad[16]`, plain `char pad[16]`, an unused
+  `union { double; int[2]; }`, an address-taken int whose address is dead, and a 16-byte aggregate
+  passed by value to a `static inline` no-op. Unused locals are stripped and an inline callee's
+  by-value temp is elided WITH its slot. The slot survives only when the aggregate crosses an
+  OUT-OF-LINE call boundary; a body whose calls have no tag position cannot be given it.
+  A loop-invariant `base + K` address used both inside an inner loop and after it is hoisted into a
+  saved register (one extra save); rewriting one use as pointer arithmetic (`(int)(p + K)` vs
+  `(int)p + K`) does NOT stop it - the two spellings compile to identical bytes.
+- An `||` guard chain that returns a constant (`if (p == 0 || byte == 0) return 1; return 0;`) compiles
+  to a folded branch chain with an extra `xor/sltiu` bool. Writing it as the INVERTED nest —
+  `if (p != 0) { if (byte != 0) { return 0; } } return 1;`, one statement per operand, surviving return
+  last — reproduces retail's `beqzl p` + `li v0,1` delay, `beqz byte` + `b <return>` with
+  `move v0,zero` in the delay (0x000fb5f4: 78/80 words 66 differ -> 80/80 words 44 differ,
+  2026-10-28). Splitting into two positive `if (...) return 1;` statements regresses (77/80, 72 differ),
+  so the polarity of the nest is what matters. The same trick does NOT transfer to a value chain of
+  constant returns (`if (v == 11) return 1; if (v != 7) return 0;`): inverting it buys 2 differing
+  words but loses one word of count, `else if` is byte-identical, and expressing it as `(v ^ K)`
+  unsigned predicates XORed with 1 costs 4 words (0x000fb5f4, 2026-10-28). There mwcc chooses to
+  place the constant-return block out of line (`beql`) where retail keeps it inline between the two
+  tests (`bnel` + the next test's constant in the delay slot).
+- A short-circuit `&&` chain used as a predicate narrows the result to a byte (`andi v0,v0,0xff`).
+  Keep each predicate in an `unsigned int` local, give each operand its own statement and branch on
+  the value directly: `t = (unsigned)(0 < (unsigned)n); if ((t ^ 1) == 0)` yields retail's
+  `sltu v0,zero,vN; xori v0,v0,1`, and `t = (unsigned)((n + 4) ^ *(int *)(p + 20));
+  if (((t < 1) ^ 1) != 0)` yields `addiu`/`lw`/`xor`/`sltiu`/`xori` (`0x002872a0`, 2026-10-28;
+  took that body 87/94 words 75 differ to 95/94 words 49 differ). The xor operand order follows the
+  source order, so write `(n + 4) ^ load` to get the sum materialised before the load.
+- A constant-trip copy loop (`n = 3` copying two bytes per pass) is UNROLLED by this mwcc from a
+  `do/while`, a `for (n = 3; n != 0; n--)` and a `while (n-- > 0)` alike, AND from the form with live
+  `char *d`/`char *s` pointers advanced by +2 (byte-identical output to the direct-expression form).
+  So neither hiding the trip count nor materialising the destination stops it; retail's rolled
+  `li a0,3 ... bgtz a0` (0x000bc13c, 2026-10-28) needs a body form still unidentified.
+- A not-equal test that retail materialises as `sltiu v0,v0,1; xori v0,v0,1` (then `beqzl v0`)
+  needs the bound written as an explicit unsigned compare XORed with 1:
+  `if ((((unsigned)(a ^ b) < 1) ^ 1)) { ... }` (measured on `0x0017b554`, 2026-10-28, both the
+  entry guard and the loop back edge). `a ^ b != 0`, `!(a ^ b == 0)` and `(a ^ b) < 1` all fold to a
+  bare `xor` + branch.
+## Frame-first reconstruction (2026-10-28, pass 40; 0x000b8118, 0x00216c28)
+Six earlier passes died at first diff +0x0 because the body was written before the stack frame. Get the frame
+and the saved-register set right FIRST; both bodies below then reached retail's exact word count, at 1 and 11
+differing words.
+- **FRAME FIRST — MWCC gives the first-declared local the HIGH address.** 0x000b8118's 784-byte frame is
+  16 bytes of saves + a 64-byte `M4` at sp+16 + a 704-byte `Big` at sp+80, and it reproduces only with `Big`
+  declared BEFORE `M4`; the reverse puts `M4` at sp+720 and swaps the two ctor arguments. A frame 16 bytes too
+  large with an extra `swc1 $fN` save means a float temp is live across a call — materialise it into the field
+  the source stores it to instead (`big.f200 = f1; big.f214 = F(CONST*f1); self->f78 = CONST*G(&big);` with the
+  store landing in the last call's delay slot).
+- **Mirrored ternary arm order.** `(a != b) ? 1.0f : 0.0f` gives retail's `beql v1,v0` with `mtc1 zero,$f0` in
+  the delay slot; `(a == b) ? 0.0f : 1.0f` gives the inverted `bnel` form plus one extra word (0x000b8118).
+- **Signed `% 16`, not `& 15`.** The ring index in 0x00216c28 needs a signed modulo: `% 16` emits
+  `bgez / andi / beqzl / sll / addiu -16 / sll`; `& 15` emits a bare `andi` and every later word shifts.
+- **Re-derive a draft's global symbol addresses from the lui/addiu pair.** Two names written 0x10000 too high
+  still linked and compiled to `lui 0x35` where retail has `lui 0x34` (0x003386b8 and 0x00338ac4, not
+  0x003486b8 / 0x00348ac4).
+- **Flag-byte width:** `unsigned char *self` gives `lbu`; `char *self` gives `lb` and word 0 differs (0x00216c28).
+- **addu operand order is not source-fixable here:** 0x000b8118's single remaining word is retail
+  `addu v0,v0,s0` (index first) against `addu v0,s0,v0`. `(k*24 + (char*)self)[34]`, an int-cast sum
+  `(char*)(k*24 + (int)self) + 136`, `24 * k`, and an unsigned index all normalise back to pointer-first.
+### Frame-first, continued (2026-10-28, pass 41; 0x000bd568, 0x0016aafc, 0x00190458)
+- **A value used twice is what grows the frame.** 0x000bd568 is 48 bytes with four saves until `v = e->f0c + 20` is a local used BOTH as the record field `t.p` and as FUN_000bdb14's 6th argument; then it becomes retail's 64 with s3..s0. Same rule as the big-stack-object case: find the value retail keeps live across a call, not the declaration order.
+- **FPR numbering: earlier-declared float local gets the HIGHER saved FPR.** 0x0016aafc needs `float y = b; float x = CONST * a;` to put x in f20 and y in f21; declaring x first swaps them and costs ~13 words.
+- **`extern float fabsf(float);` is the abs.s intrinsic.** `<math.h>` is not on this lane's include path and `__builtin_fabsf` links as an external symbol.
+- **Symbol names need EIGHT hex digits.** `FUN_000462a0`, not `FUN_00462a0`: the short form is reported as MISSING_SYMBOLS rather than relocating.
+- **Assignment to a fresh float local does not stop in-place folding**: 0x0016aafc's second angle still becomes `mul.s f21,f21,f0` where retail has `mul.s f2,f0,f21` and keeps f21 raw, leaving a 4-word gap.
+### Flag matrix on the parked ties (2026-10-28, pass 42)
+`python tools/flagmatrix.py` (13 flag sets, real matcher each time) over the four scheduler-class drafts:
+| address | profile | best of the other 12 | flips |
+| 0x000b8118 | 1 differ | 1 (O3p, O4pnoin, auto, inl2, bottomup, enumint) to 90 (O2p) | none |
+| 0x000bd568 | 15 | 15 (O4s/O3p/auto/inl2/bottomup/...) to 73 (O2p) | none |
+| 0x0016aafc | 54 | 54 to 85 | none |
+| 0x00216c28 | 11 | 11 to 79 | none |
+No flag set moves any tie by even one differing word; the profile column is the minimum in every row. Several variants report UNPLACED_SECTION because the rodata/data placement changes with the flag set, not because the code moved. Conclusion: this class is unreachable through the build profile — the residual is allocation/scheduling at fixed source, so only a source shape that changes the live set can move it.
+## Address decoding and stack-buffer assignment (2026-10-28, fresh reconstructions)
+- **A `lui imm; addiu lo` pair sign-extends `lo`.** Decode it as `(imm << 16) + (int16)lo`, never
+  `(imm << 16) | lo`. `lui 0x31; addiu -24836` is `0x00310000 - 0x6104 = 0x00309efc`, and
+  `lui 0x31; addiu -28268` is `0x00309194` — both look like `0x0031....` if you read the hi half only.
+  Writing `DAT_00319efc` produced `lui 0x32; addiu -24836`, a first diff at `+0x18` that masqueraded as
+  a frame bug for two compiles (0x002ab5ac). Re-derive every address from the pair before blaming the frame.
+- **Two stack buffers declared together are assigned by use at the call sites, not by declaration order.**
+  Swapping the declarations of `r1[3]`/`r2[3]` changed nothing; swapping which array each call receives
+  (and later swapping the declarations once the block sat outside the `if`) was what moved a buffer from
+  `sp+36` to `sp+24`. If the offsets are reversed, change the arguments first, then the order.
+- **A call group retail places after a null test must sit outside the `if`.** Putting
+  `FUN_000031f0/FUN_00003e04/FUN_00190880/FUN_000462a0/FUN_00004138` inside `if (p != 0)` moved the
+  `beqz` target 0x58 bytes and shifted every later word; hoisting them out restored the real branch range
+  (0x002ab5ac).
+- **`beqz v0,<exit>` with `move s1,v0` in the delay comes from the assignment inside the condition:**
+  `if ((p = (int *)FUN_00000bcc(0x88)) == 0) goto L_after;`. Writing `p = FUN(...); if (p == 0) goto ...`
+  gives `move s1,v0; beqz s1,<exit>` with a `nop` delay instead, and every later word shifts.
+## Recipe: re-read the pointer for every store (2026-10-28, 0x0021b088 EXACT)
+- **Hold the value, not the address.** When retail stores twice through the same object, write the
+  pointer expression again for each store instead of caching it in a local:
+  `((int *)p[0x64/4])[0x60/4] = 0;` … `((float *)p[0x64/4])[0x64/4] = f;`. One cached `q` produces one
+  load and one store placement; two expressions produce retail's **double `lw v0,100(s2)`**, the zero
+  store in the `beqz` delay and the `swc1` in the `jal` delay. This closed 0x0021b088 (80/80, EXACT)
+  after nine compiles on which every other tail spelling stalled at 16 differing words.
+- **The zero-initialised else value is free evidence.** `f = 0.0f; if (c) f = -16.0f;` before the store
+  yields the unconditional `mtc1 zero,$f0` that sits *above* the branch in retail; a branch-local store
+  never produces it.
+- **Counter-example (frame cost): holding the value across a call inflates the frame.** The same draft
+  with `FUN_00103480(...); *ptr = f;` (f live across the call) went to 82/80 words and 82 differ at
+  `+0x0`, because the float joins the saved set. Store before the call and let the scheduler sink it
+  into the delay slot instead.
+- This is a **liveness rule, not a tail trick**: the same cause shows up as a store that will not sink
+  into a delay slot, an argument materialised late (`move a0,s0` / `addiu a0,sp,24` in the `jal` delay),
+  or one extra saved register. When a draft parks with any of those three symptoms, re-read the base
+  expression per use before changing anything else.
+## Correction: `addu` operand order IS source-controllable (2026-10-28, 0x000b8118 EXACT)
+Earlier notes (line 17 table, and the 0x18f1ac entry) implied an `addu` operand mismatch could be a
+canonicalisation wall. It is not. The two spellings differ and both are reachable:
+| spelling | code |
+| --- | --- |
+| `*(float *)((char *)(24 * k + (int)self) + 136)` | `addu v0,s0,v0` (base first) |
+| `*(float *)((char *)self + off + 136)` with `int off = k * 24` | `addu v0,s0,v0` |
+| **`*(float *)((char *)((char *)self + 136) + off)`** | **`addu v0,v0,s0`** (offset accumulated into, base added last) |
+The rule: put the **base pointer plus any constant** in its own cast expression, and add the integer
+offset as the outermost `+`. `0x000b8118` sat at 78/78 words with only that rotation left and went
+EXACT on this change alone; `0x000bd568` used the same form to flip its table read (there the base was
+`self + 0x1dc`). When a draft's only residual is `addu vX,sN,vM` vs `addu vX,vM,sN`, rewrite the address
+this way before parking it as canonicalisation.
+## Where the retail bytes live, and how to read data (jump tables) from them
+Do not search the filesystem for `EBOOT.BIN` — there is no such file. The matcher resolves the module
+through its own cache:
+```python
+import sys; sys.path.insert(0, "tools"); import hstmatch as H
+data, seg = H.module_bytes({}, "EBOOT.BIN")     # data: the loaded image, seg: the PT_LOAD header
+off = seg["file_offset"] + (0x002c0168 - seg["start"])
+entry = struct.unpack_from("<I", data, off)[0]
+```
+The image is `C:\nk\private\hst-1009\hst-build\inputs\selected.elf` (path comes from
+`revision-selection.json` + `ledger/campaign.json`, not from `hst-config.json`), and the address→offset
+rule is `file_offset + (va - seg["start"])` with `start=0`, `file_offset=84` in this build.
+Worked example (`0x000c13e0`, jump table at `0x002c0168`, 14 entries): only entries **4** and **9**
+point at `0xc1420` (the state machine); the other twelve point at `0xc1414`, which is
+`li v1,9; b end; sw v1,64(a0)` — so the switch is `if (st==4 || st==9) {…} else {field64 = 9;}`,
+not fourteen distinct arms. Reading the table before writing a switch is cheap; guessing its layout is not.
+## Branch-likely and delay-slot placement: what source cannot steer (measured 2026-10-28)
+The residual class that stops every body at retail's exact word count is mwcc's choice of (a) which arm gets
+`beql`/`bnel` and (b) which statement fills the delay slot. A bounded six-form sweep on `0x000dc6a4` (95/95
+words, 46 differ, first at `+0x30`) measured every spelling the class suggests:
+| form | words | differ | first diff |
+| `if (mode != 1) { … }` outer, `if (mode == 0) { … }` inner | **95/95** | **46** | `+0x30` |
+| `if (!mode)` instead of `if (mode == 0)` | 95/95 | 46 | `+0x30` (byte-identical) |
+| `goto` label placed at the arm, arm as the label's block | 92/95 | 85 | `+0x14` |
+| arms swapped, condition negated | 93/95 | 85 | `+0x14` |
+| `mode == 0` test hoisted to function scope | 97/95 | 61 | `+0x14` |
+| `default` arm last, chain 3/2/1/0 reordered | 93/95 | 87 | `+0x14` |
+| (earlier) `switch` with cases 3/2/1/0 | 94/95 | 92 | `+0xc` |
+Rules this establishes:
+- `if (!x)` and `if (x == 0)` are **byte-identical**; never spend a compile distinguishing them.
+- Writing the *then* block as a `goto` target, or swapping arms and negating, moves the first diff **backwards**
+  (to `+0x14`), because mwcc then re-materialises the compare itself. The plain fall-through form is strictly best.
+- A `switch` on the same values reorders the comparison chain (3,2,1 instead of 3,2,1,0) and loses 2 words.
+- No source form makes mwcc emit a likely branch **into** an arm while sinking the previous statement into the
+  other branch's delay slot (retail's `beqzl a1,<arm>` with the arm's first word in the delay). That is a
+  block-layout decision, so bodies blocked on it park at their word count rather than chasing the placement.
+Expect the same shape on `0x000fb5f4` (`+0x68`: retail `bnel a0,v0,<return>` with `move v0,zero` in the delay
+against our `beql a0,v0,<arm>` + `b <return>`), `0x002872a0` and `0x000c13e0`; do not re-spend compiles on the
+polarity of those chains either.
+## The 16 untouched stack bytes: variadics tested and falsified (2026-10-28)
+Two bodies reach retail's exact word count with the *only* difference being a frame that is 16 bytes larger in
+retail while retail never touches those bytes: `0x000d3298` (ours 16 B / retail 32 B) and `0x0027eedc`
+(ours 16 B / retail 32 B). Both had the same prologue otherwise: `ra,s2,s1,s0` at 12/8/4/0 and no other
+`sp`-relative access anywhere in the body.
+Hypothesis: a variadic definition (`int f(int a0, int a1, ...)`) reserves the incoming-argument save area
+without storing to it. **Falsified on both bodies, and it cannot hold in principle**: mwccpsp *always* spills the
+named-argument registers that varargs can read.
+| body | spelling | frame | words | differ |
+| --- | --- | --- | --- | --- |
+| `0x000d3298` | `int *f(int *p,int n)` | 16 | 95/95 | 62 |
+| `0x000d3298` | `int *f(int *p,int n,...)` | **80** | 101/95 | 98 |
+| `0x0027eedc` | `void f(int *p,uint n,int k)` | 16 | 92/92 | 70 |
+| `0x0027eedc` | `void f(int *p,uint n,int k,...)` | **96** | 97/92 | 92 |
+The variadic prologue stores `a2` at 56(sp) / `a3` at 60(sp) / `t0` at 64(sp) / `t1` at 68(sp) (and
+`a3` at 76 / `t0` at 80 on the second body), so it both grows the frame past the target *and* adds exactly the
+`sp` references retail lacks. Retail's prologue has no `a2+` stores at all, which rules out every varargs shape,
+including a variadic tail on a later parameter.
+One adjacent probe also closed: forcing a debug frame with `--flags "-c -O4,p -sdatathreshold 0 -g"` produces an
+object `psp-ld` rejects as "file in wrong format" under this kit, so `-g` cannot be used to test a widened frame
+here. With dead locals, by-value aggregates without a tag argument position, variadics and `-g` all excluded, the
+16 untouched bytes stay an unexplained artifact of the original build rather than a reachable source shape; bodies
+blocked on it are frame-only parks, and their bodies should be finished to retail's word count and left there.
+2026-10-29 (0x0022c05c EXACT, lane dsn3, phase 3): a global-array short read whose offset does not fit a signed 16-bit displacement must be written as `((short *)((char *)DAT_xxx + 0xD4E6))[idx]` — casting the pointer past the constant and then indexing it. That gives retail's index-first `addu v1,v1,a0` and splits the offset into `lui 0x1` + `lh -0x2b1a` (0x10000 - 0x2B1A = 0xD4E6). Writing the address as `idx*2 + (int)DAT_xxx` plus the same constant costs one word: MWCC folds 0xD4E6 into 0x1D4E6 (lui 0x2) and emits `addu v1,a0,v1` (base first). A one-word addu-operand tie on a global table read is therefore a spelling fix, not canonicalisation.
+2026-10-29 (0x000de208 + 0x000de238/0x000de268/0x000de298 EXACT, lane dsn3, phase 3): a guard pair whose two failures both branch to ONE trailing `jr ra` with no zero store is a single-expression short-circuit return, not two early returns. `return s->flag != 0 && (a1 < 0 || s->value == a1);` gives `lbu; sltu v0,zero,v0; beqz v0,<trailer>` then `slt v0,a1,zero; bnez v0,<trailer>` with the comparison body in the fall-through — retail reuses v0 (0 from the first test, the slt result from the second) as the return value, so the trailer needs no `move v0,zero`. Early-return spellings invert the guards and put the body out of line (13 words vs 12). The xor operand order follows the source: `s->value == a1` emits `xor v0,v0,a1`, `a1 == s->value` emits `xor v0,a1,v0` — the twin at 0x000de298 needs the latter.
+2026-10-29 (0x00204400 EXACT, lane dsn3, phase 3): when a function's failure paths all branch to ONE trailing `move v0,zero`, write the guards as a nested form with a single final `return 0` — `if (p != 0) { if (i >= 0 && i < 15) return p + i*16; } return 0;` — not as a flat `if (a || b || c) return 0;` chain, which duplicates the zero block per failure and inverts the compares (`slti v0` + `bnezl` instead of retail's `slti at` + `beqz`). The tell is `slti at`: the compare result is branch-only, so the source must not use it as a value.
+2026-10-29 (0x0022bf40 EXACT, lane dsn3, phase 3): a constant-trip (256) byte-fill whose retail body re-loads the base global and the constant each pass is `#pragma opt_strength_reduction off` + `#pragma opt_unroll_loops off`; either alone is not enough and without both mwcc emits 58-62 words instead of 13. With the pragmas the index-first cast `((unsigned char *)(i + (int)DAT_xxx))[0xc100]` gives retail's `addu a2,a3,a2` and splits +0xC100 into `lui 0x1` + `sb -0x3f00`.
+## `(char *)0 +` seeds an int-first `addu`; write a split constant as ONE number (2026-10-28, 0x0022cb40, 0x0022cb04 EXACT)
+Both are `... = G[d + 0x90D0 + a*384 + b*64 + c*8 + 0x3500]` (G = `unsigned char *DAT_003415a8`). Retail materialises
+0x90D0 as `addiu v0,a3,0x7fff; addiu a3,v0,0x10d1` and adds the `a*384` term to the base FIRST (`addu v0,v0,a0`, dst =
+the shift term). Two rules fell out:
+- **Never pre-split the constant yourself.** Writing `d + 0x8CD0` (= `0x7fff + 0xcd1`) makes mwcc materialise
+  `addiu ...,3281`; write the true total `d + 0x90D0` and mwcc picks retail's `0x7fff/0x10d1` split by itself. Same
+  trap as decoding an addiu pair by eye (see the address-decoding entry above).
+- To get `addu dst,<shift term>,<base>` for the first add, put a **`(char *)0 +`** in front of the offset sum:
+  `*(unsigned char *)((char *)0 + (a * 384 + ((d + 0x90D0) + (int)DAT_003415a8)) + b * 64 + c * 8 + 0x3500)`.
+  The plain `int` sum (`*(unsigned char *)(a * 384 + ... )`) and a pointer base (`a * 384 + (char *)(...)`) both
+  reorder the add or the constant materialisation; the zero-based pointer chain is the only exact spelling found.
+  The remaining `addu` pairs keep the natural `+ b*64 + c*8` order (dst = second operand).
+The `p = base; return p[a*96 + b*16 + 0x3500];` two-line form that matched the smaller twin 0x0022cad0 does NOT hold
+here: with three index terms the local pointer changes the first-add order (7 words differ). Converted near miss
+wip/FUN_0022cb04_near.c (0x8d10 written as 0x90D0 + the zero-seeded chain) -> EXACT first compile.
+## An inlined implicit POD copy brings its own null guard (2026-10-28, 0x00294088 EXACT)
+The 10-byte vector append-n instance (`short v[5]` element) matched on the first real spelling once the element was left
+plain POD: `struct Elem { short v[5]; };` + `new (p) Elem(x)` makes mwcc inline a **five-iteration `lh`/`sh` loop with a
+`beqzl p,<skip>` guard of its own** (`li v1,5; beqzl a3,..; move a0,v1; move a2,src; move a1,dst; loop`). Adding an
+`if (p)` around the construct emits that guard TWICE (one extra `beqz`, +8 bytes on the branch target, 163/161 words);
+a user copy ctor (`for (i=0;i<5;i++) v[i]=o.v[i]`) unrolls into five straight `lh`/`sh` pairs instead. The 20-byte float
+sibling (0x00166244) needs the opposite (explicit memberwise ctor, interleaved lwc1/swc1) — same template, different
+element, so check which copy shape the element size implies before adding a ctor. Written from the 0x00166244 source with
+addresses/element substituted: 161/161.
+## A clamp ternary's compare direction is source-controllable (2026-10-28, 0x000adb10 EXACT)
+`hi > v ? hi : v` and `v > hi ? hi : v` are the same clamp but emit `slt at,a0,v1` and `slt at,v1,a0`
+respectively — mirroring the comparison flips only the two slt operands and closes a one-word park
+(97/97). The parked sweep had tried `hi < v ? v : hi` (Max, wrong value) and inline helpers; the fix is
+the *same value* with the comparison written from the other side. Applies to every parked "`slt` operand
+order" note: rewrite the relational operator mirror-wise (`a > b` <-> `b < a`) instead of moving the arms.
+## A one-off load into a local flips the compare's rs/rt (2026-10-28, 0x000dbc54 EXACT)
+`if (base[i + 9] == ch) return 1;` emits `bnel a1,v0` (parameter in rs); routing the byte through
+`signed char c; c = base[i + 9]; if (c == ch)` emits retail's `bnel v0,a1` (loaded byte in rs) with the
+same word count — the local forces the loaded value to be the first operand slot. Neither mirroring the
+`==` operands nor casting `ch` does it (both cost/skip words). Same family: `opt_strength_reduction off`
+is what keeps the `addu base,i` + `lb 9(v0)` indexed form instead of a pointer walk.
+## "Return the constant LAST" is what gives `blezl` + constant in the delay (2026-10-28, 0x001fb8d8 EXACT)
+`int n = self->count; if (n <= 0) return 0; return self->arr[n - 1];` emits `bgtzl` over the compute plus an
+extra `b` (9-10 words). Writing the zero return as the FINAL statement — `if (n > 0) return self->arr[--n]; return 0;`
+— makes mwcc branch `blezl v0,<jr ra>` with `move v0,zero` in the delay slot and let the compute fall through (9/9).
+The same edit fixes the address: `arr[n - 1]` folds the -1 into the load displacement (`lw 0x88`), while the
+pre-decrement `arr[--n]` keeps retail's `addiu v0,v0,-1` + `lw 0x8c`. So for a "peek last element" body: guard
+first, decrement the index inside the taken arm, constant return last.
+## A duplicated address argument needs `opt_common_subs off` (2026-10-28, 0x000029f0 EXACT)
+`F(g1, g2, &DAT, &DAT)` makes mwcc materialise the shared address once and pass `move a3,a2` (7 words, retail 9).
+`#pragma opt_common_subs off` before the function restores two independent `lui`/`addiu` pairs; nothing else changes.
+Same pass, same trap as the address-decoding entry: `lui 0x31; addiu -24560` is **0x30a010** (0x310000-0x5ff0), not
+0x31a010 — the parked note had carried the wrong high half, which survived because the CSE diff looked identical.
+## Two zero-return sites = a nested guard, not `||` (2026-10-28, 0x00050210 EXACT)
+`if (i < 0 || i >= 576) return 0; return s->e[i].a;` gives the right first branch (`bltzl` + `move v0,zero`) but
+collapses the second test into `slti v0` + `bnezl` and shares one zero block (8 words off). Retail's second test is
+`slti at` + `beqz` landing on a SEPARATE `move v0,zero`: that is the nested guard
+`if (i >= 0) { if (i < 576) return s->e[i].a; } return 0;` — 12/12 exact. Rule of thumb: count the constant-return
+blocks in retail; one per written `return`, and a nested `if` keeps the outer test's `$at` branch form.
+## A `char *` local forces the self-copy before a tail call's argument move (2026-10-28, 0x0014648c EXACT)
+`FUN(a1, &DAT, (void *)(self + 0xd68), ...)` computes the addresses straight out of a0 and then does
+`move a0,a1` — 7 words where retail has 8 with `move v0,a0` first. Introducing
+`char *p = (char *)self;` and using `p + 0xd68` / `p + 0xd28` / `*(int *)(p + 0xd24)` makes mwcc copy a0 into
+v0 at the top and use v0 for all three addresses (8/8). An `int *` local with word offsets (p[0x349]) is also
+exact. A plain `int s = self;` local is NOT (mwcc keeps a0). C++ member/reference spellings produce the same
+copy order but add a frame and `jal` instead of the tail `j`, so they are not a substitute.
+## One `return -1` reached by two guards gets duplicated into one delay slot (2026-10-28, 0x001e7198 EXACT)
+Two explicit `return -1;` statements make mwcc invert the FIRST guard (`bnezl` over the second load) and keep a
+separate block; the exact shape is a single trailing `return -1;` reached by both tests —
+`if (a != 0 && (b = *(int *)(a + 0x16c)) != 0) return *(int *)(b + 0x6c); return -1;` — which emits
+`beqzl v0,<jr ra>` with `li v0,-1` in the delay and a plain `beqz` to the surviving block (11/11). An if/goto
+spelling with the same single return is also exact; the assignment-in-`&&` form is the one installed.
+## Store before the call: mwcc sinks it into the `jal` delay and drops the saved register (2026-10-28, 0x000f1b38 EXACT)
+`FUN(self, self->f90); self->f94 = self->f90;` keeps `self` live across the call (s0 save, 17 words). Writing the
+store first — `float x = self->f90; self->f94 = x; FUN(self, x);` — gives retail's 13 words: one `lwc1 f12,144(a0)`,
+the `swc1 f12,148(a0)` in the jal delay, no saved register. A store moved into a call's delay slot runs before the
+callee, so this reordering is legal and is what the original source did; `if (flag == 0) return;` with the same
+order is also exact. Look for this whenever a draft has one extra saved register and a store after a call.
+## Large memberwise copies: declare the exact member layout, write `*dst = *src` (2026-10-28, 0x001634d4 EXACT)
+A 1260-byte function whose whole body is `if (dst) *dst = *src;` on a 556-byte record reproduces all 315 retail
+words in ONE compile once the member layout is read off the copy sequence: `short` at 0x00, `char[16]` at 0x02
+(mwcc copies an array member with a 2-byte-per-iteration loop), three single `char`s at 0x12-0x14, floats with
+`int`/`short` members interleaved where the retail `lw`/`lh` occur, and sixteen SINGLE `char`s at 0x21c-0x22b
+(individual char members unroll; replacing them with `char[16]` at 0x21c changes the code and breaks the match).
+C++ struct assignment of a mixed float/int record uses `lwc1`/`swc1` per float, so a float-heavy copy that
+looks like a hand-written field loop is often just an implicit assignment; check the accessor's stride
+(0x1639c0 multiplies by 0x22c) to size the record.
+## 16-byte-aligned vector locals: slot rounding and descending placement drive the frame (2026-10-28, 0x0012603c EXACT)
+Declaring the helper object's float4 as `struct { float x,y,z,w; } __attribute__((aligned(16)))` (the PSP
+vector type) is what produces a 384-byte frame for two helper objects and five temporaries: mwcc rounds every
+16-aligned local's slot up to 16 bytes and places locals in DESCENDING address order of declaration
+(a at 0xc0, d0 at 0xb0, b at 0x50 with a 0x60 slot, then d1/d2/v1/v2 at 0x40/0x30/0x20/0x10). With plain
+4-aligned floats it packs at 8-byte boundaries (b at 0x58, v1 at 0x28) and the frame/offsets all shift. One
+member was NOT a Vec4: the second helper's 0x44..0x54 region must stay four separate floats, because a
+16-aligned Vec4 there jumps to +0x50 and grows the object past 0x58. Also: a scalar read once and used after
+a block of stores (`float h = self->f80;` ... `b.f54 = h;`) is what makes retail hoist that load to the top of
+the block and keep it in f3; assigning `b.f54 = self->f80;` at the store point reloads it there instead.
+## Struct copies: Vec4 members batch four FP loads, and array-copy calls keep a base in s2 (2026-10-28, 0x00236890 NEAR 276/277)
+In a memberwise copy, a run of four plain `float` members is copied one load/store pair at a time, but declaring the
+group as a `struct Vec4 { float x,y,z,w; };` (alignment 4, NOT 16) makes mwcc emit four `lwc1` into f3/f2/f1/f0 and
+then four `swc1` — the batch retail shows at 0x1c/0x2c/0x3c and 0x12c. For a run of sub-object copy calls on an
+inline array (six calls, 12-byte elements at 0xc4), retail keeps the DESTINATION base in s2 and re-materialises it
+every two calls (`s2 = s1 + 0xdc`, `s2 = s1 + 0xf4`); writing `char *d = self->sub;` and reassigning
+`d = self->sub + 0x18; d = self->sub + 0x30;` between call pairs reproduces that exactly, and drops the 32-byte
+frame that a second source-pointer local costs. The remaining gap on 0x00236890 is the char[15] member's copy-loop
+colouring (retail a1=src/a0=dst/v1=count vs ours a2/a1/a0), a cascade that shifts every later word by one.

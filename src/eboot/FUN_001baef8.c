@@ -1,16 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001baef8 end=0x001baf24 symbol=FUN_001baef8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/item_owner.h"
 
-u8 FUN_001baef8(int param_1,int param_2)
+/* The unk171 byte of the second target of item `index`, 0 when it has none. */
+u8 FUN_001baef8(ItemOwner *self,int index)
 {
-  u8 uVar1;
-  int iVar2;
+  u8 result;
+  ItemTarget *target;
   
-  iVar2 = *(int *)(**(int **)(*(int *)(param_1 + 4) + param_2 * 4) + 0x60);
-  uVar1 = 0;
-  if (iVar2 != 0) {
-    uVar1 = *(u8 *)(iVar2 + 0x171);
+  target = self->items[index]->inner->target_b;
+  result = 0;
+  if (target != 0) {
+    result = target->unk171;
   }
-  return uVar1;
+  return result;
 }

@@ -1,12 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0009447c end=0x000944bc symbol=FUN_0009447c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
 extern void FUN_00000a00();
 
-int FUN_0009447c(int param_1,short param_2)
+/* Plain deleting-destructor wrapper: frees the object when delete_flag > 0. */
+int FUN_0009447c(int self,short delete_flag)
 {
-  if ((param_1 != 0) && (0 < param_2)) {
+  if ((self != 0) && (0 < delete_flag)) {
     FUN_00000a00();
   }
-  return param_1;
+  return self;
 }

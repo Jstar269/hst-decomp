@@ -1,19 +1,21 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021e4cc end=0x0021e520 symbol=FUN_0021e4cc lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag p1), refined by hstperm.py random mutation (perm-p1/r00/f0082_0021e4cc_m00.c); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag p1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/digit_panel.h"
 
 extern int FUN_002af920();
 
-void FUN_0021e4cc(int param_1,u8 param_2,int param_3)
+/* Store `flag` in unk1e4, set unk208, and clear unk208 again when `check` is set and unk200 >= the count FUN_002af920 reports for unk170. */
+void FUN_0021e4cc(DigitPanel *self,u8 flag,int check)
 {
-  int iVar1;
-  int iVar2;
+  int limit;
+  int index;
   
-  *(u8 *)(param_1 + 0x1e4) = param_2;
-  *(u8 *)(param_1 + 0x208) = 1;
-  if ((param_3 != 0) &&
-     (iVar2 = *(int *)(param_1 + 0x200), iVar1 = FUN_002af920(*(int *)(param_1 + 0x170)),
-     iVar2 >= iVar1)) {
-    *(u8 *)(param_1 + 0x208) = 0;
+  self->unk1e4 = flag;
+  self->unk208 = 1;
+  if ((check != 0) &&
+     (index = self->unk200, limit = FUN_002af920(self->unk170),
+     index >= limit)) {
+    self->unk208 = 0;
   }
 }

@@ -43,25 +43,33 @@ struct PtrVec {
         }
     }
 };
+/* Leaf entry: its name at +0x18 and the handle currently bound to it. */
 struct Node {
     char pad[0x18];
-    int *name;
-    int handle;
+    int *name;   /* 0x18 */
+    int handle;  /* 0x1c */
 };
 struct Group {
     struct Hdr { char pad[8]; unsigned short count; } *hdr;
 };
+#define LIST_HEAD_OFFSET 0x10 /* the nested list starts this far into the list member */
+#define BAD_HANDLE (-1)
+#define REBIND_LOAD_ARG 0x40
+
+/* Owner of a nested name list plus the handles and names of the entries rebound so far. */
 struct Owner {
     char pad[8];
-    char *list;
+    char *list;          /* 0x08 */
     char pad2[8];
-    unsigned char done;
+    unsigned char done;  /* 0x14 set after a rebind pass */
     char pad3[3];
-    IntVec handles;
-    PtrVec names;
+    IntVec handles;      /* 0x18 new handles, in rebind order */
+    PtrVec names;        /* 0x24 names of the rebound entries */
 };
-struct Str { char buf[128]; };
-struct Pair { int *a; int *b; };
+#define NAME_BUF_SIZE 128
+struct Str { char buf[NAME_BUF_SIZE]; };
+/* A name fragment to look for and the text that replaces it. */
+struct Pair { int *find; int *replace; };
 extern char DAT_00311170[];
 extern "C" {
 void FUN_00049194();
@@ -77,13 +85,15 @@ int FUN_0004f6b4(char *, Str *, int, int, int, int, int, int);
 void FUN_0004fe04(char *, int);
 }
 
-extern "C" void FUN_00053b04(Owner *self, int a, Pair *p, int b)
+/* Walks every entry of the nested list; each entry whose name contains rule->find gets that fragment replaced by
+   rule->replace, is loaded again under the new name and rebound to the new handle. Old handles are released once at the end. */
+extern "C" void FUN_00053b04(Owner *self, int arg, Pair *rule, int extra)
 {
     if (self->list) {
-        LocalVec old;
+        LocalVec old; /* distinct handles that were replaced */
         FUN_00049194();
         int g;
-        char *list = self->list + 0x10;
+        char *list = self->list + LIST_HEAD_OFFSET;
         int ng = FUN_0002e840(list);
         for (g = 0; g < ng; g++) {
 
@@ -93,21 +103,21 @@ extern "C" void FUN_00053b04(Owner *self, int a, Pair *p, int b)
                 Node *node = *FUN_0002e3d0(grp, i);
                 Str s;
                 FUN_000149a8(&s, node->name);
-                char *hit = FUN_00014d64(&s, p->a);
-                if (hit && !FUN_00014934(hit, p->a)) {
-                    FUN_000149a8(hit, p->b);
+                char *hit = FUN_00014d64(&s, rule->find);
+                if (hit && !FUN_00014934(hit, rule->find)) {
+                    FUN_000149a8(hit, rule->replace);
                     FUN_000491cc();
-                    int h = FUN_0004f6b4(DAT_00311170, &s, a, 0, 0, b, 0x40, 0);
+                    int h = FUN_0004f6b4(DAT_00311170, &s, arg, 0, 0, extra, REBIND_LOAD_ARG, 0);
                     self->handles.push_back(h);
                     self->names.push_back(node->name);
                     int prev = node->handle;
                     for (int j = 0; j < old.size; j++) {
                         if (prev == old[j]) {
-                            prev = -1;
+                            prev = BAD_HANDLE;
                             break;
                         }
                     }
-                    if (prev >= 0)
+                    if (prev >= 0) /* remember each old handle once */
                         old.push_back(prev, Tag());
                     node->handle = h;
                     FUN_00049194();

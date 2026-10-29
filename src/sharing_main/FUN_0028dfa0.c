@@ -5,13 +5,23 @@
 extern u8 DAT_003b2f00;
 extern u32 * FUN_0001ec44();
 
-u32 * FUN_0028dfa0(u32 *param_1)
+typedef struct ZeroedObj {
+  const void *vtable; /* 0x00 */
+  char pad04[0x3c - 4];
+  u32 unk3c; /* 0x3c */
+  u32 unk40; /* 0x40 */
+  u32 unk44; /* 0x44 */
+  u32 unk48; /* 0x48 */
+} ZeroedObj;
+
+/* Constructor: base constructor, class vtable, four fields cleared. */
+ZeroedObj * FUN_0028dfa0(ZeroedObj *self)
 {
   FUN_0001ec44();
-  *param_1 = (unsigned int)(&DAT_003b2f00);
-  param_1[0xf] = 0;
-  param_1[0x10] = 0;
-  param_1[0x12] = 0;
-  param_1[0x11] = 0;
-  return param_1;
+  self->vtable = &DAT_003b2f00;
+  self->unk3c = 0;
+  self->unk40 = 0;
+  self->unk48 = 0;
+  self->unk44 = 0;
+  return self;
 }

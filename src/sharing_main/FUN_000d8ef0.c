@@ -2,16 +2,25 @@
 /* Clone of src/eboot/FUN_000d5200.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u8 DAT_003b0808;
-extern int FUN_00000bcc();
+/* Vtable pointer plus one word. */
+typedef struct WordObj {
+  const void *vtable;  /* 0x00 */
+  int value;           /* 0x04 */
+} WordObj;
 
-void FUN_000d8ef0(int param_1)
+#define WORD_OBJ_SIZE 8
+
+extern u8 DAT_003b0808;
+extern void * FUN_00000bcc();
+
+/* Allocates a copy of src with the base vtable. The pointer is not kept. */
+void FUN_000d8ef0(WordObj *src)
 {
-  u32 *puVar1;
+  WordObj *copy;
   
-  puVar1 = (u32 *)FUN_00000bcc(8);
-  if (puVar1 != (u32 *)0x0) {
-    *puVar1 = (unsigned int)(&DAT_003b0808);
-    puVar1[1] = *(u32 *)(param_1 + 4);
+  copy = (WordObj *)FUN_00000bcc(WORD_OBJ_SIZE);
+  if (copy != (WordObj *)0x0) {
+    copy->vtable = &DAT_003b0808;
+    copy->value = src->value;
   }
 }

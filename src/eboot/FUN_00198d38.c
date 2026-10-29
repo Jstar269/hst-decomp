@@ -1,15 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00198d38 end=0x00198d68 symbol=FUN_00198d38 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a1), refined by hstperm.py tag p4 random mutation from try/gen-a1/v0/FUN_00198d38.c; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/text_draw.h"
 
-int FUN_00198d38(int param_1,int param_2)
+#define NAME_SLOTS 4 /* name strings held by the text object */
+
+/* Returns the name string stored in the slot, or 0 for an index outside the slots. */
+char * FUN_00198d38(TextDraw *text,int index)
 {
-  int iVar1;
+  char *name;
   
-  if (param_2 >= 0 && (param_2 < 4)) {
-    iVar1 = param_1 + param_2 * 8 + 0xa0;
+  if (index >= 0 && (index < NAME_SLOTS)) {
+    name = text->names[index];
   }
   else {
-    iVar1 = 0;
+    name = 0;
   }
-  return iVar1;
+  return name;
 }

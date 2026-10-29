@@ -14,6 +14,7 @@ struct Node {
     Node *prev;
 };
 
+/* 24-byte request record queued when the delay is positive. */
 struct Key {
     int tag;
     int index;
@@ -51,9 +52,12 @@ void FUN_000e88e4(void *vec, int flag);
 void FUN_001caee4(void *g, int p2, Vec4 *out, void *buf);
 void FUN_001cb334(void *g, int p2, Vec4 *out, void *buf);
 void FUN_00289544(void *out, void *vec, void *list, void *key);
-void FUN_00287ff0(Obj *self, int param_2, int param_3, int param_4, void *param_5, uint param_6);
+void FUN_00287ff0(Obj *self, int index, int delay, int mode, void *source, uint flag);
 }
 
+enum { REQ_TYPE_42 = 0x42 }; /* request kind, named by its hex value */
+
+/* Growable array of Vec4 (data, size, capacity). */
 struct VectorVec4 {
     Vec4 *data;
     uint size;
@@ -72,17 +76,18 @@ struct VectorVec4 {
     }
 };
 
-void FUN_00287ff0(Obj *self, int param_2, int param_3, int param_4, void *param_5, uint param_6)
+/* With delay below 1 gather two positions into a temporary vector and pass them to the object; otherwise queue a request. */
+void FUN_00287ff0(Obj *self, int index, int delay, int mode, void *source, uint flag)
 {
     Vec4 v[2];
     VectorVec4 vec;
 
-    if (param_3 < 1) {
-        int flag = 0;
-        if (param_4 == 0) {
-            flag = *(u8 *)((char *)param_5 + 0x58);
-        } else if (param_4 == 2) {
-            flag = 1;
+    if (delay < 1) {
+        int useAlt = 0;
+        if (mode == 0) {
+            useAlt = *(u8 *)((char *)source + 0x58);
+        } else if (mode == 2) {
+            useAlt = 1;
         }
 
         vec.data = 0;
@@ -91,28 +96,28 @@ void FUN_00287ff0(Obj *self, int param_2, int param_3, int param_4, void *param_
 
         vec.push_back(self->m6());
 
-        if (flag == 0) {
-            FUN_001caee4(DAT_0034a114, param_2, &v[1], &v[0]);
+        if (useAlt == 0) {
+            FUN_001caee4(DAT_0034a114, index, &v[1], &v[0]);
         } else {
-            FUN_001cb334(DAT_0034a114, param_2, &v[1], &v[0]);
+            FUN_001cb334(DAT_0034a114, index, &v[1], &v[0]);
         }
         vec.push_back(v[1]);
 
-        int f = (bool)self->f58;
-        if (f) {
-            f = (param_6 != 0) ^ 1;
+        int onFlag = (bool)self->f58;
+        if (onFlag) {
+            onFlag = (flag != 0) ^ 1;
         }
-        self->m12(vec.data, 2, f);
+        self->m12(vec.data, 2, onFlag);
 
         FUN_000e88e4(&vec, 0);
     } else {
         Key k;
         Node *out;
-        k.tag = 0x42;
-        k.index = param_3;
-        k.value = param_2;
+        k.tag = REQ_TYPE_42;
+        k.index = delay;
+        k.value = index;
         k.mode = (self->f58 != 0) ? 2 : 1;
-        k.flag = param_6 & 0xff;
+        k.flag = flag & 0xff;
         Node *sent = (Node *)((char *)self + 0x68);
         FUN_00289544(&out, (int *)((char *)self + 0x64), &sent, (int *)&k);
     }

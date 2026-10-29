@@ -1,5 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ca62c end=0x000ca9c8 symbol=FUN_000ca62c lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified (matching idiom: the effect element is reached through an inline Get(unsigned) so the i*0x1b0 product is not strength-reduced; the duplicated effects/enabled null tests are kept as retail has them); names and types await human review. */
+#define ANIM_COUNT 10     /* animation slots updated each frame */
+#define PLAYER_COUNT 4    /* players with an effect element */
+
 struct Vec4 {
     float x, y, z, w;
 } __attribute__((aligned(16)));
@@ -21,7 +24,7 @@ struct Game {
     char pad0[0x3c];
     int mode;
     char pad1[0x70 - 0x40];
-    Player *players[4];
+    Player *players[PLAYER_COUNT];
     char pad2[0x88 - 0x80];
     Cam *cam;
 };
@@ -74,7 +77,7 @@ struct Self {
     Node *node1;
     unsigned char restart;
     char pad2[0x18c - 0x7d];
-    Anim *anims[10];
+    Anim *anims[ANIM_COUNT];
     char pad3[0x1c0 - 0x1b4];
     void *extra;
     unsigned char hasExtra;
@@ -99,6 +102,7 @@ void FUN_0005f1e8(void *, void *);
 void FUN_00063ebc(void *, float, float);
 }
 
+/* Per-frame update: set the model lights and ambient colour, move the two nodes to the camera position, apply the animations (while the camera is moving fast in mode 7), drive the sound, and update the effect element of each visible player. */
 extern "C" void FUN_000ca62c(Self *self)
 {
     FUN_000c85f0(self);
@@ -131,7 +135,7 @@ extern "C" void FUN_000ca62c(Self *self)
         self->node0->SetPos(cam->GetPos());
     if (self->node1 != 0)
         self->node1->SetPos(cam->GetPos());
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < ANIM_COUNT; i++) {
         if (i == 7 || i == 3)
             continue;
         Vec4 v;
@@ -154,7 +158,7 @@ extern "C" void FUN_000ca62c(Self *self)
     }
     if (self->hasExtra != 0)
         FUN_0005f1e8(self->extra, 0);
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < PLAYER_COUNT; i++) {
         Player *p = DAT_003386b0->players[i];
         if (p != 0 && p->hidden == 0 && self->effects != 0 && self->enabled != 0 && self->effects != 0 &&
             self->enabled != 0 && self->enabled[i] != 0)

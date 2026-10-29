@@ -1,29 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001bebb0 end=0x001bec74 symbol=FUN_001bebb0 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-#include "hst/types.h"
-
-typedef struct Rec { char pad[0x60]; char state; } Rec;
-typedef struct Pair { unsigned char a; unsigned char b; } Pair;
-typedef struct Obj { char pad[0x34c]; Pair ent[640]; } Obj;
+#include "hst/flag_tables.h"
 
 extern int DAT_00338b08;
-extern Rec *FUN_000d8c24(int, int, u32);
-extern void FUN_001bf884(Obj *, int, u8);
+extern MgrEntry *FUN_000d8c24(int, int, u32);
+extern void FUN_001bf884(FlagTables *, int, u8);
 
-void FUN_001bebb0(Obj *param_1, int param_2)
+/* Clear the mark pair of each of the 640 kind-5 entries; mark entries that exist (all of them when `all` is set, else those with state 1). */
+void FUN_001bebb0(FlagTables *self, int all)
 {
   int i;
-  for (i = 0; i < 640; i++) {
-    Pair *e = &param_1->ent[i];
-    Rec *r = FUN_000d8c24(DAT_00338b08, 5, i);
-    e->a = 0;
-    e->b = 0;
-    if (r != 0 && r->state >= 0) {
-      if (param_2 != 0) {
-        FUN_001bf884(param_1, i, 4);
+  for (i = 0; i < MARK_COUNT; i++) {
+    MarkPair *pair = &self->pairs[i];
+    MgrEntry *entry = FUN_000d8c24(DAT_00338b08, 5, i);
+    pair->a = 0;
+    pair->b = 0;
+    if (entry != 0 && entry->state >= 0) {
+      if (all != 0) {
+        FUN_001bf884(self, i, 4);
       } else {
-        if (r->state == 1) {
-          FUN_001bf884(param_1, i, 4);
+        if (entry->state == 1) {
+          FUN_001bf884(self, i, 4);
         }
       }
     }

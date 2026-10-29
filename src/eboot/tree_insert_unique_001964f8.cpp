@@ -21,17 +21,18 @@ extern bool DAT_002e15e2; /* false */
 Node_001964f8 *FUN_0019660c(Tree_001964f8 *t, const Value_001964f8 &v, Node_001964f8 *&j, bool &left, bool &leftmost);
 Node_001964f8 *FUN_0019695c(Tree_001964f8 *t, Node_001964f8 *parent, bool left, bool leftmost, const Value_001964f8 &v);
 }
-extern "C" void FUN_001964f8(Result_001964f8 *r, Tree_001964f8 *t, const Value_001964f8 &v)
+/* Insert `value` unless an equal key is already present; result gets the node and whether it was inserted. */
+extern "C" void FUN_001964f8(Result_001964f8 *result, Tree_001964f8 *tree, const Value_001964f8 &value)
 {
     bool left;
     bool leftmost;
     Node_001964f8 *j;
-    Node_001964f8 *y = FUN_0019660c(t, v, j, left, leftmost);
-    if (j == 0 || FUN_00014934(j->value_.key, v.key) < 0) {
-        r->node = FUN_0019695c(t, y, left, leftmost, v);
-        r->inserted = DAT_002e15e1;
+    Node_001964f8 *parent = FUN_0019660c(tree, value, j, left, leftmost);
+    if (j == 0 || FUN_00014934(j->value_.key, value.key) < 0) {
+        result->node = FUN_0019695c(tree, parent, left, leftmost, value);
+        result->inserted = DAT_002e15e1;
     } else {
-        r->node = j;
-        r->inserted = DAT_002e15e2;
+        result->node = j;
+        result->inserted = DAT_002e15e2;
     }
 }

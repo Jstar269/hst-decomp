@@ -1,6 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a6e34 end=0x002a7218 symbol=FUN_002a6e34 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-/* Scrolling list menu input: four button polls (0x10, 0x40, 0x80, 0x20) move the cursor/scroll window of a 38-row page; mode 0 handles all four buttons (b1/b2 step by two rows), mode 1 only b3/b4. Matching idioms: a switch (case 0, case 1) on the mode; if/else-if chains over the buttons; cursor/scroll updates written as relative member updates (m->cursor = m->cursor + 2; ... m->cursor = m->cursor - 1) so the stored value is reused from a register; 'x >= limit' (not 'limit <= x') gives slt v1 instead of at; the final loop walks the parameter pointer for the item table and a copy for the name rows. */
+/* Scrolling list menu input: four button polls (up, down, left, right) move the cursor/scroll window of a 38-row page; mode 0 handles all four buttons (up/down step by two rows), mode 1 only left/right. Matching idioms: a switch (case 0, case 1) on the mode; if/else-if chains over the buttons; cursor/scroll updates written as relative member updates (m->cursor = m->cursor + 2; ... m->cursor = m->cursor - 1) so the stored value is reused from a register; 'x >= limit' (not 'limit <= x') gives slt v1 instead of at; the final loop walks the parameter pointer for the item table and a copy for the name rows. */
+#include "hst/pad_buttons.h"
+
+#define ROW_COUNT 38      /* rows in the page */
+#define VISIBLE_ROWS 12   /* rows shown at once; the cursor moves inside this window */
+
+/* Pad masks for the other two directions (left and right come from pad_buttons.h). */
+enum { MENU_PAD_UP = 0x10, MENU_PAD_DOWN = 0x40 };
+
 struct Item {
   char pad[0xf8];
   char *name;
@@ -13,16 +21,16 @@ struct Row {
 };
 struct Menu {
   char pad0[0x290];
-  Item *items[38];
+  Item *items[ROW_COUNT];
   char pad_328[0x38];
-  Row rows[38];
+  Row rows[ROW_COUNT];
   char pad_1660[4];
   int mode;
   int cursor;
   int scroll;
   int total;
   int sel;
-  int btn0, btn1, btn2, btn3;
+  int up_poll, down_poll, left_poll, right_poll;
 };
 
 extern "C" {
@@ -33,124 +41,124 @@ void FUN_002a734c(Menu *);
 void FUN_002a7218(Menu *, int);
 void FUN_0010d4a8();
 
-void FUN_002a6e34(Menu *m)
+void FUN_002a6e34(Menu *menu)
 {
-  bool b1 = FUN_001fe080(&m->btn0, 0x10, 0x300);
-  bool b2 = FUN_001fe080(&m->btn1, 0x40, 0x300);
-  bool b3 = FUN_001fe080(&m->btn2, 0x80, 0x300);
-  bool b4 = FUN_001fe080(&m->btn3, 0x20, 0x300);
-  int scroll0 = m->scroll;
-  int cursor0 = m->cursor;
+  bool up = FUN_001fe080(&menu->up_poll, MENU_PAD_UP, 0x300);
+  bool down = FUN_001fe080(&menu->down_poll, MENU_PAD_DOWN, 0x300);
+  bool left = FUN_001fe080(&menu->left_poll, PAD_LEFT, 0x300);
+  bool right = FUN_001fe080(&menu->right_poll, PAD_RIGHT, 0x300);
+  int scroll0 = menu->scroll;
+  int cursor0 = menu->cursor;
   int limit = FUN_002af274(DAT_003415a8 + 0x87128);
-  if (m->rows[0].flag == 0) {
+  if (menu->rows[0].flag == 0) {
     return;
   }
-  switch (m->mode) {
+  switch (menu->mode) {
   case 0:
-    if (b1) {
-      if (m->cursor < 2) {
-        if (m->scroll >= 2) {
-          m->scroll = m->scroll - 2;
+    if (up) {
+      if (menu->cursor < 2) {
+        if (menu->scroll >= 2) {
+          menu->scroll = menu->scroll - 2;
         }
       } else {
-        m->cursor = m->cursor - 2;
+        menu->cursor = menu->cursor - 2;
       }
-    } else if (b2) {
-      if (m->cursor >= 10) {
-        int v = m->scroll;
-        if (v < m->total - 0xc) {
-          m->scroll = v + 2;
-          int n = m->cursor + m->scroll;
+    } else if (down) {
+      if (menu->cursor >= VISIBLE_ROWS - 2) {
+        int v = menu->scroll;
+        if (v < menu->total - VISIBLE_ROWS) {
+          menu->scroll = v + 2;
+          int n = menu->cursor + menu->scroll;
           if (limit == n) {
-            m->cursor = m->cursor - 1;
+            menu->cursor = menu->cursor - 1;
           } else if (limit < n) {
-            m->scroll = m->scroll - 2;
+            menu->scroll = menu->scroll - 2;
           }
         }
       } else {
-        m->cursor = m->cursor + 2;
-        int n = m->cursor + m->scroll;
+        menu->cursor = menu->cursor + 2;
+        int n = menu->cursor + menu->scroll;
         if (limit == n) {
-          m->cursor = m->cursor - 1;
+          menu->cursor = menu->cursor - 1;
         } else if (limit < n) {
-          m->cursor = m->cursor - 2;
+          menu->cursor = menu->cursor - 2;
         }
       }
-    } else if (b3) {
-      if (m->cursor < 1) {
-        if (m->scroll >= 2) {
-          m->scroll = m->scroll - 2;
-          m->cursor = m->cursor + 1;
+    } else if (left) {
+      if (menu->cursor < 1) {
+        if (menu->scroll >= 2) {
+          menu->scroll = menu->scroll - 2;
+          menu->cursor = menu->cursor + 1;
         }
       } else {
-        m->cursor = m->cursor - 1;
+        menu->cursor = menu->cursor - 1;
       }
-    } else if (b4) {
-      if (m->cursor >= 0xb) {
-        if (m->scroll < m->total - 0xc) {
-          m->scroll = m->scroll + 2;
-          m->cursor = m->cursor - 1;
-          if (m->cursor + m->scroll >= limit) {
-            m->scroll = m->scroll - 2;
-            m->cursor = m->cursor + 1;
+    } else if (right) {
+      if (menu->cursor >= VISIBLE_ROWS - 1) {
+        if (menu->scroll < menu->total - VISIBLE_ROWS) {
+          menu->scroll = menu->scroll + 2;
+          menu->cursor = menu->cursor - 1;
+          if (menu->cursor + menu->scroll >= limit) {
+            menu->scroll = menu->scroll - 2;
+            menu->cursor = menu->cursor + 1;
           }
         }
       } else {
-        m->cursor = m->cursor + 1;
-        if (m->cursor + m->scroll >= limit) {
-          m->cursor = m->cursor - 1;
+        menu->cursor = menu->cursor + 1;
+        if (menu->cursor + menu->scroll >= limit) {
+          menu->cursor = menu->cursor - 1;
         }
       }
     }
-    m->sel = m->cursor;
-    if (m->scroll == scroll0) {
+    menu->sel = menu->cursor;
+    if (menu->scroll == scroll0) {
       return;
     }
-    FUN_002a734c(m);
+    FUN_002a734c(menu);
     {
       int i = 0;
-      char *p = (char *)m;
+      char *p = (char *)menu;
       do {
-        Item *it = *(Item **)((char *)m + 0x290);
+        Item *it = *(Item **)((char *)menu + 0x290);
         it->name = p + 0x361;
         it->flag = 1;
         FUN_0010d4a8();
         i++;
-        m = (Menu *)((char *)m + 4);
+        menu = (Menu *)((char *)menu + 4);
         p += 0x80;
-      } while (i < 0x26);
+      } while (i < ROW_COUNT);
     }
     break;
   case 1:
-    if (b3) {
-      if (m->cursor < 1) {
-        if (m->scroll >= 2) {
-          m->scroll = m->scroll - 2;
-          m->cursor = m->cursor + 1;
+    if (left) {
+      if (menu->cursor < 1) {
+        if (menu->scroll >= 2) {
+          menu->scroll = menu->scroll - 2;
+          menu->cursor = menu->cursor + 1;
         }
       } else {
-        m->cursor = m->cursor - 1;
+        menu->cursor = menu->cursor - 1;
       }
-    } else if (b4) {
-      if (m->cursor >= 0xb) {
-        if (m->scroll < m->total - 0xc) {
-          m->scroll = m->scroll + 2;
-          m->cursor = m->cursor - 1;
-          if (m->cursor + m->scroll >= limit) {
-            m->scroll = m->scroll - 2;
-            m->cursor = m->cursor + 1;
+    } else if (right) {
+      if (menu->cursor >= VISIBLE_ROWS - 1) {
+        if (menu->scroll < menu->total - VISIBLE_ROWS) {
+          menu->scroll = menu->scroll + 2;
+          menu->cursor = menu->cursor - 1;
+          if (menu->cursor + menu->scroll >= limit) {
+            menu->scroll = menu->scroll - 2;
+            menu->cursor = menu->cursor + 1;
           }
         }
       } else {
-        m->cursor = m->cursor + 1;
-        if (m->cursor + m->scroll >= limit) {
-          m->cursor = m->cursor - 1;
+        menu->cursor = menu->cursor + 1;
+        if (menu->cursor + menu->scroll >= limit) {
+          menu->cursor = menu->cursor - 1;
         }
       }
     }
-    m->sel = m->cursor;
-    if (cursor0 != m->cursor) {
-      FUN_002a7218(m, m->mode);
+    menu->sel = menu->cursor;
+    if (cursor0 != menu->cursor) {
+      FUN_002a7218(menu, menu->mode);
     }
     break;
   }

@@ -7,17 +7,17 @@ struct Vec4 {
 
 struct Ball {
   char pad0[0x3c];
-  int f3c;
-  Vec4 pos;
+  int state;             /* 0x3c */
+  Vec4 pos;              /* 0x40 */
   char pad1[0xa0 - 0x50];
-  char mat[0x30];
-  Vec4 f_d0;
-  char f_e0[0x40];
+  char mat[0x30];        /* 0xa0 rotation, jittered each step */
+  Vec4 posCopy;          /* 0xd0 copy of pos */
+  char matOut[0x40];     /* 0xe0 matrix handed to the setter */
   char pad4[0x460 - 0x120];
-  int f460;
-  unsigned char b464;
+  int bounces;           /* 0x460 */
+  unsigned char stateChanged; /* 0x464 */
   char pad5[0x470 - 0x465];
-  Vec4 f470;
+  Vec4 vel;              /* 0x470 */
 };
 
 extern "C" {
@@ -55,31 +55,35 @@ static inline void ScaleTo(Vec4 &dst, float s, const Vec4 &v)
   dst = Scale(s, v);
 }
 
+#define DEG_TO_RAD 0.017453292f
+#define JITTER_DEGREES 0x28 /* random rotation range per axis, in degrees */
+
+/* One step of a bouncing motion: updates the velocity and position, applies two random rotations, bounces at ground level and switches to state 4 after two bounces. */
 extern "C" void FUN_0024aaf4(Ball *self)
 {
-  self->f470.y = (float)FUN_000223a0(FUN_0002166c(0.5553333333333333, FUN_00020f5c(self->f470.y)));
-  self->pos = Add(self->pos, Scale(0.0566666685f, self->f470));
+  self->vel.y = (float)FUN_000223a0(FUN_0002166c(0.5553333333333333, FUN_00020f5c(self->vel.y)));
+  self->pos = Add(self->pos, Scale(0.0566666685f, self->vel));
   int u = DAT_003402a0->seed * 0x343fd + 0x269ec3;
   DAT_003402a0->seed = u;
-  int r = ((u >> 16) & 0x7fff) % 0x28;
-  FUN_0004d280((float)r * 0.017453292f, &self->mat, &self->mat);
+  int r = ((u >> 16) & 0x7fff) % JITTER_DEGREES;
+  FUN_0004d280((float)r * DEG_TO_RAD, &self->mat, &self->mat);
   u = DAT_003402a0->seed * 0x343fd + 0x269ec3;
   DAT_003402a0->seed = u;
-  r = ((u >> 16) & 0x7fff) % 0x28;
-  FUN_0004d328((float)r * 0.017453292f, &self->mat, &self->mat);
+  r = ((u >> 16) & 0x7fff) % JITTER_DEGREES;
+  FUN_0004d328((float)r * DEG_TO_RAD, &self->mat, &self->mat);
   if (self->pos.y > 0.0f) {
-    self->f460 = self->f460 + 1;
-    ScaleTo(self->f470, 0.5f, self->f470);
-    self->f470.y = -self->f470.y;
+    self->bounces = self->bounces + 1;
+    ScaleTo(self->vel, 0.5f, self->vel);
+    self->vel.y = -self->vel.y;
     self->pos.y = -0.0f;
-    if (self->f460 >= 2 && self->f3c != 4) {
-      self->f3c = 4;
-      self->b464 = 1;
+    if (self->bounces >= 2 && self->state != 4) {
+      self->state = 4;
+      self->stateChanged = 1;
     }
   }
-  self->f_d0.x = self->pos.x;
-  self->f_d0.y = self->pos.y;
-  self->f_d0.z = self->pos.z;
-  self->f_d0.w = self->pos.w;
-  FUN_00055044(self->f_e0, self->mat);
+  self->posCopy.x = self->pos.x;
+  self->posCopy.y = self->pos.y;
+  self->posCopy.z = self->pos.z;
+  self->posCopy.w = self->pos.w;
+  FUN_00055044(self->matOut, self->mat);
 }

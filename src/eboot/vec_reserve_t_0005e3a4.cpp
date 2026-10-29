@@ -2,23 +2,19 @@
 /* Container reserve for a 12-byte element type (template instance, hsttmpl.py tag t2): length check
    against max_size, allocate n elements through an allocator temporary, report failures on newlib stderr
    and abort. Names provisional. */
+#include "hst/vec_reserve.h"
+
 extern "C" {
-struct Reent_0005e3a4 { int pad[3]; void *err; };
-Reent_0005e3a4 *FUN_0000fe3c(void);
-int FUN_0005dd0c(void *stream, const char *format, ...);
-void FUN_0000d518(void);
-void FUN_000043b4(void);
-void *FUN_00000bcc(unsigned size);
-extern char DAT_002bc5a8[];
+int FUN_0005dd0c(void *stream, const char *format, ...); /* fprintf */
+extern char DAT_002bc5a8[];                              /* allocation-failure message */
 }
-struct Elem_0005e3a4 { int w[3]; };
-struct Alloc_0005e3a4 { Elem_0005e3a4 *allocate(unsigned n) { return (Elem_0005e3a4 *)FUN_00000bcc(n * sizeof(Elem_0005e3a4)); } };
-struct Vec_0005e3a4 { Elem_0005e3a4 *data; int size; unsigned capacity; };
-extern "C" void FUN_0005e3a4(Vec_0005e3a4 *v, unsigned n)
+struct Elem12 { int w[3]; };
+struct Elem12Alloc { Elem12 *allocate(unsigned n) { return (Elem12 *)FUN_00000bcc(n * sizeof(Elem12)); } };
+extern "C" void FUN_0005e3a4(RawVec *v, unsigned n)
 {
-    if (n > 0xffffffffu / sizeof(Elem_0005e3a4))
+    if (n > 0xffffffffu / sizeof(Elem12))
         FUN_000043b4();
-    Elem_0005e3a4 *p = Alloc_0005e3a4().allocate(n);
+    Elem12 *p = Elem12Alloc().allocate(n);
     if (p == 0) {
         FUN_0005dd0c(FUN_0000fe3c()->err, DAT_002bc5a8);
         FUN_0000d518();

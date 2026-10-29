@@ -1,28 +1,42 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000da0f8 end=0x000da19c symbol=FUN_000da0f8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag q2); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag q2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern u8 DAT_002d6acd;
 extern u8 DAT_002d6ace;
-extern u32 * FUN_000da340();
-extern u32 * FUN_000dab30();
 
-void FUN_000da0f8(int *param_1,u32 param_2,short *param_3)
+/* Tree node with a halfword key at 0x0c. */
+typedef struct ShortKeyNode {
+  char pad00[0xc];
+  short key;  /* 0x0c */
+} ShortKeyNode;
+
+/* Result of an insert: the node and whether it was newly inserted. */
+typedef struct InsertResult {
+  ShortKeyNode *node;  /* 0x00 */
+  u8 inserted;         /* 0x04 */
+} InsertResult;
+
+extern ShortKeyNode * FUN_000da340();
+extern ShortKeyNode * FUN_000dab30();
+
+/* Insert-unique for a halfword key: find the position, then insert unless an equal key exists. */
+void FUN_000da0f8(InsertResult *result,void *tree,short *key)
 {
-  u32 uVar1;
-  int iVar2;
-  u8 local_1;
-  u8 local_2;
-  int local_8;
+  ShortKeyNode *parent;
+  ShortKeyNode *node;
+  ShortKeyNode *found;
+  u8 left;
+  u8 leftmost;
   
-  uVar1 = (unsigned int)(FUN_000da340(param_2,param_3,&local_8,&local_1,&local_2));
-  if ((local_8 == 0) || (*(short *)(local_8 + 0xc) < *param_3)) {
-    iVar2 = (int)(FUN_000dab30(param_2,uVar1,local_1,local_2,param_3));
-    *param_1 = iVar2;
-    *(u8 *)(param_1 + 1) = DAT_002d6acd;
+  parent = FUN_000da340(tree,key,&found,&left,&leftmost);
+  if ((found == 0) || (found->key < *key)) {
+    node = FUN_000dab30(tree,parent,left,leftmost,key);
+    result->node = node;
+    result->inserted = DAT_002d6acd;
   }
   else {
-    *param_1 = local_8;
-    *(u8 *)(param_1 + 1) = DAT_002d6ace;
+    result->node = found;
+    result->inserted = DAT_002d6ace;
   }
 }

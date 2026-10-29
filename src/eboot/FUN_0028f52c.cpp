@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0028f52c end=0x0028f5bc symbol=FUN_0028f52c lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern "C" {
@@ -10,22 +10,30 @@ extern void FUN_00254114(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" u32 * FUN_0028f52c(u32 *param_1,short param_2)
+/* Object with an owned polymorphic member at +0x3c. */
+struct OwnerObj {
+  const void *vtable;       /* 0x00 */
+  char pad4[0x3c - 4];
+  VC_0 *owned;              /* 0x3c deleted by the destructor */
+};
+
+/* Deleting destructor: sets the vtable, deletes the owned member, runs the base destructors, frees the object when delete_flag > 0. */
+extern "C" OwnerObj * FUN_0028f52c(OwnerObj *self,short delete_flag)
 {
-  int *piVar1;
+  VC_0 *member;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_00309d98);
-    piVar1 = (int *)param_1[0xf];
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      param_1[0xf] = 0;
+  if (self != (OwnerObj *)0x0) {
+    self->vtable = &DAT_00309d98;
+    member = self->owned;
+    if (member != (VC_0 *)0x0) {
+      delete member;
+      self->owned = 0;
     }
     FUN_00254114();
-    FUN_0001f0f0(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_0001f0f0(self,0);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

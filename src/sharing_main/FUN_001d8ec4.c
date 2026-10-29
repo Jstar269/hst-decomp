@@ -6,13 +6,16 @@ extern u32 * FUN_001d8f00();
 extern u32 * FUN_00239cb8();
 extern int FUN_00239ea4();
 
+enum { ITEM_ARRAY_OFFSET = 0xa210 }; /* start of the item record array inside the object returned by the accessor */
+
+/* Build a record in a local buffer and pass it, with the item array, to the helper. */
 void FUN_001d8ec4(void)
 {
-  char *iVar1;
-  u32 *puVar2;
-  u32 auStack_1250 [1172];
-  
-  iVar1 = (char *)(FUN_00239ea4());
-  puVar2 = FUN_00239cb8(auStack_1250);
-  FUN_001d8f00((u32 *)(iVar1 + 0xa210),puVar2);
+  char *world;
+  u32 *record;
+  u32 buffer[1172];
+
+  world = (char *)(FUN_00239ea4());
+  record = FUN_00239cb8(buffer);
+  FUN_001d8f00((u32 *)(world + ITEM_ARRAY_OFFSET),record);
 }

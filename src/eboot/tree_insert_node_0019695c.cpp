@@ -57,26 +57,27 @@ struct Tree_0019695c {
     Alloc_0019695c &alloc() { return *(Alloc_0019695c *)&root_; }
 };
 
-extern "C" Node_0019695c *FUN_0019695c(Tree_0019695c *t, Node_0019695c *parent, bool left, bool leftmost,
-                                       const Value_0019695c &v)
+/* Link a new node holding a copy of `value` under `parent` (as left or right child), rebalance, and update the leftmost pointer when asked. */
+extern "C" Node_0019695c *FUN_0019695c(Tree_0019695c *tree, Node_0019695c *parent, bool left, bool leftmost,
+                                       const Value_0019695c &value)
 {
-    if (t->size_ == 0xffffffff) {
+    if (tree->size_ == 0xffffffff) {
         FUN_0000f3e8(FUN_0000fe3c()->err, "tree::insert length error");
         FUN_0000d518();
     }
-    Alloc_0019695c &a = t->alloc();
-    Holder_0019695c h(a, a.allocate(1));
-    new (&h.get()->value_) Value_0019695c(v);
-    Node_0019695c *n = h.release();
-    n->left_ = n->right_ = 0;
-    n->set_parent(parent);
+    Alloc_0019695c &alloc = tree->alloc();
+    Holder_0019695c holder(alloc, alloc.allocate(1));
+    new (&holder.get()->value_) Value_0019695c(value);
+    Node_0019695c *node = holder.release();
+    node->left_ = node->right_ = 0;
+    node->set_parent(parent);
     if (left)
-        parent->left_ = n;
+        parent->left_ = node;
     else
-        parent->right_ = n;
-    ++t->size_;
-    FUN_0006445c(n, t->root_);
+        parent->right_ = node;
+    ++tree->size_;
+    FUN_0006445c(node, tree->root_);
     if (leftmost)
-        t->leftmost_ = n;
-    return n;
+        tree->leftmost_ = node;
+    return node;
 }

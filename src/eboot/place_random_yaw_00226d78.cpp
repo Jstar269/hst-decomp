@@ -24,6 +24,9 @@ struct World {
     unsigned int seed;
 };
 
+#define DEG_TO_RAD 0.017453292f
+#define YAW_STEPS 360 /* whole degrees in a full turn */
+
 extern World *DAT_003402a0;
 extern Mat4 DAT_002bc410;
 
@@ -32,6 +35,7 @@ void FUN_000550c8(void *track, Vec4 *p);
 void FUN_0004d2d4(float angle, Mat4 *out, Mat4 *in);
 }
 
+/* Linear congruential generator on the world seed; returns 15 bits. */
 static inline int Rand()
 {
     unsigned int seed = DAT_003402a0->seed * 0x343fd + 0x269ec3;
@@ -47,6 +51,7 @@ static inline void Copy(Vec4 &d, const Vec4 &s)
     d.w = s.w;
 }
 
+/* Moves the object to position p (tracking it on one or both tracks), then gives it a random yaw about its own position. */
 extern "C" void FUN_00226d78(Self *self, Vec4 p)
 {
     if (self->locked == 0) {
@@ -59,8 +64,8 @@ extern "C" void FUN_00226d78(Self *self, Vec4 p)
     }
     Copy(self->pos, p);
     Copy(self->home, self->pos);
-    self->mat = DAT_002bc410;
-    self->angle = Rand() % 360;
-    FUN_0004d2d4(0.017453292f * self->angle, &self->mat, &self->mat);
+    self->mat = DAT_002bc410; /* start from the reference matrix */
+    self->angle = Rand() % YAW_STEPS;
+    FUN_0004d2d4(DEG_TO_RAD * self->angle, &self->mat, &self->mat);
     Copy(self->mat.r3, self->home);
 }

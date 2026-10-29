@@ -1,28 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002805fc end=0x002807d0 symbol=FUN_002805fc lang=c99 data=0x002fe8d4 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review.
-   The three arms are written positive-test-first (a2 != 0, then a1 != 0): MWCC keeps the fall-through arm
+   The three arms are written positive-test-first (formatToBuf != 0, then useAlt != 0): MWCC keeps the fall-through arm
    inline and puts the taken arm out of line, which is retail's layout. Data: its string literals (1 strings, 0x002fe8d4-0x002fe8ea) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 extern char DAT_002c0e20;
 extern char DAT_002c0e1c;
 extern char DAT_002c0e18;
 extern int DAT_003415ac;
 
-typedef struct Named {
+typedef struct Limits {
   char pad0[8];
-  int f8;
-} Named;
+  int unk8;     /* 0x08 compared with 0x11 */
+} Limits;
 
-typedef struct Keep {
+typedef struct Texts {
   char pad0[0xc0];
-  void *fc0;
-  int fc4;
-} Keep;
+  void *table;  /* 0xc0 block holding the text pointers at +0x40 and +0x44 */
+  int count;    /* 0xc4 compared with 0x11/0x12 */
+} Texts;
 
 typedef struct Node {
   char pad0[4];
-  int f4;
-  Named *f8;
-  Keep *fc;
+  int unk4;     /* 0x04 zero selects the first fallback text */
+  Limits *limits; /* 0x08 */
+  Texts *texts;   /* 0x0c */
 } Node;
 
 extern void FUN_002803d8(char *);
@@ -30,47 +30,49 @@ extern Node *FUN_0018c9f4(int);
 extern void FUN_00114168(int, int, void *, int, int);
 extern void FUN_000143b0(int, void *, ...);
 
-void FUN_002805fc(int a0, int a1, int a2, int a3)
+/* Picks a text for the message (one of three fallbacks or a table entry) and passes it on; the first arm
+   also formats it into the buffer. */
+void FUN_002805fc(int buf, int useAlt, int formatToBuf, int arg)
 {
   Node *n;
-  char *name;
+  char *text;
 
-  if (a2 != 0) {
+  if (formatToBuf != 0) {
     n = FUN_0018c9f4(0x11);
-    if (n->f4 == 0)
-      name = &DAT_002c0e20;
-    else if (n->f8->f8 < 0x11)
-      name = &DAT_002c0e1c;
-    else if (n->fc->fc4 < 0x12)
-      name = &DAT_002c0e18;
+    if (n->unk4 == 0)
+      text = &DAT_002c0e20;
+    else if (n->limits->unk8 < 0x11)
+      text = &DAT_002c0e1c;
+    else if (n->texts->count < 0x12)
+      text = &DAT_002c0e18;
     else
-      name = *(char **)((char *)n->fc->fc0 + 0x44);
-    FUN_000143b0(a0, name, a3);
-    FUN_00114168(DAT_003415ac, 6, (void *)a0, 0, 0);
-  } else if (a1 != 0) {
+      text = *(char **)((char *)n->texts->table + 0x44);
+    FUN_000143b0(buf, text, arg);
+    FUN_00114168(DAT_003415ac, 6, (void *)buf, 0, 0);
+  } else if (useAlt != 0) {
     n = FUN_0018c9f4(0x11);
-    if (n->f4 == 0)
-      name = &DAT_002c0e20;
-    else if (n->f8->f8 < 0x11)
-      name = &DAT_002c0e1c;
-    else if (n->fc->fc4 < 0x11)
-      name = &DAT_002c0e18;
+    if (n->unk4 == 0)
+      text = &DAT_002c0e20;
+    else if (n->limits->unk8 < 0x11)
+      text = &DAT_002c0e1c;
+    else if (n->texts->count < 0x11)
+      text = &DAT_002c0e18;
     else
-      name = *(char **)((char *)n->fc->fc0 + 0x40);
-    FUN_00114168(DAT_003415ac, 6, name, 0, 0);
-    if (a0 != 0)
-      FUN_000143b0(a0, name);
+      text = *(char **)((char *)n->texts->table + 0x40);
+    FUN_00114168(DAT_003415ac, 6, text, 0, 0);
+    if (buf != 0)
+      FUN_000143b0(buf, text);
   } else {
     FUN_002803d8("IllegalErrorMessage=\n");
     n = FUN_0018c9f4(0x11);
-    if (n->f4 == 0)
-      name = &DAT_002c0e20;
-    else if (n->f8->f8 < 0x11)
-      name = &DAT_002c0e1c;
-    else if (n->fc->fc4 < 0x11)
-      name = &DAT_002c0e18;
+    if (n->unk4 == 0)
+      text = &DAT_002c0e20;
+    else if (n->limits->unk8 < 0x11)
+      text = &DAT_002c0e1c;
+    else if (n->texts->count < 0x11)
+      text = &DAT_002c0e18;
     else
-      name = *(char **)((char *)n->fc->fc0 + 0x40);
-    FUN_00114168(DAT_003415ac, 6, name, 0, 0);
+      text = *(char **)((char *)n->texts->table + 0x40);
+    FUN_00114168(DAT_003415ac, 6, text, 0, 0);
   }
 }

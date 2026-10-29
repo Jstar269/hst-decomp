@@ -193,6 +193,7 @@ static inline void Load(Scene *self)
     FUN_0001ef34(self, self->m58);
 }
 
+/* Scene state handler: for each state id release or delete the matching owned objects, reset the selection, or load/unload the effect resources. Always returns 0. */
 extern "C" int FUN_000ce7dc(Scene *self, int state)
 {
     switch (state) {

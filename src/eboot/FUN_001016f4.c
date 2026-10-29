@@ -1,23 +1,34 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001016f4 end=0x00101798 symbol=FUN_001016f4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/draw_list.h"
 
 extern void FUN_00101798();
 extern void FUN_00107174();
 
-void FUN_001016f4(int param_1,u32 *param_2,u32 param_3)
+/* One entry of the input array: frame id and a second id, with a word between them. */
+typedef struct FrameRef {
+  u32 frame;     /* 0x00 */
+  u32 unk4;      /* 0x04 */
+  u32 part;      /* 0x08 */
+} FrameRef;
+
+enum { ALL_ONES = 0xffffffff, HALF_BYTES = 0x80808080 };
+
+/* Reserve room for count entries in the queue (when it is still empty), then draw each entry at the origin. */
+void FUN_001016f4(DrawList *list,FrameRef *refs,u32 count)
 {
-  int iVar1;
-  
-  if ((*(int *)(param_1 + 0x14) == 0) && (*(u32 *)(param_1 + 0x18) < param_3)) {
-    FUN_00107174(param_1 + 0x10,param_3);
+  int i;
+
+  if ((list->queue.size == 0) && (list->queue.capacity < count)) {
+    FUN_00107174(&list->queue,count);
   }
-  iVar1 = 0;
-  if (0 < (int)param_3) {
+  i = 0;
+  if (0 < (int)count) {
     do {
-      FUN_00101798(param_1,*param_2,param_2[2],0,0,0xffffffff,0x80808080);
-      iVar1 = iVar1 + 1;
-      param_2 = param_2 + 3;
-    } while (iVar1 < (int)param_3);
+      FUN_00101798(list,refs->frame,refs->part,0,0,ALL_ONES,HALF_BYTES);
+      i = i + 1;
+      refs = refs + 1;
+    } while (i < (int)count);
   }
 }

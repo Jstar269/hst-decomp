@@ -7,21 +7,22 @@ extern u8 DAT_00338b04;
 extern void FUN_0005c780(int, float *);
 extern void FUN_0005c810(int, int, float *);
 
+/* When the flag is set, set two RGBA colours (alpha 1.0) on the model handle. */
 void FUN_000c7894(void)
 {
-  float local_10[4];
-  float local_20[4];
+  float color_a[4];
+  float color_b[4];
 
   if (DAT_00338b04 != 0) {
-    local_10[0] = 1.0f;
-    local_10[3] = 1.0f;
-    local_10[1] = 0.55f;
-    local_10[2] = 0.75f;
-    FUN_0005c780(DAT_003386cc, local_10);
-    local_20[0] = 0.4f;
-    local_20[1] = 0.2f;
-    local_20[2] = 0.3f;
-    local_20[3] = 1.0f;
-    FUN_0005c810(DAT_003386cc, 0, local_20);
+    color_a[0] = 1.0f;
+    color_a[3] = 1.0f;
+    color_a[1] = 0.55f;
+    color_a[2] = 0.75f;
+    FUN_0005c780(DAT_003386cc, color_a);
+    color_b[0] = 0.4f;
+    color_b[1] = 0.2f;
+    color_b[2] = 0.3f;
+    color_b[3] = 1.0f;
+    FUN_0005c810(DAT_003386cc, 0, color_b);
   }
 }

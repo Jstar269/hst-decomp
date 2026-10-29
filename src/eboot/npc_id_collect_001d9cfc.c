@@ -6,67 +6,76 @@ extern int FUN_0027ee08(int);
 extern int FUN_0027ee10(int, int);
 extern unsigned FUN_001c02e0(int, int, int);
 
-struct Entry {
-    char pad[0x25];
-    unsigned char f25;
-    short f26;
+/* Collect modes (param 2). */
+enum {
+    COLLECT_ALL = 0,       /* every entry */
+    COLLECT_MATCHING = 1,  /* entries whose FUN_001c02e0 lookup result is 4 or 5 */
+    COLLECT_FLAGGED = 2    /* entries with the flag byte set */
 };
 
-int FUN_001d9cfc(int *param_1, int param_2)
+/* Table entry: a flag byte and a halfword id. */
+struct Entry {
+    char pad[0x25];
+    unsigned char flag;  /* 0x25 */
+    short id;            /* 0x26 */
+};
+
+/* Writes the ids of the entries selected by mode into out and returns how many were written. */
+int FUN_001d9cfc(int *out, int mode)
 {
-    int n;
+    int count;
     int i;
-    int lim;
+    int size;
     struct Entry *e;
 
-    n = 0;
-    if (param_2 == 1) {
+    count = 0;
+    if (mode == COLLECT_MATCHING) {
         i = 0;
-        lim = FUN_0027ee08(DAT_0034a7ec);
-        if (lim >= 1) {
+        size = FUN_0027ee08(DAT_0034a7ec);
+        if (size >= 1) {
             do {
                 e = (struct Entry *)FUN_0027ee10(DAT_0034a7ec, i);
                 if (e != 0) {
-                    if (((FUN_001c02e0(DAT_00341ccc, 5, e->f26) & 0xff) - 4) < 2) {
-                        n++;
-                        *param_1 = e->f26;
-                        param_1++;
+                    if (((FUN_001c02e0(DAT_00341ccc, 5, e->id) & 0xff) - 4) < 2) {
+                        count++;
+                        *out = e->id;
+                        out++;
                     }
                 }
                 i++;
-                lim = FUN_0027ee08(DAT_0034a7ec);
-            } while (i < lim);
+                size = FUN_0027ee08(DAT_0034a7ec);
+            } while (i < size);
         }
-    } else if (param_2 == 0) {
+    } else if (mode == COLLECT_ALL) {
         i = 0;
-        lim = FUN_0027ee08(DAT_0034a7ec);
-        if (lim > 0) {
+        size = FUN_0027ee08(DAT_0034a7ec);
+        if (size > 0) {
             do {
                 e = (struct Entry *)FUN_0027ee10(DAT_0034a7ec, i);
                 if (e != 0) {
-                    n++;
-                    *param_1 = e->f26;
-                    param_1++;
+                    count++;
+                    *out = e->id;
+                    out++;
                 }
                 i++;
-                lim = FUN_0027ee08(DAT_0034a7ec);
-            } while (i < lim);
+                size = FUN_0027ee08(DAT_0034a7ec);
+            } while (i < size);
         }
-    } else if (param_2 == 2) {
+    } else if (mode == COLLECT_FLAGGED) {
         i = 0;
-        lim = FUN_0027ee08(DAT_0034a7ec);
-        if (lim > 0) {
+        size = FUN_0027ee08(DAT_0034a7ec);
+        if (size > 0) {
             do {
                 e = (struct Entry *)FUN_0027ee10(DAT_0034a7ec, i);
-                if (e != 0 && e->f25 != 0) {
-                    n++;
-                    *param_1 = e->f26;
-                    param_1++;
+                if (e != 0 && e->flag != 0) {
+                    count++;
+                    *out = e->id;
+                    out++;
                 }
                 i++;
-                lim = FUN_0027ee08(DAT_0034a7ec);
-            } while (i < lim);
+                size = FUN_0027ee08(DAT_0034a7ec);
+            } while (i < size);
         }
     }
-    return n;
+    return count;
 }

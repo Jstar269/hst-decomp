@@ -1,5 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0027c018 end=0x0027c2c8 symbol=FUN_0027c018 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/blend_obj.h"
 
 extern "C" {
 extern float DAT_002fe6cc;
@@ -27,79 +28,70 @@ struct Obj60e2c : public TargetObj {
     ~Obj60e2c();
 };
 
-struct Context {
-    char pad0[0x3c];
-    TargetObj *f3c;     /* 0x3c */
-    char pad1[0x48 - 0x40];
-    int f48;            /* 0x48 */
-    char pad2[0x6c - 0x4c];
-    float f6c;          /* 0x6c */
-    float f70;          /* 0x70 */
-};
-
 static inline float Clamp(const float &v, const float &lo, const float &hi) {
     return v < lo ? lo : (!(v > hi) ? v : hi);
 }
 
+/* 4x4 float matrix filled in by the callee. */
 struct Matrix44 {
     float m[16];
 };
 
-extern "C" void FUN_0027c018(Context *self)
+extern "C" void FUN_0027c018(BlendObj *self)
 {
-    Matrix44 mat;
+    Matrix44 pose;
 
-    if (self->f6c >= self->f70 && FUN_0027c8a0(self) != 3 && FUN_0027c8d0(self, 0) != 60) {
+    if (self->elapsed >= self->duration && FUN_0027c8a0(self) != 3 && FUN_0027c8d0(self, 0) != 60) {
         FUN_0027cb40(FUN_0027c76c(self));
         TargetObj *t = (TargetObj *)FUN_0027c76c(self);
         t->Update(DAT_003313c4);
         return;
     }
 
-    Obj60e2c local_obj;
-    TargetObj *target = &local_obj;
-    void *s1 = FUN_0027c764(self);
-    void *s0 = FUN_0027c76c(self);
+    Obj60e2c scratch;
+    TargetObj *target = &scratch;
+    void *srcA = FUN_0027c764(self);
+    void *srcB = FUN_0027c76c(self);
     int mode = FUN_0027c8a0(self);
 
-    float val;
+    float ratio;
     switch (mode) {
     case 1:
     case 3: {
-        float f70 = self->f70;
-        float f6c = self->f6c;
-        if (f6c >= f70) {
-            val = 1.0f;
+        float duration = self->duration;
+        float elapsed = self->elapsed;
+        if (elapsed >= duration) {
+            ratio = 1.0f;
         } else {
-            float diff = f70 - f6c;
-            val = 1.0f - FUN_0000ce3c(diff, 2.0f) / FUN_0000ce3c(f70, 2.0f);
+            float remaining = duration - elapsed;
+            ratio = 1.0f - FUN_0000ce3c(remaining, 2.0f) / FUN_0000ce3c(duration, 2.0f);
         }
         break;
     }
     case 2:
-        val = FUN_0000ce3c(self->f6c, 3.0f) / FUN_0000ce3c(self->f70, 3.0f);
+        ratio = FUN_0000ce3c(self->elapsed, 3.0f) / FUN_0000ce3c(self->duration, 3.0f);
         break;
     case 4:
     case 5:
     default:
-        val = 0.0f;
+        ratio = 0.0f;
         break;
     }
 
-    float fVar6 = Clamp(val, DAT_002fe6cc, DAT_002fe6d0);
+    float blend = Clamp(ratio, DAT_002fe6cc, DAT_002fe6d0);
 
     if (FUN_0027c8a0(self) == 3) {
-        FUN_0027c328(self, 0, &mat);
-        self->f48 = 0;
-        target = self->f3c;
+        FUN_0027c328(self, 0, &pose);
+        self->unk48 = 0;
+        target = (TargetObj *)self->target;
     } else {
-        if (fVar6 <= 1.0f) {
+        if (blend <= 1.0f) {
             FUN_0027cb40(FUN_0027c764(self));
         }
-        if (fVar6 >= 0.0f) {
+        if (blend >= 0.0f) {
             FUN_0027cb40(FUN_0027c76c(self));
         }
-        FUN_0016adf8(target, s1, s0, fVar6);
+        FUN_0016adf8(target, srcA, srcB, blend);
     }
 
     target->Update(DAT_003313c4);

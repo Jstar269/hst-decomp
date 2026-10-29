@@ -23,6 +23,7 @@ void FUN_0001e23c(int *, int, int);
 void FUN_00103628(Self *, int);
 }
 
+/* Reset the object: call the two helpers on the global with mask 0x2000, set b54 and clear b55, then call virtual slot 2. */
 extern "C" void FUN_001da0bc(Self *self)
 {
   FUN_00103540(self, 1010.0f);

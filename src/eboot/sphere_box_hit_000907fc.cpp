@@ -7,55 +7,55 @@
    (0x55b54). Vector helpers are VFPU out-pointer routines. The matrix copy is a named local made by an
    inline by-value getter with a memberwise copy constructor (unscheduled lwc1/swc1 pairs); the scale is read
    through an inline getter (that fixes the div.s register order). Names provisional. */
-struct Vec4_000907fc { float x, y, z, w; };
-struct Mat4_000907fc {
+struct Vec4 { float x, y, z, w; };
+struct Mat4 {
     float m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
-    Mat4_000907fc() {}
-    Mat4_000907fc(const Mat4_000907fc &o)
+    Mat4() {}
+    Mat4(const Mat4 &o)
         : m00(o.m00), m01(o.m01), m02(o.m02), m03(o.m03), m10(o.m10), m11(o.m11), m12(o.m12), m13(o.m13),
           m20(o.m20), m21(o.m21), m22(o.m22), m23(o.m23), m30(o.m30), m31(o.m31), m32(o.m32), m33(o.m33) {}
 };
-struct Box_000907fc { Vec4_000907fc center; Vec4_000907fc extent; };
-struct Obj_000907fc {
+struct Box { Vec4 center; Vec4 extent; };
+struct Obj {
     char pad[0x30];
-    Mat4_000907fc m;
+    Mat4 m;
     char pad2[0x84 - 0x70];
     float scale;
     float GetScale() const { return scale; }
-    Mat4_000907fc GetMatrix() const { return m; }
+    Mat4 GetMatrix() const { return m; }
 };
 extern "C" {
-void FUN_00055724(Vec4_000907fc *out, Obj_000907fc *o);
-float FUN_00055768(Obj_000907fc *o);
-Vec4_000907fc *FUN_00022434(Vec4_000907fc *out, const Vec4_000907fc *a, const Vec4_000907fc *b);
-float FUN_000224d8(const Vec4_000907fc *a, const Vec4_000907fc *b);
-Mat4_000907fc FUN_0004d268(const Mat4_000907fc &m);
-void FUN_000556b0(Obj_000907fc *o, Box_000907fc *b);
-Vec4_000907fc *FUN_00022548(Vec4_000907fc *out, const Mat4_000907fc *m, const Vec4_000907fc *v);
-Vec4_000907fc *FUN_00022498(Vec4_000907fc *out, const Vec4_000907fc *v, float s);
-bool FUN_00055b54(Obj_000907fc *o, void *a, void *b, int c, int d, int e, int f);
+void FUN_00055724(Vec4 *out, Obj *o);
+float FUN_00055768(Obj *o);
+Vec4 *FUN_00022434(Vec4 *out, const Vec4 *a, const Vec4 *b);
+float FUN_000224d8(const Vec4 *a, const Vec4 *b);
+Mat4 FUN_0004d268(const Mat4 &m);
+void FUN_000556b0(Obj *o, Box *b);
+Vec4 *FUN_00022548(Vec4 *out, const Mat4 *m, const Vec4 *v);
+Vec4 *FUN_00022498(Vec4 *out, const Vec4 *v, float s);
+bool FUN_00055b54(Obj *o, void *a, void *b, int c, int d, int e, int f);
 }
-inline Vec4_000907fc operator-(const Vec4_000907fc &a, const Vec4_000907fc &b)
+inline Vec4 operator-(const Vec4 &a, const Vec4 &b)
 {
-    Vec4_000907fc r;
+    Vec4 r;
     FUN_00022434(&r, &a, &b);
     return r;
 }
-inline float LengthSq_000907fc(const Vec4_000907fc &v) { return FUN_000224d8(&v, &v); }
-extern "C" bool FUN_000907fc(void *a, Obj_000907fc *obj, void *b, const Vec4_000907fc *point, float r)
+inline float LengthSq(const Vec4 &v) { return FUN_000224d8(&v, &v); }
+extern "C" bool FUN_000907fc(void *a, Obj *obj, void *b, const Vec4 *point, float r)
 {
     bool result = false;
-    Vec4_000907fc center;
+    Vec4 center;
     FUN_00055724(&center, obj);
     float reach = r + FUN_00055768(obj);
-    if (LengthSq_000907fc(center - *point) < reach * reach) {
-        Mat4_000907fc m = obj->GetMatrix();
-        Mat4_000907fc inv = FUN_0004d268(m);
-        Box_000907fc box;
+    if (LengthSq(center - *point) < reach * reach) {
+        Mat4 m = obj->GetMatrix();
+        Mat4 inv = FUN_0004d268(m);
+        Box box;
         FUN_000556b0(obj, &box);
         float s = 1.0f / obj->GetScale();
         r = r * s;
-        Vec4_000907fc lp;
+        Vec4 lp;
         FUN_00022548(&lp, &inv, point);
         FUN_00022498(&lp, &lp, s);
         if (-(box.extent.x + r) <= lp.x - box.center.x && box.extent.x + r >= lp.x - box.center.x &&

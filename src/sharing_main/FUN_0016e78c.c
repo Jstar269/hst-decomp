@@ -11,12 +11,13 @@ extern int * FUN_00171914();
 extern int * FUN_00171a30();
 extern void FUN_0016e864();
 
-int FUN_0016e78c(int param_1,short param_2)
+/* Deleting destructor (short flag): releases two global handles when self is the current global instance, destroys the embedded member and the base, frees self when flag > 0. */
+int FUN_0016e78c(int self,short flag)
 {
-  int iVar1;
+  int member;
   
-  if (param_1 != 0) {
-    if (param_1 == DAT_003ea848) {
+  if (self != 0) {
+    if (self == DAT_003ea848) {
       if (DAT_003ea84c != 0) {
         FUN_000006e8(DAT_003ea84c,FUN_0016e78c);
         DAT_003ea84c = 0;
@@ -26,16 +27,16 @@ int FUN_0016e78c(int param_1,short param_2)
         DAT_003ea850 = 0;
       }
     }
-    iVar1 = param_1 + 0xc;
-    if ((iVar1 != 0) && (iVar1 != 0)) {
-      FUN_00171a30(iVar1,0);
+    member = self + 0xc;
+    if ((member != 0) && (member != 0)) {
+      FUN_00171a30(member,0);
     }
-    if ((param_1 != 0) && (0 != param_1)) {
-      FUN_00171914(param_1,0);
+    if ((self != 0) && (0 != self)) {
+      FUN_00171914(self,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

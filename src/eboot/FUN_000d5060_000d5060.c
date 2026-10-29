@@ -1,26 +1,34 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000d5060 end=0x000d50dc symbol=FUN_000d5060 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag v3) corrected by hand: made the early gate explicit and reordered the loop locals for retail register allocation; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag v3) corrected by hand: made the early gate explicit; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/player_record.h"
 
-extern u8 * DAT_003386b0;
+#define ENTRY_COUNT 4 /* same as PLAYER_SLOTS: entry i is paired with player slot i */
+
+/* 0x1b0-byte entry; the object passed to FUN_0005f1e8 starts at 0x50. */
+typedef struct SubEntry {
+  char pad00[0x50];
+  char sub[0x160];  /* 0x50 */
+} SubEntry;         /* size 0x1b0 */
+
+typedef struct EntryGroup {
+  SubEntry entry[ENTRY_COUNT];  /* 0x000 */
+  char pad6c0[0x50];
+  u8 unk710;                    /* 0x710 nonzero: skip the update */
+} EntryGroup;
+
+extern PlayerList * DAT_003386b0;
 extern void FUN_0005f1e8();
 
-void FUN_000d5060(int param_1)
+/* For each present player slot, calls FUN_0005f1e8 on the matching entry (unless the group is flagged). */
+void FUN_000d5060(EntryGroup *self)
 {
-  int iVar2;
-  int iVar1;
-  int self;
+  int i;
   
-  if (*(u8 *)(param_1 + 0x710) != '\0') return;
-  iVar2 = 0;
-  iVar1 = 0;
-  self = param_1;
-  do {
-    if (*(int *)(DAT_003386b0 + iVar1 + 0x70) != 0) {
-      FUN_0005f1e8(self + 0x50,0);
+  if (self->unk710 != '\0') return;
+  for (i = 0; i < ENTRY_COUNT; i++) {
+    if (DAT_003386b0->players[i] != 0) {
+      FUN_0005f1e8(self->entry[i].sub,0);
     }
-    iVar2 = iVar2 + 1;
-    iVar1 = iVar1 + 4;
-    self = self + 0x1b0;
-  } while (iVar2 < 4);
+  }
 }

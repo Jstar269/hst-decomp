@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002acbf8 end=0x002acd28 symbol=FUN_002acbf8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: assigned the allocation result in the null-check expression and shared its return path; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: assigned the allocation result in the null-check expression and shared its return path; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/spawn_owner.h"
 
 extern u8 DAT_002bc410;
 extern u8 DAT_0030779c;
@@ -14,48 +15,59 @@ extern u32 * FUN_000fbf84();
 extern u32 * FUN_000fc00c();
 extern u32 * FUN_000fc0a0();
 
-u32 * FUN_002acbf8(int param_1,u32 param_2,u8 *param_3)
+/* Remaining uses of the three named layers. */
+typedef struct LayerBudget {
+  char pad00[0x54];
+  int page01;         /* 0x54 uses left for the layer called "page01" */
+  int page02;         /* 0x58 uses left for the layer called "page02" */
+  int infobg;         /* 0x5c uses left for the layer called "infobg" */
+} LayerBudget;
+
+/* Creates the object for the layer called name. *in_budget is set when the name is one of the three known
+   layers and a use was still left; that use is consumed. */
+SpawnedObj * FUN_002acbf8(LayerBudget *budget,int name,u8 *in_budget)
 {
-  int iVar1;
-  u32 *puVar2;
+  int cmp;
+  int left;
+  SpawnedObj *obj;
   
-  iVar1 = FUN_00014934(param_2,DAT_002cc2c4);
-  if (iVar1 == 0) {
-    iVar1 = *(int *)(param_1 + 0x54);
-    *(int *)(param_1 + 0x54) = iVar1 + -1;
-    *param_3 = 0 < iVar1;
+  cmp = FUN_00014934(name,DAT_002cc2c4);
+  if (cmp == 0) {
+    left = budget->page01;
+    budget->page01 = left + -1;
+    *in_budget = 0 < left;
   }
   else {
-    iVar1 = FUN_00014934(param_2,DAT_002cc2bc);
-    if (iVar1 == 0) {
-      iVar1 = *(int *)(param_1 + 0x58);
-      *(int *)(param_1 + 0x58) = iVar1 + -1;
-      *param_3 = 0 < iVar1;
+    cmp = FUN_00014934(name,DAT_002cc2bc);
+    if (cmp == 0) {
+      left = budget->page02;
+      budget->page02 = left + -1;
+      *in_budget = 0 < left;
     }
     else {
-      iVar1 = FUN_00014934(param_2,DAT_002cc2b4);
-      if (iVar1 == 0) {
-        iVar1 = *(int *)(param_1 + 0x5c);
-        *(int *)(param_1 + 0x5c) = iVar1 + -1;
-        *param_3 = 0 < iVar1;
+      cmp = FUN_00014934(name,DAT_002cc2b4);
+      if (cmp == 0) {
+        left = budget->infobg;
+        budget->infobg = left + -1;
+        *in_budget = 0 < left;
       }
       else {
-        *param_3 = 0;
+        *in_budget = 0;
       }
     }
   }
-  if ((puVar2 = (u32 *)FUN_00000bcc(0xd0)) == (u32 *)0x0) goto done;
-  FUN_000fc0a0(puVar2);
-  FUN_00056098(puVar2 + 0xc);
-  *puVar2 = (unsigned int)(&DAT_0030779c);
-  puVar2[0x1c] = 0;
-  puVar2[0x1d] = 0xffffffff;
-  puVar2[0x1e] = 0x3f800000;
-  puVar2[0x1f] = 0x3f800000;
-  FUN_00056098(puVar2 + 0x20);
-  puVar2[0x30] = param_2;
-  FUN_000fc00c(puVar2,&DAT_002bc410);
-  FUN_000fbf84(puVar2 + 0x20,&DAT_002bc410);
+  if ((obj = (SpawnedObj *)FUN_00000bcc(SPAWNED_OBJ_SIZE)) == (SpawnedObj *)0x0) goto done;
+  FUN_000fc0a0(obj);
+  FUN_00056098(obj->matA);
+  obj->vtable = &DAT_0030779c;
+  obj->unk70 = 0;
+  obj->link = SPAWNED_NO_LINK;
+  obj->unk78 = 1.0f;
+  obj->unk7c = 1.0f;
+  FUN_00056098(obj->matB);
+  obj->name = name;
+  FUN_000fc00c(obj,&DAT_002bc410);
+  FUN_000fbf84(obj->matB,&DAT_002bc410);
 done:
-  return puVar2;
+  return obj;
 }

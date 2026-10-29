@@ -15,6 +15,7 @@ extern "C" void FUN_0001d164(Q *out, const Q *in);
 extern "C" void FUN_00022548(Q *out, const Q *in, const Q *in2);
 extern "C" void FUN_00022418(Q *out, const Q *a, const Q *b);
 extern "C" void FUN_000609f8(Self *self);
+/* Scales q1, transforms it by the matrix built from a1 and f, adds the result to q2, stores it in out and calls FUN_000609f8. */
 extern "C" void FUN_000611d0(Self *self, int a1, float f)
 {
   Q t4; Q t3; Q t2[4]; Q q2; Q q; Q tmp; Q out;

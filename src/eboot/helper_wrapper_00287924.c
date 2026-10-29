@@ -1,32 +1,34 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00287924 end=0x0028797c symbol=FUN_00287924 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: recovered the packed helper-call record and symbolic error-data address; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/request_queue.h"
 
 extern void FUN_001b29a8();
 extern u32 DAT_0034179c;
-extern u32 FUN_00289544(int *, int, int *, int *);
+extern u32 FUN_00289544(int *, void *, void *, void *);
 
-struct ErrorCallState {
-  int address;
+enum { REQ_TYPE_33 = 0x33 }; /* request kind, named by its hex value */
+
+/* Local frame of the queued call: the list position, the insert result and the request record. */
+struct QueueCall {
+  DListLinks *sentinel;
   int result;
-  int type;
-  int count;
-  int parameter;
-  int unused[3];
+  RequestRec rec;
 };
 
-void FUN_00287924(int param_1,u32 param_2,int param_3)
+/* With a count below 1 run the action at once on the global; otherwise queue a request carrying value and count. */
+void FUN_00287924(RequestOwner *self,u32 value,int count)
 {
-  struct ErrorCallState local;
-  
-  if (param_3 < 1) {
+  struct QueueCall call;
+
+  if (count < 1) {
     FUN_001b29a8(&DAT_0034179c);
   }
   else {
-    local.type = 0x33;
-    local.parameter = param_2;
-    local.count = param_3;
-    local.address = param_1 + 0x68;
-    FUN_00289544(&local.result,param_1 + 100,&local.address,&local.type);
+    call.rec.type = REQ_TYPE_33;
+    call.rec.arg8 = value;
+    call.rec.count = count;
+    call.sentinel = &self->queue.sentinel;
+    FUN_00289544(&call.result,&self->queue,&call.sentinel,&call.rec);
   }
 }

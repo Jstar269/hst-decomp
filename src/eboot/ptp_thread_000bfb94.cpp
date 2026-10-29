@@ -52,7 +52,24 @@ struct PtpCtx {
 };
 
 #define WOULD_BLOCK ((int)0x80410709)
-#define BUF_SIZE 0x1690
+#define BUF_SIZE 0x1690       /* bytes moved per recv/send */
+#define PTP_SOCK_BUFSIZE 0x2d20 /* socket buffer size given to listen/open */
+#define PTP_RETRY_DELAY 200000  /* retransmit delay given to listen/open (us) */
+#define PTP_RETRY_COUNT 300
+#define POLL_DELAY_US 34000     /* sleep between accept/connect polls */
+#define RING_LIMIT 0x10000      /* receive ring capacity */
+
+/* Status word published through ctx->status (bit 15 = error). */
+#define ST_CONNECTED 0x4000
+#define ST_LISTEN_FAILED 0x8001
+#define ST_ACCEPT_FAILED 0x8002
+#define ST_ACCEPT_TIMEOUT 0x8004
+#define ST_OPEN_FAILED 0x8008
+#define ST_CONNECT_FAILED 0x8010
+#define ST_CONNECT_TIMEOUT 0x8020
+#define ST_RECV_FAILED 0x8040
+#define ST_SEND_FAILED 0x8080
+#define ST_FLUSH_FAILED 0x8100
 
 static int DAT_002d55c4 = -1;   /* PTP socket id */
 
@@ -72,15 +89,15 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
 
     FUN_000c02ac("Thread start\n");
     if (ctx->server) {
-        n = FUN_002b7e58(ctx->peer.data, ctx->port, 0x2d20, 200000, 300, 1, 0);
+        n = FUN_002b7e58(ctx->peer.data, ctx->port, PTP_SOCK_BUFSIZE, PTP_RETRY_DELAY, PTP_RETRY_COUNT, 1, 0);
         if (n < 0) {
             FUN_000c02ac("sceNetAdhocPtpListen() failed. ret = 0x%x\n", n);
-            *ctx->status = 0x8001;
+            *ctx->status = ST_LISTEN_FAILED;
             goto error;
         }
         FUN_000c02ac("sceNetAdhocPtpListen ok\n");
         do {
-            FUN_002b7888(34000);
+            FUN_002b7888(POLL_DELAY_US);
             if (Running(ctx)) {
                 r = FUN_002b7e38(n, mac.data, &port, 0, 1);
                 if (r >= 0) {
@@ -90,7 +107,7 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
                 if (r != WOULD_BLOCK) {
                     FUN_000c02ac("sceNetAdhocPtpAccept() failed. ret = 0x%x\n", r);
                     FUN_002b7e00(n, 0);
-                    *ctx->status = 0x8002;
+                    *ctx->status = ST_ACCEPT_FAILED;
                     goto error;
                 }
             } else {
@@ -100,7 +117,7 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
         } while (cnt < 882);
         FUN_000c02ac("sceNetAdhocPtpAccept() timeout.\n");
         FUN_002b7e00(n, 0);
-        *ctx->status = 0x8004;
+        *ctx->status = ST_ACCEPT_TIMEOUT;
         goto error;
     accepted:
         FUN_002b7e00(n, 0);
@@ -111,16 +128,16 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
         }
         FUN_000c02ac("sceNetAdhocPtpAccept ok\n");
     } else {
-        n = FUN_002b7e20(ctx->self.data, 0, ctx->peer.data, ctx->port, 0x2d20, 200000, 300, 0);
+        n = FUN_002b7e20(ctx->self.data, 0, ctx->peer.data, ctx->port, PTP_SOCK_BUFSIZE, PTP_RETRY_DELAY, PTP_RETRY_COUNT, 0);
         if (n < 0) {
             FUN_000c02ac("sceNetAdhocPtpOpen() failed. ret = 0x%x\n", n);
-            *ctx->status = 0x8008;
+            *ctx->status = ST_OPEN_FAILED;
             goto error;
         }
         FUN_000c02ac("sceNetAdhocPtpOpen ok\n");
         DAT_002d55c4 = n;
         do {
-            FUN_002b7888(34000);
+            FUN_002b7888(POLL_DELAY_US);
             if (Running(ctx)) {
                 r = FUN_002b7e68(DAT_002d55c4, 0, 1);
                 if (r >= 0)
@@ -128,7 +145,7 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
                 if (r != WOULD_BLOCK) {
                     FUN_000c02ac("sceNetAdhocPtpConnect() failed. ret = 0x%x\n", r);
                     FUN_002b7e00(DAT_002d55c4, 0);
-                    *ctx->status = 0x8010;
+                    *ctx->status = ST_CONNECT_FAILED;
                     goto error;
                 }
             } else {
@@ -138,7 +155,7 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
         } while (cnt < 0x7fffffff);
         FUN_000c02ac("sceNetAdhocPtpConnect() timeout.\n");
         FUN_002b7e00(DAT_002d55c4, 0);
-        *ctx->status = 0x8020;
+        *ctx->status = ST_CONNECT_TIMEOUT;
         goto error;
     connected:
         if (*ctx->quit) {
@@ -147,7 +164,7 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
         }
         FUN_000c02ac("sceNetAdhocPtpConnect ok\n");
     }
-    *ctx->status = 0x4000;
+    *ctx->status = ST_CONNECTED;
     FUN_000c02ac("Thread loop start\n");
     n = 0;
     for (;;) {
@@ -157,12 +174,12 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
         r = FUN_002b7e30(DAT_002d55c4, 60000000, 0);
         if (r != 0 && r != WOULD_BLOCK) {
             FUN_000c02ac("sceNetAdhocPtpFlush() failed. ret = 0x%x\n", r);
-            *ctx->status |= 0x8100;
+            *ctx->status |= ST_FLUSH_FAILED;
         }
         if (!ctx->server) {
             int used = ctx->rx->Used();
             for (;;) {
-                if (used + BUF_SIZE > 0x10000)
+                if (used + BUF_SIZE > RING_LIMIT)
                     break;
                 len = BUF_SIZE;
                 r = FUN_002b7e28(DAT_002d55c4, buf, &len, 0, 1);
@@ -175,11 +192,11 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
                     if (r == WOULD_BLOCK) {
                         if (++n >= 150000) {
                             FUN_000c02ac("sceNetAdhocPtpRecv() time out.\n");
-                            *ctx->status |= 0x8040;
+                            *ctx->status |= ST_RECV_FAILED;
                         }
                     } else {
                         FUN_000c02ac("sceNetAdhocPtpRecv() failed. ret = 0x%x\n", r);
-                        *ctx->status |= 0x8040;
+                        *ctx->status |= ST_RECV_FAILED;
                     }
                     break;
                 }
@@ -200,10 +217,10 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
                 } else {
                     if (r == WOULD_BLOCK) {
                         if (++n >= 150000)
-                            *ctx->status |= 0x8080;
+                            *ctx->status |= ST_SEND_FAILED;
                     } else {
                         FUN_000c02ac("sceNetAdhocPtpSend() failed. ret = 0x%x\n", r);
-                        *ctx->status |= 0x8080;
+                        *ctx->status |= ST_SEND_FAILED;
                     }
                     break;
                 }
@@ -223,7 +240,7 @@ extern "C" int FUN_000bfb94(unsigned int args, PtpCtx *ctx)
 error:
     FUN_000c02ac("ThreadFunc enter error loop\n");
     do {
-        FUN_002b7888(34000);
+        FUN_002b7888(POLL_DELAY_US);
     } while (Running(ctx));
 cleanup:
     FUN_000c02ac("ThreadFunc Delete ownself\n");

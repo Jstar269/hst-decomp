@@ -4,25 +4,39 @@
 
 extern u8 DAT_0037d702;
 extern u8 DAT_0037d703;
-extern u32 * FUN_000de300();
-extern u32 * FUN_000deaf0();
 
-void FUN_000de0b8(int *param_1,u32 param_2,short *param_3)
+/* Tree node with a halfword key at 0x0c. */
+typedef struct ShortKeyNode {
+  char pad00[0xc];
+  short key;  /* 0x0c */
+} ShortKeyNode;
+
+/* Result of an insert: the node and whether it was newly inserted. */
+typedef struct InsertResult {
+  ShortKeyNode *node;  /* 0x00 */
+  u8 inserted;         /* 0x04 */
+} InsertResult;
+
+extern ShortKeyNode * FUN_000de300();
+extern ShortKeyNode * FUN_000deaf0();
+
+/* Insert-unique for a halfword key: find the position, then insert unless an equal key exists. */
+void FUN_000de0b8(InsertResult *result,void *tree,short *key)
 {
-  u32 uVar1;
-  int iVar2;
-  u8 local_1;
-  u8 local_2;
-  int local_8;
+  ShortKeyNode *parent;
+  ShortKeyNode *node;
+  ShortKeyNode *found;
+  u8 left;
+  u8 leftmost;
   
-  uVar1 = (unsigned int)(FUN_000de300(param_2,param_3,&local_8,&local_1,&local_2));
-  if ((local_8 == 0) || (*(short *)(local_8 + 0xc) < *param_3)) {
-    iVar2 = (int)(FUN_000deaf0(param_2,uVar1,local_1,local_2,param_3));
-    *param_1 = iVar2;
-    *(u8 *)(param_1 + 1) = DAT_0037d702;
+  parent = FUN_000de300(tree,key,&found,&left,&leftmost);
+  if ((found == 0) || (found->key < *key)) {
+    node = FUN_000deaf0(tree,parent,left,leftmost,key);
+    result->node = node;
+    result->inserted = DAT_0037d702;
   }
   else {
-    *param_1 = local_8;
-    *(u8 *)(param_1 + 1) = DAT_0037d703;
+    result->node = found;
+    result->inserted = DAT_0037d703;
   }
 }

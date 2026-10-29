@@ -3,32 +3,37 @@
 extern int DAT_00338c20;
 struct Ret {
     char pad[0x4c];
-    int f4c;
+    int f4c;                /* 0x4c */
 };
 extern "C" Ret *FUN_000fb810(int);
 extern "C" void FUN_001ec564(void *, int, int);
 extern "C" int FUN_001fcef4(void *);
 
-struct Base {
+/* Updatable part with virtual methods; slot 3 is called here. */
+struct Part {
     virtual void m0();
     virtual void m1();
     virtual void m2();
     virtual void m3();
 };
 
+enum { KIND_LIST = 0, KIND_AUX = 1, KIND_NONE = 2 };
+
 struct Obj {
-    Base *f00;
-    Base *f04;
-    Base **f08;
-    int state;
-    int kind;
-    int f14;
-    int f18;
-    unsigned char f1c;
-    unsigned char f1d;
-    unsigned char f1e;
+    Part *main;             /* 0x00 */
+    Part *aux;              /* 0x04 */
+    Part **list;            /* 0x08 first part of the kind-0 list */
+    int state;              /* 0x0c */
+    int kind;               /* 0x10 selects which extra part is updated */
+    int unk14;              /* 0x14 */
+    int unk18;              /* 0x18 */
+    unsigned char unk1c;    /* 0x1c */
+    unsigned char unk1d;    /* 0x1d */
+    unsigned char unk1e;    /* 0x1e checked before updating the aux part */
 };
 
+/* Per-frame dispatch on state: in states 3 and 4, when the queried record's field 0x4c is 5, a transition call
+   is made; in states 0-2 and 5-7 the main part and then the part chosen by kind are updated. */
 extern "C" void FUN_001ed06c(Obj *self) {
     switch (self->state) {
     case 3:
@@ -45,18 +50,18 @@ extern "C" void FUN_001ed06c(Obj *self) {
     case 5:
     case 6:
     case 7:
-        self->f00->m3();
+        self->main->m3();
         switch (self->kind) {
-        case 0:
-            (*self->f08)->m3();
+        case KIND_LIST:
+            (*self->list)->m3();
             break;
-        case 1:
-            if (self->f1e == 0) self->f04->m3();
+        case KIND_AUX:
+            if (self->unk1e == 0) self->aux->m3();
             break;
-        case 2:
+        case KIND_NONE:
             break;
         }
-        if (self->f1c == 0 && self->kind != 2) {
+        if (self->unk1c == 0 && self->kind != KIND_NONE) {
             FUN_001fcef4(FUN_000fb810(DAT_00338c20));
         }
         break;

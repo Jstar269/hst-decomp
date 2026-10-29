@@ -33,6 +33,9 @@ struct Table {
 
 extern Table *DAT_0034a148;
 
+/* Number of entries in the scale table. */
+enum { SCALE_TABLE_COUNT = 15 };
+
 extern "C" {
 void FUN_002059ec(void *, int, int);
 void FUN_00205a18(Obj *);
@@ -45,6 +48,7 @@ void FUN_00093434(Entity *, Mat *);
 void FUN_00205558(Obj *);
 }
 
+/* Per-frame update: applies a pending state change, rebuilds the entity matrix from the three rotation angles and position, scales the entity by its table entry and runs the entity's second virtual once past state 3. */
 extern "C" void FUN_00205bc0(Obj *self)
 {
     Mat m;
@@ -83,7 +87,7 @@ extern "C" void FUN_00205bc0(Obj *self)
     int idx = self->idx;
     Table *t = DAT_0034a148;
     float *pf;
-    if (t != 0 && idx >= 0 && idx < 15) {
+    if (t != 0 && idx >= 0 && idx < SCALE_TABLE_COUNT) {
         pf = t[idx].v;
     } else {
         pf = 0;

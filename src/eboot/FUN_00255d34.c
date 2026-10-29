@@ -1,12 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00255d34 end=0x00255d74 symbol=FUN_00255d34 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
-void FUN_00255d34(int param_1,int param_2,int param_3,int param_4)
+#include "hst/cell_grid.h"
+
+/* Sets unk24 of the cell at (row, col) to unk28 + delta, when that cell exists. */
+void FUN_00255d34(CellGrid *grid,int row,int col,int delta)
 {
-  int iVar1;
+  GridCell *cell;
   
-  iVar1 = *(int *)(param_1 + param_2 * 0xa4 + param_3 * 4);
-  if (iVar1 != 0) {
-    *(int *)(iVar1 + 0x24) = *(int *)(iVar1 + 0x28) + param_4;
+  cell = grid->rows[row].cells[col];
+  if (cell != 0) {
+    cell->unk24 = cell->unk28 + delta;
   }
 }

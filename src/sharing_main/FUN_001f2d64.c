@@ -1,23 +1,49 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x001f2d64 end=0x001f2e60 symbol=FUN_001f2d64 lang=c99 */
 /* Clone of src/eboot/FUN_001e4b4c.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
+#include "hst/types.h"
+
+/* Widget whose float at 0x60 is set. */
+typedef struct PosWidget {
+  char pad00[0x60];
+  float unk60;  /* 0x60 */
+} PosWidget;
+
+/* Object reached through the owner's pointer at 0x3c; only a pointer at 0x8c is used. */
+typedef struct Owner3c {
+  char pad00[0x8c];
+  int *unk8c;  /* 0x8c */
+} Owner3c;
+
+#define ROW_COUNT 5
+#define SHIFT_BIAS 480.0f
+
+typedef struct RowPanel {
+  char pad00[0x3c];
+  Owner3c *unk3c;                  /* 0x3c */
+  char pad40[0x9b8 - 0x40];
+  PosWidget *widget[ROW_COUNT];    /* 0x9b8 */
+  char pad9cc[0x1748 - 0x9cc];
+  int base[ROW_COUNT];             /* 0x1748 */
+} RowPanel;
 
 extern void FUN_00108558();
 extern void FUN_001f8bd4();
 
-void FUN_001f2d64(float param_1,int param_2)
+/* Sets the float at 0x60 of each of the five widgets to its base value plus (offset + bias), calling FUN_00108558 after each. */
+void FUN_001f2d64(float offset,RowPanel *self)
 {
-  int iVar1;
+  int shift;
   
-  iVar1 = (int)(param_1 + 480.0f);
-  *(float *)(*(int *)(param_2 + 0x9b8) + 0x60) = (float)(*(int *)(param_2 + 0x1748) + iVar1);
-  FUN_00108558(*(int *)(param_2 + 0x9b8));
-  *(float *)(*(int *)(param_2 + 0x9bc) + 0x60) = (float)(*(int *)(param_2 + 0x174c) + iVar1);
-  FUN_00108558(*(int *)(param_2 + 0x9bc));
-  *(float *)(*(int *)(param_2 + 0x9c0) + 0x60) = (float)(*(int *)(param_2 + 0x1750) + iVar1);
-  FUN_00108558(*(int *)(param_2 + 0x9c0));
-  *(float *)(*(int *)(param_2 + 0x9c4) + 0x60) = (float)(*(int *)(param_2 + 0x1754) + iVar1);
-  FUN_00108558(*(int *)(param_2 + 0x9c4));
-  *(float *)(*(int *)(param_2 + 0x9c8) + 0x60) = (float)(*(int *)(param_2 + 0x1758) + iVar1);
-  FUN_00108558(*(int *)(param_2 + 0x9c8));
-  FUN_001f8bd4(*(int **)(*(int *)(param_2 + 0x3c) + 0x8c),(int)param_1);
+  shift = (int)(offset + SHIFT_BIAS);
+  self->widget[0]->unk60 = (float)(self->base[0] + shift);
+  FUN_00108558(self->widget[0]);
+  self->widget[1]->unk60 = (float)(self->base[1] + shift);
+  FUN_00108558(self->widget[1]);
+  self->widget[2]->unk60 = (float)(self->base[2] + shift);
+  FUN_00108558(self->widget[2]);
+  self->widget[3]->unk60 = (float)(self->base[3] + shift);
+  FUN_00108558(self->widget[3]);
+  self->widget[4]->unk60 = (float)(self->base[4] + shift);
+  FUN_00108558(self->widget[4]);
+  FUN_001f8bd4(self->unk3c->unk8c,(int)offset);
 }

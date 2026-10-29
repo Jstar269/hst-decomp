@@ -43,15 +43,16 @@ static inline unsigned Grow(Vec *v, unsigned need)
         return cap + Max((cap + 1) / 2, need);
     return ms;
 }
-extern "C" void FUN_002374f4(Vec *v, unsigned n, const Elem &x)
+/* Appends n copies of x: grows through a split buffer sized by the family's grow policy, fills the copies, moves the old elements in and swaps buffers. */
+extern "C" void FUN_002374f4(Vec *vec, unsigned n, const Elem &x)
 {
-    Buf buf(&v->capacity);
-    buf.reserve(Grow(v, v->size + n - v->capacity));
-    buf.start = v->size;
+    Buf buf(&vec->capacity);
+    buf.reserve(Grow(vec, vec->size + n - vec->capacity));
+    buf.start = vec->size;
     FUN_00237770(&buf, n, x, False());
-    FUN_002376c0(&buf, v->data, v->data + v->size, False());
-    Swap(v->capacity, buf.capacity);
-    Swap(v->data, buf.data);
-    Swap(v->size, buf.size);
+    FUN_002376c0(&buf, vec->data, vec->data + vec->size, False());
+    Swap(vec->capacity, buf.capacity);
+    Swap(vec->data, buf.data);
+    Swap(vec->size, buf.size);
     FUN_002387dc(&buf, -1);
 }

@@ -1,17 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00192d44 end=0x00192d8c symbol=FUN_00192d44 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/pose_holder.h"
 
 extern u32 * FUN_00192b7c();
 extern u32 * FUN_00192fb8();
 
-u32 * FUN_00192d44(u32 *param_1)
+/* Constructor: empty list, no owned objects, both poses initialized. */
+PoseHolder * FUN_00192d44(PoseHolder *self)
 {
-  FUN_00192fb8(param_1 + 1);
-  param_1[4] = 0;
-  param_1[5] = 0;
-  FUN_00192b7c(param_1 + 8);
-  FUN_00192b7c(param_1 + 0x2c);
-  *param_1 = 0;
-  return param_1;
+  FUN_00192fb8(&self->list);
+  self->objB = 0;
+  self->objA = 0;
+  FUN_00192b7c(&self->poseA);
+  FUN_00192b7c(&self->poseB);
+  self->unk0 = 0;
+  return self;
 }

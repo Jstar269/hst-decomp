@@ -5,9 +5,16 @@
 extern u32 DAT_003e1a54;
 extern void FUN_0005ffd8();
 
-void FUN_001e9da4(int param_1)
+typedef struct GateObj {
+  char pad00[0x3c];
+  int unk3c;       /* 0x3c */
+  char pad40[0xcc - 0x40];
+  u8 unkcc;        /* 0xcc */
+} GateObj;
+
+void FUN_001e9da4(GateObj *self)
 {
-  if ((*(int *)(param_1 + 0x3c) != 0) && (*(u8 *)(param_1 + 0xcc) != '\0')) {
-    FUN_0005ffd8(*(int *)(param_1 + 0x3c),DAT_003e1a54);
+  if ((self->unk3c != 0) && (self->unkcc != '\0')) {
+    FUN_0005ffd8(self->unk3c,DAT_003e1a54);
   }
 }

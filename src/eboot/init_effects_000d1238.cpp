@@ -27,17 +27,20 @@ extern "C" void FUN_0001f21c(void *, void *);
 
 struct Obj {
   char pad0[0xc8];
-  void **items;
-  unsigned int count;
-  unsigned int cap;
-  void *f0d4;
+  void **items;           /* 0xc8, growable array of created items */
+  unsigned int count;     /* 0xcc */
+  unsigned int cap;       /* 0xd0 */
+  void *unk0d4;
   char pad1[0x180 - 0xd8];
-  void *f180;
+  void *unk180;
   char pad2[0x190 - 0x184];
-  void *f190;
-  void *f194;
+  void *unk190;
+  void *unk194;
 };
 
+#define ITEM_COUNT 4   /* items created from the first table */
+
+/* Create the owned objects: four items pushed into the item array, then the remaining sub-objects. */
 extern "C" void FUN_000d1238(struct Obj *self)
 {
   unsigned int i;
@@ -57,30 +60,30 @@ extern "C" void FUN_000d1238(struct Obj *self)
       FUN_0006ea5c((void **)&self->items, &item, Tag());
     }
     i++;
-  } while (i < 4);
+  } while (i < ITEM_COUNT);
 
   p = FUN_00000bcc(0x48);
   if (p != 0)
     p = FUN_00050ff4(p, DAT_002d6548, 0);
-  self->f0d4 = p;
+  self->unk0d4 = p;
 
   p = FUN_00000bcc(0x1b0);
   if (p != 0)
     p = FUN_00056bec(p, DAT_002d657c, DAT_002d65b0, 0, 0, 0, 0);
-  self->f190 = p;
+  self->unk190 = p;
 
   p = FUN_00000bcc(0x1b0);
   if (p != 0)
     p = FUN_00056bec(p, DAT_002d65d8, DAT_002d6608, 0, 0, 0, 0);
-  self->f194 = p;
+  self->unk194 = p;
   FUN_000573a0(p, 0, DAT_002d6628, 0, 0);
 
   p = FUN_00000bcc(0x100);
   if (p != 0)
-    p = FUN_000e5b9c(p, self->f0d4, 8);
-  self->f180 = p;
+    p = FUN_000e5b9c(p, self->unk0d4, 8);
+  self->unk180 = p;
   FUN_000e6fc4(p, (char *)self + 0x130);
-  FUN_0001f21c(self, self->f180);
+  FUN_0001f21c(self, self->unk180);
 }
 // NEAR MISS: 106/107 words, everything matches except the vector-grow else arm. Retail emits
 // `beqzl at,else` with `move v0,zero` in the DELAY SLOT, then `seb a2,v0` (third argument, a signed-char

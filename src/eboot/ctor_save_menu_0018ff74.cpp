@@ -8,7 +8,7 @@ struct Sub1;
 struct Sub2;
 struct Sub3;
 struct Self;
-struct P {
+struct MenuState {
   int f0, f4, f8, fc;
   Sub1 *f10;
   int f14;
@@ -43,12 +43,12 @@ struct P {
   char a338[0x3f8 - 0x338];
   char a3f8[0x578 - 0x3f8];
   int f578;
-  P(Self *self);
+  MenuState(Self *self);
 };
 struct Self {
   int vptr;
   char pad4[0x3c - 4];
-  P *f3c;
+  MenuState *state;
 };
 void *operator new(unsigned int);
 extern "C" {
@@ -87,7 +87,7 @@ void FUN_00190250(int, void *);
 void FUN_00190248(int, int);
 Sub3 *FUN_00050fc0(void *);
 }
-inline P::P(Self *self)
+inline MenuState::MenuState(Self *self)
 {
     f0 = 0;
     f4 = 0;
@@ -111,57 +111,58 @@ inline P::P(Self *self)
     FUN_00011090(a34, DAT_002c2544, 16);
     f44 = DAT_002c27d4;
     f48 = DAT_002c27d0;
-    int t = FUN_0018c9f4(0x11);
-    t = FUN_0018f1ac(t, 12, 32);
-    t = FUN_00198278(DAT_0034176c, t, 192, a338);
-    f4c = t;
+    int value = FUN_0018c9f4(0x11);
+    value = FUN_0018f1ac(value, 12, 32);
+    value = FUN_00198278(DAT_0034176c, value, 192, a338);
+    f4c = value;
     f58 = 3;
-    t = FUN_0004cad0(DAT_002e11d0, a24, 16, 1);
-    f14 = t;
+    value = FUN_0004cad0(DAT_002e11d0, a24, 16, 1);
+    f14 = value;
     FUN_000c1624(a60);
     FUN_00011090(a80, DAT_002c2534, 16);
     f90 = DAT_002c27c4;
     f94 = DAT_002c27c0;
-    t = FUN_0018c9f4(0x11);
-    t = FUN_0018f1ac(t, 12, 33);
-    t = FUN_00198278(DAT_0034176c, t, 192, a3f8);
-    f98 = t;
+    value = FUN_0018c9f4(0x11);
+    value = FUN_0018f1ac(value, 12, 33);
+    value = FUN_00198278(DAT_0034176c, value, 192, a3f8);
+    f98 = value;
     fa8 = 0;
     Sub2 *o2 = (Sub2 *)FUN_00000bcc(0x88);
     if (o2) o2 = FUN_00190304(o2);
     f280 = o2;
-    t = FUN_0018c9f4(0x11);
-    t = FUN_0018f1ac(t, 13, 2);
+    value = FUN_0018c9f4(0x11);
+    value = FUN_0018f1ac(value, 13, 2);
     Tmp tmp;
-    FUN_001902d0(&tmp, t);
+    FUN_001902d0(&tmp, value);
     FUN_00190290(a320, &tmp);
     FUN_0018f14c(&tmp, -1);
-    t = FUN_00190288(f280);
-    t = FUN_00190268(t, 0);
+    value = FUN_00190288(f280);
+    value = FUN_00190268(value, 0);
     int u = FUN_0004577c(a320);
-    FUN_00190260(t, u);
-    t = FUN_00190288(f280);
-    t = FUN_00190268(t, 0);
-    FUN_00190258(t, 0x3f);
-    t = FUN_00190288(f280);
-    t = FUN_00190268(t, 0);
-    FUN_00190250(t, a284);
-    t = FUN_00190288(f280);
-    t = FUN_00190268(t, 0);
-    FUN_00190248(t, 6);
+    FUN_00190260(value, u);
+    value = FUN_00190288(f280);
+    value = FUN_00190268(value, 0);
+    FUN_00190258(value, 0x3f);
+    value = FUN_00190288(f280);
+    value = FUN_00190268(value, 0);
+    FUN_00190250(value, a284);
+    value = FUN_00190288(f280);
+    value = FUN_00190268(value, 0);
+    FUN_00190248(value, 6);
     FUN_0001f21c(self, f280);
     void *m = FUN_00000bcc(0x48);
     if (m) m = FUN_00050fc0(m);
     f31c = (Sub3 *)m;
 }
 extern "C" {
+/* Constructor: base ctor, vtable, then allocate and fill the state block. */
 Self *FUN_0018ff74(Self *self)
 {
   FUN_0001f06c(self);
   self->vptr = (int)DAT_00309178;
-  self->f3c = 0;
-  P *p = new P(self);
-  self->f3c = p;
+  self->state = 0;
+  MenuState *state = new MenuState(self);
+  self->state = state;
   DAT_003415d4 = self;
   return self;
 }

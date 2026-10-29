@@ -1,26 +1,73 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0012c364 end=0x0012c530 symbol=FUN_0012c364 lang=c++ */
+#pragma inline_depth(8)
 
-extern "C" {
-void FUN_00126d1c(const char *);
-void FUN_000e8800(void *, unsigned int, char);
-void FUN_000e8810(void *, unsigned int, void *, char);
-void FUN_0012c7d8(void *);
-void FUN_0012ca08(void *, const void *, char);
-extern const char DAT_002daa28[];
-extern void *DAT_002c0ef0;
-}
+struct False {};
 
 struct Vec4 {
     float x, y, z, w;
+    Vec4() {}
+    Vec4(const Vec4 &o) : x(o.x), y(o.y), z(o.z), w(o.w) {}
+    Vec4 &operator=(const Vec4 &o) { x = o.x; y = o.y; z = o.z; w = o.w; return *this; }
 };
 
 struct T56 {
     char data[56];
 };
 
-template <class T>
-struct Vec {
-    T *data_;
+inline void *operator new(unsigned int, void *p) { return p; }
+
+struct Vec4Vec;
+extern "C" {
+void FUN_00126d1c(const char *);
+void FUN_000e8800(void *, unsigned int, False);
+void FUN_000e8810(void *, unsigned int, void *, False);
+void FUN_0012c7d8(void *);
+void FUN_0012ca08(Vec4Vec *, const Vec4 *, False);
+extern const char DAT_002daa28[];
+extern void *DAT_002c0ef0;
+}
+
+struct Vec4Vec {
+    Vec4 *data_;
+    unsigned int size_;
+    unsigned int cap_;
+    void push_back(const Vec4 &v)
+    {
+        if (size_ < cap_) {
+            new (data_ + size_) Vec4(v);
+            size_++;
+        } else {
+            FUN_0012ca08(this, &v, False());
+        }
+    }
+};
+
+struct BackIt {
+    Vec4Vec *c;
+    BackIt &operator=(const Vec4 &v) { c->push_back(v); return *this; }
+};
+
+inline BackIt back_inserter(Vec4Vec &v)
+{
+    BackIt it;
+    it.c = &v;
+    return it;
+}
+
+inline void copy_range(const Vec4 *first, const Vec4 *last, BackIt out)
+{
+    for (; first != last; ++first)
+        out = *first;
+}
+
+inline void copy(const Vec4 *first, const Vec4 *last, BackIt out)
+{
+    if (first != last)
+        copy_range(first, last, out);
+}
+
+struct Vec56 {
+    T56 *data_;
     unsigned int size_;
     unsigned int cap_;
 };
@@ -32,10 +79,10 @@ struct Object {
     int f50;
     char pad3[0xc];
     Vec4 start_pos;
-    Vec<Vec4> v70;
+    Vec4Vec v70;
     int point_count;
     int f80;
-    Vec<T56> v84;
+    Vec56 v84;
 };
 
 extern "C" int FUN_0012c364(Object *self, Vec4 *points, unsigned int count)
@@ -44,51 +91,29 @@ extern "C" int FUN_0012c364(Object *self, Vec4 *points, unsigned int count)
         FUN_00126d1c(DAT_002daa28);
         return 0;
     }
-    FUN_000e8800(&self->v70, self->v70.size_, 0);
-    Vec<Vec4> *v = &self->v70;
-    Vec4 *it = points;
-    Vec4 *end = points + count;
-    if (it != end) {
-        if (it != end) {
-            do {
-                if (v->size_ < v->cap_) {
-                    Vec4 *dest = v->data_ + v->size_;
-                    if (dest != 0) {
-                        *dest = *it;
-                    }
-                    v->size_++;
-                } else {
-                    FUN_0012ca08(v, it, 0);
-                }
-                it++;
-            } while (it != end);
-        }
-    }
+    FUN_000e8800(&self->v70, self->v70.size_, False());
+    copy(points, points + count, back_inserter(self->v70));
     self->point_count = count;
     self->f80 = 0;
     self->f50 = 0;
     self->vtable = &DAT_002c0ef0;
     self->start_pos = *points;
     self->f80 = 1;
-    FUN_000e8800(&self->v84, self->v84.size_, 0);
+    FUN_000e8800(&self->v84, self->v84.size_, False());
     if (self->v84.size_ < count) {
         T56 def;
-        FUN_000e8810(&self->v84, count - self->v84.size_, &def, 0);
+        FUN_000e8810(&self->v84, count - self->v84.size_, &def, False());
     } else if (count < self->v84.size_) {
-        FUN_000e8800(&self->v84, self->v84.size_ - count, 0);
+        FUN_000e8800(&self->v84, self->v84.size_ - count, False());
     }
     FUN_0012c7d8(self);
     return 1;
 }
 
-// EBOOT NEAR MISS: 107/115 words, 94 differing words after retargeting the Sharing twin.
-// Addresses retargeted to the EBOOT warning string DAT_002daa28 and helpers
-// FUN_00126d1c, FUN_000e8800, FUN_000e8810, FUN_0012ca08, and FUN_0012c7d8.
-// The v70 range-copy loop remains the main mismatch: EBOOT retail copies the vector
-// object pointer through two stack slots with lwc1/swc1, duplicates its range test,
-// and uses different saved-register assignments. The high-level source currently
-// walks points directly and calls the per-element append helper.
-// A back-insert iterator/copy-range experiment was worse (112 differing words).
-// The byte-identical Sharing twin lane also reported the vector iterator spill and
-// range-check duplication; its tried C-pointer loop omitted the FPU stack copies.
-// near miss from lane lnm2 (unreviewed)
+// lane sx4: 58 of 115 words differ (was 94). Natural form: inline back-insert iterator (aggregate, copied through two stack slots by lwc1/swc1 exactly as retail),
+// inline vector push_back with placement new + out-of-line grow (FUN_0012ca08, empty False tag -> `move v0,zero; seb a2,v0`), inline copy with the duplicated `first != last` guard,
+// `#pragma inline_depth(8)` (without it push_back stays an out-of-line call). The whole loop body now matches.
+// Remaining: frame is 128 instead of 96 (the two iterator slots and the T56 default temp are laid out 16 bytes apart / above instead of retail's 32..88 T56, 88/92 slots),
+// which shifts every s-register by one. Ruled out: T56 as long long/double/float array or user-ctor temp passed as const T56& (moves it to the frame top), T56 declared at function top,
+// copy split into copy/copy_range (extra slot), BackIt& parameter, resize as an inline helper, non-tag char 0 for the grow call.
+// improved by lane sx4 (unreviewed): 94 -> 58 differing words

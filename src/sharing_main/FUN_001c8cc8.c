@@ -2,12 +2,15 @@
 /* Clone of src/eboot/FUN_001baf80.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+#define TABLE_BASE 0x5c /* start of the byte table inside the object FUN_001aa91c returns */
+
 extern u32 FUN_001aa91c();
 
-u8 FUN_001c8cc8(int param_1)
+/* Byte `index` of the table in the singleton object. */
+u8 FUN_001c8cc8(int index)
 {
-  int iVar1;
+  int singleton;
   
-  iVar1 = FUN_001aa91c();
-  return *(u8 *)(param_1 + iVar1 + 0x5c);
+  singleton = FUN_001aa91c();
+  return *(u8 *)(index + singleton + TABLE_BASE);
 }

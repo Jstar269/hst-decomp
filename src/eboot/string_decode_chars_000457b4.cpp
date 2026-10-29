@@ -8,10 +8,11 @@
    then tests the cases in reverse source order). Names provisional. */
 struct in_tag {};
 struct fwd_tag : in_tag {};
+/* Text object: bit 0 of flags selects between inline bytes (starting at +1) and the pointer in the third word. */
 struct Str {
-  unsigned v0;
-  unsigned v1;
-  unsigned v2;
+  unsigned flags; /* 0x0 */
+  unsigned unk4;  /* 0x4 */
+  unsigned data;  /* 0x8 pointer to the bytes when flags bit 0 is set */
 };
 extern "C" void FUN_00045af4(Str *, unsigned, unsigned, unsigned, unsigned, fwd_tag);
 extern "C" void FUN_00046048(Str *, unsigned);
@@ -23,8 +24,8 @@ extern "C" void FUN_000457b4(Str *s)
   int c;
   int hi;
   unsigned short v;
-  if ((s->v0 & 1) != 0) {
-    p = (char *)s->v2;
+  if ((s->flags & 1) != 0) {
+    p = (char *)s->data;
   } else {
     p = (char *)s + 1;
   }

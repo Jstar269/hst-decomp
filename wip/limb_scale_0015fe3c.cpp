@@ -60,7 +60,8 @@ extern "C" void FUN_0015fe3c(float angle, Obj *self)
     FUN_00022418(&x, &self->m40, &w);
     y = x;
     FUN_00022418(&z, &y, &t);
-    self->m40 = z;
+    Vec4 r = z;
+    self->m40 = r;
     self->f80 = c;
 }
 // lane wf20261026-e01-03: 90 -> 12 words. Fixes: Vec4 locals declared y,t,m,b,z,s,w,v,n,u,x,a (retail slot order,
@@ -71,3 +72,9 @@ extern "C" void FUN_0015fe3c(float angle, Obj *self)
 // retail batch +4,+8,+12,+0 (inline-return copy); an inline Add() returning by value gives that batch but moves its
 // temp to the frame bottom (44 words); Quad cast / per-field / pointer: still pairs.
 // improved by lane wf20261026-e01-03 (unreviewed): 90 -> 12 differing words
+// lane sx3: 12 -> 4 differing words. The final `self->m40 = z` copy becomes retail's batched +4,+8,+12,+0 loads by copying THROUGH A LOCAL:
+// `Vec4 r = z; self->m40 = r;` (same trick as 0x611d0). Left: the head FPR colouring (4 words): retail issues `lwc1 f21,80(s0)` between `lui 0x4000`
+// and the mul and keeps K=0.017453292f in $f0 (2.0f is materialised into $f0 AFTER the mul); ours hoists the 2.0f mtc1 above the mul so K lands in $f2.
+// Ruled out (all 4 differ or worse): half-angle in a named local (before/after sc), f80 in a local before/after sc, k = FUN(..); k = sc * k (5), f50 inlined into the call product (9),
+// single-literal `f80 * (K / 2.0f)` (110).
+// improved by lane sx3 (unreviewed): 12 -> 4 differing words

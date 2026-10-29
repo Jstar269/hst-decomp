@@ -1,69 +1,72 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001bb6e0 end=0x001bb8b8 symbol=FUN_001bb6e0 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/record_info.h"
+
 extern void FUN_00011090(void *, const void *, int);
 extern void FUN_000149a8(void *, const void *);
-extern int FUN_00193474(int);
+extern RecordInfo *FUN_00193474(int);
 
-void FUN_001bb6e0(short *param_1, int param_2, int param_3, int param_4, int param_5,
-                  int param_6, int param_7, int param_8,
+enum { RECORD_SIZE = 0x9c, UNK64_LIMIT = 0x16 };
+
+/* Builds a record: copies the template (s40), fills the halfword values and extras from the info record for id
+   (param_3), then the byte settings and the repeated groups. Stack arguments are named after their stack offset. */
+void FUN_001bb6e0(RecordInfo *rec, int param_2, int id, int val1, int val2,
+                  int val3, int val4, int val5,
                   unsigned char s0, unsigned char s4, unsigned char s8, int sC,
                   int s10, int s14, int s18, int s1C, int s20, int s24,
                   unsigned char s28, int s2C, unsigned char s30, int s34, int s38,
                   unsigned char s3C, int s40)
 {
-    int iVar1;
-    unsigned char *b;
+    RecordInfo *info;
     int i;
     unsigned char *p;
 
-    FUN_00011090(param_1, (const void *)s40, 0x9c);
-    iVar1 = FUN_00193474(param_3);
-    if (iVar1 != 0) {
-        param_1[0x45] = *(short *)(iVar1 + 0x8a);
-        param_1[0x46] = *(short *)(iVar1 + 0x8c);
-        param_1[0x47] = *(short *)(iVar1 + 0x8e);
-        param_1[0x48] = *(short *)(iVar1 + 0x90);
-        param_1[0x49] = *(short *)(iVar1 + 0x92);
-        param_1[0x4a] = *(short *)(iVar1 + 0x94);
-        param_1[0x4b] = *(short *)(iVar1 + 0x96);
-        param_1[0x4c] = *(short *)(iVar1 + 0x98);
+    FUN_00011090(rec, (const void *)s40, RECORD_SIZE);
+    info = FUN_00193474(id);
+    if (info != 0) {
+        rec->extra[0] = info->extra[0];
+        rec->extra[1] = info->extra[1];
+        rec->extra[2] = info->extra[2];
+        rec->extra[3] = info->extra[3];
+        rec->extra[4] = info->extra[4];
+        rec->extra[5] = info->extra[5];
+        rec->extra[6] = info->extra[6];
+        rec->extra[7] = info->extra[7];
     }
-    *param_1 = (short)param_3;
-    param_1[1] = (short)param_4;
-    param_1[2] = (short)param_5;
-    param_1[3] = (short)param_6;
-    param_1[4] = (short)param_7;
-    param_1[5] = (short)param_8;
-    FUN_000149a8(param_1 + 0x66, (const void *)param_2);
-    *(unsigned char *)(param_1 + 0x4e) = s0;
-    *(unsigned char *)((int)param_1 + 0x9d) = s4;
-    *(unsigned char *)(param_1 + 0x4f) = s8;
-    *(unsigned char *)((int)param_1 + 0x9f) = s28;
-    *(unsigned char *)(param_1 + 0x50) = sC;
-    b = (unsigned char *)param_1;
-    b[0x64] = s10;
-    if (b[0x64] < 0 || b[0x64] >= 0x16)
-        b[0x64] = 0;
-    *(unsigned char *)((int)param_1 + 0x65) = s14;
-    param_1[0x29] = (short)s18;
-    FUN_000149a8(param_1 + 0x2a, (const void *)s1C);
-    b = (unsigned char *)param_1;
-    b[0x66] = s20;
-    b[0x67] = s2C;
+    rec->vals[0] = (short)id;
+    rec->vals[1] = (short)val1;
+    rec->vals[2] = (short)val2;
+    rec->vals[3] = (short)val3;
+    rec->vals[4] = (short)val4;
+    rec->vals[5] = (short)val5;
+    FUN_000149a8(rec->unkcc, (const void *)param_2);
+    rec->unk9c = s0;
+    rec->unk9d = s4;
+    rec->unk9e = s8;
+    rec->unk9f = s28;
+    rec->unka0 = sC;
+    rec->unk64 = s10;
+    if (rec->unk64 < 0 || rec->unk64 >= UNK64_LIMIT)
+        rec->unk64 = 0;
+    rec->unk65 = s14;
+    rec->unk52 = (short)s18;
+    FUN_000149a8(rec->unk54, (const void *)s1C);
+    rec->unk66 = s20;
+    rec->unk67 = s2C;
     i = 0;
-    p = b;
+    p = (unsigned char *)rec; /* advances by one 3-byte group per pass; the groups sit at 0x7c */
     do {
-        p[0x7d] = b[0x64];
-        param_1[0x3c] = param_1[0x29];
-        FUN_000149a8(param_1 + 0x34, param_1 + 0x2a);
+        p[0x7d] = rec->unk64;
+        rec->unk78 = rec->unk52;
+        FUN_000149a8(rec->unk68, rec->unk54);
         i = i + 1;
-        b[0x7c] = b[0x66];
-        p[0x7e] = b[0x67];
+        rec->unk7c[0] = rec->unk66;
+        p[0x7e] = rec->unk67;
         p = p + 3;
-    } while (i < 4);
-    *(unsigned char *)((int)param_1 + 0xc9) = s24;
-    *(unsigned char *)((int)param_1 + 0xcb) = s34;
-    *(unsigned char *)(param_1 + 0x76) = s38;
-    *(unsigned char *)((int)param_1 + 0x101) = s3C;
-    *(unsigned char *)(param_1 + 100) = s30;
+    } while (i < INFO_REPEATS);
+    rec->unkc9 = s24;
+    rec->unkcb = s34;
+    rec->unkec = s38;
+    rec->unk101 = s3C;
+    rec->unkc8 = s30;
 }

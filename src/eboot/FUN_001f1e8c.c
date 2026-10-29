@@ -1,10 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001f1e8c end=0x001f1ea8 symbol=FUN_001f1e8c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/prize_screen.h"
 
-void FUN_001f1e8c(int param_1)
+/* On the first frame sets a flag byte. */
+void FUN_001f1e8c(PrizeScreen *self)
 {
-  if (*(int *)(param_1 + 0x44) == 0) {
-    *(u8 *)(param_1 + 0x515) = 1;
+  if (self->unk44 == 0) {
+    self->unk515 = 1;
   }
 }

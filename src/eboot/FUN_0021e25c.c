@@ -1,25 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021e25c end=0x0021e2d4 symbol=FUN_0021e25c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag u1ge); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag u1ge) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/digit_panel.h"
 
 extern void FUN_00103480();
 
-void FUN_0021e25c(float param_1,float param_2,char *param_3)
+/* Move every layer to (x, y); does nothing when the position is unchanged. */
+void FUN_0021e25c(float x,float y,DigitPanel *self)
 {
-  if (*(float *)(param_3 + 0x1dc) == param_1) {
-    if (*(float *)(param_3 + 0x1e0) == param_2) {
+  if (self->pos_x == x) {
+    if (self->pos_y == y) {
       return;
     }
-    *(float *)(param_3 + 0x1dc) = param_1;
+    self->pos_x = x;
   }
   else {
-    *(float *)(param_3 + 0x1dc) = param_1;
+    self->pos_x = x;
   }
-  *(float *)(param_3 + 0x1e0) = param_2;
-  *(float *)(*(int *)(param_3 + 0x54) + 0x60) = param_1;
-  *(float *)(*(int *)(param_3 + 0x54) + 100) = param_2;
-  *(float *)(*(int *)(param_3 + 0x58) + 0x60) = param_1;
-  *(float *)(*(int *)(param_3 + 0x58) + 100) = param_2;
-  *(float *)(*(int *)(param_3 + 0x5c) + 0x60) = param_1;
-  *(float *)(*(int *)(param_3 + 0x5c) + 100) = param_2;
-  FUN_00103480(param_3);
+  self->pos_y = y;
+  self->layer[0]->x = x;
+  self->layer[0]->y = y;
+  self->layer[1]->x = x;
+  self->layer[1]->y = y;
+  self->layer[2]->x = x;
+  self->layer[2]->y = y;
+  FUN_00103480(self);
 }

@@ -1,24 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001eed9c end=0x001ef0fc symbol=FUN_001eed9c lang=c++ rodata=0x002c8f24 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/vec.h"
+#include "hst/state_switch.h"
+
+/* Link object: only the vector at 0x10 is written. */
 struct Link {
   char pad[0x10];
-  float f10, f14, f18, f1c;
+  Float4 vec;  /* 0x10 */
 };
 struct Obj {
   char pad00[0x3c];
-  int f3c;
-  int state;
-  char pad44[0x4cc];
-  int f510;
-  unsigned char f514;
+  StateSwitch sw;      /* 0x3c state holder, updated first; its state selects the handler */
+  char pad54[0x510 - 0x54];
+  int unk510;          /* 0x510 */
+  unsigned char active; /* 0x514 zero: nothing to do */
   char pad515[0x4f];
-  Link *f564;
-  float f568;
+  Link *link;          /* 0x564 */
+  float unk568;        /* 0x568 */
   char pad_56c[4];
-  float f570, f574, f578, f57c, f580;
+  Float4 base;         /* 0x570 */
+  float yOffset;       /* 0x580 added to base.y; eases up by 0.1 per step and is capped at 0 */
   char pad584[0x34];
-  int f5b8;
-  unsigned char f5bc;
+  int sound;           /* 0x5b8 sound handle, -1 when none */
+  unsigned char unk5bc; /* 0x5bc */
 };
 
 extern "C" {
@@ -51,15 +55,17 @@ int FUN_001e5a84(int);
 int FUN_001e7198(int);
 void FUN_001b413c(float, float, char *);
 
+/* Runs the active state's handler, then the per-frame updates: eases the link vector, and tracks whether any of the
+   sounds is playing (calling FUN_001b413c with two float arguments when that changes). */
 void FUN_001eed9c(Obj *self)
 {
-  bool on;
-  int idx;
-  if (self->f514 == 0) {
+  bool playing;
+  int handle;
+  if (self->active == 0) {
     return;
   }
-  FUN_001fb9dc((char *)self + 0x3c);
-  switch (self->state) {
+  FUN_001fb9dc(&self->sw);
+  switch (self->sw.state) {
   case 0: FUN_001ef2ec(self); break;
   case 1: FUN_001ef424(self); break;
   case 2:
@@ -84,61 +90,61 @@ void FUN_001eed9c(Obj *self)
   }
   FUN_001f4900(self);
   if (FUN_001f92ec(self) != 0) {
-    if (self->f564 != 0) {
-      FUN_00219210(self->f564);
+    if (self->link != 0) {
+      FUN_00219210(self->link);
       if (FUN_001f9354(self) != 0) {
-        self->f580 += 0.1f;
-        float fVar5 = self->f580;
-        if (fVar5 > 0.0f) {
-          self->f580 = 0.0f;
+        self->yOffset += 0.1f;
+        float cur = self->yOffset;
+        if (cur > 0.0f) {
+          self->yOffset = 0.0f;
         }
-        float c = self->f57c;
-        float d = self->f578;
-        float fVar6 = self->f574;
-        float fVar8 = self->f580;
-        float sum = fVar6 + fVar8;
-        Link *l = self->f564;
-        l->f10 = self->f570;
-        l->f14 = sum;
-        l->f18 = d;
-        l->f1c = c;
+        float w = self->base.w;
+        float z = self->base.z;
+        float y = self->base.y;
+        float offset = self->yOffset;
+        float sum = y + offset;
+        Link *l = self->link;
+        l->vec.x = self->base.x;
+        l->vec.y = sum;
+        l->vec.z = z;
+        l->vec.w = w;
 
       }
     }
   }
-  idx = self->f5b8;
-  on = false;
-  if (idx != -1) {
-    unsigned char c1 = FUN_001b1f7c(DAT_0034179c, self->f5b8);
-    on = c1 != 0;
-    if (FUN_001b1f7c(DAT_0034179c, self->f5b8) == 0) {
-      self->f5b8 = -1;
+  handle = self->sound;
+  playing = false;
+  if (handle != -1) {
+    unsigned char c1 = FUN_001b1f7c(DAT_0034179c, self->sound);
+    playing = c1 != 0;
+    if (FUN_001b1f7c(DAT_0034179c, self->sound) == 0) {
+      self->sound = -1;
     }
   }
-  if (self->f510 != 0) {
-    if (FUN_001e5a84(self->f510) != -1) {
-      unsigned char c2 = FUN_001b1f7c(DAT_0034179c, FUN_001e5a84(self->f510));
-      on = (on | c2) != 0;
+  if (self->unk510 != 0) {
+    if (FUN_001e5a84(self->unk510) != -1) {
+      unsigned char c2 = FUN_001b1f7c(DAT_0034179c, FUN_001e5a84(self->unk510));
+      playing = (playing | c2) != 0;
     }
   }
-  if (self->f510 != 0 && FUN_001e7198(self->f510) != -1) {
-    unsigned char c3 = FUN_001b1f7c(DAT_0034179c, FUN_001e7198(self->f510));
-    on = (on | c3) != 0;
+  if (self->unk510 != 0 && FUN_001e7198(self->unk510) != -1) {
+    unsigned char c3 = FUN_001b1f7c(DAT_0034179c, FUN_001e7198(self->unk510));
+    playing = (playing | c3) != 0;
   }
-  if (on && self->f5bc == 0) {
+  if (playing && self->unk5bc == 0) {
     FUN_001b413c(0.2734375f, 0.1f, DAT_0034179c);
-    self->f5bc = 1;
-  } else if (!on && self->f5bc != 0) {
+    self->unk5bc = 1;
+  } else if (!playing && self->unk5bc != 0) {
     FUN_001b413c(1.0f, 0.3f, DAT_0034179c);
-    self->f5bc = 0;
+    self->unk5bc = 0;
   }
 }
 }
 // Matching idioms (lane om2 2026-10-22): (a) the tested field loaded into an argument register
 // (`lw a0,1380(s1); beqz a0`) is the dropped FIRST ARGUMENT of the call right after the test -
-// `FUN_00219210()` is `FUN_00219210(self->f564)`; (b) the float that is COALESCED with the
+// `FUN_00219210()` is `FUN_00219210(self->link)`; (b) the float that is COALESCED with the
 // destination of an in-place `add.s` follows the position of the SUM in the source, not the
-// declaration order of the other floats: `float sum = f574 + f580;` written BEFORE the other
+// declaration order of the other floats: `float sum = y + offset;` written BEFORE the other
 // float read gives retail's `add.s $f0,$f2,$f0` (the sum shares $f0 with its second operand)
 // and the other value gets $f1; the identical sum written inline in the later store gives
 // `add.s $f1,$f2,$f1` and swaps $f0/$f1 with that other value (5 words off).

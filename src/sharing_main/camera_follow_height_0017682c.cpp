@@ -4,26 +4,35 @@ struct V4 {
     float x, y, z, w;
 };
 
+/* Camera view object: two positions and three floats. */
 struct Obj {
     char pad0[0x40];
-    V4 a;
+    V4 eye;                 /* 0x40 */
     char pad50[0x10];
-    V4 b;
+    V4 target;              /* 0x60 */
     char pad70[0x10];
-    float f80;
-    float f84;
-    float f88;
+    float unk80;            /* 0x80 */
+    float unk84;            /* 0x84 written from the blended scales */
+    float unk88;            /* 0x88 written from the blended range */
 };
 
+/* Tuning block: pairs of values blended by a clamped 0..1 factor, and the two ranges that give the factors. */
 struct Cfg {
     char pad0[0x50];
-    float f50, f54, f58, f5c, f60, f64, f68, f6c, f70, f74, f78;
+    float scale_a0, scale_a1;       /* 0x50 */
+    float ref_lo, ref_hi;           /* 0x58 range of unk80 */
+    float scale_b0, scale_b1;       /* 0x60 */
+    float out_c0, out_c1;           /* 0x68 */
+    float height_lo, height_hi;     /* 0x70 range of the eye height */
+    float scale_a_alt;              /* 0x78 replaces scale_a0 and scale_a1 in mode 3 */
 };
 
 struct Game {
     char pad0[0x3c];
-    int f3c;
+    int mode;               /* 0x3c */
 };
+
+#define GAME_MODE_ALT_SCALE 3
 
 extern "C" {
 extern float DAT_00387a08;
@@ -44,19 +53,21 @@ static inline float Clamp(const float &v, const float &lo, const float &hi)
     return v < lo ? lo : (v > hi ? hi : v);
 }
 
+/* Keeps the eye above a limit (raising both positions by the shortfall when flag is set), then recomputes the
+   two scale values of the view from the tuning block. */
 extern "C" void FUN_0017682c(Obj *self, int flag)
 {
     if (DAT_00387a08 != 0.0f) {
         V4 p1;
-        p1.x = self->a.x;
-        p1.y = self->a.y;
-        p1.z = self->a.z;
-        p1.w = self->a.w;
+        p1.x = self->eye.x;
+        p1.y = self->eye.y;
+        p1.z = self->eye.z;
+        p1.w = self->eye.w;
         V4 p2;
-        p2.x = self->b.x;
-        p2.y = self->b.y;
-        p2.z = self->b.z;
-        p2.w = self->b.w;
+        p2.x = self->target.x;
+        p2.y = self->target.y;
+        p2.z = self->target.z;
+        p2.w = self->target.w;
         V4 e;
         V4 d;
         V4 f;
@@ -68,40 +79,40 @@ extern "C" void FUN_0017682c(Obj *self, int flag)
         e = t2;
         FUN_00022440(&f, &p1, &e);
         float fy = f.y;
-        float y0 = self->f80;
+        float y0 = self->unk80;
         if (flag != 0 && fy > -DAT_00387a08) {
             float t = fy + DAT_00387a08;
             p1.y = p1.y - t;
             p2.y = p2.y - t;
-            self->a.x = p1.x;
-            self->a.y = p1.y;
-            self->a.z = p1.z;
-            self->a.w = p1.w;
-            self->b.x = p2.x;
-            self->b.y = p2.y;
-            self->b.z = p2.z;
-            self->b.w = p2.w;
+            self->eye.x = p1.x;
+            self->eye.y = p1.y;
+            self->eye.z = p1.z;
+            self->eye.w = p1.w;
+            self->target.x = p2.x;
+            self->target.y = p2.y;
+            self->target.z = p2.z;
+            self->target.w = p2.w;
             FUN_0006187c(self);
         }
         Cfg *c = DAT_003e95c4;
-        float k50 = c->f50;
-        float k54 = c->f54;
-        float k58 = c->f58;
-        float k5c = c->f5c;
-        float k60 = c->f60;
-        float k64 = c->f64;
-        float k68 = c->f68;
-        float k6c = c->f6c;
-        float k70 = c->f70;
-        float k74 = c->f74;
-        if (DAT_003e19f0->f3c == 3) {
-            k50 = c->f78;
-            k54 = k50;
+        float scale_a0 = c->scale_a0;
+        float scale_a1 = c->scale_a1;
+        float ref_lo = c->ref_lo;
+        float ref_hi = c->ref_hi;
+        float scale_b0 = c->scale_b0;
+        float scale_b1 = c->scale_b1;
+        float out_c0 = c->out_c0;
+        float out_c1 = c->out_c1;
+        float height_lo = c->height_lo;
+        float height_hi = c->height_hi;
+        if (DAT_003e19f0->mode == GAME_MODE_ALT_SCALE) {
+            scale_a0 = c->scale_a_alt;
+            scale_a1 = scale_a0;
         }
-        float t1v = Clamp((-p1.y - k70) / (k74 - k70), DAT_00387a1c, DAT_00387a20);
-        float t2v = Clamp((y0 - k58) / (k5c - k58), DAT_00387a24, DAT_00387a28);
-        self->f84 = (k50 + t1v * (k54 - k50)) * (k60 + t2v * (k64 - k60));
-        self->f88 = k68 + t1v * (k6c - k68);
+        float t_height = Clamp((-p1.y - height_lo) / (height_hi - height_lo), DAT_00387a1c, DAT_00387a20);
+        float t_ref = Clamp((y0 - ref_lo) / (ref_hi - ref_lo), DAT_00387a24, DAT_00387a28);
+        self->unk84 = (scale_a0 + t_height * (scale_a1 - scale_a0)) * (scale_b0 + t_ref * (scale_b1 - scale_b0));
+        self->unk88 = out_c0 + t_height * (out_c1 - out_c0);
         DAT_00387a08 = 0.4f;
     }
 }

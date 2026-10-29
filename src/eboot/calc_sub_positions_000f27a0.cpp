@@ -1,7 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000f27a0 end=0x000f293c symbol=FUN_000f27a0 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-
-typedef unsigned char u8;
+#include "hst/sabu_pane.h"
 
 struct Vec3 {
     float x;
@@ -16,23 +15,6 @@ struct Vec4 {
     float w;
 };
 
-struct Sub {
-    char pad[96];
-    float x;
-    float y;
-};
-
-struct Obj {
-    char pad0[84];
-    struct Sub *sub84;
-    struct Sub *sub88;
-    struct Sub *sub92;
-    char pad1[36];
-    u8 f132;
-    char pad2[31];
-    int f164;
-};
-
 struct Player {
     char pad[1468];
     int target;
@@ -43,9 +25,14 @@ struct Game {
     Player *players[12];
 };
 
+struct Cam {
+    char pad[408];
+    int player_index;
+};
+
 extern "C" {
     extern u8 DAT_003386b8;
-    extern void *DAT_00338ac4;
+    extern Cam *DAT_00338ac4;
     extern Game *DAT_003386b0;
     extern char DAT_00311170;
     extern void *DAT_003313c4;
@@ -58,14 +45,15 @@ extern "C" {
     extern void FUN_00103480(void *obj);
     extern void FUN_001031e8(void *obj);
 
-    void FUN_000f27a0(struct Obj *obj);
+    void FUN_000f27a0(SabuPane *obj);
 }
 
-void FUN_000f27a0(struct Obj *obj) {
-    if (obj->f132 != 0)
+/* Project the selected player's target position to the screen and move all three layers next to it. */
+void FUN_000f27a0(SabuPane *obj) {
+    if (obj->unk84 != 0)
         return;
 
-    int idx = (DAT_003386b8 != 0 && DAT_00338ac4 != 0) ? *(int *)((char *)DAT_00338ac4 + 408) : 0;
+    int idx = (DAT_003386b8 != 0 && DAT_00338ac4 != 0) ? DAT_00338ac4->player_index : 0;
 
     Player *p = DAT_003386b0->players[idx];
     struct Vec3 *pos = FUN_00093838(p->target);
@@ -87,14 +75,14 @@ void FUN_000f27a0(struct Obj *obj) {
     v.x -= 1808.0f;
     v.y -= 1912.0f;
 
-    float offset = (obj->f164 >= 0) ? -160.0f : 32.0f;
+    float offset = (obj->unka4 >= 0) ? -160.0f : 32.0f;
 
-    obj->sub84->x = v.x + offset;
-    obj->sub84->y = v.y - 64.0f;
-    obj->sub88->x = v.x + offset;
-    obj->sub88->y = v.y - 64.0f;
-    obj->sub92->x = v.x + offset;
-    obj->sub92->y = v.y - 64.0f;
+    obj->layer[0]->x = v.x + offset;
+    obj->layer[0]->y = v.y - 64.0f;
+    obj->layer[1]->x = v.x + offset;
+    obj->layer[1]->y = v.y - 64.0f;
+    obj->layer[2]->x = v.x + offset;
+    obj->layer[2]->y = v.y - 64.0f;
 
     FUN_00103480(obj);
     FUN_001031e8(obj);

@@ -55,23 +55,23 @@ extern "C" void FUN_001f37e4(int base, Obj *obj, int a2, int a3, int idx, int fl
   if (obj == 0) {
     return;
   }
+  bool b = false;
   int off = idx * 0x14;
   int handle = obj->handle;
   Entry *e = (Entry *)(DAT_002c8e44 + off);
-  unsigned char c = e->flags;
+  int c = e->flags;
   if (obj->inner->mode == 6) {
     c = 0;
   }
   int mode = obj->mode == 0 ? -1 : obj->mode->value;
   if (mode != 6 || idx != 6) {
-    if (c == 0) {
-      FUN_00057f30(handle, 0);
-    } else {
+    if (c != 0) {
       FUN_000931ec(obj, 1, &((Rec *)a2)->f0, ((Rec *)a2)->f2);
+    } else {
+      FUN_00057f30(handle, 0);
     }
-    bool b = true;
-    if (e->id != 1) {
-      b = false;
+    if (e->id == 1) {
+      b = true;
     }
     float f = e->scale;
     if (flag != 0) {
@@ -104,4 +104,8 @@ extern "C" void FUN_001f37e4(int base, Obj *obj, int a2, int a3, int idx, int fl
 // `if(id!=1)b=false` form, int-masked rand (gives sll/srl/sra instead of ext).
 // Next thing to try: make the bool live across the FUN_00092078 call in its own saved register
 // by declaring it before the table pointer.
-// near miss from lane fm4 (unreviewed)
+// sy4 NEAR MISS (147/147 words, 87 differ; older wip 143 differ, 144/147 words). Register map s0..s7 now matches retail and the whole body is the right length; moved: `bool b = false;`
+// declared FIRST (before the table pointer, so it gets s2) and set with `if (e->id == 1) b = true;`, `int c = e->flags` (no andi), `if (c != 0) FUN_000931ec(..) else FUN_00057f30(..)`
+// (retail's `beqzl c,ELSE` falls into the 931ec call). Still different: retail copies a2 into v1 at entry (`move v1,a2`) and keeps c in a2 with the table-offset temps in a0/a1,
+// ours leaves a2 and uses v0/v1/a0 for the same temps; this shifts the first ~35 words after the guard, the rest follows. Ruled out: Rec* parameter, Rec* local, c via ternary, base-struct for the final store.
+// improved by lane sy4 (unreviewed): 143 -> 87 differing words

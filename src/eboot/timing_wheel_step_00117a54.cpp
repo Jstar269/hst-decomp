@@ -1,9 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00117a54 end=0x00117c24 symbol=FUN_00117a54 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review.
    The nine-slot expiry is a real C++ virtual call (a function-pointer call compiles to `lw v0,slot; jalr v0`,
-   retail has `lw t9`), the latch test is written as one condition (`f < 0 && -f <= f58`) which is what puts the
+   retail has `lw t9`), the latch test is written as one condition (`f < 0 && -f <= unk58`) which is what puts the
    negation before the field load, and the two stack temporaries must be declared `b` before `a` to land in
    retail's slots (0x2c/0x28). */
+#include "hst/wheel_state.h"
+
 extern void *DAT_003386b0;
 
 class Obj {
@@ -21,39 +23,18 @@ public:
   virtual void v10();
 };
 
+/* Global object holding the polymorphic helper at 0x88. */
 typedef struct Mgr {
   char pad0[0x88];
-  Obj *f88;
+  Obj *unk88;
 } Mgr;
 
-typedef struct Slot {
-  char pad0[0x38];
-  int f38;
-  char pad1[0x40 - 0x3c];
-  int f40;
-  char pad2[0x70 - 0x44];
-} Slot;
-
-typedef struct State {
-  char pad0[0x50];
-  int f50;
-  int f54;
-  int f58;
-  int f5c;
-  int f60;
-  int f64;
-  int f68;
-  int f6c;
-  int f70;
-  char pad1[0x80 - 0x74];
-  Slot slots[9];
-} State;
-
 extern "C" void FUN_0001f558(void *, int, int, int);
-extern "C" void FUN_001180b0(State *, Slot *, int);
+extern "C" void FUN_001180b0(WheelState *, WheelEntry *, int);
 extern "C" void FUN_0008ac88(void *);
 
-extern "C" void FUN_00117a54(State *self)
+/* Advances the nine-slot wheel by one step: expires slots through the virtual call, tracks the latch and notifies when due. */
+extern "C" void FUN_00117a54(WheelState *self)
 {
   int notify;
   int i;
@@ -63,40 +44,40 @@ extern "C" void FUN_00117a54(State *self)
   int b;
   int a;
   int *p;
-  Slot *e;
+  WheelEntry *e;
   Obj *o;
   int j;
 
   notify = 0;
-  if (self->f60 < 0)
+  if (self->unk60 < 0)
     goto set_notify;
   {
-    if (self->f58 == self->f50)
+    if (self->unk58 == self->unk50)
       FUN_0001f558(DAT_003386b0, 0x14, 0, 0);
-    i = self->f68;
-    idx = (i + 1) % 9;
-    e = &self->slots[idx];
-    if (e->f38 >= 0) {
-      if (self->f58 >= e->f38) {
+    i = self->unk68;
+    idx = (i + 1) % WHEEL_SLOTS;
+    e = &self->ring[idx];
+    if (e->unk38 >= 0) {
+      if (self->unk58 >= e->unk38) {
         FUN_001180b0(self, e, 1);
-        o = ((Mgr *)DAT_003386b0)->f88;
-        n = self->f58 - e->f38;
+        o = ((Mgr *)DAT_003386b0)->unk88;
+        n = self->unk58 - e->unk38;
         for (j = 0; j < n; j++)
           o->v10();
-        self->f68 = idx;
-        self->f70 = n - 1;
-        i = self->f68;
-        e = &self->slots[(i + 1) % 9];
+        self->unk68 = idx;
+        self->unk70 = n - 1;
+        i = self->unk68;
+        e = &self->ring[(i + 1) % WHEEL_SLOTS];
       }
     }
-    f = e->f38;
-    if (f < 0 && -f <= self->f58)
+    f = e->unk38;
+    if (f < 0 && -f <= self->unk58)
       notify = 1;
-    a = self->slots[i].f40 - 1;
-    b = self->f70 + 1;
+    a = self->ring[i].unk40 - 1;
+    b = self->unk70 + 1;
     p = (a < b) ? &a : &b;
-    self->f70 = *p;
-    self->f58 = self->f58 + 1;
+    self->unk70 = *p;
+    self->unk58 = self->unk58 + 1;
   }
   goto tail;
 set_notify:

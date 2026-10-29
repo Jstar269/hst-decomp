@@ -1,28 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0015ba80 end=0x0015bc5c symbol=FUN_0015ba80 lang=c++ data=0x002de29c */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (3 strings, 0x002de29c-0x002de2f5) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-
-struct Obj_000511c4 {
-    virtual ~Obj_000511c4();
-};
-
-struct Obj {
-    char pad0[0x34];
-    Obj_000511c4 *obj34;
-    Obj_000511c4 *obj38;
-    char pad3c[0x40 - 0x3c];
-    float f40;
-    float f44;
-    float f48;
-    float f4c;
-    float f50;
-    float f54;
-    float f58;
-    float f5c;
-    char pad60[0x70 - 0x60];
-    char sub70[0x170 - 0x70];
-    char sub170[0x370 - 0x170];
-    char buf370[1];
-};
+#include "hst/loadmes_obj.h"
 
 extern "C" {
 extern char DAT_0030ebf4[];
@@ -33,55 +11,46 @@ extern int FUN_00014934(char *, char *);
 extern void FUN_000149a8(char *, char *);
 extern void FUN_0001cad0(char *, int, char *);
 extern void FUN_0001cb88(char *);
-extern Obj_000511c4 *FUN_00050fc0(void *);
-extern void FUN_000511c4(Obj_000511c4 *, char *, int);
-extern void FUN_00051398(float, Obj_000511c4 *);
+extern LoadMesRes *FUN_00050fc0(void *);
+extern void FUN_000511c4(LoadMesRes *, char *, int);
+extern void FUN_00051398(float, LoadMesRes *);
 }
 
-extern "C" void FUN_0015ba80(Obj *self, int param_2) {
-    FUN_000143b0(self->buf370, "menu/020_tutorial.xb");
-    FUN_0001cad0(DAT_0030ebf4, 1, self->buf370);
-    FUN_000143b0(self->buf370, "data/menu/tutorial/tutorial_bg");
+/* Size of one resource object. */
+#define LOADMES_RES_SIZE 0x48
 
-    if (self->obj34 == 0 || FUN_00014934(self->sub70, self->buf370) != 0) {
-        if (self->obj34 != 0) {
-            delete self->obj34;
-            self->obj34 = 0;
+/* Rebuild a resource from the name in buf when the slot is empty or the cache says the name changed;
+   the parameter vector is reset to (0, y, 0, 1). */
+static inline void Reload(LoadMesRes **slot, char *cache, char *buf, Float4 *v, float y)
+{
+    if (*slot == 0 || FUN_00014934(cache, buf) != 0) {
+        if (*slot != 0) {
+            delete *slot;
+            *slot = 0;
         }
-        Obj_000511c4 *p = (Obj_000511c4 *)FUN_00000bcc(0x48);
-        if (p != 0) {
-            p = FUN_00050fc0(p);
-        }
-        self->obj34 = p;
-        FUN_000511c4(p, self->buf370, 0);
-        FUN_00051398(3000.0f, self->obj34);
-        FUN_000149a8(self->sub70, self->buf370);
-        self->f40 = 0.0f;
-        self->f44 = 0.0f;
-        self->f48 = 0.0f;
-        self->f4c = 1.0f;
+        LoadMesRes *r = (LoadMesRes *)FUN_00000bcc(LOADMES_RES_SIZE);
+        if (r != 0)
+            r = FUN_00050fc0(r);
+        *slot = r;
+        FUN_000511c4(r, buf, 0);
+        FUN_00051398(3000.0f, *slot);
+        FUN_000149a8(cache, buf);
+        v->x = 0;
+        v->y = y;
+        v->z = 0;
+        v->w = 1.0f;
     }
+}
 
-    FUN_000143b0(self->buf370, "data/menu/tutorial/tutorial_%03d", param_2 + 1);
+/* Loads the tutorial menu: the background, then page `page` of the tutorial as the message resource. */
+extern "C" void FUN_0015ba80(LoadMesObj *self, int page) {
+    FUN_000143b0(self->nameBuf, "menu/020_tutorial.xb");
+    FUN_0001cad0(DAT_0030ebf4, 1, self->nameBuf);
+    FUN_000143b0(self->nameBuf, "data/menu/tutorial/tutorial_bg");
+    Reload(&self->bg, self->bgCache, self->nameBuf, &self->bgParam, 0.0f);
 
-    if (self->obj38 == 0 || FUN_00014934(self->sub170, self->buf370) != 0) {
-        if (self->obj38 != 0) {
-            delete self->obj38;
-            self->obj38 = 0;
-        }
-        Obj_000511c4 *q = (Obj_000511c4 *)FUN_00000bcc(0x48);
-        if (q != 0) {
-            q = FUN_00050fc0(q);
-        }
-        self->obj38 = q;
-        FUN_000511c4(q, self->buf370, 0);
-        FUN_00051398(3000.0f, self->obj38);
-        FUN_000149a8(self->sub170, self->buf370);
-        self->f50 = 0.0f;
-        self->f54 = 15.0f;
-        self->f58 = 0.0f;
-        self->f5c = 1.0f;
-    }
+    FUN_000143b0(self->nameBuf, "data/menu/tutorial/tutorial_%03d", page + 1);
+    Reload(&self->message, self->msgCache, self->nameBuf, &self->msgParam, 15.0f);
 
     FUN_0001cb88(DAT_0030ebf4);
 }

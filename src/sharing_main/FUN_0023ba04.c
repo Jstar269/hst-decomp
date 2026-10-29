@@ -2,10 +2,11 @@
 /* Clone of src/eboot/FUN_0022bf94.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u32 DAT_003ea8e8;
+extern char *DAT_003ea8e8;
 extern void FUN_001cdd24();
 
-void FUN_0023ba04(u32 param_1,u32 param_2)
+/* Forward the two arguments to the helper on the sub-object at +0x80 of the global, with mode 4. */
+void FUN_0023ba04(u32 a,u32 b)
 {
-  FUN_001cdd24(DAT_003ea8e8 + 0x80,param_1,param_2,4);
+  FUN_001cdd24(DAT_003ea8e8 + 0x80,a,b,4);
 }

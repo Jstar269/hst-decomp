@@ -12,32 +12,33 @@ struct Mat4 {
 
 struct Deep {
   char pad[0x58];
-  int f58;
+  int unk58;
 };
 struct Mid {
   char pad0[0x44];
-  void *f44;
+  void *unk44;
 };
+/* Global object: pointers to the sub-objects used here. */
 struct Ctx {
   char pad0[0x90];
-  Mid *f90;
+  Mid *mid;   /* 0x90 */
   char pad1[0x9c - 0x94];
-  Deep *f9c;
+  Deep *deep; /* 0x9c */
 };
 
 struct Obj {
   char pad0[0x3c];
-  int f3c;
-  Vec4 v40;
+  int state;              /* 0x3c */
+  Vec4 pos;               /* 0x40 */
   char pad1[0xa0 - 0x50];
-  int fa0;
+  int unka0;              /* 0xa0 selects the branch */
   char pad2[0x428 - 0xa4];
-  int f428;
-  int f42c;
+  int kind;               /* 0x428 index into the two float tables */
+  int unk42c;             /* 0x42c */
   unsigned char f430pad[4];
-  unsigned char f434;
+  unsigned char stateChanged; /* 0x434 set when state is changed */
   char pad3[0x440 - 0x435];
-  Vec4 f440;
+  Vec4 vec440;            /* 0x440 */
 };
 
 extern "C" {
@@ -58,45 +59,46 @@ static inline Vec4 Scale(const Vec4 &v, float s)
   return r;
 }
 
+/* When unka0 is 0, sets the state (3 for some kinds, else 2) and a scaled vector; otherwise runs the helper and, for kinds 13 and 18, starts an effect at the position. */
 extern "C" void FUN_002270a0(Obj *self, Vec4 p, int p3)
 {
-  if (self->fa0 == 0) {
-    int m = self->f428;
+  if (self->unka0 == 0) {
+    int m = self->kind;
     if (m == 1 || m == 23 || m == 24 || m == 25 || m == 11 || m == 15) {
-      if (self->f3c != 3) {
-        self->f3c = 3;
-        self->f434 = 1;
+      if (self->state != 3) {
+        self->state = 3;
+        self->stateChanged = 1;
       }
-      self->f42c = DAT_003386b0->f9c->f58;
+      self->unk42c = DAT_003386b0->deep->unk58;
     } else {
-      if (self->f3c != 2) {
-        self->f3c = 2;
-        self->f434 = 1;
+      if (self->state != 2) {
+        self->state = 2;
+        self->stateChanged = 1;
       }
-      self->f42c = DAT_003386b0->f9c->f58;
-      self->f440 = Scale(p, DAT_002f2a44[self->f428]);
-      float a = (float)FUN_0000b16c((double)DAT_002f29dc[self->f428]);
-      float b = (float)FUN_0000b16c((double)self->f440.y);
+      self->unk42c = DAT_003386b0->deep->unk58;
+      self->vec440 = Scale(p, DAT_002f2a44[self->kind]);
+      float a = (float)FUN_0000b16c((double)DAT_002f29dc[self->kind]);
+      float b = (float)FUN_0000b16c((double)self->vec440.y);
       if (a > b)
-        self->f440.y = DAT_002f29dc[self->f428];
+        self->vec440.y = DAT_002f29dc[self->kind];
       else
-        self->f440.y = -self->f440.y;
+        self->vec440.y = -self->vec440.y;
     }
   } else {
     Mat4 mat = DAT_002bc410;
     FUN_00228600(self, p3);
-    if (self->f428 == 13) {
-      mat.r3.x = self->v40.x;
-      mat.r3.y = self->v40.y;
-      mat.r3.z = self->v40.z;
-      mat.r3.w = self->v40.w;
-      FUN_000ce754(DAT_003386b0->f90->f44, &mat, 60, 3500.0f, 1.0f, 1, 0.0f);
-    } else if (self->f428 == 18) {
-      mat.r3.x = self->v40.x;
-      mat.r3.y = self->v40.y;
-      mat.r3.z = self->v40.z;
-      mat.r3.w = self->v40.w;
-      FUN_000ce754(DAT_003386b0->f90->f44, &mat, 61, 3500.0f, 1.0f, 1, 0.0f);
+    if (self->kind == 13) {
+      mat.r3.x = self->pos.x;
+      mat.r3.y = self->pos.y;
+      mat.r3.z = self->pos.z;
+      mat.r3.w = self->pos.w;
+      FUN_000ce754(DAT_003386b0->mid->unk44, &mat, 60, 3500.0f, 1.0f, 1, 0.0f);
+    } else if (self->kind == 18) {
+      mat.r3.x = self->pos.x;
+      mat.r3.y = self->pos.y;
+      mat.r3.z = self->pos.z;
+      mat.r3.w = self->pos.w;
+      FUN_000ce754(DAT_003386b0->mid->unk44, &mat, 61, 3500.0f, 1.0f, 1, 0.0f);
     }
   }
 }

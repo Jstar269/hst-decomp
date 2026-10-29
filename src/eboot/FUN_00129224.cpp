@@ -34,41 +34,42 @@ int FUN_0012d75c(Mgr *);
 unsigned char FUN_000558e4(void *, Hit *, Ray *, int, int, int, int);
 }
 
+/* Casts a ray straight down from up above pos to down below it; on a hit writes the hit position and normal back and returns 1. */
 extern "C" int FUN_00129224(float up, float down, Vec4 *pos, Vec4 *normal, int *id)
 {
     Hit hit;
     Ray ray;
-    Vec4 delta;
-    Vec4 d;
-    bool usable;
-    int ok;
+    Vec4 up_offset;
+    Vec4 start;
+    bool world_ready;
+    int found;
 
     hit.dist = 3.4028235e38f;
     hit.a = 0;
     hit.b = 0;
     hit.c = 0;
-    delta.x = 0.0f;
-    delta.y = up;
-    delta.z = 0.0f;
-    delta.w = 0.0f;
-    FUN_00022418(&d, pos, &delta);
-    ray.start.x = d.x;
-    ray.start.y = d.y;
-    ray.start.z = d.z;
+    up_offset.x = 0.0f;
+    up_offset.y = up;
+    up_offset.z = 0.0f;
+    up_offset.w = 0.0f;
+    FUN_00022418(&start, pos, &up_offset);
+    ray.start.x = start.x;
+    ray.start.y = start.y;
+    ray.start.z = start.z;
     ray.start.w = 0.0f;
     ray.dir.x = 0.0f;
     ray.dir.y = -(up + down);
     ray.dir.z = 0.0f;
     ray.dir.w = 0.0f;
-    ok = 0;
-    usable = false;
+    found = 0;
+    world_ready = false;
     if (DAT_0033b574 != 0 && FUN_0012d75c(DAT_0033b574) != 0) {
-        usable = true;
+        world_ready = true;
     }
-    if (usable && FUN_000558e4(DAT_0033b574->world, &hit, &ray, 0, 0, 0, 1) != 0) {
-        ok = 1;
+    if (world_ready && FUN_000558e4(DAT_0033b574->world, &hit, &ray, 0, 0, 0, 1) != 0) {
+        found = 1;
     }
-    if (ok != 0) {
+    if (found != 0) {
         *id = hit.id;
         *id = 1;
         normal->x = hit.normal.x;
@@ -80,5 +81,5 @@ extern "C" int FUN_00129224(float up, float down, Vec4 *pos, Vec4 *normal, int *
         pos->z = hit.pos.z;
         pos->w = hit.pos.w;
     }
-    return ok;
+    return found;
 }

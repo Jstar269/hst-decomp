@@ -2,8 +2,15 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Option-menu refresh (6 rows). Matching idioms: rows are `items[i + 1]` of a 7-entry array that starts at 0xc8 (items[0].value is the cursor at 0xe0);
    the inline bit test `Bits32::test` aborts through FUN_0025efd4 (fprintf) / FUN_0000d518 when pos >= 32; the third kind dispatch passes the kind as the
-   (ignored) argument of FUN_00253a68, which is what puts it in a0; `bool ok` is set to false in the else arm of `if (i != 5)` so the 5-row flag test is out of line. */
+   (ignored) argument of FUN_00253a68, which is what puts it in a0; `bool ok` is set to false in the else arm of `if (i != LAST_ROW)` so the last-row flag test is out of line. */
 extern char DAT_002c6a78[];
+
+#define MENU_ROWS 6        /* rows refreshed */
+#define LAST_ROW 5         /* row whose value is a bit set instead of a plain index */
+#define BIT_COUNT 19       /* bit positions scanned for the last row */
+#define BIT_WORD_LIMIT 32  /* bit positions a Bits32 can hold */
+#define KIND_SUB 2         /* row kind that maps its value through the sub-object */
+#define KIND_BITS 6        /* row kind that maps its value through the bit set */
 
 struct Widget {
     virtual void v0();
@@ -36,7 +43,7 @@ struct Bits32 {
     unsigned bits;
     bool test(unsigned pos) const
     {
-        if (pos >= 32) {
+        if (pos >= BIT_WORD_LIMIT) {
             FUN_0025efd4(FUN_0000fe3c()->err, DAT_002c6a78);
             FUN_0000d518();
         }
@@ -44,6 +51,7 @@ struct Bits32 {
     }
 };
 
+/* One menu row: three marker widgets, the text widget, its kind, the current value and the two mapping sources. */
 struct Row {
     Widget *a;
     Widget *b;
@@ -52,31 +60,32 @@ struct Row {
     Widget *obj;
     int kind;
     int value;
-    void *p1;
-    void *p2;
+    void *p1;   /* source for KIND_SUB */
+    void *p2;   /* source for KIND_BITS */
 };
 
 struct Menu {
     char pad0[0x64];
-    unsigned char flag;
+    unsigned char unk64;
     char pad1[0xc8 - 0x65];
     Row items[7];
     char sub[0x250 - 0x1c4];
     Bits32 bits;
     char pad3[0x2c8 - 0x254];
-    int f2c8;
-    int vals[6];
+    int unk2c8;
+    int vals[MENU_ROWS];   /* 0x2cc value of each row */
 };
 
 extern "C" void FUN_0025f000(Menu *m, int f);
 
+/* Refreshes all rows from the stored values: each row's text widget gets the mapped value's text; the last row first finds the first set bit and its index. */
 extern "C" void FUN_0025eca0(Menu *m)
 {
-    m->items[0].value = m->f2c8;
-    for (int i = 0; i < 6; i++) {
-        if (i == 5) {
+    m->items[0].value = m->unk2c8;
+    for (int i = 0; i < MENU_ROWS; i++) {
+        if (i == LAST_ROW) {
             m->bits.bits = m->vals[i];
-            for (int pos = 0; pos < 19; pos++) {
+            for (int pos = 0; pos < BIT_COUNT; pos++) {
                 if (m->bits.test(pos)) {
                     int k = 0;
                     do {
@@ -86,9 +95,9 @@ extern "C" void FUN_0025eca0(Menu *m)
                     Row *r = &m->items[i + 1];
                     r->value = k;
                     int v = k;
-                    if (r->kind == 2) {
+                    if (r->kind == KIND_SUB) {
                         v = FUN_002535e0(r->p1, k);
-                    } else if (r->kind == 6) {
+                    } else if (r->kind == KIND_BITS) {
                         v = FUN_0025395c(r->p2, k);
                     }
                     const char *t = FUN_00253974(r->kind, v);
@@ -98,11 +107,11 @@ extern "C" void FUN_0025eca0(Menu *m)
                     FUN_0010d4a8(w);
                     FUN_000ffb3c(r->a, 0);
                     bool ok;
-                    if (i != 5) {
+                    if (i != LAST_ROW) {
                         ok = false;
                     } else {
                         int q = FUN_0025395c(&m->bits, m->items[i + 1].value);
-                        ok = m->flag != 0 && q >= 16 && q <= 18;
+                        ok = m->unk64 != 0 && q >= 16 && q <= 18;
                     }
                     if (ok) {
                         r->obj->SetFlags(0x40000000);
@@ -124,9 +133,9 @@ extern "C" void FUN_0025eca0(Menu *m)
             r->p1 = &m->sub;
             r->p2 = &m->bits;
             int v = r->value;
-            if (r->kind == 2) {
+            if (r->kind == KIND_SUB) {
                 v = FUN_002535e0(r->p1, v);
-            } else if (r->kind == 6) {
+            } else if (r->kind == KIND_BITS) {
                 v = FUN_0025395c(r->p2, v);
             }
             const char *t = FUN_00253974(r->kind, v);
@@ -137,9 +146,9 @@ extern "C" void FUN_0025eca0(Menu *m)
             FUN_000ffb3c(r->a, 0);
             FUN_000ffb3c(r->b, r->value == 0);
             int n;
-            if (r->kind == 2) {
+            if (r->kind == KIND_SUB) {
                 n = FUN_00253628(r->p1);
-            } else if (r->kind == 6) {
+            } else if (r->kind == KIND_BITS) {
                 n = FUN_0025396c(r->p2);
             } else {
                 n = FUN_00253a68(r->kind);

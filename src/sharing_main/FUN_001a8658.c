@@ -2,12 +2,20 @@
 /* Clone of src/eboot/FUN_0019b460.c (hstclone.py tag x23): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+typedef struct ClearedObj {
+  char pad0[0x130];
+  u32 unk130; /* 0x130 */
+  u32 unk134; /* 0x134 */
+  u32 unk138; /* 0x138 */
+} ClearedObj;
+
 extern void FUN_0011177c();
 
-void FUN_001a8658(int param_1)
+/* Runs the helper, then clears three words. */
+void FUN_001a8658(ClearedObj *self)
 {
   FUN_0011177c();
-  *(u32 *)(param_1 + 0x138) = 0;
-  *(u32 *)(param_1 + 0x130) = 0;
-  *(u32 *)(param_1 + 0x134) = 0;
+  self->unk138 = 0;
+  self->unk130 = 0;
+  self->unk134 = 0;
 }

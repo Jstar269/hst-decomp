@@ -1,18 +1,20 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00096370 end=0x000963a0 symbol=FUN_00096370 lang=c99 */
 /* Clone of src/eboot/FUN_0009444c.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/bone_link.h"
 
-u32 * FUN_00096370(u32 *param_1)
+/* Constructor: clears every field. */
+BoneLink * FUN_00096370(BoneLink *self)
 {
-  *param_1 = 0;
-  param_1[1] = 0;
-  param_1[2] = 0;
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[6] = 0;
-  param_1[7] = 0;
-  param_1[8] = 0;
-  param_1[9] = 0;
-  return param_1;
+  self->unk00[0] = 0;
+  self->unk00[1] = 0;
+  self->unk00[2] = 0;
+  self->unk00[3] = 0;
+  self->unk00[4] = 0;
+  self->unk00[5] = 0;
+  self->unk00[6] = 0;
+  self->unk00[7] = 0;
+  self->nameA = 0;
+  self->nameB = 0;
+  return self;
 }

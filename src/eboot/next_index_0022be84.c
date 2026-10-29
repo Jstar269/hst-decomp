@@ -3,19 +3,20 @@
 extern int FUN_0022b6a0(int, int);
 extern void FUN_0022b02c(int, int, int);
 
-int FUN_0022be84(int param_1, int param_2, int param_3, int param_4)
+/* Read entry `slot` of the object, wrap it into [0, count), store its successor (skipping 0 when skip_zero is set and count > 1) and return the wrapped value. */
+int FUN_0022be84(int obj, int slot, int count, int skip_zero)
 {
     int cur;
     int next;
 
-    cur = FUN_0022b6a0(param_1, param_2);
-    if (cur >= param_3) {
+    cur = FUN_0022b6a0(obj, slot);
+    if (cur >= count) {
         cur = 0;
     }
-    next = (cur + 1) % param_3;
-    if (param_4 != 0 && next == 0 && 1 < param_3) {
+    next = (cur + 1) % count;
+    if (skip_zero != 0 && next == 0 && 1 < count) {
         next = next + 1;
     }
-    FUN_0022b02c(param_1, param_2, next);
+    FUN_0022b02c(obj, slot, next);
     return cur;
 }

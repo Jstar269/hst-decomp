@@ -6,16 +6,16 @@ extern "C" {
 extern u32 DAT_003e1a00;
 extern void FUN_00108aec(...);
 }
-struct VC_0 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual void d11(); virtual void m(int); };
-struct VC_1 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual int m(); };
+struct GlobalObj { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual void d8(); virtual void d9(); virtual void d10(); virtual void d11(); virtual void m(int); };
+struct Query { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void d7(); virtual int m(); };
 
-extern "C" void FUN_00272fd4(int *param_1)
+extern "C" void FUN_00272fd4(Query *self)
 {
-  int iVar1;
+  int result;
   
-  ((VC_0 *)(DAT_003e1a00))->m((int)(1));
-  iVar1 = ((VC_1 *)(param_1))->m();
-  if (iVar1 != 0) {
-    FUN_00108aec(param_1);
+  ((GlobalObj *)(DAT_003e1a00))->m(1);
+  result = self->m();
+  if (result != 0) {
+    FUN_00108aec(self);
   }
 }

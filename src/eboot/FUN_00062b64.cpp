@@ -1,11 +1,6 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00062b64 end=0x00062c5c symbol=FUN_00062b64 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-struct Obj {
-  int pad;
-  int f4;
-  unsigned char f8;
-  int fc;
-};
+#include "hst/sound_player.h"
 
 extern "C" int FUN_00076454(int a, int b);
 extern "C" int FUN_000761a8(int a, int b, int c);
@@ -13,27 +8,29 @@ extern "C" void FUN_00077470(int a, int b, int c);
 extern "C" int FUN_000777b4(int a);
 extern "C" void FUN_0007771c(int a, int b);
 
-extern "C" int FUN_00062b64(Obj *self, int p2, int p3)
+/* Starts a sound from the player's source and returns its handle (-1 when there is no source). When tracking
+   the last handle, the previous one is closed first and the new one is remembered. */
+extern "C" int FUN_00062b64(SoundPlayer *self, int arg_a, int arg_b)
 {
-  if (self->f4 < 0) {
+  if (self->source < 0) {
     return -1;
   }
-  if (self->f8 != 0) {
-    int old = self->fc;
+  if (self->track_last != 0) {
+    int old = self->last_handle;
     if (old >= 0) {
       FUN_00076454(old, 0);
-      if (self->f8 != 0 && self->fc == old) {
-        self->fc = -1;
+      if (self->track_last != 0 && self->last_handle == old) {
+        self->last_handle = -1;
       }
     }
   }
-  int r = FUN_000761a8(self->f4, p2, p3);
-  if (self->f8 != 0 && r >= 0) {
-    FUN_00077470(r, 0, 0x10000);
-    self->fc = r;
+  int handle = FUN_000761a8(self->source, arg_a, arg_b);
+  if (self->track_last != 0 && handle >= 0) {
+    FUN_00077470(handle, 0, 0x10000);
+    self->last_handle = handle;
   }
-  if (r >= 0 && FUN_000777b4(r) == 0) {
-    FUN_0007771c(r, 2);
+  if (handle >= 0 && FUN_000777b4(handle) == 0) {
+    FUN_0007771c(handle, 2);
   }
-  return r;
+  return handle;
 }

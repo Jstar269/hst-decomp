@@ -1,14 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025a378 end=0x0025a3a8 symbol=FUN_0025a378 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/block_deque.h"
 
-u32 * FUN_0025a378(u32 *param_1,u32 *param_2,u32 param_3,u32 param_4)
+/* Build a deque position from a map cursor plus the element and block end inside its block. */
+BlockDequePos * FUN_0025a378(BlockDequePos *out, BlockDequePos *map_pos, char *elem, char *block_end)
 {
-  *param_1 = *param_2;
-  param_1[1] = param_2[1];
-  param_1[2] = param_2[2];
-  param_1[3] = param_2[3];
-  param_1[4] = param_3;
-  param_1[5] = param_4;
-  return param_1;
+  out->map_cur = map_pos->map_cur;
+  out->map_begin = map_pos->map_begin;
+  out->map_head = map_pos->map_head;
+  out->map_end = map_pos->map_end;
+  out->elem = elem;
+  out->block_end = block_end;
+  return out;
 }

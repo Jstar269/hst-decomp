@@ -27,14 +27,18 @@ struct Mgr {
     Player *players[8];
     Cam *cam;
 };
+/* Two joint indices per player. */
 struct Pair {
-    int a;
-    int b;
+    int a; /* first joint */
+    int b; /* second joint */
     char pad[0x1c];
 };
+#define PLAYER_PAIRS 4
+#define FX_RANGE 3500.0f
+
 struct Self {
     char pad[0xe0];
-    Pair pairs[4];
+    Pair pairs[PLAYER_PAIRS]; /* 0xe0 */
 };
 
 extern Mgr *DAT_003386b0;
@@ -46,6 +50,7 @@ int FUN_000ca4a4();
 void FUN_000ce754(int id, float a, float b, float c, Mat4 *m, int n, int f);
 }
 
+/* Copies the joint position onto the matrix translation with y flattened to the ground (0). */
 static inline void SetGroundPos(Mat4 &m, const Vec4 &p)
 {
     m.r3.x = p.x;
@@ -54,6 +59,7 @@ static inline void SetGroundPos(Mat4 &m, const Vec4 &p)
     m.r3.w = p.w;
 }
 
+/* For one player: takes the two joint positions from the model, flattens them onto the ground plane and submits an effect for each. */
 extern "C" void FUN_000ce3f8(Self *self, int idx)
 {
     Model *model = DAT_003386b0->players[idx]->model;
@@ -75,6 +81,6 @@ extern "C" void FUN_000ce3f8(Self *self, int idx)
         n = 2;
     else
         n = 3;
-    FUN_000ce754(DAT_003386b0->cam->id, 3500.0f, 1.0f, 0.0f, &m1, n, 1);
-    FUN_000ce754(DAT_003386b0->cam->id, 3500.0f, 1.0f, 0.0f, &m2, n, 1);
+    FUN_000ce754(DAT_003386b0->cam->id, FX_RANGE, 1.0f, 0.0f, &m1, n, 1);
+    FUN_000ce754(DAT_003386b0->cam->id, FX_RANGE, 1.0f, 0.0f, &m2, n, 1);
 }

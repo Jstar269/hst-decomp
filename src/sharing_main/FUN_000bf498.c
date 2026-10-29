@@ -6,17 +6,25 @@ extern u8 DAT_003b06a4;
 extern void FUN_00000a00();
 extern void FUN_000104e0();
 
-u32 * FUN_000bf498(u32 *param_1,short param_2)
+/* Object that owns one buffer at 0xc. */
+typedef struct BufferOwner {
+  const void *vtable; /* 0x0 */
+  char pad04[8];
+  void *buffer;       /* 0xc */
+} BufferOwner;
+
+/* Destructor: restores the vtable, frees the buffer, frees the object if delete_flag > 0. */
+BufferOwner * FUN_000bf498(BufferOwner *self,short delete_flag)
 {
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b06a4);
-    if ((param_1[3] != 0) && (param_1[3] != 0)) {
-      FUN_000104e0(param_1[3]);
-      param_1[3] = 0;
+  if (self != (BufferOwner *)0x0) {
+    self->vtable = &DAT_003b06a4;
+    if ((self->buffer != 0) && (self->buffer != 0)) {
+      FUN_000104e0(self->buffer);
+      self->buffer = 0;
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

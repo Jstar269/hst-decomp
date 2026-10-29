@@ -1,25 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b413c end=0x001b41c8 symbol=FUN_001b413c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: fixed parameter types, helper prototype and call arguments, and the early-return flow; exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: fixed parameter types, helper prototype and call arguments, and the early-return flow; readability pass; exact match verified; names and types await human review. */
+#include "hst/slot_fade.h"
 
 extern void FUN_000628e4();
 extern void FUN_00062b1c(int, float, int);
 
-void FUN_001b413c(int *param_3,float param_1,float param_2)
+/* Apply `level` (0.0f to 1.0f, scaled to 0..128) to handle_a and record it. */
+void FUN_001b413c(SlotFadeTable **ctx,float level,float amount)
 {
-  int iVar1;
+  SlotFadeTable *self;
   
-  iVar1 = *param_3;
-  if (*(int *)(iVar1 + 0x7ac) < 0) {
+  self = *ctx;
+  if (self->handle_a < 0) {
     return;
   }
-  FUN_00062b1c(*(int *)(iVar1 + 0x7ac),param_2,(int)(param_1 * 128.0f));
-  if (param_1 <= 0.0f) {
-    *(u32 *)(iVar1 + 2000) = *(u32 *)(iVar1 + 0x7ac);
+  FUN_00062b1c(self->handle_a,amount,(int)(level * 128.0f));
+  if (level <= 0.0f) {
+    self->handle_cur = self->handle_a;
   }
-  else if (*(int *)(iVar1 + 2000) >= 0) {
-    FUN_000628e4(*(int *)(iVar1 + 2000),0);
-    *(u32 *)(iVar1 + 2000) = 0xffffffff;
+  else if (self->handle_cur >= 0) {
+    FUN_000628e4(self->handle_cur,0);
+    self->handle_cur = -1;
   }
-  *(float *)(iVar1 + 0x7d4) = param_1;
+  self->level = level;
 }

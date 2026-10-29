@@ -15,6 +15,6 @@ struct Obj {
 
 float FUN_000a74f8(struct Obj *self)
 {
-  float a = FUN_001640d0(FUN_000b3c68(self), self->idx, 0) * 0.01f + DAT_0034129c * 0.01f;
-  return fabsf(a + (0.01f * FUN_00164290(FUN_000b3c68(self), self->idx)) * (float)DAT_00341284);
+  float offset = FUN_001640d0(FUN_000b3c68(self), self->idx, 0) * 0.01f + DAT_0034129c * 0.01f;
+  return fabsf(offset + (0.01f * FUN_00164290(FUN_000b3c68(self), self->idx)) * (float)DAT_00341284);
 }

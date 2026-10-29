@@ -8,14 +8,24 @@ extern void FUN_002a5ba8();
 extern void FUN_002aa06c();
 extern int FUN_002ad1a0();
 
-void FUN_002ad158(int param_1)
+typedef struct Target {
+  char pad00[0x28];
+  u32 unk28;  /* 0x28 cleared */
+} Target;
+
+typedef struct Holder {
+  char pad00[0x3c];
+  Target *target;  /* 0x3c */
+} Holder;
+
+void FUN_002ad158(Holder *self)
 {
-  int iVar1;
+  Target *target;
   
-  iVar1 = *(int *)(param_1 + 0x3c);
+  target = self->target;
   FUN_002ad1a0();
   FUN_00103cd4(0);
-  *(u32 *)(iVar1 + 0x28) = 0;
-  FUN_002aa06c(iVar1,3);
+  target->unk28 = 0;
+  FUN_002aa06c(target,3);
   FUN_002a5ba8(DAT_003ea8ec);
 }

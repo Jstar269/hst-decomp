@@ -75,7 +75,7 @@ extern "C" void FUN_00214e4c(Player *self, const Vec4 *param_2, int param_3)
 
         if (param_3 != 0) {
             Vec4 diff;
-            float fVar4;
+            float unit_len;
             float dist;
             float scale;
             float z;
@@ -85,8 +85,8 @@ extern "C" void FUN_00214e4c(Player *self, const Vec4 *param_2, int param_3)
 
             FUN_00022434(&diff, &self->f880, &self->f580);
             dist = sqrtf(diff.x * diff.x + diff.z * diff.z);
-            fVar4 = FUN_00163d68(FUN_000b3c68(self), self->f154) * 0.01f;
-            dist = (0.7f * (dist / fVar4)) * ((float)(int)(FUN_0001342c() & 0xfffff800) * 4.656613e-10f);
+            unit_len = FUN_00163d68(FUN_000b3c68(self), self->f154) * 0.01f;
+            dist = (0.7f * (dist / unit_len)) * ((float)(int)(FUN_0001342c() & 0xfffff800) * 4.656613e-10f);
 
             if (self->f8a5 != 0) {
                 float s = FUN_00215a58(self)->f5c + FUN_00215a20(self)->f5c;
@@ -117,4 +117,4 @@ extern "C" void FUN_00214e4c(Player *self, const Vec4 *param_2, int param_3)
 // The random factors are written with the FUN_0001342c() call inside the expression (as a FRAND-style macro would
 // expand). MWCC orders commutative operands by Sethi-Ullman weight, lighter operand first (fs), a call being the
 // heaviest; with the call result held in a local first, the random product (weight 1) outweighed nothing and took fs
-// of the final mul.s (1 word off); with the call in the operand, `0.7f * (dist / fVar4)` keeps fs like retail.
+// of the final mul.s (1 word off); with the call in the operand, `0.7f * (dist / unit_len)` keeps fs like retail.

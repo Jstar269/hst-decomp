@@ -1,109 +1,82 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021e2d4 end=0x0021e4cc symbol=FUN_0021e2d4 lang=c++ */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Derived from: try/gen-a1/v0c/FUN_0021e2d4.c (tag: a1) */
-struct VC {
-    virtual void d0();
-    virtual void m(int);
-};
+#include "hst/digit_panel.h"
 
-struct Sub16c {
-    char pad[0x68];
-    int cur;
-    int pad6c;
-    VC *slots[3];
-};
+/* Glyph table: ints, DIGIT_TABLE_STRIDE per row; the tens and ones digit bases are at these indices. */
+enum { DIGIT_TABLE_TENS = 2, DIGIT_TABLE_ONES = 5, DIGIT_TABLE_STRIDE = 0x12 };
 
-struct Widget {
-    char pad[0x24];
-    int v24;
-    int v28;
-};
-
-struct Row24 {
-    Widget *w60;
-    Widget *w64;
-    char pad[0x10];
-};
-
-struct Self {
-    char pad54[0x54];
-    VC *vc54[3];
-    Row24 rows[3];
-    char pada8[0x16c - 0xa8];
-    Sub16c *sub16c;
-    char pad170[0x1c8 - 0x170];
-    int mode;
-    int val;
-    int pad1d0;
-    float f1d4;
-};
+/* Word index of LayerGroup.layer[0], used while walking the group as an int array. */
+enum { GROUP_LAYER_WORD = 0x1c };
 
 extern "C" {
 extern int DAT_002f0694[];
-extern void FUN_000ffb3c(Widget *, int);
+extern void FUN_000ffb3c(PaneItem *, int);
 
-void FUN_0021e2d4(Self *param_1, int param_2)
+/* Select layer `cursor` (show it, hide the others) and refresh that layer's two digits from `value`. */
+void FUN_0021e2d4(DigitPanel *self, int cursor)
 {
-    Self *iVar6;
-    int iVar5;
-    int iVar10;
-    Self *iVar9;
-    int *puVar7;
-    int iVar8;
+    DigitPanel *layer_base; /* advanced one layer slot (4 bytes) per pass */
+    int i;
+    int row;
+    int j;
+    DigitPanel *row_base; /* advanced one DigitRow per pass */
+    int *table;
+    int dec;
 
-    param_1->mode = param_2;
-    Sub16c *sub = param_1->sub16c;
-    sub->cur = param_2;
-    iVar9 = 0;
-    puVar7 = (int *)sub;
+    self->cursor = cursor;
+    LayerGroup *group = self->group;
+    group->cur = cursor;
+    j = 0;
+    table = (int *)group;
     do {
-        ((VC *)puVar7[0x1c])->m(1);
-        iVar9 = (Self *)((int)iVar9 + 1);
-        puVar7++;
-    } while ((int)iVar9 < 3);
-    sub->slots[sub->cur]->m(0);
-    iVar5 = 0;
-    iVar6 = param_1;
+        ((PosLayer *)table[GROUP_LAYER_WORD])->set_hidden(1);
+        j++;
+        table++;
+    } while (j < DIGIT_PANEL_ROWS);
+    group->layer[group->cur]->set_hidden(0);
+    i = 0;
+    layer_base = self;
     do {
-        iVar6->vc54[0]->m(iVar5 != param_1->mode);
-        if (iVar5 == param_1->mode) {
-            iVar8 = param_1->val - 1;
-            if (iVar8 != -1) {
-                param_1->val = iVar8 + 1;
+        layer_base->layer[0]->set_hidden(i != self->cursor);
+        if (i == self->cursor) {
+            dec = self->value - 1;
+            if (dec != -1) {
+                self->value = dec + 1;
             }
-            iVar10 = 0;
-            iVar9 = param_1;
-            puVar7 = DAT_002f0694;
+            row = 0;
+            row_base = self;
+            table = DAT_002f0694;
             do {
-                if (iVar8 == -1) {
-                    FUN_000ffb3c(iVar9->rows[0].w60, 1);
-                    int v = 10 + puVar7[5];
-                    Widget *w = iVar9->rows[0].w64;
-                    w->v24 = v;
-                    w->v28 = v;
+                if (dec == -1) {
+                    FUN_000ffb3c(row_base->row[0].tens, 1);
+                    int v = 10 + table[DIGIT_TABLE_ONES];
+                    PaneItem *w = row_base->row[0].ones;
+                    w->unk24 = v;
+                    w->unk28 = v;
                 } else {
-                    int bVar4 = param_1->val < 10;
-                    if (bVar4 == 0) {
-                        bVar4 = iVar10 != param_1->mode;
+                    int hide = self->value < 10;
+                    if (hide == 0) {
+                        hide = row != self->cursor;
                     }
-                    FUN_000ffb3c(iVar9->rows[0].w60, bVar4);
-                    int v = param_1->val / 10 + puVar7[2];
-                    Widget *w = iVar9->rows[0].w60;
-                    w->v24 = v;
-                    w->v28 = v;
-                    v = param_1->val % 10 + puVar7[5];
-                    w = iVar9->rows[0].w64;
-                    w->v24 = v;
-                    w->v28 = v;
+                    FUN_000ffb3c(row_base->row[0].tens, hide);
+                    int v = self->value / 10 + table[DIGIT_TABLE_TENS];
+                    PaneItem *w = row_base->row[0].tens;
+                    w->unk24 = v;
+                    w->unk28 = v;
+                    v = self->value % 10 + table[DIGIT_TABLE_ONES];
+                    w = row_base->row[0].ones;
+                    w->unk24 = v;
+                    w->unk28 = v;
                 }
-                iVar10++;
-                iVar9 = (Self *)((char *)iVar9 + 0x18);
-                puVar7 += 0x12;
-            } while (iVar10 < 3);
+                row++;
+                row_base = (DigitPanel *)((char *)row_base + sizeof(DigitRow));
+                table += DIGIT_TABLE_STRIDE;
+            } while (row < DIGIT_PANEL_ROWS);
         }
-        iVar5++;
-        iVar6 = (Self *)((char *)iVar6 + 4);
-    } while (iVar5 < 3);
-    param_1->f1d4 = (param_1->mode == 2) ? 84.0f : 95.0f;
+        i++;
+        layer_base = (DigitPanel *)((char *)layer_base + 4);
+    } while (i < DIGIT_PANEL_ROWS);
+    self->unk1d4 = (self->cursor == 2) ? 84.0f : 95.0f;
 }
 }

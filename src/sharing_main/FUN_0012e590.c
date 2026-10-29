@@ -5,10 +5,11 @@
 extern u32 FUN_001303ec();
 extern void FUN_00131538();
 
+/* Passes the result of FUN_001303ec on to FUN_00131538. */
 void FUN_0012e590(void)
 {
-  u32 uVar1;
+  u32 value;
   
-  uVar1 = FUN_001303ec();
-  FUN_00131538(uVar1);
+  value = FUN_001303ec();
+  FUN_00131538(value);
 }

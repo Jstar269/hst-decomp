@@ -8,20 +8,22 @@ extern void FUN_00000a00(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" int * FUN_00291588(int *param_1,short param_2)
+/* Deleting destructor of a holder: deletes the owned object (first word), clears the global
+   instance pointer and frees the holder itself when delete_flag > 0. */
+extern "C" int * FUN_00291588(int *self,short delete_flag)
 {
-  int *piVar1;
-  
-  if (param_1 != (int *)0x0) {
-    piVar1 = (int *)*param_1;
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      *param_1 = 0;
+  int *owned;
+
+  if (self != (int *)0x0) {
+    owned = (int *)*self;
+    if (owned != (int *)0x0) {
+      delete ((VC_0 *)(owned));
+      *self = 0;
     }
     DAT_003f3b20 = 0;
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

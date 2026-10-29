@@ -1,36 +1,51 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000f1b6c end=0x000f1c7c symbol=FUN_000f1b6c lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: float tests written with the parameter on the left (`p > 2.0f`, `p >= x`), which MWCC compiles to c.ngt.s/c.nge.s + bc1t where Ghidra's `2.0f < p` / `x <= p` gave c.lt.s/c.le.s + bc1f; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: float tests written with the parameter on the left (`p > 2.0f`, `p >= x`), which MWCC compiles to c.ngt.s/c.nge.s + bc1t where Ghidra's `2.0f < p` / `x <= p` gave c.lt.s/c.le.s + bc1f; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern "C" {
 extern void FUN_0010e5b8(...);
 }
-struct VC_0 { virtual void d0(); virtual void m(int); };
-struct VC_1 { virtual void d0(); virtual void m(int); };
-struct VC_2 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void m(int); };
-struct VC_3 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void m(int); };
-struct VC_4 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void m(int); };
+#define TIME_SWITCH 2.0f /* time above which the first mode is chosen */
 
-extern "C" void FUN_000f1b6c(float param_1,int param_2)
+/* Polymorphic widget; only the two setters used here are named (by their vtable slot). */
+struct Widget {
+  virtual void d0();
+  virtual void Set1(int);
+  virtual void d2();
+  virtual void d3();
+  virtual void Set4(int);
+};
+
+struct Self {
+  char pad00[0x68];
+  Widget *widget;   /* 0x68 */
+  char pad6c[0x18];
+  float limitLow;   /* 0x84 */
+  float limitHigh;  /* 0x88 */
+};
+
+/* Picks a state for the widget from the time value: a mode (0 or 1) at the 2.0f switch, then one of three
+   packed values by comparing against the two limits. */
+extern "C" void FUN_000f1b6c(float time,Self *self)
 {
-  float fVar1;
+  float limit;
   
-  if (param_1 > 2.0f) {
-    ((VC_0 *)(*(int **)(param_2 + 0x68)))->m((int)(0));
-    FUN_0010e5b8(*(u32 *)(param_2 + 0x68),0,0,(int)param_1,7,0,0,3);
-    fVar1 = *(float *)(param_2 + 0x88);
+  if (time > TIME_SWITCH) {
+    self->widget->Set1(0);
+    FUN_0010e5b8(self->widget,0,0,(int)time,7,0,0,3);
+    limit = self->limitHigh;
   }
   else {
-    ((VC_1 *)(*(int **)(param_2 + 0x68)))->m((int)(1));
-    fVar1 = *(float *)(param_2 + 0x88);
+    self->widget->Set1(1);
+    limit = self->limitHigh;
   }
-  if (param_1 >= fVar1) {
-    ((VC_2 *)(*(int **)(param_2 + 0x68)))->m((int)(0x80673376));
+  if (time >= limit) {
+    self->widget->Set4((int)0x80673376);
   }
-  else if (param_1 >= *(float *)(param_2 + 0x84)) {
-    ((VC_3 *)(*(int **)(param_2 + 0x68)))->m((int)(0x8000427f));
+  else if (time >= self->limitLow) {
+    self->widget->Set4((int)0x8000427f);
   }
   else {
-    ((VC_4 *)(*(int **)(param_2 + 0x68)))->m((int)(0x801a1c75));
+    self->widget->Set4((int)0x801a1c75);
   }
 }

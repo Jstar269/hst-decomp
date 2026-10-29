@@ -5,12 +5,22 @@
 extern u8 DAT_003b2f1c;
 extern u32 * FUN_00061cb0();
 
-u32 * FUN_0028de10(u32 *param_1)
+typedef struct InitObj {
+  const void *vtable; /* 0x00 */
+  char pad04[0x84 - 4];
+  u32 unk84; /* 0x84 */
+  char pad88[0x90 - 0x88];
+  u32 unk90; /* 0x90 */
+  u32 unk94; /* 0x94 */
+} InitObj;
+
+/* Constructor: base constructor, class vtable, three fields set. */
+InitObj * FUN_0028de10(InitObj *self)
 {
   FUN_00061cb0();
-  *param_1 = (unsigned int)(&DAT_003b2f1c);
-  param_1[0x24] = 0;
-  param_1[0x25] = 0;
-  param_1[0x21] = 0x40000000;
-  return param_1;
+  self->vtable = &DAT_003b2f1c;
+  self->unk90 = 0;
+  self->unk94 = 0;
+  self->unk84 = 0x40000000;
+  return self;
 }

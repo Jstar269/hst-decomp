@@ -4,9 +4,9 @@
    or, with no player, for the current player (index from 0x338ac4 when the 0x3386b8 flag is set, else 0).
    Names provisional. */
 struct Obj_0016a508;
-struct Player_0016a508 { char pad[0x154]; Obj_0016a508 *o; };
+struct Player_0016a508 { char pad[0x154]; Obj_0016a508 *obj; /* 0x154 */ };
 struct Game_0016a508 { char pad[0x70]; Player_0016a508 *players[4]; };
-struct Cur_0016a508 { char pad[0x198]; int idx; };
+struct Cur_0016a508 { char pad[0x198]; int idx; /* 0x198 */ };
 extern "C" {
 extern float DAT_002e0450;
 extern float DAT_002e0454;
@@ -16,16 +16,16 @@ extern bool DAT_003386b8;
 extern Cur_0016a508 *DAT_00338ac4;
 float FUN_00195a18(float a, float b, Obj_0016a508 *o);
 }
-extern "C" float FUN_0016a508(float x, Player_0016a508 *p)
+extern "C" float FUN_0016a508(float x, Player_0016a508 *player)
 {
-    float f;
-    if (p) {
-        f = FUN_00195a18(DAT_002e0450, DAT_002e0454, p->o);
+    float curve;
+    if (player) {
+        curve = FUN_00195a18(DAT_002e0450, DAT_002e0454, player->obj);
     } else {
-        int i = 0;
+        int index = 0;
         if (DAT_003386b8 && DAT_00338ac4)
-            i = DAT_00338ac4->idx;
-        f = FUN_00195a18(DAT_002e0450, DAT_002e0454, DAT_003386b0->players[i]->o);
+            index = DAT_00338ac4->idx;
+        curve = FUN_00195a18(DAT_002e0450, DAT_002e0454, DAT_003386b0->players[index]->obj);
     }
-    return x + DAT_002e0458 * (f - 1.0f);
+    return x + DAT_002e0458 * (curve - 1.0f);
 }

@@ -5,11 +5,15 @@ extern "C" {
 extern void FUN_00108f54(...);
 extern void FUN_0026db70(...);
 }
-struct VC_0 { virtual void d0(); virtual void d1(); virtual void m(int); };
+struct Widget { virtual void d0(); virtual void d1(); virtual void m(int); };
+struct Holder {
+  char pad00[0x68];
+  Widget *widget;  /* 0x68 */
+};
 
-extern "C" void FUN_0026db2c(int param_1)
+extern "C" void FUN_0026db2c(Holder *self)
 {
-  FUN_00108f54(param_1,1);
-  ((VC_0 *)(*(int **)(param_1 + 0x68)))->m((int)(0));
-  FUN_0026db70(param_1);
+  FUN_00108f54(self,1);
+  self->widget->m(0);
+  FUN_0026db70(self);
 }

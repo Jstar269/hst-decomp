@@ -1,41 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0008a634 end=0x0008a72c symbol=FUN_0008a634 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/play_flow.h"
+
 extern void FUN_002aef68(void *ctx);
 extern int FUN_001fb4fc(void);
 extern void FUN_0015d244(int value, int mode);
 extern void FUN_00234158(int *timer, int frames);
 extern int DAT_0034a678;
 
-struct Sub {
-  unsigned char pad00[0x515];
-  unsigned char f515;         /* 0x515 */
-  unsigned char f516;         /* 0x516 */
-  unsigned char pad517[0x8b];
-  unsigned char f5a2;         /* 0x5a2 */
-};
-
-struct Obj {
-  unsigned char pad00[0x40];
-  int f40;                    /* 0x40 */
-  int state;                  /* 0x44 */
-  int f48;                    /* 0x48 */
-  unsigned char pad4c[0x54];
-  struct Sub *sub;            /* 0xa0 */
-  void *ctx;                  /* 0xa4 */
-};
-
-void FUN_0008a634(struct Obj *param_1)
+/* Two-step handler: step 0 resets and advances; step 1 polls the context and picks the follow-up from the helper's flags. */
+void FUN_0008a634(PlayFlowObj *self)
 {
-  switch (param_1->state) {
+  switch (self->step) {
   case 0:
-    param_1->f48 = 0;
-    param_1->state = param_1->state + 1;
+    self->unk48 = 0;
+    self->step = self->step + 1;
     break;
   case 1:
-    FUN_002aef68(param_1->ctx);
-    if (param_1->sub->f515 != 0) {
+    FUN_002aef68(self->ctx);
+    if (self->sub->unk515 != 0) {
       if (FUN_001fb4fc() != 0) {
-        if (param_1->sub->f5a2 != 0) {
+        if (self->sub->unk5a2 != 0) {
           FUN_0015d244(DAT_0034a678, 1);
           FUN_00234158(&DAT_0034a678, 75);
         }
@@ -48,8 +33,8 @@ void FUN_0008a634(struct Obj *param_1)
         FUN_00234158(&DAT_0034a678, 75);
       }
     }
-    else if (param_1->sub->f516 != 0) {
-      param_1->f40 = 10;
+    else if (self->sub->unk516 != 0) {
+      self->nextState = 10;
     }
     break;
   }

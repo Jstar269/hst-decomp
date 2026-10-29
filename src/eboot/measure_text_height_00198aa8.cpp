@@ -1,74 +1,55 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00198aa8 end=0x00198cb8 symbol=FUN_00198aa8 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-/* Measures the pixel height of a text string (sibling of text_layout_string_00197834.cpp and copy_string_tokens_00198098.cpp; called in set_text_and_measure_0010ef0c.cpp to compute o->f904): initializes Rec with default values (f0c=f10=1, f22=-32, f24=16) or copies param_3; walks string tokens with FUN_000447b8; control codes 7,8,11,12 skipped via FUN_00198cb8; '*Y' adds single-digit vertical skip; newline adds line height and resets line height to 0; other glyphs query FUN_0004490c and update line height. */
+/* Measures the pixel height of a text string (sibling of text_layout_string_00197834.cpp and copy_string_tokens_00198098.cpp; called in set_text_and_measure_0010ef0c.cpp to compute o->f904): initializes the style with default values (scales 1, unk22=-32, unk24=16) or copies the one passed in; walks string tokens with FUN_000447b8; control codes 7,8,11,12 skipped via FUN_00198cb8; '*Y' adds single-digit vertical skip; newline adds line height and resets line height to 0; other glyphs query FUN_0004490c and update line height. */
+#include "hst/text_draw.h"
+#include "hst/glyph_style.h"
 
-struct Font;
+#define DEFAULT_LINE_HEIGHT 16.0f /* line height before any glyph is seen */
+#define NEWLINE_CODE 10
+#define SKIP_ESCAPE 0x2a          /* '*' starts a two-character vertical-skip escape ('Y' then a digit) */
 
-struct Glyphs {
-    char pad0[0x18];
-    float scale;
-};
-
-struct Text {
-    Font *font;             /* 0x00 */
-    char pad04[0x40 - 0x04];
-    float x;                /* 0x40 */
-    float y;                /* 0x44 */
-    char pad48[0x50 - 0x48];
-    unsigned short depth;   /* 0x50 */
-    char pad52[0x60 - 0x52];
-    float iconW;            /* 0x60 */
-    float scale;            /* 0x64 */
-    char pad68[0x70 - 0x68];
-    float charSize;         /* 0x70 */
-    float lineGap;          /* 0x74 */
-    char pad78[0x80 - 0x78];
-    unsigned char busy;     /* 0x80 */
-    char pad81[0x84 - 0x81];
-    int color;              /* 0x84 */
-};
-
-struct Rec {
-    float x;            /* 0x00 */
-    float y;            /* 0x04 */
-    unsigned short w8;  /* 0x08 */
-    float f0c;          /* 0x0c */
-    float f10;          /* 0x10 */
-    float f14;          /* 0x14 */
-    float f18;          /* 0x18 */
-    char f1c;           /* 0x1c */
-    short f1e;          /* 0x1e */
-    short f20;          /* 0x20 */
-    short f22;          /* 0x22 */
-    short f24;          /* 0x24 */
-
-    Rec() : f0c(1.0f), f10(1.0f), f22(-32), f24(16), x(0.0f), y(0.0f), w8(0), f14(0.0f), f18(0.0f), f1c(0), f1e(0), f20(0) {}
-};
+/* Fills a style record with the default values the layout starts from. */
+static inline void SetDefaults(GlyphStyle &r)
+{
+    r.x = 0.0f;
+    r.y = 0.0f;
+    r.w8 = 0;
+    r.scaleX = 1.0f;
+    r.scaleY = 1.0f;
+    r.spacing = 0.0f;
+    r.lineGap = 0.0f;
+    r.fixedPitch = 0;
+    r.unk1e = 0;
+    r.unk20 = 0;
+    r.unk22 = -32;
+    r.unk24 = 16;
+}
 
 struct TokenRec {
     unsigned short kind;
 };
 
 extern "C" {
-extern int FUN_000447b8(Font *, unsigned short *, const char *);
-extern int FUN_00198cb8(Text *, TokenRec *);
-extern float FUN_0004490c(Font *, unsigned short, Rec *);
+extern int FUN_000447b8(TextFont *, unsigned short *, const char *);
+extern int FUN_00198cb8(TextDraw *, TokenRec *);
+extern float FUN_0004490c(TextFont *, unsigned short, GlyphStyle *);
 }
 
-extern "C" int FUN_00198aa8(Text *self, const char *s, Rec *param_3)
+extern "C" int FUN_00198aa8(TextDraw *self, const char *s, GlyphStyle *style_in)
 {
-    Rec rec;
-    float lineH = 16.0f;
+    GlyphStyle rec;
+    SetDefaults(rec);
+    float lineH = DEFAULT_LINE_HEIGHT;
     float totalH = 0.0f;
 
-    if (param_3 != 0) {
-        rec = *param_3;
+    if (style_in != 0) {
+        rec = *style_in;
     } else {
-        rec.f0c = self->iconW;
-        rec.f10 = self->scale;
-        rec.f14 = self->charSize;
-        rec.f18 = self->lineGap;
-        rec.f1c = (char)self->color;
+        rec.scaleX = self->cellW;
+        rec.scaleY = self->cellH;
+        rec.spacing = self->spacing;
+        rec.lineGap = self->lineGap;
+        rec.fixedPitch = (char)self->color;
     }
 
     unsigned short code;
@@ -78,14 +59,14 @@ extern "C" int FUN_00198aa8(Text *self, const char *s, Rec *param_3)
             len++;
         } else {
             int c = code;
-            if (c == 0x2a && s[1] == 'Y') {
+            if (c == SKIP_ESCAPE && s[1] == 'Y') {
                 totalH += (float)(s[2] - '0');
                 s += 2;
-            } else if (c == 10) {
+            } else if (c == NEWLINE_CODE) {
                 totalH += lineH;
                 lineH = 0.0f;
             } else {
-                float h = rec.f18 + FUN_0004490c(*(Font * volatile *)&self->font, *(volatile unsigned short *)&code, &rec);
+                float h = rec.lineGap + FUN_0004490c(*(TextFont * volatile *)&self->font, *(volatile unsigned short *)&code, &rec);
                 if (lineH < h) {
                     lineH = h;
                 }
@@ -94,7 +75,7 @@ extern "C" int FUN_00198aa8(Text *self, const char *s, Rec *param_3)
         s += len;
     }
 
-    if (code != 10 && FUN_00198cb8(self, (TokenRec *)&code) == 0) {
+    if (code != NEWLINE_CODE && FUN_00198cb8(self, (TokenRec *)&code) == 0) {
         totalH += lineH;
     }
     return (int)totalH;

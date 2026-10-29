@@ -3,24 +3,22 @@
 /* Closes the handle (when it is not negative), clears the cached handle at +0xc when it still
    matches, then spins up to 30 times calling FUN_00062150(30.0f)/FUN_002b7a78() until the global
    counter DAT_00331b80 has changed from the value saved on entry. */
-struct Obj {
-  int pad[2];
-  unsigned char f8;
-  int fc;
-};
+#include "hst/sound_player.h"
+
+#define WAIT_PASSES 30
 
 extern "C" int DAT_00331b80;
 extern "C" void FUN_00076454(int a, int b);
 extern "C" void FUN_00062150(float f);
 extern "C" void FUN_002b7a78();
 
-extern "C" void FUN_00062e40(Obj *self, int handle)
+extern "C" void FUN_00062e40(SoundPlayer *self, int handle)
 {
   int old = DAT_00331b80;
   if (handle >= 0) {
     FUN_00076454(handle, 0);
-    if (self->f8 != 0 && self->fc == handle) {
-      self->fc = -1;
+    if (self->track_last != 0 && self->last_handle == handle) {
+      self->last_handle = -1;
     }
   }
   int i = 0;
@@ -31,5 +29,5 @@ extern "C" void FUN_00062e40(Obj *self, int handle)
     FUN_00062150(30.0f);
     FUN_002b7a78();
     i++;
-  } while (i < 30);
+  } while (i < WAIT_PASSES);
 }

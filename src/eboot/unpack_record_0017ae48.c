@@ -12,38 +12,38 @@ extern float FUN_00065140(void *p2, int idx, int field);
 extern int FUN_00065104(void *p2, int idx, int field);
 extern void FUN_00014b74(void *dst, const void *src, unsigned int size);
 
-void FUN_0017ae48(void *param_1, void *param_2, void *param_3)
+void FUN_0017ae48(void *out, void *csv, void *path)
 {
-    FUN_000651b8(param_2, param_3, 0, 0, &DAT_002e0694);
-    int count = FUN_000650e0(param_2);
+    FUN_000651b8(csv, path, 0, 0, &DAT_002e0694);
+    int count = FUN_000650e0(csv);
 
     int offset = 0;
     for (int i = 1; i < count; i++) {
-        FUN_0006517c(param_2, i, 0);
-        char *type_str = (char *)FUN_0006517c(param_2, i, 1);
+        FUN_0006517c(csv, i, 0);
+        char *type_str = (char *)FUN_0006517c(csv, i, 1);
         char type = *type_str;
 
         if (type == 'f') {
-            float val = FUN_00065140(param_2, i, 4);
-            float min = FUN_00065140(param_2, i, 2);
-            float max = FUN_00065140(param_2, i, 3);
+            float val = FUN_00065140(csv, i, 4);
+            float min = FUN_00065140(csv, i, 2);
+            float max = FUN_00065140(csv, i, 3);
             if (min <= val && val <= max) {
-                *(float *)((char *)param_1 + (offset & -4)) = val;
+                *(float *)((char *)out + (offset & -4)) = val;
                 offset += 4;
             }
         } else if (type == 'i') {
-            int val = FUN_00065104(param_2, i, 4);
-            int min = FUN_00065104(param_2, i, 2);
-            int max = FUN_00065104(param_2, i, 3);
+            int val = FUN_00065104(csv, i, 4);
+            int min = FUN_00065104(csv, i, 2);
+            int max = FUN_00065104(csv, i, 3);
             if (min <= val) {
                 if (val <= max) {
-                    *(int *)((char *)param_1 + (offset & -4)) = val;
+                    *(int *)((char *)out + (offset & -4)) = val;
                     offset += 4;
                 }
             }
         } else if (type == 's') {
-            void *str = FUN_0006517c(param_2, i, 4);
-            FUN_00014b74((char *)param_1 + offset, str, 0x20);
+            void *str = FUN_0006517c(csv, i, 4);
+            FUN_00014b74((char *)out + offset, str, 0x20);
             offset += 8;
         }
     }

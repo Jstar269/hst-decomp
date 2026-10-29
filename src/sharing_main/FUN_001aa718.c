@@ -9,26 +9,34 @@ extern void FUN_00000a00();
 extern u32 * FUN_0010642c();
 extern int * FUN_0010d2d4();
 
-u32 * FUN_001aa718(u32 *param_1,short param_2)
+/* Object with a member at +0x120 destroyed before the base part. */
+typedef struct MemberOwner {
+  const void *vtable; /* 0x00 */
+  char pad04[0x11c];
+  u32 member[1];      /* 0x120 embedded member, torn down by the destructor */
+} MemberOwner;
+
+/* Deleting destructor: step the vtable down the class chain, destroy the member and the base part, free self when flags > 0. */
+MemberOwner * FUN_001aa718(MemberOwner *self,short flags)
 {
-  u32 *puVar1;
-  
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_003b24b4);
-    if (param_1 != (u32 *)0x0) {
-      puVar1 = param_1 + 0x48;
-      *param_1 = (unsigned int)(&DAT_003b122c);
-      if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-        FUN_0010d2d4(puVar1,0);
+  u32 *member;
+
+  if (self != (MemberOwner *)0x0) {
+    self->vtable = &DAT_003b24b4;
+    if (self != (MemberOwner *)0x0) {
+      member = self->member;
+      self->vtable = &DAT_003b122c;
+      if ((member != (u32 *)0x0) && (member != (u32 *)0x0)) {
+        FUN_0010d2d4(member,0);
       }
-      if (param_1 != (u32 *)0x0) {
-        *param_1 = (unsigned int)(&DAT_003b0a68);
-        FUN_0010642c(param_1,0);
+      if (self != (MemberOwner *)0x0) {
+        self->vtable = &DAT_003b0a68;
+        FUN_0010642c(self,0);
       }
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

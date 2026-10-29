@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000a3054 end=0x000a31b4 symbol=FUN_000a3054 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: clamp macro, angle scaling, componentwise matrix translation and copy; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: clamp macro, angle scaling, componentwise matrix translation and copy; readability pass; exact match verified; names and types await human review. */
+
+#include "hst/rig_obj.h"
 
 extern int DAT_00341284;
 extern int DAT_00341288;
@@ -19,30 +21,24 @@ struct Mat4 {
     };
 };
 
-struct Obj {
-    char pad[336];
-    int f150;      // 336 (0x150)
-    char pad2[1408 - 340];
-    struct Vec4 pos; // 1408 (0x580)
-};
-
-void FUN_000a3054(float *out, struct Obj *obj, _Bool flag, float angle)
+/* Builds a rotation matrix from a clamped angle (negated for the matching hand) and copies it to out with the object's position as the last row. */
+void FUN_000a3054(float *out, RigObj *obj, _Bool flag, float angle)
 {
     float val = (angle < (float)DAT_00341288) ? (float)DAT_00341288 : ((angle > (float)DAT_00341284) ? (float)DAT_00341284 : angle);
 
     val = (val * 0.87266463f) / (float)DAT_00341284;
 
-    if (flag == (obj->f150 == 0)) {
+    if (flag == (obj->hand == 0)) {
         val = val * -1.0f;
     }
 
     struct Mat4 local_mat;
     FUN_0004d2d4(val, &local_mat, &DAT_002bc410);
 
-    local_mat.r3.x = obj->pos.x;
-    local_mat.r3.y = obj->pos.y;
-    local_mat.r3.z = obj->pos.z;
-    local_mat.r3.w = obj->pos.w;
+    local_mat.r3.x = obj->rows[3].x;
+    local_mat.r3.y = obj->rows[3].y;
+    local_mat.r3.z = obj->rows[3].z;
+    local_mat.r3.w = obj->rows[3].w;
 
     out[0] = local_mat.m[0];
     out[1] = local_mat.m[1];

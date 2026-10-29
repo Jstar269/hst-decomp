@@ -5,8 +5,11 @@ extern void FUN_000007f4();
 extern void FUN_00089e74();
 extern void FUN_00245ebc();
 
-int FUN_00245e7c(int param_1)
+enum { ELEM_SIZE = 0xc, ELEM_COUNT = 3 };
+
+/* Constructs an array of ELEM_COUNT elements of ELEM_SIZE bytes (element constructor and destructor passed in). */
+int FUN_00245e7c(int array)
 {
-  FUN_000007f4(param_1,FUN_00245ebc,FUN_00089e74,0xc,3);
-  return param_1;
+  FUN_000007f4(array,FUN_00245ebc,FUN_00089e74,ELEM_SIZE,ELEM_COUNT);
+  return array;
 }

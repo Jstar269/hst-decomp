@@ -1,6 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ed27c end=0x001ed460 symbol=FUN_001ed27c lang=c++ data=0x002ee454 */
 /* PrizeCamera_LoadCommonCamera: data/prize/commoncamera.csv; see docs/DATA-TABLES.md Data: its string literals (9 strings, 0x002ee454-0x002ee4a6) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: C++ with an inline-constructed `new Res` (matching shape for `beqz v0; move s0,v0`), typed query results as floats, the two-entry item array indexed by the loop counter, first-call argument restored; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: C++ with an inline-constructed `new Res` (matching shape for `beqz v0; move s0,v0`), typed query results as floats, the two-entry item array indexed by the loop counter, first-call argument restored; readability pass; exact match verified; names and types await human review. */
+#include "hst/prize_camera.h"
+
 extern "C" {
 extern char DAT_002ee434[];
 extern char DAT_002ee450[];
@@ -12,6 +14,7 @@ extern float FUN_000657e4(void *, char *, int);
 extern void FUN_001ed460(void *);
 }
 
+/* Csv reader constructed in place. */
 struct Res {
   char pad[0x30];
   Res() {
@@ -22,34 +25,24 @@ struct Res {
   }
 };
 
-struct Item {
-  float a, b, c, d, e, f, g, h, i;
-};
-
-struct Obj {
-  char pad[0x90];
-  Res *res;
-  char pad2[8];
-  Item items[2];
-};
-
-extern "C" void FUN_001ed27c(Obj *self)
+/* Reads the camera settings for both modes from the csv into the entries (angles converted to radians). */
+extern "C" void FUN_001ed27c(PrizeCamera *self)
 {
   FUN_001ed460(self);
   Res *p = new Res;
   self->res = p;
   FUN_000651b8(p, DAT_002ee434, 1, 1, DAT_002ee450);
-  for (unsigned int i = 0; i < 2; i++) {
-    Item *it = &self->items[i];
+  for (unsigned int i = 0; i < PRIZE_CAM_ENTRY_COUNT; i++) {
+    PrizeCamEntry *it = &self->ent[i];
     int n = i + 1;
-    it->a = FUN_000657e4(self->res, "RotSpeed", n) * 0.017453292f * 0.033333335f;
-    it->b = FUN_000657e4(self->res, "Tilt", n) * 0.017453292f;
-    it->c = FUN_000657e4(self->res, "TiltWin", n) * 0.017453292f;
-    it->d = FUN_000657e4(self->res, "Distance", n);
-    it->e = FUN_000657e4(self->res, "FovX", n);
-    it->f = FUN_000657e4(self->res, "OffsetY", n);
-    it->g = FUN_000657e4(self->res, "Near", n);
-    it->h = FUN_000657e4(self->res, "Far", n);
-    it->i = FUN_000657e4(self->res, "DefaultAngleY", n) * 0.017453292f;
+    it->rot_speed = FUN_000657e4(self->res, "RotSpeed", n) * 0.017453292f * 0.033333335f;
+    it->tilt = FUN_000657e4(self->res, "Tilt", n) * 0.017453292f;
+    it->tilt_win = FUN_000657e4(self->res, "TiltWin", n) * 0.017453292f;
+    it->distance = FUN_000657e4(self->res, "Distance", n);
+    it->fov_x = FUN_000657e4(self->res, "FovX", n);
+    it->offset_y = FUN_000657e4(self->res, "OffsetY", n);
+    it->near_plane = FUN_000657e4(self->res, "Near", n);
+    it->far_plane = FUN_000657e4(self->res, "Far", n);
+    it->default_angle_y = FUN_000657e4(self->res, "DefaultAngleY", n) * 0.017453292f;
   }
 }

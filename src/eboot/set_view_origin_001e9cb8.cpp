@@ -66,14 +66,17 @@ extern "C" {
     void FUN_001e9cb8(Self *self);
 }
 
+/* Half of the 480x272 screen: the view origin is measured from the centre. */
+enum { SCREEN_CENTER_X = 240, SCREEN_CENTER_Y = 136, ORIGIN_LIFT = 26 };
+
 void FUN_001e9cb8(Self *self) {
-    int x = self->f54 + 240 + DAT_0034a134;
-    int y = self->f58 + 136 + DAT_002ed2bc;
+    int x = self->f54 + SCREEN_CENTER_X + DAT_0034a134;
+    int y = self->f58 + SCREEN_CENTER_Y + DAT_002ed2bc;
 
     bool flag = !DAT_00338b44->f45;
     int count = self->f419 ? 1 : self->f398;
     if (flag || !(count = (count < 4))) {
-        y -= 26;
+        y -= ORIGIN_LIFT;
     }
 
     Game *g = DAT_003415ac;

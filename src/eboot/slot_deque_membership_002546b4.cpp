@@ -1,6 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002546b4 end=0x0025488c symbol=FUN_002546b4 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* matching idiom: MSL-style deque<int> iterator (128 per block, iterator-at-position is the out-of-line FUN_0025a80c, see deque_make_iter_0025a80c.cpp); `Iter it;` declared then assigned so begin() goes through a temp copy into registers; operator++ stores end_ before cur_; != compares cur_ directly. */
+#include "hst/slot_queue.h"
+
 typedef int Elem;
 typedef Elem *Block;
 
@@ -36,57 +38,38 @@ struct Iter {
 inline bool operator==(const Iter &a, const Iter &b) { return a.cur_ == b.cur_; }
 inline bool operator!=(const Iter &a, const Iter &b) { return a.cur_ != b.cur_; }
 
-struct Map {
-  unsigned cap_;
-  unsigned size_;
-  unsigned start_;
-  Block *data_;
-};
+extern "C" Iter FUN_0025a80c(SlotDeque *d, unsigned pos);
 
-struct Deque;
-extern "C" Iter FUN_0025a80c(Deque *d, unsigned pos);
+/* Iterators at the start and past the end of the queue. */
+inline Iter DequeBegin(SlotDeque *q) { return FUN_0025a80c(q, 0); }
+inline Iter DequeEnd(SlotDeque *q) { return FUN_0025a80c(q, q->length); }
 
-struct Deque {
-  Map map_;
-  unsigned start_;
-  unsigned size_;
-  Iter begin() { return FUN_0025a80c(this, 0); }
-  Iter end() { return FUN_0025a80c(this, size_); }
-};
-
+/* Entry started for a slot; virtual slot 2 is called with the slot's value. */
 struct Ent {
   virtual void v0();
   virtual void v1();
   virtual void m(int);
 };
 
-struct Self {
-  char pad0[0x60];
-  int f60[36];
-  unsigned char f0[8];
-  int count;
-  char pad1[0x1dc - 0xfc];
-  int f1dc[4];
-  Deque dq;
-};
-
 extern "C" Ent *DAT_0034b340[];
 extern "C" void *DAT_003386c8;
-extern "C" int FUN_00254894(Self *, int);
+extern "C" int FUN_00254894(SlotQueueObj *, int);
 extern "C" void *FUN_0008d970(void *, int);
 extern "C" void FUN_00059174(void *);
 extern "C" void FUN_0005f0d8(void *);
 extern "C" void FUN_0005f1e8(void *, int);
 
-extern "C" void FUN_002546b4(Self *self)
+/* Per-frame update: for each slot, checks whether it is pending or queued. A slot that is neither and passes
+   the check calls its entry's virtual method; a queued or pending slot whose flag byte at 0xf0 is clear gets its pane helpers called. */
+extern "C" void FUN_002546b4(SlotQueueObj *self)
 {
   for (int i = 0; i < self->count; i++) {
     bool found = false;
-    if (self->f1dc[i] == 2) {
+    if (self->state[i] == SLOT_STATE_PENDING) {
       found = true;
     } else {
       Iter it;
-      for (it = self->dq.begin(); it != self->dq.end(); ++it) {
+      for (it = DequeBegin(&self->queue); it != DequeEnd(&self->queue); ++it) {
         if (*it == i) {
           found = true;
           break;
@@ -94,13 +77,13 @@ extern "C" void FUN_002546b4(Self *self)
       }
     }
     if (!found && FUN_00254894(self, i) != 0 && DAT_0034b340[i] != 0) {
-      DAT_0034b340[i]->m(self->f60[i]);
+      DAT_0034b340[i]->m(self->unk60[i]);
     }
-    if (found && self->f0[i] == 0) {
+    if (found && self->unkf0[i] == 0) {
       void *h = FUN_0008d970(DAT_003386c8, i);
       FUN_00059174(h);
       FUN_0005f0d8(h);
-      FUN_0005f1e8(FUN_0008d970(DAT_003386c8, i), self->f60[i]);
+      FUN_0005f1e8(FUN_0008d970(DAT_003386c8, i), self->unk60[i]);
     }
   }
 }

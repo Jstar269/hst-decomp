@@ -1,121 +1,64 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00136c90 end=0x00136e94 symbol=FUN_00136c90 lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; readability pass; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
 
-struct Tag {};
-
-struct Vec4 {
-    float x, y, z, w;
-} __attribute__((aligned(16)));
-
-struct Obj1 {
-    char pad[0x24c];
-    float f24c;
-    float f250;
-};
-
-class Obj_0023ed34 {
-public:
-    char pad0[0x3c];
-    char b3c;
-    char b3d;
-    char pad1[0x301 - 0x3e];
-    char b301;
-    char pad2[0x330 - 0x302];
-    void SetFlags() { b3c = 1; b3d = 1; b301 = 1; }
-};
-
-struct PVec1_00136c90;
-extern "C" void FUN_0013cb30(PVec1_00136c90 *v, Obj1 *const *x, Tag a);
-
-struct PVec1_00136c90 {
-    Obj1 **data;
-    unsigned size;
-    unsigned capacity;
-    void push_back(Obj1 *const &x)
-    {
-        if (size < capacity) {
-            unsigned idx = ++size - 1;
-            data[idx] = x;
-        } else {
-            FUN_0013cb30(this, &x, Tag());
-        }
-    }
-};
-
-struct PVec2_00136c90;
-extern "C" void FUN_0013ca84(PVec2_00136c90 *v, Obj_0023ed34 *const *x, Tag a);
-
-struct PVec2_00136c90 {
-    Obj_0023ed34 **data;
-    unsigned size;
-    unsigned capacity;
-    void push_back(Obj_0023ed34 *const &x)
-    {
-        if (size < capacity) {
-            ++size;
-            data[size - 1] = x;
-        } else {
-            FUN_0013ca84(this, &x, Tag());
-        }
-    }
-};
-
-struct Rec_00134414 {
-    int id;
-    int a;
-    int b;
-    int c;
-    float d;
-    float e;
-    int f;
-    int g;
-    int flagged;
-};
-
-struct Owner_00136c90 {
-    char pad0[0x1350];
-    float f1350;
-    float f1354;
-    char pad1[0x1398 - 0x1358];
-    PVec2_00136c90 objects2;
-    PVec1_00136c90 objects1;
-    char pad2[0x13cc - 0x13b0];
-    Rec_00134414 *records;
-    unsigned count;
-};
+#include "hst/court_spawn.h"
 
 extern "C" {
 void *operator new(unsigned int size);
-Obj1 *FUN_0024b5a0(void *mem, int arg);
-void FUN_0024ba68(Obj1 *obj, Vec4 *v1, Vec4 *v2);
+AreaObj *FUN_0024b5a0(void *mem, int arg);
+void FUN_0024ba68(AreaObj *obj, AlignedVec4 *v1, AlignedVec4 *v2);
 void FUN_0001f21c(void *owner, void *obj);
-Obj_0023ed34 *FUN_0023ed34(void *mem, int id);
-void FUN_0023fe08(Obj_0023ed34 *obj, int a1, int a2, int a3, float f1, float f2, int a6, int a7);
+PropObj *FUN_0023ed34(void *mem, int id);
+void FUN_0023fe08(PropObj *obj, int a1, int a2, int a3, float f1, float f2, int a6, int a7);
 }
 
-extern "C" void FUN_00136c90(Owner_00136c90 *self) {
-    Obj_0023ed34 *local_4;
-    Obj1 *local_8;
-    Vec4 v[3];
+extern "C" void FUN_0013cb30(AreaObjVec *v, AreaObj *const *x, EmptyTag a);
+extern "C" void FUN_0013ca84(PropObjVec *v, PropObj *const *x, EmptyTag a);
+
+inline void AreaObjVec::push_back(AreaObj *const &x)
+{
+    if (size < capacity) {
+        unsigned idx = ++size - 1;
+        data[idx] = x;
+    } else {
+        FUN_0013cb30(this, &x, EmptyTag());
+    }
+}
+
+inline void PropObjVec::push_back(PropObj *const &x)
+{
+    if (size < capacity) {
+        ++size;
+        data[size - 1] = x;
+    } else {
+        FUN_0013ca84(this, &x, EmptyTag());
+    }
+}
+
+/* Creates the area object and one prop object per record, registering each with the owner. */
+extern "C" void FUN_00136c90(SpawnCourt *self) {
+    PropObj *prop;
+    AreaObj *area;
+    AlignedVec4 v[3];   /* v[0], v[1]: opposite corners handed to the area object */
 
     for (unsigned i = 0; i < self->count; i++) {
-        Obj_0023ed34 *mem = (Obj_0023ed34 *)operator new(0x330);
-        if (mem)
-            mem = FUN_0023ed34(mem, self->records[i].id);
-        local_4 = mem;
-        Rec_00134414 *r = &self->records[i];
-        FUN_0023fe08(local_4, r->a, r->b, r->c, r->d, r->e, r->f, r->g);
+        PropObj *prop_mem = (PropObj *)operator new(0x330);
+        if (prop_mem)
+            prop_mem = FUN_0023ed34(prop_mem, self->records[i].id);
+        prop = prop_mem;
+        PropRecord *r = &self->records[i];
+        FUN_0023fe08(prop, r->unk4, r->unk8, r->unkc, r->unk10, r->unk14, r->unk18, r->unk1c);
         if (self->records[i].flagged)
-            local_4->SetFlags();
-        self->objects2.push_back(local_4);
-        FUN_0001f21c(self, local_4);
+            prop->SetFlags();
+        self->props.push_back(prop);
+        FUN_0001f21c(self, prop);
     }
 
-    Obj1 *mem1 = (Obj1 *)operator new(0x280);
-    if (mem1)
-        mem1 = FUN_0024b5a0(mem1, 10);
-    local_8 = mem1;
+    AreaObj *area_mem = (AreaObj *)operator new(0x280);
+    if (area_mem)
+        area_mem = FUN_0024b5a0(area_mem, 10);
+    area = area_mem;
 
     v[1].x = 12.0f;
     v[1].y = -7.0f;
@@ -126,14 +69,14 @@ extern "C" void FUN_00136c90(Owner_00136c90 *self) {
     v[0].w = 1.0f;
     v[0].x = -12.0f;
 
-    FUN_0024ba68(local_8, &v[1], &v[0]);
+    FUN_0024ba68(area, &v[1], &v[0]);
 
-    float f1 = self->f1354;
-    Obj1 *o = local_8;
-    o->f24c = self->f1350;
-    o->f250 = f1;
+    float f1 = self->unk1354;
+    AreaObj *o = area;
+    o->unk24c = self->unk1350;
+    o->unk250 = f1;
 
-    self->objects1.push_back(local_8);
+    self->areas.push_back(area);
 
-    FUN_0001f21c(self, local_8);
+    FUN_0001f21c(self, area);
 }

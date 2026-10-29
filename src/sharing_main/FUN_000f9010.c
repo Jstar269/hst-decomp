@@ -2,10 +2,27 @@
 /* Clone of src/eboot/FUN_000f3948.c (hstclone.py tag x2): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-void FUN_000f9010(int param_1)
+/* Referenced object: only the word at +0x24 is read. */
+typedef struct Part {
+  char pad0[0x24];
+  u32 unk24; /* 0x24 */
+} Part;
+
+typedef struct PartOwner {
+  char pad0[0x128];
+  Part *part128;     /* 0x128 */
+  Part *part12c;     /* 0x12c */
+  char pad130[8];
+  Part *part138;     /* 0x138 */
+  Part *part13c;     /* 0x13c */
+  char pad140[0x1e0 - 0x140];
+  u32 copy[4];       /* 0x1e0 receives the +0x24 word of each part */
+} PartOwner;
+
+void FUN_000f9010(PartOwner *self)
 {
-  *(u32 *)(param_1 + 0x1e0) = *(u32 *)(*(int *)(param_1 + 0x128) + 0x24);
-  *(u32 *)(param_1 + 0x1e4) = *(u32 *)(*(int *)(param_1 + 300) + 0x24);
-  *(u32 *)(param_1 + 0x1e8) = *(u32 *)(*(int *)(param_1 + 0x138) + 0x24);
-  *(u32 *)(param_1 + 0x1ec) = *(u32 *)(*(int *)(param_1 + 0x13c) + 0x24);
+  self->copy[0] = self->part128->unk24;
+  self->copy[1] = self->part12c->unk24;
+  self->copy[2] = self->part138->unk24;
+  self->copy[3] = self->part13c->unk24;
 }

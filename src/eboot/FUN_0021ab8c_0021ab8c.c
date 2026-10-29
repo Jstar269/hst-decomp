@@ -1,16 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021ab8c end=0x0021abe0 symbol=FUN_0021ab8c lang=c99 rodata=0x002c98c0 */
-/* Ghidra pseudocode (hstgen.py tag gen-a2/v0r) corrected by hand: indexed the table as base[index + 0x3b] to emit the retail index-first address addition; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag gen-a2/v0r) corrected by hand: the item table is read as menu->item[menu->cursor], which emits the retail index-first address addition; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/selection_menu.h"
 
-u32 FUN_0021ab8c(int *param_1)
+/* Item value of the selected slot while the state is one of the listed ones, otherwise -1. */
+u32 FUN_0021ab8c(SelectionState *self)
 {
-  bool bVar1;
-  u32 uVar2;
-  u32 *base;
-  int index;
+  bool listed;
+  u32 result;
   
-  bVar1 = false;
-  switch(param_1[1]) {
+  listed = false;
+  switch(self->state) {
   case 1:
   case 2:
   case 3:
@@ -23,15 +23,13 @@ u32 FUN_0021ab8c(int *param_1)
   case 0xf:
   case 0x10:
   case 0x11:
-    bVar1 = true;
+    listed = true;
   }
-  if (bVar1) {
-    base = (u32 *)*param_1;
-    index = *(int *)((char *)base + 0xe8);
-    uVar2 = base[index + 0x3b];
+  if (listed) {
+    result = self->menu->item[self->menu->cursor];
   }
   else {
-    uVar2 = 0xffffffff;
+    result = 0xffffffff;
   }
-  return uVar2;
+  return result;
 }

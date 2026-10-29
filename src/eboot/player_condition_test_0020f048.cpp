@@ -5,6 +5,9 @@
    the player's timer against DAT_00341314, and two checks on the ball's hit records (Track layout as in
    find_nearest_entry_000a7aa0.cpp; the clamped EntryList::operator[] and the Track reference bound inside the if
    give retail's unfolded `addiu v0,s0,620; lw v0,12(v0)` element reads). */
+/* z coordinate the positions are compared against (negated for the absolute-value checks). */
+#define Z_THRESHOLD (-6.4007998f)
+
 struct Vec4 {
   float x, y, z, w;
 } __attribute__((aligned(16)));
@@ -12,7 +15,7 @@ struct Vec4 {
 struct Entry {
   int id;
   unsigned char active;
-  int f8;
+  int unk8;
   Vec4 pos;
 };
 
@@ -35,10 +38,10 @@ struct Track {
 
 struct Ball {
   char pad0[0x230];
-  unsigned int m230;
+  unsigned int unk230;
   int pad234;
-  int m238;
-  int m23c;
+  int unk238;
+  int unk23c;
   char pad240[0x26c - 0x240];
   Track track;
 };
@@ -49,18 +52,18 @@ struct Player {
   char pad148[0x41c - 0x148];
   int timer;
   char pad420[0x4e8 - 0x420];
-  int m4e8;
+  int unk4e8;
   char pad4ec[0x580 - 0x4ec];
   Vec4 pos;
   char pad590[0x5a8 - 0x590];
-  float m5a8;
+  float unk5a8;
   char pad5ac[0x888 - 0x5ac];
-  float m888;
+  float unk888;
   char pad88c[0x8a1 - 0x88c];
-  unsigned char m8a1;
-  unsigned char m8a2;
-  unsigned char m8a3;
-  unsigned char m8a4;
+  unsigned char unk8a1;
+  unsigned char unk8a2;
+  unsigned char unk8a3;
+  unsigned char unk8a4;
 };
 
 struct Game {
@@ -77,6 +80,7 @@ bool FUN_000a75a8(Player *, Ball *);
 int FUN_000a8494(Player *, const Vec4 *);
 }
 
+/* Evaluates condition `code` for the player against the opponent and the ball; codes outside 12..55 give true. */
 extern "C" unsigned char FUN_0020f048(Player *self, int code)
 {
   unsigned char r;
@@ -96,27 +100,27 @@ extern "C" unsigned char FUN_0020f048(Player *self, int code)
     r = 1;
     break;
   case 0xc:
-    r = opp->m4e8 == 0xb;
+    r = opp->unk4e8 == 0xb;
     break;
   case 0xd:
-    r = self->m8a1;
+    r = self->unk8a1;
     break;
   case 0xe:
-    r = self->m8a2;
+    r = self->unk8a2;
     break;
   case 0xf:
-    r = self->m8a3;
+    r = self->unk8a3;
     break;
   case 0x10:
-    r = self->m8a4;
+    r = self->unk8a4;
     break;
   case 0x11:
   case 0x32:
   case 0x33:
-    r = opp->pos.z >= -6.4007998f;
+    r = opp->pos.z >= Z_THRESHOLD;
     break;
   case 0x12:
-    r = opp->pos.z >= -6.4007998f && self->pos.z >= -6.4007998f;
+    r = opp->pos.z >= Z_THRESHOLD && self->pos.z >= Z_THRESHOLD;
     break;
   case 0x17:
     r = hit;
@@ -137,31 +141,31 @@ extern "C" unsigned char FUN_0020f048(Player *self, int code)
     r = !hit;
     break;
   case 0x1d:
-    r = ball->m238 == 0;
+    r = ball->unk238 == 0;
     break;
   case 0x1e:
-    r = ball->m238 == 0;
+    r = ball->unk238 == 0;
     break;
   case 0x1f:
-    r = ball->m238 == 0;
+    r = ball->unk238 == 0;
     break;
   case 0x20:
-    r = ball->m238 == 1;
+    r = ball->unk238 == 1;
     break;
   case 0x21:
-    r = ball->m238 == 1;
+    r = ball->unk238 == 1;
     break;
   case 0x22:
-    r = ball->m238 == 1;
+    r = ball->unk238 == 1;
     break;
   case 0x23:
-    r = ball->m238 == 2;
+    r = ball->unk238 == 2;
     break;
   case 0x24:
-    r = ball->m238 == 2;
+    r = ball->unk238 == 2;
     break;
   case 0x25:
-    r = ball->m238 == 2;
+    r = ball->unk238 == 2;
     break;
   case 0x26:
     r = FUN_000a8494(self, &self->pos);
@@ -198,17 +202,17 @@ extern "C" unsigned char FUN_0020f048(Player *self, int code)
   case 0x34:
   case 0x35:
   case 0x36:
-    if ((self->side ^ 1) == ball->m230 && ball->m23c == 6 && (int)ball->track.done.size > 0) {
+    if ((self->side ^ 1) == ball->unk230 && ball->unk23c == 6 && (int)ball->track.done.size > 0) {
       Track &t = ball->track;
-      if (self->m5a8 * t.done[0].pos.z > self->m888)
+      if (self->unk5a8 * t.done[0].pos.z > self->unk888)
         r = 1;
     }
     break;
   case 0x37:
-    if ((self->side ^ 1) == ball->m230 && (int)ball->track.pending.size > 0) {
+    if ((self->side ^ 1) == ball->unk230 && (int)ball->track.pending.size > 0) {
       Track &t = ball->track;
-      if (fabsf(t.pending[0].pos.z) > 6.4007998f && fabsf(opp->pos.z) < 6.4007998f &&
-          fabsf(self->m888) < 6.4007998f)
+      if (fabsf(t.pending[0].pos.z) > -Z_THRESHOLD && fabsf(opp->pos.z) < -Z_THRESHOLD &&
+          fabsf(self->unk888) < -Z_THRESHOLD)
         r = 1;
     }
     break;

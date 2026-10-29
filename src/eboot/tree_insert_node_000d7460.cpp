@@ -1,12 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000d7460 end=0x000d7608 symbol=FUN_000d7460 lang=c++ data=0x002d6838 */
 /* Hand-written reconstruction from the disassembly (derived from src/eboot/tree_insert_node_0019695c.cpp with a 16-byte string+int value); exact match verified; matching idiom: the node holder carries an unused leading 4-byte member (retail's holder is 12 bytes: it moves the never-written fwd_tag slot read by `lb t1,32(sp)` below it); names and types await human review. Data: its string literals (1 strings, 0x002d6838-0x002d6852) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 /* MSL-style tree insert-at for a node whose 16-byte value is a short-string-optimised string (3 words, flag bit 0 = heap mode: reserve via 0x3ed4, assign range via 0x3370 with a derived empty tag) plus an int; same shape as 0x19695c (length check, 28-byte node, holder, link, ++size, rebalance 0x6445c, leftmost). */
+#include "hst/vec_reserve.h"
+
 extern "C" {
-struct Reent_000d7460 { int pad[3]; void *err; };
-Reent_000d7460 *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
-void FUN_0000d518(void);
-void *FUN_00000bcc(unsigned size);
 void FUN_00000a00(void *p);
 extern char DAT_002c0624[];
 }
@@ -67,34 +65,36 @@ struct Holder_000d7460 {
     Node_000d7460 *release() { Node_000d7460 *t = p_; p_ = 0; return t; }
 };
 
+/* Tree header: element count, root, an unused word, leftmost node; the allocator overlays the root slot. */
 struct Tree_000d7460 {
     unsigned size_;
     Node_000d7460 *root_;
-    Node_000d7460 *x8_;
+    Node_000d7460 *unk8_;
     Node_000d7460 *leftmost_;
     Alloc_000d7460 &alloc() { return *(Alloc_000d7460 *)&root_; }
 };
 
-extern "C" Node_000d7460 *FUN_000d7460(Tree_000d7460 *t, Node_000d7460 *parent, bool left, bool leftmost,
+extern "C" Node_000d7460 *FUN_000d7460(Tree_000d7460 *tree, Node_000d7460 *parent, bool left, bool leftmost,
                                        const Value_000d7460 &v)
 {
-    if (t->size_ == 0xffffffff) {
+    /* insert a node holding a copy of v under parent (left or right link); update leftmost, rebalance */
+    if (tree->size_ == 0xffffffff) {
         FUN_0000f3e8(FUN_0000fe3c()->err, "tree::insert length error");
         FUN_0000d518();
     }
-    Alloc_000d7460 &a = t->alloc();
-    Holder_000d7460 h(a, a.allocate(1));
-    new (&h.get()->value_) Value_000d7460(v);
-    Node_000d7460 *n = h.release();
-    n->left_ = n->right_ = 0;
-    n->set_parent(parent);
+    Alloc_000d7460 &alloc = tree->alloc();
+    Holder_000d7460 holder(alloc, alloc.allocate(1));
+    new (&holder.get()->value_) Value_000d7460(v);
+    Node_000d7460 *node = holder.release();
+    node->left_ = node->right_ = 0;
+    node->set_parent(parent);
     if (left)
-        parent->left_ = n;
+        parent->left_ = node;
     else
-        parent->right_ = n;
-    ++t->size_;
-    FUN_0006445c(n, t->root_);
+        parent->right_ = node;
+    ++tree->size_;
+    FUN_0006445c(node, tree->root_);
     if (leftmost)
-        t->leftmost_ = n;
-    return n;
+        tree->leftmost_ = node;
+    return node;
 }

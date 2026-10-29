@@ -4,190 +4,197 @@
 
 extern u32 FUN_0001342c();
 
-u32 FUN_0020f540(u32 param_1, u32 param_2, u32 param_3)
-{
-  u32 uVar1;
-  u32 uVar2;
+/* Result for an out-of-range code. */
+#define DEFAULT_CHOICE 3
 
-  uVar1 = 3;
-  switch (param_2) {
+/* Picks 1 or 2 from a random word: clears its low 11 bits, scales by 2^-31 and compares with 0.5. */
+#define COIN_FLIP(rnd) ((float)(int)((rnd) & 0xfffff800) * 4.656613e-10f < 0.5f ? 1 : 2)
+
+/* Maps a code (0..0x37) and a count to a choice 0..2 (DEFAULT_CHOICE for other codes); some codes choose at random. */
+u32 FUN_0020f540(u32 self, u32 code, u32 count)
+{
+  u32 result;
+  u32 rnd;
+
+  result = DEFAULT_CHOICE;
+  switch (code) {
   case 0:
-    uVar1 = 0;
+    result = 0;
     break;
   case 1:
-    uVar1 = 1;
+    result = 1;
     break;
   case 2:
-    uVar1 = 2;
+    result = 2;
     break;
   case 3:
-    if ((param_3 & 1) != 0) {
-      uVar1 = 0;
+    if ((count & 1) != 0) {
+      result = 0;
     }
     else {
-      uVar2 = FUN_0001342c();
-      uVar1 = (float)(int)(uVar2 & 0xfffff800) * 4.656613e-10f < 0.5f ? 1 : 2;
+      rnd = FUN_0001342c();
+      result = COIN_FLIP(rnd);
     }
     break;
   case 4:
   case 5:
   case 6:
   case 7:
-    if ((int)param_3 > 1) {
-      uVar1 = 0;
+    if ((int)count > 1) {
+      result = 0;
       break;
     }
-    uVar2 = FUN_0001342c();
-    uVar1 = (float)(int)(uVar2 & 0xfffff800) * 4.656613e-10f < 0.5f ? 1 : 2;
+    rnd = FUN_0001342c();
+    result = COIN_FLIP(rnd);
     break;
   case 8:
   case 9:
   case 10:
   case 0xb:
-    if ((int)param_3 > 1) {
-      uVar2 = FUN_0001342c();
-      uVar1 = (float)(int)(uVar2 & 0xfffff800) * 4.656613e-10f < 0.5f ? 1 : 2;
+    if ((int)count > 1) {
+      rnd = FUN_0001342c();
+      result = COIN_FLIP(rnd);
     }
     else {
-      uVar1 = 0;
+      result = 0;
     }
     break;
   case 0xc:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0xd:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0xe:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0xf:
-    uVar2 = FUN_0001342c();
-    uVar1 = (float)(int)(uVar2 & 0xfffff800) * 4.656613e-10f < 0.5f ? 1 : 2;
+    rnd = FUN_0001342c();
+    result = COIN_FLIP(rnd);
     break;
   case 0x10:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x11:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x12:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x13:
   case 0x14:
   case 0x15:
   case 0x16:
-    if ((int)param_3 > 1) {
-      uVar1 = 1;
+    if ((int)count > 1) {
+      result = 1;
     }
     else {
-      uVar1 = 0;
+      result = 0;
     }
     break;
   case 0x17:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x18:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x19:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x1a:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x1b:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x1c:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x1d:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x1e:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x1f:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x20:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x21:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x22:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x23:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x24:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x25:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x26:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x27:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x28:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x29:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x2a:
-    if ((param_3 & 1) != 0) {
-      uVar1 = 0;
+    if ((count & 1) != 0) {
+      result = 0;
     }
     else {
-      uVar1 = 1;
+      result = 1;
     }
     break;
   case 0x2b:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x2c:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x2d:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x2e:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x2f:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x30:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x31:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x32:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x33:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x34:
-    uVar1 = 0;
+    result = 0;
     break;
   case 0x35:
-    uVar1 = 1;
+    result = 1;
     break;
   case 0x36:
-    uVar1 = 2;
+    result = 2;
     break;
   case 0x37:
-    uVar1 = 2;
+    result = 2;
   }
-  return uVar1;
+  return result;
 }

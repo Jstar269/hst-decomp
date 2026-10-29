@@ -1,18 +1,21 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c77a8 end=0x000c7800 symbol=FUN_000c77a8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/types.h"
+#include "hst/vtable_obj.h"
 
 extern void FUN_00000a00();
 extern int * FUN_000d5a84();
 
-int FUN_000c77a8(int param_1,short param_2)
+/* Deleting destructor: runs the destructor body, frees the object when delete_flag > 0. */
+VtableObj * FUN_000c77a8(VtableObj *self,short delete_flag)
 {
-  if (param_1 != 0) {
-    if (param_1 != 0) {
-      FUN_000d5a84(param_1,0);
+  if (self != 0) {
+    if (self != 0) {
+      FUN_000d5a84(self,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

@@ -1,12 +1,21 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011f334 end=0x0011f35c symbol=FUN_0011f334 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-u32 * FUN_0011f334(u32 *param_1,u32 *param_2)
+/* Four-word record. */
+typedef struct Words4 {
+  u32 w0; /* 0x0 */
+  u32 w1; /* 0x4 */
+  u32 w2; /* 0x8 */
+  u32 w3; /* 0xc */
+} Words4;
+
+/* Copies the four words field by field and returns the destination. */
+Words4 * FUN_0011f334(Words4 *dst,Words4 *src)
 {
-  *param_1 = *param_2;
-  param_1[1] = param_2[1];
-  param_1[2] = param_2[2];
-  param_1[3] = param_2[3];
-  return param_1;
+  dst->w0 = src->w0;
+  dst->w1 = src->w1;
+  dst->w2 = src->w2;
+  dst->w3 = src->w3;
+  return dst;
 }

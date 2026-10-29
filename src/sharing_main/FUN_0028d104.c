@@ -5,10 +5,11 @@
 extern u32 FUN_0028dacc();
 extern void FUN_0028df98();
 
+/* Passes the result of FUN_0028dacc on to FUN_0028df98. */
 void FUN_0028d104(void)
 {
-  u32 uVar1;
+  u32 value;
   
-  uVar1 = FUN_0028dacc();
-  FUN_0028df98(uVar1);
+  value = FUN_0028dacc();
+  FUN_0028df98(value);
 }

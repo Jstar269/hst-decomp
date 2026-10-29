@@ -1,6 +1,8 @@
 /* HSTMATCH module=hstp_trans_main.prx start=0x00091548 end=0x000917c8 symbol=FUN_00091548 lang=c++ */
 /* Hand-written reconstruction (port of src/eboot/config_snapshot_run_0008f948.cpp, its twin: addresses substituted by try/twins-20261026/port.py, the missing symbol decoded from retail; no other change); exact match verified; names and types await human review. */
-/* Sibling of FUN_000918d8 (same local config copy, written as explicit member-copy-ctor calls); here the last FUN_000c5cc0 argument is (float)n / 30.0f and the follow-up call is FUN_000903c8(self, 2). */
+/* Sibling of FUN_000918d8 (same local config copy, written as explicit member-copy-ctor calls); here the last FUN_000c5cc0 argument is (float)n / FRAME_RATE (30.0f) and the follow-up call is FUN_000903c8(self, 2). */
+
+#define FRAME_RATE 30.0f
 
 struct Vec4 { float x, y, z, w; } __attribute__((aligned(16)));
 struct Mat4 { float m[16]; } __attribute__((aligned(16)));
@@ -8,9 +10,10 @@ struct M144 { float m[36]; } __attribute__((aligned(16)));
 struct Four { int v; };
 struct Tag { };
 
+/* Configuration block: vtable, four position vectors, three matrices and per-item data; copied into a local snapshot below. */
 struct Cfg {
     void *vtbl;
-    int f4;
+    int unk04;
     int pad[2];
     Vec4 a, b, c, d;
     Mat4 e, f, g;
@@ -18,21 +21,21 @@ struct Cfg {
     Four i;
     M144 j;
     unsigned char k;
-    int count;
+    int count;   /* the snapshot loop ends once this is above zero */
 };
 
-struct Self {
+struct Self {  /* the Cfg block comes first */
     Cfg cfg;
     char pad1[0x264 - sizeof(Cfg)];
-    int f264;
-    int f268;
-    int l1[3];
-    int l2[3];
-    unsigned char f284;
+    int unk264;
+    int unk268;
+    int listA[3];
+    int listB[3];
+    unsigned char unk284;
     char pad2[3];
-    int f288;
+    int unk288;
     char pad3[4];
-    char f290;
+    char unk290;
 };
 
 extern "C" {
@@ -51,30 +54,32 @@ extern void FUN_000c6270(float, float, Cfg *, int);
 extern void *FUN_000c5c78(void *, int);
 }
 
-extern "C" void FUN_00091548(Self *self, Vec4 *p2, Vec4 *p3, int n)
+/* Starts the object at pos with velocity vel, then steps a snapshot of its configuration (value n frames at 30 per second)
+   until the count becomes positive, recording each step on the first list. */
+extern "C" void FUN_00091548(Self *self, Vec4 *pos, Vec4 *vel, int n)
 {
     int tmp;
-    Vec4 v2 = *p2;
-    Vec4 v3 = *p3;
+    Vec4 v2 = *pos; /* by-value copies handed to the base setup */
+    Vec4 v3 = *vel;
     Cfg cfg;
     Vec4 v;
     int i;
 
     tmp = self->cfg.i.v;
-    FUN_000c5cc0(self, &v2, &v3, 0.0f, 0.0f, 0.0f, &tmp, (float)n / 30.0f);
+    FUN_000c5cc0(self, &v2, &v3, 0.0f, 0.0f, 0.0f, &tmp, (float)n / FRAME_RATE);
 
-    self->f284 = 0;
-    self->f288 = 0;
-    self->f268 = 0;
+    self->unk284 = 0;
+    self->unk288 = 0;
+    self->unk268 = 0;
 
     v = self->cfg.a;
-    FUN_00055be8(&self->f290, &v);
+    FUN_00055be8(&self->unk290, &v);
 
-    FUN_00092d18(&self->l1[0], self->l1[1], Tag());
-    FUN_00092d18(&self->l2[0], self->l2[1], Tag());
+    FUN_00092d18(&self->listA[0], self->listA[1], Tag());
+    FUN_00092d18(&self->listB[0], self->listB[1], Tag());
 
     cfg.vtbl = &__vt__10C_000c24a8;
-    cfg.f4 = self->cfg.f4;
+    cfg.unk04 = self->cfg.unk04;
     FUN_0004c898(&cfg.a, &self->cfg.a);
     FUN_0004c898(&cfg.b, &self->cfg.b);
     FUN_0004c898(&cfg.c, &self->cfg.c);
@@ -99,7 +104,7 @@ extern "C" void FUN_00091548(Self *self, Vec4 *p2, Vec4 *p3, int n)
     i = 0;
     while (1) {
         Vec4 lv = cfg.a;
-        FUN_0008f3b8(&self->l1[0], i, 1, cfg.f4, lv);
+        FUN_0008f3b8(&self->listA[0], i, 1, cfg.unk04, lv);
         if (cfg.count > 0)
             break;
         i++;
@@ -108,6 +113,6 @@ extern "C" void FUN_00091548(Self *self, Vec4 *p2, Vec4 *p3, int n)
 
     FUN_000903c8(self, 2);
     if (*(int *)(DAT_003e19f0 + 0x3c) == 7)
-        self->f264 = 1;
+        self->unk264 = 1;
     FUN_000c5c78(&cfg, -1);
 }

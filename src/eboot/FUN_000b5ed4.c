@@ -1,12 +1,14 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000b5ed4 end=0x000b5ee8 symbol=FUN_000b5ed4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/word_pair.h"
 
-void FUN_000b5ed4(u32 *param_1,u32 *param_2)
+/* Copy a two-word record (second word loaded first). */
+void FUN_000b5ed4(WordPair *dst,WordPair *src)
 {
-  u32 uVar1;
+  u32 second;
   
-  uVar1 = param_2[1];
-  *param_1 = *param_2;
-  param_1[1] = uVar1;
+  second = src->second;
+  dst->first = src->first;
+  dst->second = second;
 }

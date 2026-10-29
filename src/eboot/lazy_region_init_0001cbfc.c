@@ -7,14 +7,15 @@ extern char *DAT_0030fc08;
 extern char *DAT_0030fc0c;
 extern void *FUN_00010184(int, int);
 
+/* Create the region on first use (start, cursor and end globals) and return its start. */
 void *FUN_0001cbfc(void)
 {
-  char *p = DAT_0030fc04;
-  if (p == 0) {
-    p = FUN_00010184(0x40, DAT_002cfc88);
-    DAT_0030fc04 = p;
-    DAT_0030fc08 = p;
-    DAT_0030fc0c = p + DAT_002cfc88;
+  char *region = DAT_0030fc04;
+  if (region == 0) {
+    region = FUN_00010184(0x40, DAT_002cfc88);
+    DAT_0030fc04 = region;
+    DAT_0030fc08 = region;
+    DAT_0030fc0c = region + DAT_002cfc88;
   }
-  return p;
+  return region;
 }

@@ -1,13 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025a410 end=0x0025a454 symbol=FUN_0025a410 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/types.h"
+#include "hst/block_deque.h"
 
-void FUN_0025a410(int *param_1,int *param_2)
+/* Build a cursor on the first used slot of a block map. */
+void FUN_0025a410(BlockDequePos *out, BlockMap *map)
 {
-  int iVar1;
-  
-  *param_1 = param_2[3] + param_2[2] * 4;
-  iVar1 = param_2[3];
-  param_1[1] = iVar1;
-  param_1[2] = iVar1 + param_2[2] * 4;
-  param_1[3] = param_1[1] + *param_2 * 4;
+  void **blocks;
+
+  out->map_cur = map->blocks + map->head;
+  blocks = map->blocks;
+  out->map_begin = blocks;
+  out->map_head = blocks + map->head;
+  out->map_end = out->map_begin + map->capacity;
 }

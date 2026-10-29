@@ -7,13 +7,9 @@ void FUN_001ba8a8(char *self, int idx, char **table)
 {
     if (*(unsigned char *)(*table + idx * 0x30) != 0) {
     char *e = FUN_001feec4(self);
-    int rect[6] = {0};
-    rect[0] = *(short *)(e + 0x40);
-    rect[1] = *(short *)(e + 0x42);
-    rect[2] = *(short *)(e + 0x44);
-    rect[3] = *(short *)(e + 0x46);
-    rect[4] = *(short *)(e + 0x48);
-    rect[5] = *(short *)(e + 0x4a);
+    short r0 = *(short *)(e + 0x40);
+    int rect[6] = { r0, *(short *)(e + 0x42), *(short *)(e + 0x44),
+                    *(short *)(e + 0x46), *(short *)(e + 0x48), *(short *)(e + 0x4a) };
     unsigned char mode = FUN_001baf80(*(void **)(*(int *)(*(int *)(self + 4) + idx * 4) + 4));
     FUN_00205df4(*(void **)(*(int *)(self + 4) + idx * 4), mode, rect, *(unsigned char *)(e + 0xde),
                  *(unsigned char *)(e + 0xdc), *(unsigned char *)(e + 0xdd),
@@ -22,8 +18,9 @@ void FUN_001ba8a8(char *self, int idx, char **table)
     self[idx + 0x14] = 1;
     }
 }
-// NEAR MISS: 66/67 words, 60 differ (one-word shift from the prologue). Only real differences: retail copies
-// both params (s3,s2) before the guard and uses `beqzl ...; lw ra` for the early return; ours defers the
-// `move s3,a0` into the branch delay slot. Declared-form, inverted-if and split-load variants identical.
-// Twin 0x001ba9b4 has the same shape (parked with this one).
-// near miss from lane ds11 (unreviewed)
+// sy4 NEAR MISS (67/67 words, 22 differ). `short r0 = *(short *)(e + 0x40);` declared before `int rect[6] = { r0, ... }` hoists the first element's lh above the
+// zero-fill loop exactly like retail (lh a0,64(v0) in the jal's slot region), but adds a `seh v0,a0` (retail stores the lh result unextended). Remaining:
+// (1) that seh; (2) retail copies BOTH params (move s3,a0; move s2,a1) before the guard and uses a0 as the index*0x30 temp, with `beqzl v1,epilogue; lw ra` (likely branch);
+// ours defers `move s3,a0` into the plain beqz slot and uses a1 as temp. Ruled out: struct-typed entry (ItemEntry with s16 v[6]), early return, local copies of self/idx,
+// int r0 (no hoist), volatile r0, {0} then assigns.
+// improved by lane sy4 (unreviewed): 60 -> 22 differing words

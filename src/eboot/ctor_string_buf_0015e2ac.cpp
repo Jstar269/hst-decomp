@@ -1,7 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0015e2ac end=0x0015e33c symbol=FUN_0015e2ac lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 struct Alloc {};
-struct Self_0015e2ac {
+struct StringBuf {
     int vptr;
     int f4;
     int f8;
@@ -18,7 +18,7 @@ extern char *FUN_000149a8(char *, const char *);
 extern int FUN_00014a40(const char *);
 }
 
-extern "C" Self_0015e2ac *FUN_0015e2ac(Self_0015e2ac *p, const char *s)
+extern "C" StringBuf *FUN_0015e2ac(StringBuf *p, const char *s)
 {
     p->vptr = (int)&DAT_003073ac;
     p->f4 = 0;

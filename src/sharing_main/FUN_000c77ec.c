@@ -4,7 +4,8 @@
 
 extern u32 * FUN_00022570();
 
-void FUN_000c77ec(u32 param_1,u32 param_2,u32 param_3)
+/* Forwards to the matrix-times-vector helper with the vector and matrix operands swapped. */
+void FUN_000c77ec(u32 out,u32 vec,u32 mtx)
 {
-  FUN_00022570(param_1,param_3,param_2);
+  FUN_00022570(out,mtx,vec);
 }

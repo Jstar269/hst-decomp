@@ -101,32 +101,33 @@ Post *FUN_00288af0(Body *);
 Model *FUN_00093818(Player *);
 }
 
-extern "C" bool FUN_001cef8c(Cone *self, Body *o)
+/* Return true when `other` (a body of one of the checked types, not the ball) lies inside the cone angle and passes the net and facing tests. */
+extern "C" bool FUN_001cef8c(Cone *self, Body *other)
 {
-    if (o->active != 0) {
-        bool ok = o->Type() == 3;
-        if (!ok)
-            ok = o->Type() == 5;
-        if (!ok)
-            ok = o->Type() == 4;
-        if (ok && o != static_cast<Body *>(DAT_0034a118)) {
-            Vec4 dir = Direction(*o->Pos() - self->pos);
-            float c = FUN_0000c5bc(Clamp(FUN_000224d8(&self->dir, &dir), DAT_002ea2d4, DAT_002ea2d8));
-            if (c < self->angle) {
-                bool pl = o->Type() == 2;
-                if (!pl)
-                    pl = o->Type() == 3;
-                if (pl) {
-                    Player *p = FUN_00288a84(o);
-                    if (!FUN_00127870(p->CtrlId()) && !FUN_00127a20(p->CtrlId())) {
-                        if (FUN_000224d8(&FUN_00093818(p)->dir, &self->dir) >= 0.0f)
+    if (other->active != 0) {
+        bool candidate = other->Type() == 3;
+        if (!candidate)
+            candidate = other->Type() == 5;
+        if (!candidate)
+            candidate = other->Type() == 4;
+        if (candidate && other != static_cast<Body *>(DAT_0034a118)) {
+            Vec4 dir = Direction(*other->Pos() - self->pos);
+            float angle_to = FUN_0000c5bc(Clamp(FUN_000224d8(&self->dir, &dir), DAT_002ea2d4, DAT_002ea2d8));
+            if (angle_to < self->angle) {
+                bool is_player = other->Type() == 2;
+                if (!is_player)
+                    is_player = other->Type() == 3;
+                if (is_player) {
+                    Player *player = FUN_00288a84(other);
+                    if (!FUN_00127870(player->CtrlId()) && !FUN_00127a20(player->CtrlId())) {
+                        if (FUN_000224d8(&FUN_00093818(player)->dir, &self->dir) >= 0.0f)
                             return false;
                     }
-                } else if (o->Type() == 4) {
-                    Post *q = FUN_00288af0(o);
-                    if (FUN_000224d8(&q->net->normal, &self->dir) >= 0.0f)
+                } else if (other->Type() == 4) {
+                    Post *post = FUN_00288af0(other);
+                    if (FUN_000224d8(&post->net->normal, &self->dir) >= 0.0f)
                         return false;
-                    if (FUN_000224d8(&q->net->normal, &dir) >= 0.0f)
+                    if (FUN_000224d8(&post->net->normal, &dir) >= 0.0f)
                         return false;
                 }
                 return true;

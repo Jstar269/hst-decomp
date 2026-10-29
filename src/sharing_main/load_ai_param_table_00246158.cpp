@@ -42,8 +42,10 @@ extern int FUN_00066700(void *, int, char *);
 extern void *FUN_000114c0(void *, int, int);
 }
 
+/* Empty marker argument passed by value to the clear helper. */
 struct Tag {};
 
+/* One table row; field names follow the column names read below. */
 struct Entry {
     int id;
     float judgmentA, judgmentB, judgmentC, moveTimeCurve, moveTimeFast, moveTimeLate, moveError;
@@ -51,6 +53,7 @@ struct Entry {
     unsigned char circle, cross, triangle, front, half, backward, left, center, right;
 };
 
+/* Vector of Entry (data, size, capacity). */
 struct Vec {
     Entry *data;
     unsigned size;
@@ -82,43 +85,44 @@ struct Res : Base16 {
     ~Res() { *(char **)this = DAT_003b0388; }
 };
 
-extern "C" void FUN_00246158(Vec *v)
+extern "C" void FUN_00246158(Vec *rows)
 {
-    FUN_0008c898(v, v->size, Tag());
-    Res r;
-    if (FUN_00066260(&r, "data/common/parameter/AI_Param_Doubles.csv", 0, 1, DAT_0039d364)) {
-        int n = FUN_00065fa4(&r);
-        if (v->cap < (unsigned)(n - 1)) {
-            FUN_0024729c(v, n - 1);
+    /* clear the vector, then append one Entry per CSV row after the header row */
+    FUN_0008c898(rows, rows->size, Tag());
+    Res csv; /* local CSV reader */
+    if (FUN_00066260(&csv, "data/common/parameter/AI_Param_Doubles.csv", 0, 1, DAT_0039d364)) {
+        int n = FUN_00065fa4(&csv);
+        if (rows->cap < (unsigned)(n - 1)) {
+            FUN_0024729c(rows, n - 1);
         }
         for (int i = 1; i < n; i++) {
             Entry e;
             FUN_000114c0(&e, 0, sizeof(Entry));
-            e.id = FUN_00066700(&r, i, "Rank");
-            e.judgmentA = FUN_0006682c(&r, i, DAT_0039d8dc);
-            e.judgmentB = FUN_0006682c(&r, i, DAT_0039d8f0);
-            e.judgmentC = FUN_0006682c(&r, i, DAT_0039d904);
-            e.moveTimeCurve = FUN_0006682c(&r, i, DAT_0039d918);
-            e.moveTimeFast = FUN_0006682c(&r, i, DAT_0039d930);
-            e.moveTimeLate = FUN_0006682c(&r, i, DAT_0039d944);
-            e.moveError = FUN_0006682c(&r, i, DAT_0039d958);
-            e.theoryRate = FUN_0006682c(&r, i, DAT_0039d96c);
-            e.freeShot = FUN_0006682c(&r, i, DAT_0039d980);
-            e.returnTiming = FUN_0006682c(&r, i, DAT_0039d990);
-            e.returnTimingNet = FUN_0006682c(&r, i, DAT_0039d9a4);
-            e.returnError = FUN_0006682c(&r, i, DAT_0039d9bc);
-            e.snatch = FUN_0006682c(&r, i, DAT_0039d9d0);
-            e.frameshot = FUN_0006682c(&r, i, DAT_0039d9e0);
-            e.circle = FUN_00066700(&r, i, DAT_0039d9f4);
-            e.cross = FUN_00066700(&r, i, DAT_0039da04);
-            e.triangle = FUN_00066700(&r, i, DAT_0039da14);
-            e.front = FUN_00066700(&r, i, DAT_0039da24);
-            e.half = FUN_00066700(&r, i, DAT_0039da34);
-            e.backward = FUN_00066700(&r, i, DAT_0039da40);
-            e.left = FUN_00066700(&r, i, DAT_0039da50);
-            e.center = FUN_00066700(&r, i, DAT_0039da5c);
-            e.right = FUN_00066700(&r, i, DAT_0039da6c);
-            FUN_002464b8(v, e);
+            e.id = FUN_00066700(&csv, i, "Rank");
+            e.judgmentA = FUN_0006682c(&csv, i, DAT_0039d8dc);
+            e.judgmentB = FUN_0006682c(&csv, i, DAT_0039d8f0);
+            e.judgmentC = FUN_0006682c(&csv, i, DAT_0039d904);
+            e.moveTimeCurve = FUN_0006682c(&csv, i, DAT_0039d918);
+            e.moveTimeFast = FUN_0006682c(&csv, i, DAT_0039d930);
+            e.moveTimeLate = FUN_0006682c(&csv, i, DAT_0039d944);
+            e.moveError = FUN_0006682c(&csv, i, DAT_0039d958);
+            e.theoryRate = FUN_0006682c(&csv, i, DAT_0039d96c);
+            e.freeShot = FUN_0006682c(&csv, i, DAT_0039d980);
+            e.returnTiming = FUN_0006682c(&csv, i, DAT_0039d990);
+            e.returnTimingNet = FUN_0006682c(&csv, i, DAT_0039d9a4);
+            e.returnError = FUN_0006682c(&csv, i, DAT_0039d9bc);
+            e.snatch = FUN_0006682c(&csv, i, DAT_0039d9d0);
+            e.frameshot = FUN_0006682c(&csv, i, DAT_0039d9e0);
+            e.circle = FUN_00066700(&csv, i, DAT_0039d9f4);
+            e.cross = FUN_00066700(&csv, i, DAT_0039da04);
+            e.triangle = FUN_00066700(&csv, i, DAT_0039da14);
+            e.front = FUN_00066700(&csv, i, DAT_0039da24);
+            e.half = FUN_00066700(&csv, i, DAT_0039da34);
+            e.backward = FUN_00066700(&csv, i, DAT_0039da40);
+            e.left = FUN_00066700(&csv, i, DAT_0039da50);
+            e.center = FUN_00066700(&csv, i, DAT_0039da5c);
+            e.right = FUN_00066700(&csv, i, DAT_0039da6c);
+            FUN_002464b8(rows, e);
         }
     }
 }

@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ca4a8 end=0x001ca60c symbol=FUN_001ca4a8 lang=c++ data=0x002eaa48 */
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002eaa48-0x002eaa50) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+#include "hst/event_owner.h"
+
 extern "C" {
 extern int *DAT_0034a118;
 extern char DAT_0034179c[];
@@ -77,9 +79,10 @@ struct Singleton {
     virtual float *get();
 };
 
-extern "C" void FUN_001ca4a8(int param_1)
+/* Look up the event object for the last slot, hand it a vector and the transform data, then end it. */
+extern "C" void FUN_001ca4a8(EventOwner *self)
 {
-    int idx = *(int *)(param_1 + 0x50) - 1;
+    int slot = self->unk50 - 1;
     float v[4];
     float w[4];
     float u[4];
@@ -89,14 +92,14 @@ extern "C" void FUN_001ca4a8(int param_1)
     float *p;
 
     FUN_001b2430(DAT_0034179c);
-    FUN_00288828(idx, *(int *)(param_1 + 0xc0), 1001);
-    *(int *)(param_1 + 0x98) = *(int *)(*(int *)(param_1 + 0x4c) + idx * 4);
+    FUN_00288828(slot, self->unkc0, 1001);
+    self->current = self->table[slot];
     p = ((Singleton *)DAT_0034a118)->get();
     v[0] = p[0];
     v[1] = p[1];
     v[2] = p[2];
     v[3] = p[3];
-    FUN_00022434(t, (float *)((char *)param_1 + 0xa0), v);
+    FUN_00022434(t, self->unka0, v);
     u[0] = t[0];
     u[1] = t[1];
     u[2] = t[2];
@@ -108,16 +111,16 @@ extern "C" void FUN_001ca4a8(int param_1)
     y[2] = z[2];
     y[3] = z[3];
     FUN_00022418(v, v, y);
-    ((ObjEvent *)*(int *)(param_1 + 0x98))->setVec(v);
-    ((ObjEvent *)*(int *)(param_1 + 0x98))->setMat(param_1 + 0xa0);
-    ((ObjEvent *)*(int *)(param_1 + 0x98))->end();
-    FUN_001cc7d0(param_1, "event98");
+    ((ObjEvent *)self->current)->setVec(v);
+    ((ObjEvent *)self->current)->setMat((int)self->unka0);
+    ((ObjEvent *)self->current)->end();
+    FUN_001cc7d0((int)self, "event98");
 }
 // EXACT (89/89 words). The last delta was the argument setup order for FUN_00022434: retail
 // materialises a0 (sp+0x20) before a1 (s0+0xa0). It only flips when the second argument is a
-// FLOAT pointer built with a byte cast -- `(float *)((char *)param_1 + 0xa0)` with the callee
-// declared `(float *, float *, float *)`. The same call with an int middle parameter (or with
-// `param_1 + 0xa0` cast to float * directly) emits a1 first and stays 2 words off.
+// FLOAT pointer (the float array member `self->unka0`) with the callee declared
+// `(float *, float *, float *)`. The same call with an int middle parameter emits a1 first and
+// stays 2 words off.
 // Facts: the DAT_0034a118 virtual call and the 0x98-object calls MUST be C++ virtual dispatch --
 // MWCC then loads through t9 (`lw t9,0(a0); lw t9,0x9c(t9); jalr t9`), which is what retail does;
 // a C function-pointer call emits `lw v0,slot; jalr v0` instead. The vtable in this build has two

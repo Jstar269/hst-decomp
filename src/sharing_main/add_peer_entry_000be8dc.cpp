@@ -6,7 +6,7 @@ struct Name6 {
   Name6() {}
 };
 struct Entry {
-  Name6 name;
+  Name6 mac;      /* 6-byte peer address */
   char pad[2];
   char *buf;
   int len;
@@ -29,7 +29,7 @@ struct Vec {
 };
 struct Self {
   char pad[0x54];
-  Vec *vec;
+  Vec *peers;          /* 0x54 */
 };
 extern "C" {
 void *FUN_00000bcc(unsigned n);
@@ -44,34 +44,35 @@ void FUN_000c1fb0(Vec *, Entry **, Tag);
 extern char DAT_0037bb9c[];
 }
 
-extern "C" void FUN_000be8dc(Self *self, const char *name, int len, const void *data)
+/* Adds a peer with the given 6-byte address and optional payload unless an entry with that address already exists. */
+extern "C" void FUN_000be8dc(Self *self, const char *mac, int len, const void *data)
 {
-  if (self->vec != 0) {
-    Iter it = self->vec->begin();
-    if (it != self->vec->end()) {
+  if (self->peers != 0) {
+    Iter cur = self->peers->begin();
+    if (cur != self->peers->end()) {
       do {
-        if (FUN_0001100c(*it, name, 6) == 0) return;
-        ++it;
-      } while (it != self->vec->end());
+        if (FUN_0001100c(*cur, mac, 6) == 0) return;
+        ++cur;
+      } while (cur != self->peers->end());
     }
   } else {
-    self->vec = new Vec;
+    self->peers = new Vec;
   }
-  Entry *e = (Entry *)FUN_00000bcc(16);
-  FUN_000114c0(e, 0, 16);
-  e->name = *(const Name6 *)name;
+  Entry *entry = (Entry *)FUN_00000bcc(16);
+  FUN_000114c0(entry, 0, 16);
+  entry->mac = *(const Name6 *)mac;
   if (len > 0) {
-    e->buf = (char *)FUN_00000a90(len);
-    FUN_00011090(e->buf, data, len);
-    e->len = len;
+    entry->buf = (char *)FUN_00000a90(len);
+    FUN_00011090(entry->buf, data, len);
+    entry->len = len;
   }
   FUN_000bd6f0(DAT_0037bb9c);
-  Vec *v = self->vec;
-  if (v->size < v->cap) {
-    ++v->size;
-    unsigned off = (v->size - 1) * 4;
-    *(Entry **)((char *)v->data + off) = e;
+  Vec *peers = self->peers;
+  if (peers->size < peers->cap) {
+    ++peers->size;
+    unsigned byte_off = (peers->size - 1) * 4;
+    *(Entry **)((char *)peers->data + byte_off) = entry;
   } else {
-    FUN_000c1fb0(v, &e, Tag());
+    FUN_000c1fb0(peers, &entry, Tag());
   }
 }

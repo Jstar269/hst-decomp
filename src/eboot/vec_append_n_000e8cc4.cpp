@@ -4,14 +4,9 @@
    element: int id, five floats, and a 704-byte tail whose copy constructor is a real out-of-line call (0x5b9d0),
    so the 12-byte gaps at +4 and +0x24 are never copied. max_size 0x00572620 = 0xffffffff/752. The frame needs the
    by-value empty `True` on each inlined helper plus a bare `Alloc();` opening it, as in 0xc1b1c. Names provisional. */
-/* Vector of 80-byte elements: append n copies of x through the split-buffer idiom of
-   src/eboot/vec_append_n_002374f4.cpp, with both helpers inlined. Retail's frame only comes out when each inlined
-   helper takes a by-value empty `True` (which reserves a never-written 8-byte slot) AND opens with a bare
-   `Alloc();` statement (the extra 4-byte slot that moves the Max() temporaries from 0x3c/0x38/0x34 down to
-   retail's 0x38/0x34/0x30; without it the code is word-for-word right and only the slot offsets differ). The grow
-   policy is the family's: max_size 0x03333333 = 0xffffffff/80, thirds at 0x01111111/0x02222222, +3/5 then +1/2.
-   The old elements are moved backwards one element at a time, decrementing `start` and incrementing `size` as it
-   goes, so each pass re-reads both counters from the frame. Names provisional. */
+/* Appends n copies of x to a vector of 752-byte elements: the grow policy (thirds of the maximum, +3/5 then +1/2)
+   sizes a split buffer, the copies are filled in after the old size, the old elements are moved in backwards one at
+   a time (each pass re-reads start and size from the frame) and the buffers are swapped. */
 #pragma inline_depth(8)
 extern "C" void FUN_000043b4(void);
 extern "C" void FUN_0005b9d0(void *dst, void *src);
@@ -85,16 +80,16 @@ inline void MoveBackward(Buf *buf, Elem *first, Elem *last, True)
         ++buf->size;
     }
 }
-extern "C" void FUN_000e8cc4(Vec *v, unsigned n, const Elem &x)
+extern "C" void FUN_000e8cc4(Vec *vec, unsigned n, const Elem &x)
 {
-    Buf buf(&v->capacity);
-    buf.reserve(Grow(v, v->size + n - v->capacity));
-    buf.start = v->size;
+    Buf buf(&vec->capacity);
+    buf.reserve(Grow(vec, vec->size + n - vec->capacity));
+    buf.start = vec->size;
     FillN(&buf, buf.data + buf.start + buf.size, n, x, True());
-    Elem *old = v->data;
-    MoveBackward(&buf, old, old + v->size, True());
-    Swap(v->capacity, buf.capacity);
-    Swap(v->data, buf.data);
-    Swap(v->size, buf.size);
+    Elem *old = vec->data;
+    MoveBackward(&buf, old, old + vec->size, True());
+    Swap(vec->capacity, buf.capacity);
+    Swap(vec->data, buf.data);
+    Swap(vec->size, buf.size);
     FUN_000e9418(&buf, -1);
 }

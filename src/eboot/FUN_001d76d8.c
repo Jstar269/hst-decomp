@@ -1,12 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001d76d8 end=0x001d7734 symbol=FUN_001d76d8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
-extern float FUN_0000bc34(float param_1);
+#define TWO_PI 6.2831855f
 
-float FUN_001d76d8(int param_1,int param_2)
+extern float FUN_0000bc34(float angle);
+
+/* Periodic value in 0..1 from step modulo period: (1 - wave(2*pi*phase)) * 0.5. */
+float FUN_001d76d8(int step,int period)
 {
-  float fVar1;
+  float wave;
   
-  fVar1 = (float)FUN_0000bc34(((float)(param_1 % param_2) * 6.2831855f) / (float)param_2);
-  return (1.0f - fVar1) * 0.5f;
+  wave = (float)FUN_0000bc34(((float)(step % period) * TWO_PI) / (float)period);
+  return (1.0f - wave) * 0.5f;
 }

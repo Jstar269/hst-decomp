@@ -3,10 +3,11 @@
 
 extern void FUN_00000a00();
 
-int FUN_0022667c(int param_1,short param_2)
+/* Plain deleting-destructor wrapper: frees the object when delete_flag > 0. */
+int FUN_0022667c(int self,short delete_flag)
 {
-  if ((param_1 != 0) && (0 < param_2)) {
+  if ((self != 0) && (0 < delete_flag)) {
     FUN_00000a00();
   }
-  return param_1;
+  return self;
 }

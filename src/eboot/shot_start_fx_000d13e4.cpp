@@ -26,13 +26,15 @@ struct Sfx64 { Vec4 a; Vec4 b; Vec4 c; Vec4 pos; };
 
 struct Deletable { virtual ~Deletable(); };
 
-struct Ctl {   /* +0xe0: float level */
+struct Ctl {
     virtual ~Ctl();
     virtual void v1();
     virtual void v2();
     virtual void v3();
     virtual void v4();
     virtual void Reset();
+    char pad04[0xe0 - 0x04];
+    float level;          /* 0xe0 */
 };
 
 struct Lamp {
@@ -146,10 +148,11 @@ struct Shot {
 
 };
 
-extern "C" void FUN_000d13e4(Shot *self, int idx, int type_, int sfx, int side, Vec4 from, Vec4 to, int play)
+/* Start a shot's effects: reset the control and lamp objects, set the sound parameters from BallDistSq(), and play the sound effects. */
+extern "C" void FUN_000d13e4(Shot *self, int player_index, int type, int sfx, int side, Vec4 from, Vec4 to, int play)
 {
-    float ratio = (float)DAT_003386b0->players[idx]->power / DAT_00341314;
-    float dist;
+    float ratio = (float)DAT_003386b0->players[player_index]->power / DAT_00341314;
+    float dist;  /* BallDistSq(), tested against 225.0f */
 
     if (self->m40) { delete self->m40; self->m40 = 0; }
     if (self->m44) { delete self->m44; self->m44 = 0; }
@@ -159,7 +162,7 @@ extern "C" void FUN_000d13e4(Shot *self, int idx, int type_, int sfx, int side, 
     FUN_000513a0(self->handles->h1, 1);
     FUN_00051398(self->handles->h1, 4000.0f);
 
-    self->type = type_;
+    self->type = type;
     self->params = DAT_002c049c;
 
     self->m19c = 0;
@@ -174,22 +177,22 @@ extern "C" void FUN_000d13e4(Shot *self, int idx, int type_, int sfx, int side, 
             FUN_000e6fc4(self->ctl, self->m130);
             {
                 float r = FUN_00022e44(BallDistSq());
-                float f;
+                float level;
                 if (r <= 0.0f)
-                    f = 0.0f;
+                    level = 0.0f;
                 else
-                    f = 96.0f - 874.0f / r;
-                if (f < 0.0f) f = 0.0f;
-                *(float *)((char *)self->ctl + 0xe0) = f;
+                    level = 96.0f - 874.0f / r;
+                if (level < 0.0f) level = 0.0f;
+                self->ctl->level = level;
             }
             {
-                float m = Min(dist, DAT_002d6658);
-                short s = (short)(m * 0.25f);
-                self->params.b = s;
-                self->params.a = s;
+                float limited = Min(dist, DAT_002d6658);
+                short extent = (short)(limited * 0.25f);
+                self->params.b = extent;
+                self->params.a = extent;
             }
             self->params.gain *= 1.5f;
-            if (DAT_003386b0->players[idx]->flag == 0)
+            if (DAT_003386b0->players[player_index]->flag == 0)
                 self->params.pitch = 1.2f;
             else
                 self->params.pitch = 2.4f;
@@ -200,33 +203,33 @@ extern "C" void FUN_000d13e4(Shot *self, int idx, int type_, int sfx, int side, 
                 self->Link(self->handles->h2, self->handles->h3, 0);
             }
             {
-                int i = 0;
-                Vec4 c;
-                if (side == 0) i = 2;
-                if (side == 1) i = 1;
-                if (side == 2) i = 0;
-                c.x = DAT_002c0440[i].x;
-                c.y = DAT_002c0440[i].y;
-                c.z = DAT_002c0440[i].z;
-                c.w = DAT_002c0440[i].w;
-                c.w = c.w * 0.75f;
-                self->lamp->SetColor(&c);
+                int color_index = 0;
+                Vec4 color;
+                if (side == 0) color_index = 2;
+                if (side == 1) color_index = 1;
+                if (side == 2) color_index = 0;
+                color.x = DAT_002c0440[color_index].x;
+                color.y = DAT_002c0440[color_index].y;
+                color.z = DAT_002c0440[color_index].z;
+                color.w = DAT_002c0440[color_index].w;
+                color.w = color.w * 0.75f;
+                self->lamp->SetColor(&color);
             }
             if (self->m188) { delete self->m188; self->m188 = 0; }
             self->m1c0 = 0;
             DAT_00338b04 = 0;
-            if ((FUN_00130654(DAT_00340284) && (type_ == 5 || type_ == 4)) ||
+            if ((FUN_00130654(DAT_00340284) && (type == 5 || type == 4)) ||
                 (FUN_00130654(DAT_00340284) && DAT_003386b0->rally->HasRoom() &&
                  BallDistSq() >= 376.36f)) {
-                Effect *e;
+                Effect *effect;
                 FUN_00057b58(self->effect, 0.0f, 0, 0);
-                e = self->effect;
-                FUN_00058ec4(e, 1.0f, -1);
-                e->speed = 1.0f;
+                effect = self->effect;
+                FUN_00058ec4(effect, 1.0f, -1);
+                effect->speed = 1.0f;
                 FUN_00059084(self->effect, -1);
-                e = self->effect;
-                FUN_00058f38(e, 0.0f, -1);
-                FUN_0005f110(e, 0.0f);
+                effect = self->effect;
+                FUN_00058f38(effect, 0.0f, -1);
+                FUN_0005f110(effect, 0.0f);
                 self->m198 = 1;
             }
         } else {
@@ -235,22 +238,22 @@ extern "C" void FUN_000d13e4(Shot *self, int idx, int type_, int sfx, int side, 
             FUN_000e6fc4(self->ctl, self->m130);
             {
                 float r = FUN_00022e44(BallDistSq());
-                float f;
+                float level;
                 if (r <= 0.0f)
-                    f = 0.0f;
+                    level = 0.0f;
                 else
-                    f = 96.0f - 874.0f / r;
-                if (f < 0.0f) f = 0.0f;
-                *(float *)((char *)self->ctl + 0xe0) = f;
+                    level = 96.0f - 874.0f / r;
+                if (level < 0.0f) level = 0.0f;
+                self->ctl->level = level;
             }
             {
-                float m = Min(dist, DAT_002d665c);
-                short s = (short)(m * 0.25f);
-                self->params.b = s;
-                self->params.a = s;
+                float limited = Min(dist, DAT_002d665c);
+                short extent = (short)(limited * 0.25f);
+                self->params.b = extent;
+                self->params.a = extent;
             }
             self->params.gain *= 1.5f;
-            if (DAT_003386b0->players[idx]->flag == 0)
+            if (DAT_003386b0->players[player_index]->flag == 0)
                 self->params.pitch = 1.2f;
             else
                 self->params.pitch = 2.4f;
@@ -261,29 +264,29 @@ extern "C" void FUN_000d13e4(Shot *self, int idx, int type_, int sfx, int side, 
                 self->Link(self->handles->h2, self->handles->h3, 0);
             }
             {
-                int i = 0;
-                Vec4 c;
-                if (side == 0) i = 2;
-                if (side == 1) i = 1;
-                if (side == 2) i = 0;
-                c.x = DAT_002c0440[i].x;
-                c.y = DAT_002c0440[i].y;
-                c.z = DAT_002c0440[i].z;
-                c.w = DAT_002c0440[i].w;
-                c.w = c.w * 0.75f;
-                self->lamp->SetColor(&c);
+                int color_index = 0;
+                Vec4 color;
+                if (side == 0) color_index = 2;
+                if (side == 1) color_index = 1;
+                if (side == 2) color_index = 0;
+                color.x = DAT_002c0440[color_index].x;
+                color.y = DAT_002c0440[color_index].y;
+                color.z = DAT_002c0440[color_index].z;
+                color.w = DAT_002c0440[color_index].w;
+                color.w = color.w * 0.75f;
+                self->lamp->SetColor(&color);
             }
             if (self->m188) { delete self->m188; self->m188 = 0; }
         }
     }
     if (play) {
-        Sfx64 s = DAT_002bc410;
-        s.pos = from;
-        FUN_000ce754(DAT_003386b0->hud->id, &s, sfx, 3500.0f, 1.0f, 1, 0.0f);
+        Sfx64 fx = DAT_002bc410;
+        fx.pos = from;
+        FUN_000ce754(DAT_003386b0->hud->id, &fx, sfx, 3500.0f, 1.0f, 1, 0.0f);
     }
     if (sfx == 14) {
-        Sfx64 s = DAT_002bc410;
-        s.pos = from;
-        FUN_000ce754(DAT_003386b0->hud->id, &s, 1, 3500.0f, 1.0f, 1, 0.0f);
+        Sfx64 fx = DAT_002bc410;
+        fx.pos = from;
+        FUN_000ce754(DAT_003386b0->hud->id, &fx, 1, 3500.0f, 1.0f, 1, 0.0f);
     }
 }

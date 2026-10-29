@@ -1,9 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0010c2b4 end=0x0010c2c0 symbol=FUN_0010c2b4 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/stream_obj.h"
 
-void FUN_0010c2b4(int param_1)
+/* Clears two integer fields of the stream. */
+void FUN_0010c2b4(StreamObj *self)
 {
-  *(u32 *)(param_1 + 8) = 0;
-  *(u32 *)(param_1 + 0x68) = 0;
+  self->unk08 = 0;
+  self->unk68 = 0;
 }

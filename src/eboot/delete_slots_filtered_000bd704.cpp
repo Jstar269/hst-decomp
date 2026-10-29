@@ -1,29 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000bd704 end=0x000bd7a4 symbol=FUN_000bd704 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: loop index declared before the walking pointer (s-register order); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: loop index declared before the walking pointer (s-register order); readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/member_host.h"
 
-extern "C" {
-}
-struct VC_0 { virtual ~VC_0(); };
-
-extern "C" void FUN_000bd704(int param_1,int param_2)
+/* Deletes the owned object of every member slot (or only slot `which`; a negative value means all). */
+extern "C" void FUN_000bd704(MemberHost *self,int which)
 {
-  int iVar3;
-  int iVar2;
-  int *piVar1;
+  int i;
+  OwnedObj *obj;
   
-  iVar3 = 0;
-  iVar2 = param_1;
+  i = 0;
   do {
-    if ((*(int *)(iVar2 + 0x1dc) != 0) && ((param_2 == iVar3 || (param_2 < 0)))) {
-      *(u8 *)(param_1 + iVar3 + 0x21c) = 0;
-      piVar1 = *(int **)(iVar2 + 0x1dc);
-      if (piVar1 != (int *)0x0) {
-        delete ((VC_0 *)(piVar1));
-        *(u32 *)(iVar2 + 0x1dc) = 0;
+    if ((self->slots[i] != 0) && ((which == i || (which < 0)))) {
+      self->flags[i] = 0;
+      obj = self->slots[i];
+      if (obj != 0) {
+        delete obj;
+        self->slots[i] = 0;
       }
     }
-    iVar3 = iVar3 + 1;
-    iVar2 = iVar2 + 4;
-  } while (iVar3 < 0x10);
+    i = i + 1;
+  } while (i < MEMBER_MAX);
 }

@@ -4,10 +4,11 @@
 
 extern int FUN_0000430c();
 
-bool FUN_000d9ab8(u32 param_1,u32 param_2,u32 param_3)
+/* Comparator: true when FUN_0000430c reports a before b; the first argument (the comparator object) is unused. */
+bool FUN_000d9ab8(u32 self,u32 a,u32 b)
 {
-  int iVar1;
+  int result;
   
-  iVar1 = FUN_0000430c(param_2,param_3);
-  return iVar1 < 0;
+  result = FUN_0000430c(a,b);
+  return result < 0;
 }

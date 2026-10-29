@@ -18,7 +18,7 @@ struct NodeA {
   NodeA *f4;
   NodeA *f8;
   NodeA *fc;
-  void *f10;
+  void *sub;
 };
 struct NodeB {
   NodeB *prev;
@@ -29,7 +29,7 @@ struct Tree { int header; };
 struct Obj {
   void *vptr;
   char pad4[0x10];
-  void *f14;
+  void *items; /* 0x14 item states, cleared on teardown */
   char pad18[0x10];
   int f28;
   NodeB sentinelB;
@@ -59,21 +59,21 @@ extern "C" void *FUN_00069270(Obj *self, short flag)
       NodeA *it = self->sentinelA.f8;
       if (it != &self->sentinelA) {
         do {
-          void *sub = it->f10;
+          void *sub = it->sub;
           if (sub != 0) {
             delete (VC_0 *)sub;
-            it->f10 = 0;
+            it->sub = 0;
           }
           FUN_000643e8(&it);
         } while (it != &self->sentinelA);
       }
     }
-    if (self->f14 != 0) {
-      FUN_00057730(self->f14);
+    if (self->items != 0) {
+      FUN_00057730(self->items);
       if (DAT_00331c28 != 0) {
-        FUN_0006ac74((char *)DAT_00331c28 + 0x10, self->f14);
+        FUN_0006ac74((char *)DAT_00331c28 + 0x10, self->items);
       }
-      self->f14 = 0;
+      self->items = 0;
     }
     if ((&self->tree != 0) && (&self->tree != 0) && (&self->tree != 0) && (&self->tree != 0)) {
       FUN_0006b69c(&self->tree, 0);

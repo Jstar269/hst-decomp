@@ -1,5 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0024e30c end=0x0024e6a0 symbol=FUN_0024e30c lang=c++ data=0x002fbf00 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (8 strings, 0x002fbf00-0x002fbfb9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+#define MAX_NPCS 256
+#define NPC_STATE_POOLED 0         /* state 0: goes to the fallback pool */
+#define NPC_STATE_LIMITED_MAX 10   /* states 1..10: listed when the per-state check passes */
+#define NPC_STATE_ALWAYS_LISTED 99 /* state 99: always listed */
+#define SPOT_MIN_SCORE 4           /* minimum result of the per-spot check */
+
 struct Npc {
     char pad0[0x20];
     unsigned short id;
@@ -10,7 +16,12 @@ struct Npc {
     char pad3a[0x16];
     short state;
 };
-struct Spot;
+/* Spot record: position at +0x36. */
+struct Spot {
+    char pad[0x36];
+    short x;
+    short y;
+};
 inline void *operator new[](unsigned, void *p) { return p; }
 extern "C" {
 extern unsigned DAT_00310fc8;
@@ -24,21 +35,21 @@ void FUN_0019335c(Npc **, Npc **, Spot *);
 void FUN_0024e6a0(const char *, ...);
 void FUN_0001cfa4(unsigned *, int, int);
 }
-struct SpotPos {
-    char pad[0x36];
-    short x;
-    short y;
+/* Entry of the sort array: sort key and the id it stands for (both set to the NPC id). */
+struct SortEntry {
+    unsigned key;
+    unsigned id;
 };
 
 extern "C" Npc *FUN_0024e30c(unsigned want)
 {
-    Npc *chosen[256];
-    Npc *pool[256];
-    unsigned pairs[512];
+    Npc *chosen[MAX_NPCS];
+    Npc *pool[MAX_NPCS];
+    SortEntry entries[MAX_NPCS];
     Npc *who[2];
     int count = 0;
     int npool = 0;
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < MAX_NPCS; i++) {
         chosen[i] = 0;
         pool[i] = 0;
     }
@@ -49,18 +60,18 @@ extern "C" Npc *FUN_0024e30c(unsigned want)
             int st = p->state;
             unsigned char ok = 0;
             if (st >= 0) {
-                if (st == 0) {
+                if (st == NPC_STATE_POOLED) {
                     pool[npool++] = p;
-                } else if (st < 11) {
+                } else if (st <= NPC_STATE_LIMITED_MAX) {
                     ok = FUN_0022c988(st - 1);
-                } else if (st == 99) {
+                } else if (st == NPC_STATE_ALWAYS_LISTED) {
                     ok = 1;
                 }
             }
             if (ok) {
                 chosen[count] = p;
-                pairs[count * 2] = p->id;
-                pairs[count * 2 + 1] = p->id;
+                entries[count].key = p->id;
+                entries[count].id = p->id;
                 count++;
             }
         }
@@ -68,7 +79,7 @@ extern "C" Npc *FUN_0024e30c(unsigned want)
     int m = FUN_0019319c();
     for (int i = 0; i < m; i++) {
         Spot *s = FUN_001930c4(i);
-        if (s && FUN_0022ab44(((SpotPos *)s)->x, ((SpotPos *)s)->y, 0) >= 4) {
+        if (s && FUN_0022ab44(s->x, s->y, 0) >= SPOT_MIN_SCORE) {
             new (who) char[8]();
             FUN_0019335c(&who[0], &who[1], s);
             for (int j = 0; j < npool; j++) {
@@ -76,8 +87,8 @@ extern "C" Npc *FUN_0024e30c(unsigned want)
                     chosen[count] = pool[j];
                     Npc *p = pool[j];
                     pool[j] = 0;
-                    pairs[count * 2] = p->id;
-                    pairs[count * 2 + 1] = p->id;
+                    entries[count].key = p->id;
+                    entries[count].id = p->id;
                     count++;
                 }
             }
@@ -85,16 +96,16 @@ extern "C" Npc *FUN_0024e30c(unsigned want)
     }
     FUN_0024e6a0("\n");
     FUN_0024e6a0("******** ExhibitionRandomNpc Calc Start. ********\n");
-    FUN_0001cfa4(pairs, 0, count - 1);
+    FUN_0001cfa4((unsigned *)entries, 0, count - 1);
     FUN_0024e6a0("npcList = {");
     for (int i = 0; i < count; i++)
-        FUN_0024e6a0("%03d,", pairs[i * 2 + 1]);
+        FUN_0024e6a0("%03d,", entries[i].id);
     FUN_0024e6a0("};\n");
     FUN_0024e6a0("ListLength = %d\n", count);
     FUN_0024e6a0("\n");
     Npc *r;
     do {
-        DAT_00310fc8 = DAT_00310fc8 * 0x343fd + 0x269ec3;
+        DAT_00310fc8 = DAT_00310fc8 * 0x343fd + 0x269ec3; /* linear congruential step */
         r = chosen[(int)((DAT_00310fc8 >> 16) & 0x7fff) % count];
         if (!want)
             break;

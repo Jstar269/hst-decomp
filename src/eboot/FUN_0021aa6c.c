@@ -1,13 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021aa6c end=0x0021aabc symbol=FUN_0021aa6c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/selection_menu.h"
 
 extern void FUN_00000a00();
 extern void FUN_0021ab00();
 
-int FUN_0021aa6c(int param_1,short param_2)
+/* Deleting destructor of the state holder: releases the menu (FUN_0021ab00), then frees the object when flags is positive. */
+SelectionState *FUN_0021aa6c(SelectionState *self,short flags)
 {
-  if ((param_1 != 0) && (FUN_0021ab00(), 0 < param_2)) {
-    FUN_00000a00(param_1);
+  if ((self != 0) && (FUN_0021ab00(), 0 < flags)) {
+    FUN_00000a00(self);
   }
-  return param_1;
+  return self;
 }

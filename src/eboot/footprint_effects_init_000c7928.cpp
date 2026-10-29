@@ -63,27 +63,28 @@ struct Self {
 extern Ctx *DAT_003386b0;
 extern Game *DAT_003402a0;
 
+/* Load the piyori banner and the footprint effect and animation (variant chosen by DAT_003402a0->court), then set up one sprite per active slot. */
 extern "C" void FUN_000c7928(Self *self)
 {
     if (self->piyori == 0) {
-        Banner *b = (Banner *)FUN_00000bcc(0x1b0);
-        if (b)
-            b = FUN_00056b98(b);
-        self->piyori = b;
+        Banner *banner = (Banner *)FUN_00000bcc(0x1b0);
+        if (banner)
+            banner = FUN_00056b98(banner);
+        self->piyori = banner;
     }
     self->piyori->Load("data/menu/game_eff/piyori/eff_piyori.i3r", "data/menu/game_eff/piyori/", 0, 0, 0, 0);
     FUN_000573a0(self->piyori, 0, "data/menu/game_eff/piyori/eff_piyori.i3m", 0, 0);
     if (self->effect == 0) {
-        Effect *e = (Effect *)FUN_00000bcc(0x30);
-        if (e)
-            e = FUN_000535d8(e);
-        self->effect = e;
+        Effect *effect = (Effect *)FUN_00000bcc(0x30);
+        if (effect)
+            effect = FUN_000535d8(effect);
+        self->effect = effect;
     }
     if (self->anim == 0) {
-        Anim *a = (Anim *)FUN_00000bcc(0x10);
-        if (a)
-            a = FUN_00055dd0(a);
-        self->anim = a;
+        Anim *anim = (Anim *)FUN_00000bcc(0x10);
+        if (anim)
+            anim = FUN_00055dd0(anim);
+        self->anim = anim;
     }
     int court = DAT_003402a0->court;
     if (court == 3 || court == 5 || court == 9 || court == 13 || court == 15) {
@@ -105,15 +106,15 @@ extern "C" void FUN_000c7928(Self *self)
             self->prints[i].SetEffect(self->effect);
             FUN_0005743c(&self->prints[i], 0, self->anim, 0);
             FUN_00057b58(&self->prints[i], 0.0f, 0, 0);
-            Sprite *s = &self->prints[i];
-            FUN_00058ec4(1.0f, s, -1);
-            s->alpha = 1.0f;
-            s = &self->prints[i];
-            FUN_00058ddc(s, 1, -1);
-            s->visible = 1;
-            s = &self->prints[i];
-            FUN_00059084(s, -1);
-            s->alpha2 = s->alpha;
+            Sprite *sprite = &self->prints[i];
+            FUN_00058ec4(1.0f, sprite, -1);
+            sprite->alpha = 1.0f;
+            sprite = &self->prints[i];
+            FUN_00058ddc(sprite, 1, -1);
+            sprite->visible = 1;
+            sprite = &self->prints[i];
+            FUN_00059084(sprite, -1);
+            sprite->alpha2 = sprite->alpha;
         }
     }
 }

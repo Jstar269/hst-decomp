@@ -1,13 +1,15 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025b160 end=0x0025b1a4 symbol=FUN_0025b160 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/deque_owner.h"
 
-void FUN_0025b160(int *param_1,int *param_2)
+/* begin() of a circular deque: iterator at the first element, spanning the whole block. */
+void FUN_0025b160(CdequeIter *out,Cdeque *deque)
 {
-  int iVar1;
+  int *data;
   
-  *param_1 = param_2[3] + param_2[2] * 4;
-  iVar1 = param_2[3];
-  param_1[1] = iVar1;
-  param_1[2] = iVar1 + param_2[2] * 4;
-  param_1[3] = param_1[1] + *param_2 * 4;
+  out->ptr = deque->data + deque->start;
+  data = deque->data;
+  out->beg = data;
+  out->first = data + deque->start;
+  out->end = out->beg + deque->cap;
 }

@@ -38,6 +38,8 @@ struct Holder {
 };
 struct ObjHolder { int x; Obj1 *p; int pad[3]; };
 
+enum { ITEM_SLOT_COUNT = 21 };
+
 struct Self {
     char pad[0x1960];
     VObj *v1960;
@@ -61,7 +63,7 @@ struct Self {
     Holder h1;
     ObjHolder h;
     char pad2[0x1adc - 0x1ac0];
-    void *items[21];
+    void *items[ITEM_SLOT_COUNT];
     int mode;
     char pad3[0x1d64 - 0x1b34];
     void *x1d64;
@@ -103,10 +105,11 @@ static inline int Clamp(int v, const int &lo, const int &hi)
     return v < lo ? lo : (hi < v ? hi : v);
 }
 
+/* Switches the panel to a new mode: hides every item, then shows and positions the widgets that mode uses and stores the mode. */
 extern "C" void FUN_001e6224(Self *self, int mode, int n, int p4, int flag0)
 {
     int i;
-    for (i = 0; i < 21; i++) {
+    for (i = 0; i < ITEM_SLOT_COUNT; i++) {
         if (self->items[i] != 0)
             FUN_00103628(self->items[i], 1);
     }

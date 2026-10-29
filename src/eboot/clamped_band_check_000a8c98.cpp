@@ -16,26 +16,28 @@ template <typename T>
 static inline const T &min(const T &a, const T &b) { return (b < a) ? b : a; }
 
 struct Vec4 { float x, y, z, w; };
-struct Ctx { char pad[0x24]; float f24; };
-struct Obj { char pad[0x150]; int f150; };
+struct Ctx { char pad[0x24]; float unk24; /* 0x24 */ };
+struct Obj { char pad[0x150]; int unk150; /* 0x150 */ };
 
-extern "C" unsigned char FUN_000a8c98(Obj *param_1, int param_2, int param_3, unsigned char param_4)
+/* Takes the difference of the two arguments, clamps its x from below or above depending on flag, and returns 1
+   when its y lies strictly between a limit derived from the context and zero. */
+extern "C" unsigned char FUN_000a8c98(Obj *obj, int a, int b, unsigned char flag)
 {
-    Vec4 local_10;
-    Vec4 local_20;
+    Vec4 clamped;
+    Vec4 delta;
 
-    FUN_00022434(&local_20, param_2, param_3);
-    local_10 = local_20;
+    FUN_00022434(&delta, a, b);
+    clamped = delta;
 
-    if (param_4 == (param_1->f150 == 0)) {
-        local_10.x = max(DAT_002d46a4, local_10.x);
+    if (flag == (obj->unk150 == 0)) {
+        clamped.x = max(DAT_002d46a4, clamped.x);
     } else {
-        local_10.x = min(DAT_002d46a8, local_10.x);
+        clamped.x = min(DAT_002d46a8, clamped.x);
     }
 
     bool ok;
-    if (local_10.y > DAT_003411fc * 0.01f * -(FUN_000b3c68(param_1)->f24 * 0.01f) &&
-        local_10.y < 0.0f) {
+    if (clamped.y > DAT_003411fc * 0.01f * -(FUN_000b3c68(obj)->unk24 * 0.01f) &&
+        clamped.y < 0.0f) {
         ok = true;
     } else {
         ok = false;

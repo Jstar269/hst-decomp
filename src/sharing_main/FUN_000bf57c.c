@@ -5,9 +5,10 @@
 extern u32 DAT_003e1e04;
 extern void FUN_000bf8a8();
 
-void FUN_000bf57c(u32 param_1,u32 param_2)
+/* Forwards the pair to the environment object's queue push when the object exists. */
+void FUN_000bf57c(u32 first,u32 second)
 {
   if (DAT_003e1e04 != 0) {
-    FUN_000bf8a8(DAT_003e1e04,param_1,param_2);
+    FUN_000bf8a8(DAT_003e1e04,first,second);
   }
 }

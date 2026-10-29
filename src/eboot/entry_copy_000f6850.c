@@ -11,14 +11,20 @@ typedef struct {
   unsigned char c;
 } Entry;
 
-void FUN_000f6850(int param_1,int param_2,Entry *param_3)
+typedef struct EntryHolder {
+  char pad00[0x830];
+  Entry **entries;  /* 0x830 table of entry pointers */
+} EntryHolder;
+
+/* Copy src into the index-th entry of the table. */
+void FUN_000f6850(EntryHolder *self,int index,Entry *src)
 {
-  Entry *e = (*(Entry ***)(param_1 + 0x830))[param_2];
-  e->pos.x = param_3->pos.x;
-  e->pos.y = param_3->pos.y;
-  e->pos.z = param_3->pos.z;
-  e->rot = param_3->rot;
-  e->a = param_3->a;
-  e->b = param_3->b;
-  e->c = param_3->c;
+  Entry *e = self->entries[index];
+  e->pos.x = src->pos.x;
+  e->pos.y = src->pos.y;
+  e->pos.z = src->pos.z;
+  e->rot = src->rot;
+  e->a = src->a;
+  e->b = src->b;
+  e->c = src->c;
 }

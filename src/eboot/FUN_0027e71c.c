@@ -1,17 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0027e71c end=0x0027e748 symbol=FUN_0027e71c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/dtor_pair_obj.h"
 
 extern u8 DAT_00309c7c;
 
-u32 * FUN_0027e71c(u32 *param_1)
+/* Constructor: sets the vtable and clears the six words after it. */
+DtorPairObj * FUN_0027e71c(DtorPairObj *self)
 {
-  *param_1 = (unsigned int)(&DAT_00309c7c);
-  param_1[1] = 0;
-  param_1[2] = 0;
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[6] = 0;
-  return param_1;
+  self->vtable = &DAT_00309c7c;
+  self->unk4 = 0;
+  self->unk8 = 0;
+  self->unkc = 0;
+  self->unk10 = 0;
+  self->unk14 = 0;
+  self->unk18 = 0;
+  return self;
 }

@@ -2,7 +2,9 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* matching idiom: the global read of DAT_002eba54 uses an empty loop as the join that makes MWCC keep
    the address unfolded (retail: lui v0,hi ; addiu v0,v0,lo ; lw a1,0(v0)). */
+#include "hst/main_result_obj.h"
 
+/* One lookup request: slot in the child's table, name to look up, and where the result's field is stored. */
 typedef struct { int idx; int name; int out; } Rec;
 
 extern "C" Rec DAT_002eba68[];
@@ -16,7 +18,11 @@ extern "C" void FUN_00103540(void *, float);
 extern "C" void *FUN_001039d8(void *, void *, int);
 extern "C" void *FUN_001026b8(void *, void *);
 
-extern "C" void *FUN_001dd28c(char *o) {
+#define MAIN_RESULT_MODE_INITIAL 5
+#define MAIN_RESULT_ITEM_COUNT 2
+
+extern "C" MainResultObj *FUN_001dd28c(MainResultObj *self) {
+    char *o = (char *)self; // raw byte view: typed field access here changes the loop code
     int i;
     Rec *r;
     int off;
@@ -37,7 +43,7 @@ extern "C" void *FUN_001dd28c(char *o) {
         i = i + 1;
         off = off + 4;
         r++;
-    } while (i < 2);
-    *(int *)(o + 0x54) = 5;
-    return o;
+    } while (i < MAIN_RESULT_ITEM_COUNT);
+    *(int *)(o + 0x54) = MAIN_RESULT_MODE_INITIAL;
+    return self;
 }

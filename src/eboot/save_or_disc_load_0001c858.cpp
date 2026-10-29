@@ -1,12 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0001c858 end=0x0001ca58 symbol=FUN_0001c858 lang=c++ data=0x002cfc34 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (2 strings, 0x002cfc34-0x002cfc83) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 #include "hst/types.h"
-struct Loader {
-    char pad[0x1008];
-    u8 loaded;
-    u8 result;
-    u8 use_save;
-};
+#include "hst/loader_obj.h"
+
 inline void *operator new[](unsigned, void *p) { return p; }
 extern int DAT_002cfae4;
 extern int DAT_0030abb4;
@@ -19,7 +15,8 @@ extern "C" void FUN_0001c0fc(char *, int);
 extern "C" void FUN_000143b0(char *, char *, char *);
 extern "C" u8 FUN_0001c010(char *, char *, int);
 
-extern "C" u8 FUN_0001c858(Loader *self)
+/* Load the game data bundle by lower-cased name: from the memory-stick saved copy when use_save is set (falling back to the disc file), else from the disc; returns the result flag. */
+extern "C" u8 FUN_0001c858(LoaderObj *self)
 {
     char name[128];
     char path[128];

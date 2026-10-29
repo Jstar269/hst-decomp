@@ -10,16 +10,16 @@ struct Obj {
     char pad170[0x190 - 0x170];
     int mode;
     char pad194[0x1b0 - 0x194];
-    Vec4 v1b0;
-    Vec4 v1c0;
+    Vec4 pos;
+    Vec4 prev_pos;
     char pad1d0[0x220 - 0x1d0];
-    unsigned char f220;
-    unsigned char f221;
+    unsigned char flag220;
+    unsigned char flag221;
     char pad222[0x250 - 0x222];
     int counter;
     char pad254[0x320 - 0x254];
-    float f320;
-    float f324;
+    float walk_speed;
+    float run_speed;
 };
 
 extern "C" {
@@ -57,6 +57,7 @@ inline const float &Min(const float &a, const float &b)
     return b < a ? b : a;
 }
 
+/* Per-frame update of the avatar movement mode: starts/stops walk and run by input length, drives the animation rate, steps the mode counter. */
 extern "C" void FUN_00129b74(Obj *self)
 {
     Vec4 diff, tmp;
@@ -66,7 +67,7 @@ extern "C" void FUN_00129b74(Obj *self)
     case 4:
     case 5:
         if (FUN_0012c1c4(3) != 0) {
-            if (self->f220 != 0 || self->f221 != 0) {
+            if (self->flag220 != 0 || self->flag221 != 0) {
                 FUN_00128764(self);
                 FUN_0012a254(self, 11, -1, 0);
             }
@@ -82,20 +83,20 @@ extern "C" void FUN_00129b74(Obj *self)
         }
         if (self->mode == 4) {
             float len = Length(self->v160);
-            float rate = DAT_002da3a0 / self->f320;
+            float rate = DAT_002da3a0 / self->walk_speed;
             rate *= len;
             FUN_000937a0(self, Min(DAT_002da3b8, rate), -1);
             FUN_00093be0(self, -1);
         } else if (self->mode == 5) {
             float len = Length(self->v160);
-            float rate = DAT_002da3a8 / self->f324;
+            float rate = DAT_002da3a8 / self->run_speed;
             rate *= len;
             FUN_000937a0(self, Min(DAT_002da3b8, rate), -1);
             FUN_00093be0(self, -1);
         }
         break;
     case 11:
-        if (self->f220 != 0) {
+        if (self->flag220 != 0) {
             FUN_0012a254(self, 0, -1, 0);
         } else if (FUN_0012c1c4(3) != 0) {
             if (self->counter >= DAT_002da3dc && self->counter <= DAT_002da3dc + DAT_002da3e0) {
@@ -104,16 +105,16 @@ extern "C" void FUN_00129b74(Obj *self)
         }
         break;
     case 12:
-        FUN_00022434(&tmp, &self->v1c0, &self->v1b0);
+        FUN_00022434(&tmp, &self->prev_pos, &self->pos);
         diff = tmp;
         if (LengthSq(diff) < 1e-5f) {
             FUN_0012b2b0(self, 1, 1, -1.0f);
         } else if (LengthSq(diff) < DAT_002da3a0 * DAT_002da3a0) {
             FUN_0012b360(self, 1);
-            FUN_000937a0(self, Min(DAT_002da3b8, Length(diff) / self->f320), -1);
+            FUN_000937a0(self, Min(DAT_002da3b8, Length(diff) / self->walk_speed), -1);
         } else {
             FUN_0012b3d4(self, 1);
-            FUN_000937a0(self, Min(DAT_002da3b8, Length(diff) / self->f324), -1);
+            FUN_000937a0(self, Min(DAT_002da3b8, Length(diff) / self->run_speed), -1);
         }
         FUN_00093be0(self, -1);
         break;

@@ -21,7 +21,7 @@ static inline float Min(const float &a, const float &b)
   return !(a > b) ? a : b;
 }
 
-static inline bool Inside(int param_1, float *param_2)
+static inline bool Inside(int obj, float *off)
 {
   float v;
   float res;
@@ -30,7 +30,7 @@ static inline bool Inside(int param_1, float *param_2)
   float w1;
   float blend;
 
-  v = param_2[2] - DAT_0034129c * 0.01f;
+  v = off[2] - DAT_0034129c * 0.01f;
   res = 0.0f;
   av = fabsf(v);
   if (av > FUN_001621c0(DAT_00341120, 0) * 0.01f) {
@@ -50,11 +50,11 @@ static inline bool Inside(int param_1, float *param_2)
     }
     res = Min(q, DAT_002d46ac);
   }
-  w1 = FUN_00164474(FUN_000b3c68(param_1), *(int *)(param_1 + 0x440)) * 0.01f;
-  w2 = FUN_0016442c(FUN_000b3c68(param_1), *(int *)(param_1 + 0x440)) * 0.01f;
-  blend = (1.0f - (w2 + res * (w1 - w2))) * (*(float *)(FUN_000b3c68(param_1) + 0x2c) * 0.01f);
+  w1 = FUN_00164474(FUN_000b3c68(obj), *(int *)(obj + 0x440)) * 0.01f;
+  w2 = FUN_0016442c(FUN_000b3c68(obj), *(int *)(obj + 0x440)) * 0.01f;
+  blend = (1.0f - (w2 + res * (w1 - w2))) * (*(float *)(FUN_000b3c68(obj) + 0x2c) * 0.01f);
   bool r;
-  if (fabsf(param_2[0]) < blend) {
+  if (fabsf(off[0]) < blend) {
     r = true;
   } else {
     r = false;
@@ -62,10 +62,10 @@ static inline bool Inside(int param_1, float *param_2)
   return r;
 }
 
-static inline bool Second(int param_1, float *param_2)
+static inline bool Second(int obj, float *off)
 {
   bool r;
-  if (fabsf(param_2[0]) < *(float *)(FUN_000b3c68(param_1) + 0x2c) * 0.01f && !Inside(param_1, param_2)) {
+  if (fabsf(off[0]) < *(float *)(FUN_000b3c68(obj) + 0x2c) * 0.01f && !Inside(obj, off)) {
     r = true;
   } else {
     r = false;
@@ -73,7 +73,8 @@ static inline bool Second(int param_1, float *param_2)
   return r;
 }
 
-extern "C" bool FUN_000ab044(int param_1, float *param_2)
+/* True when the offset is inside the blended band, or inside the plain band but not the blended one. */
+extern "C" bool FUN_000ab044(int obj, float *off)
 {
-  return Inside(param_1, param_2) || Second(param_1, param_2);
+  return Inside(obj, off) || Second(obj, off);
 }

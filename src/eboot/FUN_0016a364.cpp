@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0016a364 end=0x0016a47c symbol=FUN_0016a364 lang=c++ */
-/* Hand-written reconstruction from the disassembly; matching idioms: a Vec4 with a four-float constructor (arguments evaluated right to left, so t.x/t.z are re-stored from the transformed vector), a local float zero kept in a variable so MWCC does not fold x - 0.0f, and x/y/z of the result read into locals before the stores; exact match verified; names and types await human review. */
+/* Hand-written reconstruction from the disassembly; matching idioms: a Vec4 with a four-float constructor (arguments evaluated right to left, so side.x/side.z are re-stored from the transformed vector), a local float zero kept in a variable so MWCC does not fold x - 0.0f, and x/y/z of the result read into locals before the stores; exact match verified; names and types await human review. */
 struct Vec4 {
     float x, y, z, w;
     Vec4() {}
@@ -20,26 +20,28 @@ Vec4 *FUN_00022548(Vec4 *, const Mat4 *, const Vec4 *);
 Vec4 *FUN_00022418(Vec4 *, const Vec4 *, const Vec4 *);
 }
 
-extern "C" void FUN_0016a364(Vec4 *out, Vec4 *pos, float *ang)
+/* Swings pos around the vertical axis: a horizontal vector of the distance from FUN_0016a47c is rotated by the yaw
+   of pos plus *yaw_add, then the height of pos is added back. */
+extern "C" void FUN_0016a364(Vec4 *out, Vec4 *pos, float *yaw_add)
 {
-    Vec4 t;
-    Vec4 u;
-    Mat4 m;
-    Vec4 o;
-    Vec4 r;
+    Vec4 side;
+    Vec4 up;
+    Mat4 rot;
+    Vec4 origin;
+    Vec4 sum;
 
     float zero = 0.0f;
-    float a = FUN_0000c6dc(pos->x - zero, pos->z - zero);
-    o = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    t = Vec4(0.0f, 0.0f, FUN_0016a47c(pos, &o), 1.0f);
-    FUN_0004d2cc(a + ang[0], &m, &DAT_002bc410);
-    FUN_00022548(&t, &m, &t);
-    u = Vec4(0.0f, pos->y, 0.0f, 1.0f);
-    t = Vec4(t.x, 0.0f, t.z, 1.0f);
-    FUN_00022418(&r, &t, &u);
-    float x = r.x;
-    float y = r.y;
-    float z = r.z;
+    float yaw = FUN_0000c6dc(pos->x - zero, pos->z - zero);
+    origin = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    side = Vec4(0.0f, 0.0f, FUN_0016a47c(pos, &origin), 1.0f);
+    FUN_0004d2cc(yaw + yaw_add[0], &rot, &DAT_002bc410);
+    FUN_00022548(&side, &rot, &side);
+    up = Vec4(0.0f, pos->y, 0.0f, 1.0f);
+    side = Vec4(side.x, 0.0f, side.z, 1.0f);
+    FUN_00022418(&sum, &side, &up);
+    float x = sum.x;
+    float y = sum.y;
+    float z = sum.z;
     out->x = x;
     out->y = y;
     out->z = z;

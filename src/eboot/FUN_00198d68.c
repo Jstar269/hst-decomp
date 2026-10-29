@@ -1,18 +1,23 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00198d68 end=0x00198de0 symbol=FUN_00198d68 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: expressed range and null checks as ordered early returns; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: expressed range and null checks as ordered early returns; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/text_draw.h"
+
+#define NAME_SLOTS 4    /* name strings held by the text object */
+#define NAME_SIZE 8     /* bytes per name slot, including the terminator */
 
 extern u32 * FUN_000149a8();
 extern int FUN_00014a40();
 
-void FUN_00198d68(int param_1,int param_2,int param_3)
+/* Copies name into the slot; ignored for an index outside the slots, a null name or one too long for the slot. */
+void FUN_00198d68(TextDraw *text,int index,char *name)
 {
-  u32 uVar1;
+  u32 length;
 
-  if (param_2 < 0) return;
-  if (param_2 >= 4) return;
-  if (param_3 == 0) return;
-  uVar1 = FUN_00014a40(param_3);
-  if (uVar1 >= 8) return;
-  FUN_000149a8(param_1 + param_2 * 8 + 0xa0,param_3);
+  if (index < 0) return;
+  if (index >= NAME_SLOTS) return;
+  if (name == 0) return;
+  length = FUN_00014a40(name);
+  if (length >= NAME_SIZE) return;
+  FUN_000149a8(text->names[index],name);
 }

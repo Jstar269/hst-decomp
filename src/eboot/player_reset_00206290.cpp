@@ -1,12 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00206290 end=0x00206640 symbol=FUN_00206290 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#define SLOT_COUNT 6
+#define MODE_FALLBACK_SLOT 99  /* value passed to the setup helper when the first table entry is out of range */
+#define FIRST_ENTRY_LIMIT 15
+#define ASSERT_LINE 1150
+
 struct Elem {
     char pad[0x1b4];
     int f1b4;
-};
-struct Slots {
-    char pad[0x50];
-    Elem *s[6];
 };
 struct Slots2 {
     char pad[0x64];
@@ -42,7 +43,7 @@ struct Player {
     int f48;
     int f4c;
     int f50;
-    int tab[6];
+    int tab[SLOT_COUNT];
     unsigned char f6c;
     char pad6d[3];
     int f70;
@@ -57,7 +58,7 @@ struct Arg {
     unsigned char f7c;
 };
 
-extern int DAT_002c93b0[6];
+extern int DAT_002c93b0[SLOT_COUNT];
 extern char DAT_002ef6d4[];
 extern char DAT_002ef700[];
 extern char DAT_002ef724[];
@@ -82,7 +83,7 @@ struct Tag {};
 static inline int SlotValue(int i, Tag)
 {
     int v;
-    if (i >= 0 && i < 6) {
+    if (i >= 0 && i < SLOT_COUNT) {
         v = DAT_002c93b0[i];
     } else {
         v = 0;
@@ -90,19 +91,20 @@ static inline int SlotValue(int i, Tag)
     return v;
 }
 
+/* Resets the player: frees the per-slot objects, reloads the six slot values (from the table, or from the core's entries when mode is non-zero) and restarts the core. */
 void FUN_00206290(Player *self, unsigned char mode, Arg *arg)
 {
-    int a[6];
-    int b[6];
+    int a[SLOT_COUNT]; /* values read from the table */
+    int b[SLOT_COUNT]; /* values read from the core entries */
     self->f74 = mode;
     if (FUN_00049094(0) == 0) {
         FUN_002059ec(DAT_002ef6d4);
-        FUN_002059ec(DAT_002ef700, DAT_002ef724, 1150);
+        FUN_002059ec(DAT_002ef700, DAT_002ef724, ASSERT_LINE);
         FUN_002059ec(DAT_002ef734);
     }
     FUN_00049094(1);
     if (self->f74 == 0) {
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < SLOT_COUNT; i++) {
             Core *c0 = self->core;
             FUN_00092c38(c0, SlotValue(i, Tag()));
         }
@@ -148,13 +150,13 @@ void FUN_00206290(Player *self, unsigned char mode, Arg *arg)
         if (e5) b[5] = e5->f1b4;
         FUN_00011090(self->tab, b, 24);
     }
-    if (self->tab[0] >= 0 && self->tab[0] < 15) {
+    if (self->tab[0] >= 0 && self->tab[0] < FIRST_ENTRY_LIMIT) {
         self->f6c = 0;
     } else {
         self->f6c = 1;
     }
     if (self->f6c != 0) {
-        FUN_0020507c(self, 99);
+        FUN_0020507c(self, MODE_FALLBACK_SLOT);
     } else {
         FUN_0020507c(self, self->tab[0]);
     }
@@ -166,7 +168,7 @@ void FUN_00206290(Player *self, unsigned char mode, Arg *arg)
         do {
             FUN_0005743c(e, k, self->v[k], flag);
             k++;
-        } while (k < 6);
+        } while (k < SLOT_COUNT);
     }
     FUN_00094424(self->core);
     ((Part *)self->core)->m1();

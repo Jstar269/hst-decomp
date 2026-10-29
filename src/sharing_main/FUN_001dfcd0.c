@@ -2,12 +2,14 @@
 /* Clone of src/eboot/FUN_001d1ecc.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
+#define CFG_MASK 0x2000 /* mask passed to both calls on the global object */
+
 extern u32 DAT_003751d4;
 extern void FUN_0001dc34();
 extern void FUN_0001de88();
 
 void FUN_001dfcd0(void)
 {
-  FUN_0001dc34(DAT_003751d4,0x2000);
-  FUN_0001de88(DAT_003751d4,0x2000,1);
+  FUN_0001dc34(DAT_003751d4,CFG_MASK);
+  FUN_0001de88(DAT_003751d4,CFG_MASK,1);
 }

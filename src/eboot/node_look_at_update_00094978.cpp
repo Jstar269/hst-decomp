@@ -40,12 +40,13 @@ struct Obj {
     Mat4 *bones;                /* 0x160 */
 };
 
-struct Cam {
+/* Look-at controller state. */
+struct LookAt {
     Vec4 pos;                   /* 0x00, w = blend state */
     Vec3 ang;                   /* 0x10 */
-    float t;                    /* 0x1c */
-    int node;                   /* 0x20 */
-    int parent;                 /* 0x24 */
+    float t;                    /* 0x1c blend weight toward the controller angles */
+    int node;                   /* 0x20 name id of the controlled node */
+    int parent;                 /* 0x24 name id of its parent node */
 };
 
 extern "C" {
@@ -54,13 +55,19 @@ int FUN_0002fe80(Model *m, int name);
 void FUN_00055240(Mat4 *out, Obj *o, int idx);
 Mat4 FUN_0004d268(const Mat4 &m);
 Vec4 *FUN_00022548(Vec4 *out, const Mat4 *m, const Vec4 *v);
-void FUN_00094690(Cam *c, Vec3 *out, const Vec4 *dir, const Vec4 &up);
-void FUN_000947d4(Mat4 *out, Cam *c, const Vec3 *ang);
+void FUN_00094690(LookAt *c, Vec3 *out, const Vec4 *dir, const Vec4 &up);
+void FUN_000947d4(Mat4 *out, LookAt *c, const Vec3 *ang);
 float FUN_000224d8(const Vec4 *a, const Vec4 *b);
 float FUN_00022e44(float x);
 Vec4 *FUN_00022498(Vec4 *out, const Vec4 *v, float s);
 void FUN_0005922c(Obj *o);
 }
+
+#define ANGLE_DAMP 0.7f    /* damping of the target yaw and pitch */
+#define ROLL_DAMP 0.5f     /* damping of the roll angle */
+#define FADE_OUT_STEP 0.1f /* blend weight lost per call while fading out */
+#define FADE_IN_STEP 1.0f  /* blend weight gained per call while active */
+#define YAW_PITCH 2        /* angles limited per axis (yaw, pitch) */
 
 extern float DAT_002d2a9c;
 extern float DAT_002d2aa0;
@@ -90,53 +97,54 @@ inline Vec4 Scale(const Vec4 &v, float s)
     return r;
 }
 
-extern "C" void FUN_00094978(Cam *cam, Obj *obj)
+/* Per-frame update of a node look-at controller on obj. */
+extern "C" void FUN_00094978(LookAt *ctl, Obj *obj)
 {
     Vec3 ang;
     Vec3 cur;
 
-    if (cam->pos.w == 0.0f || obj == 0 || obj->skel == 0)
+    if (ctl->pos.w == 0.0f || obj == 0 || obj->skel == 0)
         return;
-    int node = FindNode(obj, cam->node);
+    int node = FindNode(obj, ctl->node);
     HST_ASSERT(node >= 0, "nodeIndex >= 0", 1745);
-    int parent = FindNode(obj, cam->parent);
+    int parent = FindNode(obj, ctl->parent);
     HST_ASSERT(parent >= 0, "parentIndex >= 0", 1747);
-    if (cam->pos.w == -1.0f) {
-        cam->t = Max(DAT_002d2a9c, cam->t - 0.1f);
-        if (cam->t <= 0.0f)
-            cam->pos.w = 0.0f;
+    if (ctl->pos.w == -1.0f) {
+        ctl->t = Max(DAT_002d2a9c, ctl->t - FADE_OUT_STEP);
+        if (ctl->t <= 0.0f)
+            ctl->pos.w = 0.0f;
     } else {
-        cam->t = Min(DAT_002d2aa0, cam->t + 1.0f);
+        ctl->t = Min(DAT_002d2aa0, ctl->t + FADE_IN_STEP);
         Mat4 pm;
         FUN_00055240(&pm, obj, parent);
         Mat4 inv = FUN_0004d268(pm);
         Vec4 dir;
-        FUN_00022548(&dir, &inv, &cam->pos);
-        FUN_00094690(cam, &ang, &dir, Vec4(0.0f, 1.0f, 0.0f, 0.0f));
-        for (int i = 0; i < 2; i++) {
-            (&ang.x)[i] *= 0.7f;
+        FUN_00022548(&dir, &inv, &ctl->pos);
+        FUN_00094690(ctl, &ang, &dir, Vec4(0.0f, 1.0f, 0.0f, 0.0f));
+        for (int i = 0; i < YAW_PITCH; i++) {
+            (&ang.x)[i] *= ANGLE_DAMP;
             if (fabsf((&ang.x)[i]) < DAT_002d2ab4[i]) {
                 (&ang.x)[i] = Clamp((&ang.x)[i], DAT_002d2aa4[i][0], DAT_002d2aa4[i][1]);
-                float s = Sign((&ang.x)[i] - (&cam->ang.x)[i]);
-                (&cam->ang.x)[i] += s * DAT_002d2abc[i];
+                float s = Sign((&ang.x)[i] - (&ctl->ang.x)[i]);
+                (&ctl->ang.x)[i] += s * DAT_002d2abc[i];
                 if (s > 0.0f)
-                    (&cam->ang.x)[i] = (&cam->ang.x)[i] > (&ang.x)[i] ? (&ang.x)[i] : (&cam->ang.x)[i];
+                    (&ctl->ang.x)[i] = (&ctl->ang.x)[i] > (&ang.x)[i] ? (&ang.x)[i] : (&ctl->ang.x)[i];
                 else
-                    (&cam->ang.x)[i] = (&cam->ang.x)[i] < (&ang.x)[i] ? (&ang.x)[i] : (&cam->ang.x)[i];
+                    (&ctl->ang.x)[i] = (&ctl->ang.x)[i] < (&ang.x)[i] ? (&ang.x)[i] : (&ctl->ang.x)[i];
             } else {
-                float s = Sign((&cam->ang.x)[i]);
-                (&cam->ang.x)[i] = Clamp((&cam->ang.x)[i] + s * DAT_002d2abc[i], DAT_002d2aa4[i][0], DAT_002d2aa4[i][1]);
+                float s = Sign((&ctl->ang.x)[i]);
+                (&ctl->ang.x)[i] = Clamp((&ctl->ang.x)[i] + s * DAT_002d2abc[i], DAT_002d2aa4[i][0], DAT_002d2aa4[i][1]);
             }
         }
-        cam->ang.z *= 0.5f;
+        ctl->ang.z *= ROLL_DAMP;
     }
     Mat4 m = obj->bones[node];
-    FUN_00094690(cam, &cur, &m.r2, m.r1);
-    cur.x = Lerp(cur.x, cam->ang.x, cam->t);
-    cur.y = Lerp(cur.y, cam->ang.y, cam->t);
-    cur.z = Lerp(cur.z, cam->ang.z, cam->t);
+    FUN_00094690(ctl, &cur, &m.r2, m.r1);
+    cur.x = Lerp(cur.x, ctl->ang.x, ctl->t);
+    cur.y = Lerp(cur.y, ctl->ang.y, ctl->t);
+    cur.z = Lerp(cur.z, ctl->ang.z, ctl->t);
     Mat4 rot;
-    FUN_000947d4(&rot, cam, &cur);
+    FUN_000947d4(&rot, ctl, &cur);
     float s0 = Length(m.r0);
     float s1 = Length(m.r1);
     float s2 = Length(m.r2);

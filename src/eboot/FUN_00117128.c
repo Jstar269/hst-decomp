@@ -1,16 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00117128 end=0x00117154 symbol=FUN_00117128 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe2); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe2) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/wheel_state.h"
 
-void FUN_00117128(int param_1)
+/* Resets the state's fields to their initial values (indices -1, counters 0). */
+void FUN_00117128(WheelState *state)
 {
-  *(u8 *)(param_1 + 0x4c) = 0;
-  *(u32 *)(param_1 + 0x50) = 0;
-  *(u8 *)(param_1 + 0x54) = 0;
-  *(u32 *)(param_1 + 0x58) = 0;
-  *(u32 *)(param_1 + 0x5c) = 0xffffffff;
-  *(u32 *)(param_1 + 0x60) = 0xffffffff;
-  *(u32 *)(param_1 + 100) = 0xffffffff;
-  *(u32 *)(param_1 + 0x6c) = 0xffffffff;
-  *(u8 *)(param_1 + 0x40) = 0;
+  state->unk4c = 0;
+  state->unk50 = 0;
+  state->unk54 = 0;
+  state->unk58 = 0;
+  state->unk5c = -1;
+  state->unk60 = -1;
+  state->unk64 = -1;
+  state->unk6c = -1;
+  state->unk40 = 0;
 }

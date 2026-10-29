@@ -1,72 +1,76 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00200f48 end=0x00201114 symbol=FUN_00200f48 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/quad_config.h"
 
-struct SubObj {
+/* Pane record: only the two words the setup touches. */
+struct Pane {
     char pad[0x24];
-    int field_0x24;
-    int field_0x28;
+    int unk24;
+    int unk28;
 };
 
-struct Param2Obj {
+/* Entry record the setup reads. */
+struct Entry {
     short id;
     char pad2[0x20 - 2];
-    unsigned short s10;
+    unsigned short unk20;
     char pad22[0x68 - 0x22];
-    short s34;
+    short unk68;
     char pad6a[0x7c - 0x6a];
-    unsigned char f7c;
-    unsigned char f7d;
+    unsigned char unk7c;       /* 0x7c value 2 hides the first pane */
+    unsigned char table7d;    /* 0x7d start of a stride-3 byte table */
 };
 
 extern "C" {
-extern char *DAT_0034a13c;
+extern QuadConfig *DAT_0034a13c;
 extern int FUN_001fea10(int, int, int);
 extern void FUN_0010d4a8(void *);
 extern int FUN_0016bb98(short, void *);
-extern void FUN_000ffb3c(SubObj *, int);
+extern void FUN_000ffb3c(Pane *, int);
 
-void FUN_00200f48(int param_1, Param2Obj *param_2, int param_3, int param_4) {
+/* Note: the slot parameter is reused for the value returned by the first helper call (matching form). */
+void FUN_00200f48(int screen, Entry *entry, int slot, int row) {
 
-    SubObj **p0 = (SubObj **)(param_1 + param_3 * 20 + 48);
-    SubObj **p1 = (SubObj **)(param_1 + (param_3 + 1) * 20 + 48);
-    SubObj **p2 = (SubObj **)(param_1 + (param_3 + 2) * 20 + 48);
-    int iVar3 = *(int *)(DAT_0034a13c + 0x4c);
-    param_3 = FUN_001fea10(7, 0, param_2->s10);
-    int iVar2 = *(int *)(param_1 + param_4 * 12 + 0x64c);
-    *(int *)(iVar2 + 0xf8) = param_3;
-    *(int *)(iVar2 + 0x138) = 1;
-    FUN_0010d4a8((void *)iVar2);
+    Pane **paneA = (Pane **)(screen + slot * 20 + 48);
+    Pane **paneB = (Pane **)(screen + (slot + 1) * 20 + 48);
+    Pane **paneC = (Pane **)(screen + (slot + 2) * 20 + 48);
+    int column = DAT_0034a13c->unk4c;
+    slot = FUN_001fea10(7, 0, entry->unk20);
+    int rowObj = *(int *)(screen + row * 12 + 0x64c);
+    *(int *)(rowObj + 0xf8) = slot;
+    *(int *)(rowObj + 0x138) = 1;
+    FUN_0010d4a8((void *)rowObj);
     
-    SubObj *o1 = *p1;
-    int off = iVar3 * 3;
-    o1->field_0x24 = o1->field_0x28 + *(unsigned char *)(off + (int)param_2 + 0x7d);
+    Pane *second = *paneB;
+    int off = column * 3;
+    second->unk24 = second->unk28 + *(unsigned char *)(off + (int)entry + 0x7d);
     
-    int kind = FUN_0016bb98(param_2->id, &param_2->s34);
+    int kind = FUN_0016bb98(entry->id, &entry->unk68);
     switch (kind) {
     case 1:
-        (*p2)->field_0x24 = (*p2)->field_0x28;
+        (*paneC)->unk24 = (*paneC)->unk28;
         break;
     case 2:
-        (*p2)->field_0x24 = (*p2)->field_0x28 + 2;
+        (*paneC)->unk24 = (*paneC)->unk28 + 2;
         break;
     case 3:
-        (*p2)->field_0x24 = (*p2)->field_0x28 + 1;
+        (*paneC)->unk24 = (*paneC)->unk28 + 1;
         break;
     case 4:
-        (*p2)->field_0x24 = (*p2)->field_0x28 + 3;
+        (*paneC)->unk24 = (*paneC)->unk28 + 3;
         break;
     case 5:
-        (*p2)->field_0x24 = (*p2)->field_0x28 + 4;
+        (*paneC)->unk24 = (*paneC)->unk28 + 4;
         break;
     default:
-        (*p2)->field_0x24 = (*p2)->field_0x28;
+        (*paneC)->unk24 = (*paneC)->unk28;
         break;
     }
     
-    if (param_2->f7c == 2) {
-        FUN_000ffb3c(*p0, 0);
+    if (entry->unk7c == 2) {
+        FUN_000ffb3c(*paneA, 0);
     } else {
-        FUN_000ffb3c(*p0, 1);
+        FUN_000ffb3c(*paneA, 1);
     }
 
 }

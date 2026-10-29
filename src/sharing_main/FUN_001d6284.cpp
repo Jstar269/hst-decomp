@@ -9,15 +9,16 @@ extern u32 FUN_001d94ec(...);
 }
 struct VC_0 { virtual void d0(); virtual void d1(); virtual void d2(); virtual void d3(); virtual void d4(); virtual void d5(); virtual void d6(); virtual void m(int); };
 
-extern "C" void FUN_001d6284(u32 param_1,u32 param_2)
+/* If the global object exists and the lookup succeeds, configures the object and calls its slot 7 with the first result block. */
+extern "C" void FUN_001d6284(u32 a,u32 b)
 {
-  int iVar1;
-  u8 auStack_10 [16];
-  u8 auStack_20 [16];
+  int found;
+  u8 blockA [16];
+  u8 blockB [16];
   
   if ((DAT_003e48c0 != (int *)0x0) &&
-     (iVar1 = FUN_001d94ec(param_1,param_2,auStack_10,auStack_20), iVar1 != 0)) {
+     (found = FUN_001d94ec(a,b,blockA,blockB), found != 0)) {
     FUN_0013936c(DAT_003e48c0,1,0,0);
-    ((VC_0 *)(DAT_003e48c0))->m((int)(auStack_10));
+    ((VC_0 *)(DAT_003e48c0))->m((int)(blockA));
   }
 }

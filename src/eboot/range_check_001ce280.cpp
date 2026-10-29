@@ -1,5 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ce280 end=0x001ce318 symbol=FUN_001ce280 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
+#include "hst/range_obj.h"
+
 extern "C" float fabsf(float);
 
 struct Vec4 { float x, y, z, w; };
@@ -14,13 +16,12 @@ struct VC {
   virtual void *s6();
 };
 
-struct Obj { char pad[0x30]; Vec4 pos; };
-
 extern float DAT_002ea2e4;
 extern float DAT_002ea2e8;
 extern "C" void FUN_00022434(Vec4 *out, const void *a, const void *b);
 
-extern "C" int FUN_001ce280(Obj *self, VC *other)
+/* Return 1 when the position difference to `other` is inside the horizontal range and its vertical offset is inside the height limit. */
+extern "C" int FUN_001ce280(RangeObj *self, VC *other)
 {
   Vec4 d;
   int r;

@@ -1,40 +1,51 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001bc748 end=0x001bc7e0 symbol=FUN_001bc748 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: inverted if/else branches; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: inverted if/else branches; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+
+/* Initial values: a high sentinel and a low one (their use is not visible here). */
+#define INIT_HIGH 9999
+#define INIT_LOW 0xf0000000
+
+#define RECORD_WORDS 40
+
+typedef struct WordRecord {
+  u32 w[RECORD_WORDS];  /* 0x00 */
+} WordRecord;           /* size 0xa0 */
 
 extern u32 * FUN_000114c0();
 
-void FUN_001bc748(u32 *param_1, int param_2)
+/* Fills the record with its initial pattern when init is nonzero, otherwise clears it. */
+void FUN_001bc748(WordRecord *rec, int init)
 {
-  if (param_2 != 0) {
-    *param_1 = 9999;
-    param_1[1] = 9999;
-    param_1[2] = 0xf0000000;
-    param_1[3] = 0xf0000000;
-    param_1[4] = 0xf0000000;
-    param_1[5] = 0xf0000000;
-    param_1[6] = 0xf0000000;
-    param_1[7] = 0xf0000000;
-    param_1[8] = 0xf0000000;
-    param_1[9] = 0xf0000000;
-    param_1[10] = 0xf0000000;
-    param_1[0x18] = 0xf0000000;
-    param_1[0x19] = 0xf0000000;
-    param_1[0xb] = 0xf0000000;
-    param_1[0xc] = 0xf0000000;
-    param_1[0xd] = 0;
-    param_1[0xe] = 0;
-    param_1[0xf] = 0;
-    param_1[0x10] = 0;
-    param_1[0x11] = 0xf0000000;
-    param_1[0x12] = 0xf0000000;
-    param_1[0x13] = 9999;
-    param_1[0x14] = 9999;
-    param_1[0x15] = 9999;
-    param_1[0x16] = 9999;
-    param_1[0x17] = 9999;
+  if (init != 0) {
+    rec->w[0] = INIT_HIGH;
+    rec->w[1] = INIT_HIGH;
+    rec->w[2] = INIT_LOW;
+    rec->w[3] = INIT_LOW;
+    rec->w[4] = INIT_LOW;
+    rec->w[5] = INIT_LOW;
+    rec->w[6] = INIT_LOW;
+    rec->w[7] = INIT_LOW;
+    rec->w[8] = INIT_LOW;
+    rec->w[9] = INIT_LOW;
+    rec->w[10] = INIT_LOW;
+    rec->w[0x18] = INIT_LOW;
+    rec->w[0x19] = INIT_LOW;
+    rec->w[0xb] = INIT_LOW;
+    rec->w[0xc] = INIT_LOW;
+    rec->w[0xd] = 0;
+    rec->w[0xe] = 0;
+    rec->w[0xf] = 0;
+    rec->w[0x10] = 0;
+    rec->w[0x11] = INIT_LOW;
+    rec->w[0x12] = INIT_LOW;
+    rec->w[0x13] = INIT_HIGH;
+    rec->w[0x14] = INIT_HIGH;
+    rec->w[0x15] = INIT_HIGH;
+    rec->w[0x16] = INIT_HIGH;
+    rec->w[0x17] = INIT_HIGH;
   }
   else {
-    FUN_000114c0(param_1, 0, 0xa0);
+    FUN_000114c0(rec, 0, sizeof(WordRecord));
   }
 }

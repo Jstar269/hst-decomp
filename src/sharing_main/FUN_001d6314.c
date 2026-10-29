@@ -2,8 +2,15 @@
 /* Clone of src/eboot/FUN_001c7e80.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-void FUN_001d6314(int param_1,u32 param_2,u32 param_3)
+typedef struct PairHolder {
+  char pad00[0x14c];
+  u32 unk14c; /* 0x14c */
+  u32 unk150; /* 0x150 */
+} PairHolder;
+
+/* Stores two words. */
+void FUN_001d6314(PairHolder *self,u32 a,u32 b)
 {
-  *(u32 *)(param_1 + 0x14c) = param_2;
-  *(u32 *)(param_1 + 0x150) = param_3;
+  self->unk14c = a;
+  self->unk150 = b;
 }

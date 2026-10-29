@@ -107,6 +107,18 @@ struct Ctx {
     int f8c;
 };
 
+/* Bits of the display-flag word, named after the group each one gates in the scene draw. */
+enum DisplayFlag {
+    DRAW_OBJECTS2 = 1,
+    DRAW_EXTRAS = 4,
+    DRAW_PLAYERS = 8,
+    DRAW_MODEL44 = 0x10,
+    DRAW_MODEL4C = 0x20,
+    DRAW_LISTS2 = 0x40,
+    DRAW_OBJECTS = 0x80,
+    DRAW_SPHERES = 0x100
+};
+
 extern "C" {
 extern unsigned int DAT_002d5ab0;
 extern const int DAT_002c1674[6];
@@ -171,112 +183,112 @@ static inline void Draw(Pl *p, Model *body, Model *anim)
         FUN_0005f1e8(body, 0);
 }
 
-extern "C" void FUN_0013bc7c(Game *g)
+extern "C" void FUN_0013bc7c(Game *scene)
 {
-    if (g->fd5c != 0 && (DAT_002d5ab0 & 0x10) != 0)
-        FUN_0005f1e8(g->m44, 0);
-    if (g->fd5d != 0 && (DAT_002d5ab0 & 0x20) != 0)
-        FUN_0005f1e8(g->m4c, 0);
+    if (scene->fd5c != 0 && (DAT_002d5ab0 & DRAW_MODEL44) != 0)
+        FUN_0005f1e8(scene->m44, 0);
+    if (scene->fd5d != 0 && (DAT_002d5ab0 & DRAW_MODEL4C) != 0)
+        FUN_0005f1e8(scene->m4c, 0);
 
     for (unsigned i = 0; i < 6; i++) {
         if (IsOn(DAT_002c1674[i]) && DAT_002c1674[i] != 8) {
-            for (unsigned j = 0; j < g->lists[i].size; j++)
-                FUN_00055798(g->lists[i].data[j], 0);
+            for (unsigned j = 0; j < scene->lists[i].size; j++)
+                FUN_00055798(scene->lists[i].data[j], 0);
         }
     }
-    if ((DAT_002d5ab0 & 4) != 0 && g->f1414 != 0) {
-        for (unsigned j = 0; j < g->extras.size; j++)
-            FUN_0005f1e8(g->extras.data[j], 0);
+    if ((DAT_002d5ab0 & DRAW_EXTRAS) != 0 && scene->f1414 != 0) {
+        for (unsigned j = 0; j < scene->extras.size; j++)
+            FUN_0005f1e8(scene->extras.data[j], 0);
     }
-    if ((DAT_002d5ab0 & 0x40) != 0) {
+    if ((DAT_002d5ab0 & DRAW_LISTS2) != 0) {
         for (unsigned i = 0; i < 6; i++) {
             if (IsOn(DAT_002c1674[i])) {
-                for (unsigned j = 0; j < g->lists2[i].size; j++)
-                    FUN_00055798(g->lists2[i].data[j], 0);
+                for (unsigned j = 0; j < scene->lists2[i].size; j++)
+                    FUN_00055798(scene->lists2[i].data[j], 0);
             }
         }
     }
-    if ((DAT_002d5ab0 & 0x100) != 0) {
-        for (unsigned i = 0; i < g->lists[5].size; i++) {
-            Vec4 pos = g->spheres.data[i].pos;
+    if ((DAT_002d5ab0 & DRAW_SPHERES) != 0) {
+        for (unsigned i = 0; i < scene->lists[5].size; i++) {
+            Vec4 center = scene->spheres.data[i].pos;
             Vec4 cam = DAT_003313c4->pos;
-            Vec4 d = Sub(cam, pos);
-            float r = g->spheres.data[i].radius;
-            float d2 = FUN_000224d8(&d, &d);
+            Vec4 delta = Sub(cam, center);
+            float radius = scene->spheres.data[i].radius;
+            float dist_sq = FUN_000224d8(&delta, &delta);
             if (DAT_00340284->f8c == 0 || FUN_00131cf8(DAT_00340284) != 0) {
-                if (cam.z > g->top) {
-                    if (!(g->lists[5].data[i]->height > g->top))
-                        FUN_00055798(g->lists[5].data[i], 0);
-                } else if (cam.z < g->bottom) {
-                    if (!(g->lists[5].data[i]->height < g->bottom))
-                        FUN_00055798(g->lists[5].data[i], 0);
+                if (cam.z > scene->top) {
+                    if (!(scene->lists[5].data[i]->height > scene->top))
+                        FUN_00055798(scene->lists[5].data[i], 0);
+                } else if (cam.z < scene->bottom) {
+                    if (!(scene->lists[5].data[i]->height < scene->bottom))
+                        FUN_00055798(scene->lists[5].data[i], 0);
                 } else {
-                    FUN_00055798(g->lists[5].data[i], 0);
+                    FUN_00055798(scene->lists[5].data[i], 0);
                 }
-            } else if (r * r < d2) {
-                FUN_00055798(g->lists[5].data[i], 0);
+            } else if (radius * radius < dist_sq) {
+                FUN_00055798(scene->lists[5].data[i], 0);
             }
         }
     }
-    if ((DAT_002d5ab0 & 0x80) != 0) {
-        for (int i = 0; i < g->objs.size; i++) {
-            Vec4 pos = ObjAt(&g->objs, i)->pos;
+    if ((DAT_002d5ab0 & DRAW_OBJECTS) != 0) {
+        for (int i = 0; i < scene->objs.size; i++) {
+            Vec4 center = ObjAt(&scene->objs, i)->pos;
             Vec4 cam = DAT_003313c4->pos;
-            Vec4 d = Sub(cam, pos);
-            float r = ObjAt(&g->objs, i)->radius;
-            float d2 = FUN_000224d8(&d, &d);
-            if (ObjAt(&g->objs, i)->mode == 1) {
-                FUN_0005f1e8(&ObjAt(&g->objs, i)->model, 0);
+            Vec4 delta = Sub(cam, center);
+            float radius = ObjAt(&scene->objs, i)->radius;
+            float dist_sq = FUN_000224d8(&delta, &delta);
+            if (ObjAt(&scene->objs, i)->mode == 1) {
+                FUN_0005f1e8(&ObjAt(&scene->objs, i)->model, 0);
             } else if (DAT_00340284->f8c == 0 || FUN_00131cf8(DAT_00340284) != 0) {
-                if (cam.z > g->top) {
-                    if (!(ObjAt(&g->objs, i)->model.height > g->top))
-                        FUN_0005f1e8(&ObjAt(&g->objs, i)->model, 0);
-                } else if (cam.z < g->bottom) {
-                    if (!(ObjAt(&g->objs, i)->model.height < g->bottom))
-                        FUN_0005f1e8(&ObjAt(&g->objs, i)->model, 0);
+                if (cam.z > scene->top) {
+                    if (!(ObjAt(&scene->objs, i)->model.height > scene->top))
+                        FUN_0005f1e8(&ObjAt(&scene->objs, i)->model, 0);
+                } else if (cam.z < scene->bottom) {
+                    if (!(ObjAt(&scene->objs, i)->model.height < scene->bottom))
+                        FUN_0005f1e8(&ObjAt(&scene->objs, i)->model, 0);
                 } else {
-                    FUN_0005f1e8(&ObjAt(&g->objs, i)->model, 0);
+                    FUN_0005f1e8(&ObjAt(&scene->objs, i)->model, 0);
                 }
-            } else if (r * r < d2) {
-                FUN_0005f1e8(&ObjAt(&g->objs, i)->model, 0);
+            } else if (radius * radius < dist_sq) {
+                FUN_0005f1e8(&ObjAt(&scene->objs, i)->model, 0);
             }
         }
     }
-    if ((DAT_002d5ab0 & 1) != 0) {
-        for (int i = 0; i < g->objs2.size; i++)
-            FUN_0005f1e8(&ObjAt(&g->objs2, i)->model, 0);
+    if ((DAT_002d5ab0 & DRAW_OBJECTS2) != 0) {
+        for (int i = 0; i < scene->objs2.size; i++)
+            FUN_0005f1e8(&ObjAt(&scene->objs2, i)->model, 0);
     }
-    if ((DAT_002d5ab0 & 8) != 0) {
-        for (int i = 0; i < g->players.size; i++) {
-            Pl *p = PlAt(&g->players, i);
+    if ((DAT_002d5ab0 & DRAW_PLAYERS) != 0) {
+        for (int i = 0; i < scene->players.size; i++) {
+            Pl *p = PlAt(&scene->players, i);
             Model *body = &p->model;
             Model *anim = &p->anim;
             Model *m = Select(p, body, anim);
             if (m != 0) {
-                Vec4 pos;
-                FUN_00055724(&pos, m);
+                Vec4 center;
+                FUN_00055724(&center, m);
                 Vec4 cam = DAT_003313c4->pos;
-                Vec4 d = Sub(cam, pos);
-                float r = FUN_00055768(m);
-                float d2 = FUN_000224d8(&d, &d);
+                Vec4 delta = Sub(cam, center);
+                float radius = FUN_00055768(m);
+                float dist_sq = FUN_000224d8(&delta, &delta);
                 if (DAT_00340284->f8c == 0 || FUN_00131cf8(DAT_00340284) != 0) {
-                    if (cam.z > g->top) {
-                        if (!(m->height > g->top) || p->kind == 9)
+                    if (cam.z > scene->top) {
+                        if (!(m->height > scene->top) || p->kind == 9)
                             Draw(p, body, anim);
-                    } else if (cam.z < g->bottom) {
-                        if (!(m->height < g->bottom) || p->kind == 9)
+                    } else if (cam.z < scene->bottom) {
+                        if (!(m->height < scene->bottom) || p->kind == 9)
                             Draw(p, body, anim);
                     } else {
                         Draw(p, body, anim);
                     }
-                } else if (r * r < d2 || p->kind == 9) {
+                } else if (radius * radius < dist_sq || p->kind == 9) {
                     Draw(p, body, anim);
                 }
             }
         }
     }
-    if (g->f141e == 0) {
-        FUN_002038ec(g->cam);
-        FUN_00203ba8(g->cam);
+    if (scene->f141e == 0) {
+        FUN_002038ec(scene->cam);
+        FUN_00203ba8(scene->cam);
     }
 }

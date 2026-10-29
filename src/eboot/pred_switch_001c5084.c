@@ -1,15 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001c5084 end=0x001c51c8 symbol=FUN_001c5084 lang=c99 rodata=0x002c63ec */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef struct Obj {
-    char pad0[0xc4];
-    unsigned fc4;
-    char pad1[0xf0 - 0xc8];
-    unsigned char f0f0;
-    char pad2[0x164 - 0xf1];
-    int f164;
-    int f168;
-    int f16c;
-} Obj;
+#include "hst/phase_obj.h"
+
+typedef PhaseObj Obj;
 extern int DAT_0034a678;
 extern int DAT_0034a67c;
 void FUN_001c627c(Obj *);
@@ -31,21 +24,22 @@ static inline _Bool Inner(int k)
 
 static inline _Bool Pred(Obj *o)
 {
-    _Bool r = !o->f16c;
+    _Bool r = !o->unk16c;
     if (!r) {
-        r = Inner(o->f168);
+        r = Inner(o->unk168);
     }
     return r;
 }
 
+/* Runs the handler for the object's current phase when it is ready, then reports readiness through the handle. */
 void FUN_001c5084(Obj *o)
 {
     _Bool ok = Pred(o);
-    if (o->f0f0 != 0) {
+    if (o->unkf0 != 0) {
         ok = 0;
     }
     if (ok) {
-        switch (o->fc4) {
+        switch (o->state) {
         case 0:
             FUN_001c627c(o);
             break;
@@ -62,8 +56,8 @@ void FUN_001c5084(Obj *o)
             ok = 0;
         }
     }
-    int h = o->f164;
+    int h = o->handle;
     if (h != 0) {
-        FUN_0001f20c(h, 2, ok && o->fc4 != 1);
+        FUN_0001f20c(h, 2, ok && o->state != 1);
     }
 }

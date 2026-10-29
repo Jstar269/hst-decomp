@@ -1,16 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002b7450 end=0x002b74b8 symbol=FUN_002b7450 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: the function takes a trailing empty by-value tag parameter that Ghidra omits (it adds 16 bytes of frame); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: the function takes a trailing empty by-value tag parameter that Ghidra omits (it adds 16 bytes of frame); readability pass; exact match verified; names and types await human review. */
 struct False {};
 struct VC_0 { virtual void m(int); };
 
-extern "C" void FUN_002b7450(int *param_1, int param_2, False)
-{
-  int *piVar1;
+/* Vector of 8-byte polymorphic elements: data pointer and element count. */
+struct ElemVec { int data; int size; };
 
-  piVar1 = (int *)(*param_1 + param_1[1] * 8);
-  param_1[1] = param_1[1] - param_2;
-  for (; param_2 != 0; param_2 = param_2 + -1) {
-    piVar1 = piVar1 + -2;
-    ((VC_0 *)(piVar1))->m((int)(0xffffffff));
+/* Removes the last n elements: lowers the size, then runs the virtual deleting call (-1) on each removed element from the back. */
+extern "C" void FUN_002b7450(ElemVec *vec, int n, False)
+{
+  int *p;
+
+  p = (int *)(vec->data + vec->size * 8);
+  vec->size = vec->size - n;
+  for (; n != 0; n = n + -1) {
+    p = p + -2;
+    ((VC_0 *)(p))->m((int)(0xffffffff));
   }
 }

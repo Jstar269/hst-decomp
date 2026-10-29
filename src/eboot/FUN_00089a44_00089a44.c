@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00089a44 end=0x00089abc symbol=FUN_00089a44 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: fixed the callback prototype, float constants, and integer return type; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: fixed the callback prototype, float constants, and integer return type; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
 extern void *DAT_00331b88;
@@ -9,16 +9,23 @@ extern void FUN_0008ad40();
 extern u32 FUN_0008add8();
 extern int FUN_000fb504(void *param_1);
 
-void FUN_00089a44(int param_1)
+typedef struct StateObj {
+  char pad00[0x40];
+  u32 state;      /* 0x40 */
+} StateObj;
+
+#define STATE_AFTER_UPDATE 4
+
+void FUN_00089a44(StateObj *self)
 {
-  int iVar1;
+  int ok;
   
-  iVar1 = FUN_000fb504(DAT_00338c20);
-  if (iVar1 != 0) {
-    FUN_0008ad40(param_1);
-    iVar1 = FUN_0008add8(param_1);
-    if (iVar1 != 0) {
-      *(u32 *)(param_1 + 0x40) = 4;
+  ok = FUN_000fb504(DAT_00338c20);
+  if (ok != 0) {
+    FUN_0008ad40(self);
+    ok = FUN_0008add8(self);
+    if (ok != 0) {
+      self->state = STATE_AFTER_UPDATE;
     FUN_00063d08(65264.0f,-1.0f,DAT_00331b88,0xf);
     }
   }

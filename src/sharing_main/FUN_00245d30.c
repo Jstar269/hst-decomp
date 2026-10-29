@@ -4,21 +4,22 @@
 extern void FUN_00000a00();
 extern int * FUN_00171a30();
 
-int FUN_00245d30(int param_1,short param_2)
+/* Destructor: tears down the part at 0xc and the part at 0, then frees the object if delete_flag > 0. */
+int FUN_00245d30(int self,short delete_flag)
 {
-  int iVar1;
+  int part;
   
-  if (param_1 != 0) {
-    iVar1 = param_1 + 0xc;
-    if ((iVar1 != 0) && (iVar1 != 0)) {
-      FUN_00171a30(iVar1,0);
+  if (self != 0) {
+    part = self + 0xc;
+    if ((part != 0) && (part != 0)) {
+      FUN_00171a30(part,0);
     }
-    if ((param_1 != 0) && (param_1 != 0)) {
-      FUN_00171a30(param_1,0);
+    if ((self != 0) && (self != 0)) {
+      FUN_00171a30(self,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

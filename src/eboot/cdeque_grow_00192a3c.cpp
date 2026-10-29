@@ -5,47 +5,47 @@
    the allocator is an empty base (a0 = this passes straight to the out-of-line 0x192b34) and the 0x7fffffff
    bound comes from an inline function returning by value (a literal operand of the const& min() becomes a
    .data constant instead of retail's stack temporary). Names provisional. */
+#include "hst/vec_reserve.h"
+
 extern "C" {
-struct Reent_00192a3c { int pad[3]; void *err; };
-Reent_00192a3c *FUN_0000fe3c(void);
 int FUN_0000f3e8(void *stream, const char *format, ...);
-void FUN_0000d518(void);
 extern char DAT_003415d9;     /* max_size() static guard */
 extern unsigned DAT_002c2784; /* max_size() static value */
 }
-inline void Error_00192a3c(const char *msg)
+inline void Error(const char *msg)
 {
     FUN_0000f3e8(FUN_0000fe3c()->err, msg);
     FUN_0000d518();
 }
-template <class T> inline const T &Min_00192a3c(const T &a, const T &b) { return b < a ? b : a; }
-inline unsigned Lim_00192a3c() { return 0x7fffffff; }
-struct Alloc_00192a3c {
+template <class T> inline const T &Min(const T &a, const T &b) { return b < a ? b : a; }
+inline unsigned Lim() { return 0x7fffffff; }
+struct Alloc {
     unsigned max_size() const;
 };
-extern "C" unsigned FUN_00192b34(const Alloc_00192a3c *);
-inline unsigned Alloc_00192a3c::max_size() const { return FUN_00192b34(this); }
-struct Cdeque_00192a3c : Alloc_00192a3c {
-    unsigned cap_;
-    unsigned size_;
-    unsigned start_;
-    int *data_;
+extern "C" unsigned FUN_00192b34(const Alloc *);
+inline unsigned Alloc::max_size() const { return FUN_00192b34(this); }
+struct Cdeque : Alloc {
+    unsigned cap_;    /* 0x00 */
+    unsigned size_;   /* 0x04 */
+    unsigned start_;  /* 0x08 */
+    int *data_;       /* 0x0c */
     unsigned max_size() const
     {
         if (!DAT_003415d9) {
-            DAT_002c2784 = Min_00192a3c(Alloc_00192a3c::max_size(), Lim_00192a3c()) - 1;
+            DAT_002c2784 = Min(Alloc::max_size(), Lim()) - 1;
             DAT_003415d9 = 1;
         }
         return DAT_002c2784;
     }
 };
-extern "C" unsigned FUN_00192a3c(const Cdeque_00192a3c *self, unsigned n)
+/* Smallest capacity (starting from the current one, doubling up to max_size) that holds want elements. */
+extern "C" unsigned FUN_00192a3c(const Cdeque *self, unsigned want)
 {
-    unsigned m = self->max_size();
-    if (n > m)
-        Error_00192a3c("cdeque max_size error");
-    unsigned c = self->cap_ ? self->cap_ - 1 : 1;
-    while (n > c)
-        c = c < m / 2 ? 2 * c : m;
-    return c;
+    unsigned limit = self->max_size();
+    if (want > limit)
+        Error("cdeque max_size error");
+    unsigned cap = self->cap_ ? self->cap_ - 1 : 1;
+    while (want > cap)
+        cap = cap < limit / 2 ? 2 * cap : limit;
+    return cap;
 }

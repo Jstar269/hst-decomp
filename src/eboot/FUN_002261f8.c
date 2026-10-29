@@ -1,11 +1,12 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002261f8 end=0x0022621c symbol=FUN_002261f8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-void FUN_002261f8(u32 *param_1,u32 *param_2,u32 *param_3,u32 *param_4, u32 *param_5)
+/* Gathers four words, each read through its own pointer, into a four-word record. */
+void FUN_002261f8(u32 *dst,u32 *src0,u32 *src1,u32 *src2, u32 *src3)
 {
-  *param_1 = *param_2;
-  param_1[1] = *param_3;
-  param_1[2] = *param_4;
-  param_1[3] = *param_5;
+  *dst = *src0;
+  dst[1] = *src1;
+  dst[2] = *src2;
+  dst[3] = *src3;
 }

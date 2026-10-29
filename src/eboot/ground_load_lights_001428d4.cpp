@@ -87,7 +87,8 @@ extern LightMgr *DAT_003313c4;
 extern const char DAT_002dbb34[];   /* "," */
 extern const char DAT_002c1910[];   /* "%s%s" */
 
-extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char *f3, const char *f2, const char *f4)
+/* Set up default lights, then fill the three light sets and the extra values from the row of each CSV file, then add the point lights from the data file. */
+extern "C" void FUN_001428d4(Ground *self, int row, const char *file0, const char *file2, const char *file1, const char *file3)
 {
     CsvFile file;
     int size;
@@ -98,6 +99,7 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
     Vec4 col0;
     Vec4 col1;
 
+    /* Default ambient and two directional lights. */
     self->row = row;
     FUN_0005c76c(DAT_003313c4, 0.4f, 0.4f, 0.4f, 1.0f);
     dir.x = -1.0f;
@@ -115,6 +117,7 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
     col1.z = 0.2f;
     col1.w = 0.0f;
     FUN_0005c854(DAT_003313c4, 1, &dir, &col1);
+    /* Read the manager state back into the three light sets. */
     FUN_0005cbf4(DAT_003313c4, &self->sets[0].ambient);
     FUN_0005cc18(DAT_003313c4, 0, &self->sets[0].dir0, &self->sets[0].color0);
     FUN_0005cc18(DAT_003313c4, 1, &self->sets[0].dir1, &self->sets[0].color1);
@@ -132,9 +135,10 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
     self->extra[5] = 1.0f;
     self->extra[6] = 1.0f;
 
+    /* File 0: ambient rgb, color0 rgb, dir0 xyz, color1 rgb, dir1 xyz of set 0. */
     FUN_000649c0(&file);
-    FUN_00064bf4(&file, main, 1, DAT_002dbb34);
-    FUN_000149a8(self->name0, main);
+    FUN_00064bf4(&file, file0, 1, DAT_002dbb34);
+    FUN_000149a8(self->name0, file0);
     self->sets[0].ambient.x = FUN_00065140(&file, row, 0);
     self->sets[0].ambient.y = FUN_00065140(&file, row, 1);
     self->sets[0].ambient.z = FUN_00065140(&file, row, 2);
@@ -152,9 +156,10 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
     self->sets[0].dir1.z = FUN_00065140(&file, row, 14);
     FUN_00064a88(&file);
 
-    if (f2) {
-        FUN_00064bf4(&file, f2, 1, DAT_002dbb34);
-        FUN_000149a8(self->name1, f2);
+    /* File 1: ambient rgb and color0 rgb of set 1. */
+    if (file1) {
+        FUN_00064bf4(&file, file1, 1, DAT_002dbb34);
+        FUN_000149a8(self->name1, file1);
         self->sets[1].ambient.x = FUN_00065140(&file, row, 0);
         self->sets[1].ambient.y = FUN_00065140(&file, row, 1);
         self->sets[1].ambient.z = FUN_00065140(&file, row, 2);
@@ -164,9 +169,10 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
     }
     FUN_00064a88(&file);
 
-    if (f3) {
-        FUN_00064bf4(&file, f3, 1, DAT_002dbb34);
-        FUN_000149a8(self->name2, f3);
+    /* File 2: ambient rgb and color0 rgb of set 2. */
+    if (file2) {
+        FUN_00064bf4(&file, file2, 1, DAT_002dbb34);
+        FUN_000149a8(self->name2, file2);
         self->sets[2].ambient.x = FUN_00065140(&file, row, 0);
         self->sets[2].ambient.y = FUN_00065140(&file, row, 1);
         self->sets[2].ambient.z = FUN_00065140(&file, row, 2);
@@ -176,9 +182,10 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
     }
     FUN_00064a88(&file);
 
-    if (f4) {
-        FUN_00064bf4(&file, f4, 1, DAT_002dbb34);
-        FUN_000149a8(self->name3, f4);
+    /* File 3: the seven extra values. */
+    if (file3) {
+        FUN_00064bf4(&file, file3, 1, DAT_002dbb34);
+        FUN_000149a8(self->name3, file3);
         self->extra[0] = FUN_00065140(&file, row, 0);
         self->extra[1] = FUN_00065140(&file, row, 1);
         self->extra[2] = FUN_00065140(&file, row, 2);
@@ -188,6 +195,7 @@ extern "C" void FUN_001428d4(Ground *self, int row, const char *main, const char
         self->extra[6] = FUN_00065140(&file, row, 6);
     }
 
+    /* Point lights: a count followed by six floats (position, color) per light. */
     size = 0;
     FUN_000143b0(buf, DAT_002c1910, self->base, self->dir);
     FUN_000143b0(path, "%s/pointlight.dat", buf);

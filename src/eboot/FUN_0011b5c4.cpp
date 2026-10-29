@@ -1,24 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011b5c4 end=0x0011b634 symbol=FUN_0011b5c4 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+
+#include "hst/child_owner.h"
 
 extern "C" {
 extern void FUN_00000a00(...);
 }
 struct VC_0 { virtual ~VC_0(); };
 
-extern "C" int * FUN_0011b5c4(int *param_1,short param_2)
+/* Deleting destructor: deletes the owned child and frees the object when flag > 0. */
+extern "C" ChildOwner * FUN_0011b5c4(ChildOwner *self,short flag)
 {
-  int *piVar1;
-  
-  if (param_1 != (int *)0x0) {
-    piVar1 = (int *)*param_1;
-    if (piVar1 != (int *)0x0) {
-      delete ((VC_0 *)(piVar1));
-      *param_1 = 0;
+  VC_0 *child;
+
+  if (self != (ChildOwner *)0x0) {
+    child = (VC_0 *)self->child;
+    if (child != (VC_0 *)0x0) {
+      delete child;
+      self->child = 0;
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

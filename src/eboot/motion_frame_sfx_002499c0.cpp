@@ -32,6 +32,7 @@ void FUN_000ce754(int, Mat4 *, int, float, float, int, float);
 
 static inline const Mat4 &Identity() { return DAT_002bc410; }
 
+/* For the current motion id, plays an effect at the matching animation frame (position from one or more joints). */
 extern "C" void FUN_002499c0(Obj *self)
 {
     if (self->active) {

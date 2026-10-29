@@ -1,32 +1,31 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b1be0 end=0x001b1c44 symbol=FUN_001b1be0 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: the handle tested first is FUN_00062a6c's argument (Ghidra dropped it, so retail loads it into a0); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: the handle tested first is FUN_00062a6c's argument (Ghidra dropped it, so retail loads it into a0); readability pass; exact match verified; names and types await human review. */
+#include "hst/slot_fade.h"
 
 extern void FUN_000628e4();
 extern int FUN_00062a6c(int);
-extern u32 FUN_00062b3c();
+extern int FUN_00062b3c();
 
-struct State_001b1be0 { char pad[2000]; int handle; };
-
-void FUN_001b1be0(int *param_1)
+/* If handle_cur is set: clear it when FUN_00062a6c rejects it, otherwise call FUN_000628e4(handle, 1) when FUN_00062b3c reports less than 1. */
+void FUN_001b1be0(SlotFadeTable **ctx)
 {
   int handle;
-  int iVar1;
-  int iVar2;
+  int ok;
+  SlotFadeTable *self;
   
-  iVar2 = *param_1;
-  handle = ((struct State_001b1be0 *)iVar2)->handle;
+  self = *ctx;
+  handle = self->handle_cur;
   if (handle <= 0) {
     return;
   }
-  iVar1 = FUN_00062a6c(handle);
-  if (iVar1 == 0) {
-    *(u32 *)(iVar2 + 2000) = 0xffffffff;
+  ok = FUN_00062a6c(handle);
+  if (ok == 0) {
+    self->handle_cur = -1;
   }
   else {
-    iVar1 = FUN_00062b3c(*(u32 *)(iVar2 + 2000));
-    if (iVar1 < 1) {
-      FUN_000628e4(*(u32 *)(iVar2 + 2000),1);
+    ok = FUN_00062b3c(self->handle_cur);
+    if (ok < 1) {
+      FUN_000628e4(self->handle_cur,1);
     }
   }
 }

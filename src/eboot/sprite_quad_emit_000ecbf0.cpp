@@ -8,25 +8,16 @@ static inline void TagHelper(FrameTag = FrameTag()) {}
 struct Mat {
     Vec4 r[4];
 };
-struct Vert {
-    unsigned char r, g, b, a;
-    float x, y, z;
-    float u, v, q;
-};
-struct Batch {
-    char pad[0x54];
-    int idx;
-    char pad58[0xc];
-    Vert *buf[2];
-};
+#include "hst/fade_quads.h"
+
 struct Entry {
     Mat m;
-    Batch *batch;
+    QuadBatch *batch;
     unsigned kind;
     float scale;
-    int arg;
-    int zero;
-    float one;
+    int delay;   /* 0x4c frames to wait before fading starts */
+    int state;   /* 0x50 0 = waiting, 1 = fading */
+    float life;  /* 0x54 starts at 1.0, drops each frame while fading */
     char pad58[8];
 };
 struct Owner {
@@ -44,8 +35,8 @@ extern Vec4 DAT_002c07f0[4];
 Vec4 *FUN_00022498(Vec4 *, const Vec4 *, float);
 void FUN_000513a0(void *, int);
 int FUN_000ca4a4(void);
-void FUN_0005a650(Batch *);
-void FUN_0005a670(Batch *, int);
+void FUN_0005a650(QuadBatch *);
+void FUN_0005a670(QuadBatch *, int);
 }
 
 extern "C" void FUN_000ecbf0(Owner *self, unsigned kind, float scale, const Mat *m, int arg, int opt, float alpha)
@@ -62,9 +53,9 @@ extern "C" void FUN_000ecbf0(Owner *self, unsigned kind, float scale, const Mat 
     FUN_00022498(&e->m.r[1], &e->m.r[1], scale);
     FUN_00022498(&e->m.r[2], &e->m.r[2], scale);
     e->m.r[3].v[3] = 1.0f;
-    e->arg = arg;
-    e->zero = 0;
-    e->one = 1.0f;
+    e->delay = arg;
+    e->state = 0;
+    e->life = 1.0f;
     self->alpha = alpha;
     FUN_000513a0(self->tbl[e->kind], opt);
     float a;
@@ -82,7 +73,7 @@ extern "C" void FUN_000ecbf0(Owner *self, unsigned kind, float scale, const Mat 
         c = 128.0f;
         a = 36.0f;
     }
-    Batch *b = e->batch;
+    QuadBatch *b = e->batch;
     FUN_0005a650(b);
     float aa = a * 1.9921875f;
     for (int i = 0; i < 4; i++) {

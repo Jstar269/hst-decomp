@@ -1,29 +1,31 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002b6f24 end=0x002b6fac symbol=FUN_002b6f24 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/dtor_pair_obj.h"
 
 extern u8 DAT_00309ff0;
 extern void FUN_00000a00();
 extern int * FUN_00054554();
 extern int * FUN_002b73e4();
 
-u32 * FUN_002b6f24(u32 *param_1,short param_2)
+/* Deleting destructor: sets the vtable, destroys both sub-objects, frees the object when delete_flag > 0. */
+DtorPairObj * FUN_002b6f24(DtorPairObj *self,short delete_flag)
 {
-  u32 *puVar1;
+  int *sub;
   
-  if (param_1 != (u32 *)0x0) {
-    puVar1 = param_1 + 4;
-    *param_1 = (unsigned int)(&DAT_00309ff0);
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_00054554(puVar1,0);
+  if (self != (DtorPairObj *)0x0) {
+    sub = &self->unk10;
+    self->vtable = &DAT_00309ff0;
+    if ((sub != (int *)0x0) && (sub != (int *)0x0)) {
+      FUN_00054554(sub,0);
     }
-    puVar1 = param_1 + 1;
-    if ((puVar1 != (u32 *)0x0) && (puVar1 != (u32 *)0x0)) {
-      FUN_002b73e4(puVar1,0);
+    sub = &self->unk4;
+    if ((sub != (int *)0x0) && (sub != (int *)0x0)) {
+      FUN_002b73e4(sub,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

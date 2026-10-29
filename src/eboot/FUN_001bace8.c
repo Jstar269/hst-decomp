@@ -1,12 +1,13 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001bace8 end=0x001bad34 symbol=FUN_001bace8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/item_owner.h"
 
 extern void FUN_00204c80();
 
-void FUN_001bace8(int param_1,int param_2)
+/* Release item `index` and clear its flag bytes. */
+void FUN_001bace8(ItemOwner *self,int index)
 {
-  FUN_00204c80(*(u32 *)(*(int *)(param_1 + 4) + param_2 * 4));
-  *(u8 *)(param_2 + param_1 + 0x10) = 0;
-  *(u8 *)(param_2 + param_1 + 0x14) = 0;
+  FUN_00204c80(self->items[index]);
+  self->unk10[index] = 0;
+  self->unk14[index] = 0;
 }

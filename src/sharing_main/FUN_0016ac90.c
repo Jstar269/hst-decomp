@@ -8,16 +8,16 @@ extern void FUN_0001eb84();
 extern bool FUN_0001eb98();
 extern void FUN_0016acf0();
 
-void FUN_0016ac90(u32 param_1)
+void FUN_0016ac90(u32 arg)
 {
-  u8 cVar1;
+  u8 held;
   
-  cVar1 = FUN_0001eb98();
-  if (cVar1 != '\0') {
+  held = FUN_0001eb98();
+  if (held != '\0') {
     FUN_0001eb84();
   }
-  FUN_0016acf0(param_1,DAT_003751d4);
-  if (cVar1 != '\0') {
+  FUN_0016acf0(arg,DAT_003751d4);
+  if (held != '\0') {
     FUN_0001e7ac();
   }
 }

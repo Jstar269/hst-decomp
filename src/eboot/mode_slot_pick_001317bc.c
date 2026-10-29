@@ -2,8 +2,8 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-struct Self { char pad[0x128]; int f128; int f12c; int f130; };
-struct Cfg  { char pad[0x50]; int f50; };
+struct Self { char pad[0x128]; int unk128; int unk12c; int unk130; };
+struct Cfg  { char pad[0x50]; int unk50; };
 
 extern float DAT_002db1bc;
 extern float DAT_002db1c0;
@@ -12,38 +12,39 @@ extern float DAT_002db1c8;
 extern u32 *DAT_003386b0;
 extern struct Cfg *DAT_00338b44;
 
-u32 FUN_001317bc(struct Self *param_1,int param_2)
+/* Returns the entry of the global table at 0x70 indexed by the field chosen by mode (5 to 9), or 0. */
+u32 FUN_001317bc(struct Self *self,int mode)
 {
   float tbl[4];
-  u32 r;
+  u32 result;
   int off;
 
-  r = 0;
+  result = 0;
   tbl[0] = DAT_002db1bc;
   tbl[1] = DAT_002db1c0;
   tbl[2] = DAT_002db1c4;
   tbl[3] = DAT_002db1c8;
-  switch (param_2) {
+  switch (mode) {
   case 5:
-    off = param_1->f128 * 4;
-    r = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
+    off = self->unk128 * 4;
+    result = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
     break;
   case 6:
-    off = param_1->f12c * 4;
-    r = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
+    off = self->unk12c * 4;
+    result = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
     break;
   case 7:
-    off = DAT_00338b44->f50 * 4;
-    r = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
+    off = DAT_00338b44->unk50 * 4;
+    result = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
     break;
   case 8:
-    off = (int)tbl[DAT_00338b44->f50] * 4;
-    r = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
+    off = (int)tbl[DAT_00338b44->unk50] * 4;
+    result = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
     break;
   case 9:
-    off = param_1->f130 * 4;
-    r = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
+    off = self->unk130 * 4;
+    result = *(u32 *)(off + (int)DAT_003386b0 + 0x70);
     break;
   }
-  return r;
+  return result;
 }

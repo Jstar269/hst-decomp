@@ -5,9 +5,10 @@
 extern u32 DAT_003e1e04;
 extern void FUN_000bf720();
 
-void FUN_000bf50c(u32 param_1,u32 param_2,u32 param_3,u32 param_4, u32 param_5)
+/* Forwards five arguments to the environment object's handler when the object exists. */
+void FUN_000bf50c(u32 arg0,u32 arg1,u32 arg2,u32 arg3, u32 arg4)
 {
   if (DAT_003e1e04 != 0) {
-    FUN_000bf720(DAT_003e1e04,param_1,param_2,param_3,param_4,param_5);
+    FUN_000bf720(DAT_003e1e04,arg0,arg1,arg2,arg3,arg4);
   }
 }

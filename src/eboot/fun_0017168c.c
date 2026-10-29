@@ -14,26 +14,26 @@ struct Self {
   int x594;
   int x598;
   char pad1[0x98];
-  int handle;
+  int handle;       /* 0x634 handle returned by the global object helper, negative when none */
 };
 
-void FUN_0017168c(struct Self *param_1)
+void FUN_0017168c(struct Self *self)
 {
-  u32 uVar1;
+  u32 new_handle;
 
   int total = 0;
-  total += param_1->x588;
-  total += param_1->x58c;
-  total += param_1->x590;
-  total += param_1->x594;
-  total += param_1->x598;
+  total += self->x588;
+  total += self->x58c;
+  total += self->x590;
+  total += self->x594;
+  total += self->x598;
   if ((total = (total < 5))) {
   }
   else {
-    if (param_1->handle >= 0) {
-      FUN_001b1f84(&DAT_0034179c,&param_1->handle);
+    if (self->handle >= 0) {
+      FUN_001b1f84(&DAT_0034179c,&self->handle);
     }
-    uVar1 = FUN_001b2bb8(&DAT_0034179c,0x58);
-    param_1->handle = uVar1;
+    new_handle = FUN_001b2bb8(&DAT_0034179c,0x58);
+    self->handle = new_handle;
   }
 }

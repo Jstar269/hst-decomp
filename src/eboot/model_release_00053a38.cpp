@@ -11,19 +11,19 @@ struct Vec {
 
 struct Self {
   char *arr;            /* 0x00 */
-  int f04;              /* 0x04 */
+  int unk04;            /* 0x04 */
   int handle;           /* 0x08 */
   void *buf;            /* 0x0c */
   void *obj;            /* 0x10 */
   unsigned char active; /* 0x14 */
   char pad15[3];
   Vec items;            /* 0x18 */
-  int f20;
+  int unk20;            /* 0x20 */
   Vec other;            /* 0x24 */
   void Reset()
   {
     arr = 0;
-    f04 = 0;
+    unk04 = 0;
     handle = 0;
     buf = 0;
     obj = 0;

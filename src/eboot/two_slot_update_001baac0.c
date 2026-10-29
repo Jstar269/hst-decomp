@@ -1,37 +1,38 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001baac0 end=0x001bab98 symbol=FUN_001baac0 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: the flag byte is set with `if (b) 1 else 0` (truthy test; the `== 0` order puts the store in the other branch-likely slot); exact match verified; names and types await human review. */
-#include "hst/types.h"
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: the flag byte is set with `if (b) 1 else 0` (truthy test; the `== 0` order puts the store in the other branch-likely slot); readability pass; exact match verified; names and types await human review. */
+#include "hst/item_owner.h"
 
 extern u8 FUN_001baf80();
 extern void FUN_00206290();
 
-void FUN_001baac0(int param_1,int *param_2)
+/* Apply item slots 2 and 3 from their records when the record is in use. */
+void FUN_001baac0(ItemOwner *self,ItemSlotRec **slots)
 {
-  u8 uVar1;
+  u8 model;
   
-  if (*(u8 *)(*param_2 + 0x60) != '\0') {
-    uVar1 = FUN_001baf80(*(u32 *)(*(int *)(*(int *)(param_1 + 4) + 8) + 4));
-    FUN_00206290(*(u32 *)(*(int *)(param_1 + 4) + 8),uVar1,*(u32 *)(*param_2 + 100));
-    *(u8 *)(param_1 + 0x12) = 1;
-    *(u8 *)(param_1 + 0x16) = 1;
-    if (*(u8 *)(*param_2 + 0x6a)) {
-      *(u8 *)(param_1 + 0x1a) = 1;
+  if ((*slots)[2].used != '\0') {
+    model = FUN_001baf80(self->items[2]->table_index);
+    FUN_00206290(self->items[2],model,(*slots)[2].src);
+    self->unk10[2] = 1;
+    self->unk14[2] = 1;
+    if ((*slots)[2].flag) {
+      self->unk18[2] = 1;
     }
     else {
-      *(u8 *)(param_1 + 0x1a) = 0;
+      self->unk18[2] = 0;
     }
   }
-  if (*(u8 *)(*param_2 + 0x90) != '\0') {
-    uVar1 = FUN_001baf80(*(u32 *)(*(int *)(*(int *)(param_1 + 4) + 0xc) + 4));
-    FUN_00206290(*(u32 *)(*(int *)(param_1 + 4) + 0xc),uVar1,*(u32 *)(*param_2 + 0x94)
+  if ((*slots)[3].used != '\0') {
+    model = FUN_001baf80(self->items[3]->table_index);
+    FUN_00206290(self->items[3],model,(*slots)[3].src
                 );
-    *(u8 *)(param_1 + 0x13) = 1;
-    *(u8 *)(param_1 + 0x17) = 1;
-    if (*(u8 *)(*param_2 + 0x9a)) {
-      *(u8 *)(param_1 + 0x1b) = 1;
+    self->unk10[3] = 1;
+    self->unk14[3] = 1;
+    if ((*slots)[3].flag) {
+      self->unk18[3] = 1;
     }
     else {
-      *(u8 *)(param_1 + 0x1b) = 0;
+      self->unk18[3] = 0;
     }
   }
 }

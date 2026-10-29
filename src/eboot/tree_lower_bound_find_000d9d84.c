@@ -5,15 +5,16 @@ struct Tree { int pad; struct Node header; };
 
 extern struct Node * FUN_000da39c(struct Tree *, short *, struct Node *, struct Node *);
 
-void FUN_000d9d84(struct Node **param_1, struct Tree *param_2, short *param_3)
+/* find(): *out = node whose key equals *key, or the end (header) node when there is none. */
+void FUN_000d9d84(struct Node **out, struct Tree *tree, short *key)
 {
   struct Node *it;
 
-  it = FUN_000da39c(param_2, param_3, param_2->header.left, &param_2->header);
-  if (it == &param_2->header || *param_3 < it->key) {
-    *param_1 = &param_2->header;
+  it = FUN_000da39c(tree, key, tree->header.left, &tree->header);
+  if (it == &tree->header || *key < it->key) {
+    *out = &tree->header;
   }
   else {
-    *param_1 = it;
+    *out = it;
   }
 }

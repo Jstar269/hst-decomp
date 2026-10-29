@@ -4,41 +4,48 @@ extern char DAT_0034179c[];
 
 extern int FUN_001b1f7c(char *tbl, int v);
 extern int FUN_001b2bb8(char *tbl, int v);
-extern void FUN_001b9608(int *out, void *a, int *v, void *p);
+extern void FUN_001b9608(int *out, void *owner, int *pos, void *request);
 
-int FUN_001b4e14(void *a, int b, int c, int *out, int *q)
+/* Request record handed to FUN_001b9608. */
+typedef struct Request {
+    int id;
+    int amount;
+    int *out;
+    int *handle;
+} Request;
+
+/* Position pair: the address of the owner's field at +4, then the callee's output slot. */
+typedef struct PosPair {
+    int pos;
+    int result;
+} PosPair;
+
+/* With amount <= 0 and no live handle: look `id` up directly, store it through `out` (when given) and return it. Otherwise queue a request through FUN_001b9608 and return -1. */
+int FUN_001b4e14(void *owner, int id, int amount, int *out, int *handle)
 {
     int v;
 
-    if (c <= 0) {
-        if (q != 0) {
-            if (FUN_001b1f7c(DAT_0034179c, *q) != 0)
-                goto big;
+    if (amount <= 0) {
+        if (handle != 0) {
+            if (FUN_001b1f7c(DAT_0034179c, *handle) != 0)
+                goto queue;
         }
-        v = FUN_001b2bb8(DAT_0034179c, b);
+        v = FUN_001b2bb8(DAT_0034179c, id);
         if (out != 0)
             *out = v;
         return v;
     }
-big:
+queue:
     {
-        struct P4 {
-            int b;
-            int c;
-            int *out;
-            int *q;
-        } p;
-        struct Pair {
-            int v;
-            int r;
-        } pr;
+        Request req;
+        PosPair pp;
 
-        pr.v = (int)a + 4;
-        p.b = b;
-        p.c = c;
-        p.out = out;
-        p.q = q;
-        FUN_001b9608(&pr.r, a, &pr.v, &p);
+        pp.pos = (int)owner + 4;
+        req.id = id;
+        req.amount = amount;
+        req.out = out;
+        req.handle = handle;
+        FUN_001b9608(&pp.result, owner, &pp.pos, &req);
     }
     return -1;
 }

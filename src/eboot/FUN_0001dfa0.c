@@ -5,15 +5,16 @@
    copy of the compare; exact match verified; names and types await human review. */
 extern void FUN_0001dd58();
 
-void FUN_0001dfa0(char *param_1, int param_2, int param_3)
+/* Stores value as the first byte when it differs; unless skip_reset is set, then either calls the helper (value 0) or sets the word at +0x84 to 0xffff. */
+void FUN_0001dfa0(char *obj, int value, int skip_reset)
 {
-  if ((unsigned char)param_2 == *(unsigned char *)param_1) return;
-  *param_1 = param_2;
-  if (param_3 == 0) {
-    if (param_2 == 0) {
+  if ((unsigned char)value == *(unsigned char *)obj) return;
+  *obj = value;
+  if (skip_reset == 0) {
+    if (value == 0) {
       FUN_0001dd58();
     } else {
-      *(unsigned *)(param_1 + 0x84) = 0xffff;
+      *(unsigned *)(obj + 0x84) = 0xffff;
     }
   }
 }

@@ -1,11 +1,8 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001e4d64 end=0x001e5050 symbol=FUN_001e4d64 lang=c++ rodata=0x002c8c98 */
-/* Hand-written reconstruction from the disassembly; matching idioms: the 20-byte Slot{item,val} array at +0x2ac addressed as &self->slots[k] pointer locals, float t first parameter (f12) passed to both lookup helpers, the non-zero mode arm written first, int sum computed before the item pointer is loaded; exact match verified; names and types await human review. */
-struct Item {
-  char pad[0x24];
-  int f24;
-  int f28;
-};
+/* Hand-written reconstruction from the disassembly; matching idioms: the 20-byte UiSlot{item,val} array (here slots 5..11 of the array at +0x248) addressed as pointer locals &self->slot[k], float t first parameter (f12) passed to both lookup helpers, the non-zero mode arm written first, int sum computed before the item pointer is loaded; exact match verified; names and types await human review. */
+#include "hst/ui_panel.h"
 
+/* Virtual interface of the object at unk204. */
 struct Ui {
   virtual void v0();
   virtual void v1();
@@ -18,155 +15,102 @@ struct Ui {
   virtual void m8(int, short, short, short, short);
 };
 
-struct Slot {
-  Item *item;
-  int val;
-  int pad[3];
-};
-
-struct Self {
-  char pad0[0x204];
-  Ui *ui;
-  char pad1[0x2ac - 0x208];
-  Slot slots[7];
-  char pad2[0x39c - 0x338];
-  short f39c;
-  short pad39e;
-  int f3a0;
-  short f3a4;
-  short pad3a6;
-  int f3a8;
-};
-
 extern void *DAT_0034a77c;
 
 extern "C" {
 float FUN_0024de20(void *, float);
 int FUN_0024dd40(void *, float);
-void FUN_000ffb3c(Item *, int);
+void FUN_000ffb3c(UiItem *, int);
 }
 
-extern "C" void FUN_001e4d64(float t, Self *self, int mode)
+/* Sets both ints of the slot's item to the slot value plus an offset. */
+#define SET_ITEM_VALUE(slot, offset) \
+      v = (slot)->val + (offset); \
+      o = (slot)->item; \
+      o->unk24 = v; \
+      o->unk28 = v
+
+/* Updates the panel's items from the value kind returned by FUN_0024dd40 and the mode, and passes the interpolated span to the ui object. */
+extern "C" void FUN_001e4d64(float t, UiPanel *self, int mode)
 {
   float ratio = FUN_0024de20(DAT_0034a77c, t);
   int kind = FUN_0024dd40(DAT_0034a77c, t);
-  Slot *s1 = &self->slots[1];
-  Slot *s2 = &self->slots[2];
+  UiSlot *slot6 = &self->slot[6];
+  UiSlot *slot7 = &self->slot[7];
   if (kind == 9) {
-    FUN_000ffb3c(s1->item, 1);
-    FUN_000ffb3c(s2->item, 0);
+    FUN_000ffb3c(slot6->item, 1);
+    FUN_000ffb3c(slot7->item, 0);
   } else {
-    FUN_000ffb3c(s1->item, 0);
-    FUN_000ffb3c(s2->item, 1);
-    int v = s1->val + kind;
-    Item *o = s1->item;
-    o->f24 = v;
-    o->f28 = v;
+    FUN_000ffb3c(slot6->item, 0);
+    FUN_000ffb3c(slot7->item, 1);
+    int v = slot6->val + kind;
+    UiItem *o = slot6->item;
+    o->unk24 = v;
+    o->unk28 = v;
   }
-  self->ui->m8(0, self->f39c, (short)(self->f3a8 - (int)(ratio * (float)(self->f3a8 - self->f3a0))), self->f3a4, (short)self->f3a8);
-  Slot *s0 = &self->slots[0];
-  Slot *s4 = &self->slots[4];
-  Slot *s6 = &self->slots[6];
+  ((Ui *)self->unk204)->m8(0, self->unk39c, (short)(self->unk3a8 - (int)(ratio * (float)(self->unk3a8 - self->unk3a0))), self->unk3a4, (short)self->unk3a8);
+  UiSlot *slot5 = &self->slot[5];
+  UiSlot *slot9 = &self->slot[9];
+  UiSlot *slot11 = &self->slot[11];
   if (mode != 0) {
-    FUN_000ffb3c(s4->item, 0);
-    FUN_000ffb3c(s0->item, 0);
-    Item *o;
+    FUN_000ffb3c(slot9->item, 0);
+    FUN_000ffb3c(slot5->item, 0);
+    UiItem *o;
     int v;
     switch (mode) {
     case 4:
     case 15:
-      v = s0->val + 1;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 1);
       break;
     case 2:
-      v = s0->val + 2;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 2);
       break;
     case 8:
-      v = s0->val + 3;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 3);
       break;
     case 5:
-      v = s0->val + 4;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 4);
       break;
     case 9:
-      v = s0->val + 5;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 5);
       break;
     case 7:
-      v = s0->val + 6;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 6);
       break;
     case 3:
-      v = s0->val + 7;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 7);
       break;
     case 11:
-      v = s0->val + 8;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 8);
       break;
     case 12:
-      v = s0->val + 10;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 10);
       break;
     case 16:
-      v = s0->val + 11;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 11);
       break;
     case 6:
-      v = s0->val + 13;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 13);
       break;
     case 13:
-      v = s0->val + 14;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 14);
       break;
     case 14:
-      v = s0->val;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 0);
       break;
     case 1:
     case 10:
     case 17:
       break;
     default:
-      v = s0->val;
-      o = s0->item;
-      o->f24 = v;
-      o->f28 = v;
+      SET_ITEM_VALUE(slot5, 0);
       break;
     }
-    FUN_000ffb3c(s6->item, 0);
+    FUN_000ffb3c(slot11->item, 0);
   } else {
-    FUN_000ffb3c(s4->item, 1);
-    FUN_000ffb3c(s0->item, 1);
-    FUN_000ffb3c(s6->item, 1);
+    FUN_000ffb3c(slot9->item, 1);
+    FUN_000ffb3c(slot5->item, 1);
+    FUN_000ffb3c(slot11->item, 1);
   }
 }
+#undef SET_ITEM_VALUE

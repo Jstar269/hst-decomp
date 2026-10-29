@@ -1,66 +1,40 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0011b7f0 end=0x0011b96c symbol=FUN_0011b7f0 lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/tick_obj.h"
 
 extern char DAT_0033b488;
 
 extern void FUN_0001f1fc();
 extern void FUN_0011cd48();
 
-typedef struct {
-  int x;
-  int y;
-  float z;
-} Entry;
-
-typedef struct {
-  u32 count;
-  int pad;
-  u32 a;
-  Entry **rows;
-  u32 b;
-  int flag;
-} Slot;
-
-typedef struct {
-  char pad0[0x3c];
-  char *obj;
-  char pad1[0x70];
-  int b0;
-  int b4;
-  float b8;
-  int bc;
-  int c0;
-  float c4;
-  char pad2[4];
-  int cc;
-} Self;
-
-void FUN_0011b7f0(Self *self)
+/* Counts down; at zero loads the current entry from the front of the owner's queue and pops it, then loads
+   the next entry the same way (or clears its second word when the queue ran empty). With nothing queued it
+   resets the object and clears a flag instead. */
+void FUN_0011b7f0(TickObj *self)
 {
-  int n = self->cc - 1;
-  self->cc = n;
+  int n = self->countdown - 1;
+  self->countdown = n;
   if (n >= 1) {
     return;
   }
-  Slot *s = (Slot *)(self->obj + 0x2f8);
-  if (s->flag != 0) {
-    Entry *e = (Entry *)((char *)s->rows[(s->a + s->b / 0x2a) % s->count] + (s->b % 0x2a) * 0xc);
-    self->b0 = e->x;
-    self->b4 = e->y;
-    self->b8 = e->z;
-    FUN_0011cd48(s);
-    if (s->flag != 0) {
-      Entry *e2 = (Entry *)((char *)s->rows[(s->a + s->b / 0x2a) % s->count] + (s->b % 0x2a) * 0xc);
-      self->bc = e2->x;
-      self->c0 = e2->y;
-      self->c4 = e2->z;
-      FUN_0011cd48(s);
+  TickQueue *queue = (TickQueue *)&self->owner->deque2f8;
+  if (queue->length != 0) {
+    TickEntry *e = (TickEntry *)((char *)queue->blocks[(queue->head + queue->first / TICK_BLOCK_ELEMS) % queue->capacity] + (queue->first % TICK_BLOCK_ELEMS) * 0xc);
+    self->cur.kind = e->kind;
+    self->cur.unk4 = e->unk4;
+    self->cur.value = e->value;
+    FUN_0011cd48(queue);
+    if (queue->length != 0) {
+      TickEntry *e2 = (TickEntry *)((char *)queue->blocks[(queue->head + queue->first / TICK_BLOCK_ELEMS) % queue->capacity] + (queue->first % TICK_BLOCK_ELEMS) * 0xc);
+      self->next.kind = e2->kind;
+      self->next.unk4 = e2->unk4;
+      self->next.value = e2->value;
+      FUN_0011cd48(queue);
     }
     else {
-      self->c0 = 0;
+      self->next.unk4 = 0;
     }
-    self->cc = 0x2d;
+    self->countdown = TICK_COUNTDOWN_START;
   }
   else {
     FUN_0001f1fc(self, 0);

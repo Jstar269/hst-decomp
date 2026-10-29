@@ -1,7 +1,9 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002b3a24 end=0x002b3a34 symbol=FUN_002b3a24 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/vec_reserve.h"
 
-void FUN_002b3a24(int param_1,int param_2)
+/* Shrinks a growable array's element count by n. */
+void FUN_002b3a24(RawVec *vec,int n)
 {
-  *(int *)(param_1 + 4) = *(int *)(param_1 + 4) - param_2;
+  vec->size = vec->size - n;
 }

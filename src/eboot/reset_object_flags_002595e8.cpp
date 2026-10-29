@@ -8,12 +8,16 @@ struct VC {
   virtual void s5(); virtual void s6(); virtual void s7(); virtual void s8(); virtual void s9();
   virtual void s10();
 };
+#define INIT_FLOAT_VALUE 1010.0f
+#define INIT_INDEX_NONE (-1)
+#define GLOBAL_MASK_BIT 0x2000 /* bit passed to both calls on the global */
+
 struct Self {
   char pad[0x54];
-  unsigned char b54;
-  unsigned char b55;
+  unsigned char b54;  /* 0x54 set to 1 by the reset */
+  unsigned char b55;  /* 0x55 cleared by the reset */
   char pad2[2];
-  VC *p58;
+  VC *p58;            /* 0x58 optional child, notified through virtual slot 10 */
 };
 extern "C" {
 extern int *DAT_002cfc8c;
@@ -26,10 +30,10 @@ void FUN_00103628(Self *, int);
 
 extern "C" void FUN_002595e8(Self *self)
 {
-  FUN_00103540(self, 1010.0f);
-  FUN_001037c8(self, -1);
-  FUN_0001dfe8(DAT_002cfc8c, 0x2000);
-  FUN_0001e23c(DAT_002cfc8c, 0x2000, 1);
+  FUN_00103540(self, INIT_FLOAT_VALUE);
+  FUN_001037c8(self, INIT_INDEX_NONE);
+  FUN_0001dfe8(DAT_002cfc8c, GLOBAL_MASK_BIT);
+  FUN_0001e23c(DAT_002cfc8c, GLOBAL_MASK_BIT, 1);
   if (self->p58) self->p58->s10();
   self->b54 = 1;
   self->b55 = 0;

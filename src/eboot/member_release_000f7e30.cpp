@@ -7,6 +7,7 @@ void FUN_000f64d8(void *, int);
 void FUN_00000a00(void *);
 }
 
+/* Polymorphic member with a virtual destructor. */
 struct VC {
     virtual ~VC();
 };
@@ -45,102 +46,104 @@ struct HolderP4 {
     }
 };
 
+/* Owner: members from 0x54 on, all released by this function (the last two only when release_all is set). */
 struct Obj {
     char pad0[0x54];
-    VC *m54;
-    VC *m58;
-    VC *m5c;
-    VC *m60;
-    VC *m64;
-    VC *m68;
-    VC *m6c;
-    VC *m70;
-    VC *m74;
-    VC *m78;
-    HolderP8 *m7c;
-    HolderP4 *m80;
-    VC *m84;
-    VC *m88;
-    B_000f64d8 *m8c;
-    B_000f64d8 *m90;
-    void *m94;
-    void *m98;
+    VC *unk54;
+    VC *unk58;
+    VC *unk5c;
+    VC *unk60;
+    VC *unk64;
+    VC *unk68;
+    VC *unk6c;
+    VC *unk70;
+    VC *unk74;
+    VC *unk78;
+    HolderP8 *unk7c;
+    HolderP4 *unk80;
+    VC *unk84;
+    VC *unk88;
+    B_000f64d8 *unk8c;
+    B_000f64d8 *unk90;
+    void *unk94;
+    void *unk98;
 };
 
-extern "C" void FUN_000f7e30(Obj *self, int param_2)
+/* Releases every owned member and clears its pointer. */
+extern "C" void FUN_000f7e30(Obj *self, int release_all)
 {
-    if (self->m94 != 0) {
-        FUN_001ec35c(self->m94, 1);
-        self->m94 = 0;
+    if (self->unk94 != 0) {
+        FUN_001ec35c(self->unk94, 1);
+        self->unk94 = 0;
     }
-    if (self->m8c != 0) {
-        Destroy(self->m8c);
-        self->m8c = 0;
+    if (self->unk8c != 0) {
+        Destroy(self->unk8c);
+        self->unk8c = 0;
     }
-    if (self->m88 != 0) {
-        delete self->m88;
-        self->m88 = 0;
+    if (self->unk88 != 0) {
+        delete self->unk88;
+        self->unk88 = 0;
     }
-    if (self->m70 != 0) {
-        delete self->m70;
-        self->m70 = 0;
+    if (self->unk70 != 0) {
+        delete self->unk70;
+        self->unk70 = 0;
     }
-    if (self->m6c != 0) {
-        delete self->m6c;
-        self->m6c = 0;
+    if (self->unk6c != 0) {
+        delete self->unk6c;
+        self->unk6c = 0;
     }
-    if (self->m74 != 0) {
-        delete self->m74;
-        self->m74 = 0;
+    if (self->unk74 != 0) {
+        delete self->unk74;
+        self->unk74 = 0;
     }
-    if (self->m78 != 0) {
-        delete self->m78;
-        self->m78 = 0;
+    if (self->unk78 != 0) {
+        delete self->unk78;
+        self->unk78 = 0;
     }
-    if (self->m7c != 0) {
-        delete self->m7c;
-        self->m7c = 0;
+    if (self->unk7c != 0) {
+        delete self->unk7c;
+        self->unk7c = 0;
     }
-    if (self->m80 != 0) {
-        delete self->m80;
-        self->m80 = 0;
+    if (self->unk80 != 0) {
+        delete self->unk80;
+        self->unk80 = 0;
     }
-    if (self->m68 != 0) {
-        delete self->m68;
-        self->m68 = 0;
+    if (self->unk68 != 0) {
+        delete self->unk68;
+        self->unk68 = 0;
     }
-    if (self->m5c != 0) {
-        delete self->m5c;
-        self->m5c = 0;
+    if (self->unk5c != 0) {
+        delete self->unk5c;
+        self->unk5c = 0;
     }
-    if (self->m60 != 0) {
-        delete self->m60;
-        self->m60 = 0;
+    if (self->unk60 != 0) {
+        delete self->unk60;
+        self->unk60 = 0;
     }
-    if (self->m64 != 0) {
-        delete self->m64;
-        self->m64 = 0;
+    if (self->unk64 != 0) {
+        delete self->unk64;
+        self->unk64 = 0;
     }
-    if (self->m58 != 0) {
-        delete self->m58;
-        self->m58 = 0;
+    if (self->unk58 != 0) {
+        delete self->unk58;
+        self->unk58 = 0;
     }
-    if (self->m54 != 0) {
-        delete self->m54;
-        self->m54 = 0;
+    if (self->unk54 != 0) {
+        delete self->unk54;
+        self->unk54 = 0;
     }
-    if (self->m84 != 0) {
-        delete self->m84;
-        self->m84 = 0;
+    if (self->unk84 != 0) {
+        delete self->unk84;
+        self->unk84 = 0;
     }
-    if (param_2 != 0) {
-        if (self->m90 != 0) {
-            Destroy(self->m90);
-            self->m90 = 0;
+    if (release_all != 0) {
+        if (self->unk90 != 0) {
+            Destroy(self->unk90);
+            self->unk90 = 0;
         }
-        if (self->m98 != 0) {
-            FUN_001ea854(self->m98, 1);
-            self->m98 = 0;
+        if (self->unk98 != 0) {
+            FUN_001ea854(self->unk98, 1);
+            self->unk98 = 0;
         }
     }
 }

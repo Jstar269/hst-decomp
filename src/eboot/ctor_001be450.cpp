@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001be450 end=0x001be728 symbol=__ct__10C_001be450Fv lang=c++ */
-/* Hand-written reconstruction from the disassembly; exact match verified. Constructor of a 59872-byte object whose members are built by compiler-generated do/while loops: tiny memset-wrapper classes (B1 1 byte, S2 2 bytes, V12 12 bytes, Rec 56 bytes = V12[4] + memset(this)), the 0x2000-byte block Y at +0x1378 (Z m + Z arr[50], body FUN_001bc7e0(this,0)), and the 0xb460-byte block W at +0x3480 (FUN_0022a4b8); then the plain field stores, memset of the trailing 256 bytes and FUN_001beffc(this,0). Names and types await human review. */
+/* Hand-written reconstruction from the disassembly; exact match verified. Constructor of a 59872-byte object whose members are built by compiler-generated do/while loops: tiny memset-wrapper classes (ZeroByte 1 byte, ZeroShort 2 bytes, ZeroWords3 12 bytes, ZeroRec 56 bytes = ZeroWords3[4] + memset(this)), the 0x2000-byte block at +0x1378 (BlockY: SubInit first + SubInit rest[50], body FUN_001bc7e0(this,0)), and the 0xb460-byte block at +0x3480 (BlockW, FUN_0022a4b8); then the plain field stores, memset of the trailing 256 bytes and FUN_001beffc(this,0). Names and types await human review. */
 extern "C" {
 void FUN_000114c0(void *, int, int);
 void FUN_001bc748(void *, int);
@@ -7,71 +7,71 @@ void FUN_001bc7e0(void *, int);
 void FUN_0022a4b8(void *);
 }
 
-struct B1 {
+struct ZeroByte {
   unsigned char v;
-  B1() { FUN_000114c0(this, 0, 1); }
+  ZeroByte() { FUN_000114c0(this, 0, 1); }
 };
 
-struct S2 {
+struct ZeroShort {
   short v;
-  S2() { FUN_000114c0(this, 0, 2); }
+  ZeroShort() { FUN_000114c0(this, 0, 2); }
 };
 
-struct V12 {
+struct ZeroWords3 {
   int a, b, c;
-  V12() { FUN_000114c0(this, 0, 12); }
+  ZeroWords3() { FUN_000114c0(this, 0, 12); }
 };
 
-struct Rec {
+struct ZeroRec {
   int h0, h1;
-  V12 v[4];
-  Rec() { FUN_000114c0(this, 0, 56); }
+  ZeroWords3 v[4];
+  ZeroRec() { FUN_000114c0(this, 0, 56); }
 };
 
-struct Z {
+struct SubInit {
   char d[160];
-  Z() { FUN_001bc748(this, 0); }
+  SubInit() { FUN_001bc748(this, 0); }
 };
 
-struct Y {
+struct BlockY {
   char hdr[32];
-  Z m;
-  Z arr[50];
-  Y() { FUN_001bc7e0(this, 0); }
+  SubInit first;
+  SubInit rest[50];
+  BlockY() { FUN_001bc7e0(this, 0); }
 };
 
-struct W {
+struct BlockW {
   char d[0xb460];
-  W() { FUN_0022a4b8(this); }
+  BlockW() { FUN_0022a4b8(this); }
 };
 
 struct C_001be450 {
-  int f0;
-  Rec recs[15];
-  S2 shorts[640];
-  B1 b0[640];
-  B1 b1[640];
-  B1 b2[640];
-  B1 c0[21];
-  B1 c1[8];
-  B1 c2[10];
-  B1 c3[10];
-  B1 c4[15];
-  B1 c5[10];
-  B1 c6[10];
-  char pad0[4148 - 4128];
-  short s4148, s4150, s4152, s4154;
-  unsigned char c4156;
-  char pad1;
-  short s4158, s4160, s4162, s4164, s4166, s4168;
-  unsigned char c4170, c4171, c4172, c4173, c4174, c4175, c4176, c4177, c4178;
-  char pad2;
-  int f4180;
-  char pad3[4984 - 4184];
-  Y y;
-  char pad4[13440 - 13176];
-  W w;
-  unsigned char buf[256];
+  int unk000;
+  ZeroRec subs[15];
+  ZeroShort pairs[640];
+  ZeroByte marks1[640];
+  ZeroByte marks2[640];
+  ZeroByte marks3[640];
+  ZeroByte flag_a[21];
+  ZeroByte flag_b[8];
+  ZeroByte zero_c2[10];
+  ZeroByte zero_c3[10];
+  ZeroByte zero_c4[15];
+  ZeroByte zero_c5[10];
+  ZeroByte zero_c6[10];
+  char pad1020[0x1034 - 0x1020];
+  short unk1034, unk1036, unk1038, unk103a;
+  unsigned char unk103c;
+  char pad103d;
+  short unk103e, unk1040, unk1042, unk1044, unk1046, unk1048;
+  unsigned char unk104a, unk104b, unk104c, unk104d, unk104e, unk104f, unk1050, unk1051, unk1052;
+  char pad1053;
+  int unk1054;
+  char pad1058[0x1378 - 0x1058];
+  BlockY block;
+  char pad3378[0x3480 - 0x3378];
+  BlockW tail_block;
+  unsigned char tail[256];
   C_001be450();
 };
 
@@ -79,28 +79,28 @@ extern "C" void FUN_001beffc(C_001be450 *, int);
 
 C_001be450::C_001be450()
 {
-  s4148 = 0;
-  s4150 = 0;
-  s4152 = 0;
-  s4154 = 0;
-  c4156 = 1;
-  s4158 = 0;
-  s4160 = 0;
-  s4162 = 0;
-  s4164 = 0;
-  s4166 = 0;
-  s4168 = 0;
-  c4170 = 0;
-  c4171 = 0;
-  c4172 = 0;
-  c4173 = 0;
-  c4174 = 0;
-  c4175 = 0;
-  c4176 = 0;
-  c4177 = 0;
-  c4178 = 0;
-  f4180 = 0;
-  f0 = 0;
-  FUN_000114c0(buf, 0, 256);
+  unk1034 = 0;
+  unk1036 = 0;
+  unk1038 = 0;
+  unk103a = 0;
+  unk103c = 1;
+  unk103e = 0;
+  unk1040 = 0;
+  unk1042 = 0;
+  unk1044 = 0;
+  unk1046 = 0;
+  unk1048 = 0;
+  unk104a = 0;
+  unk104b = 0;
+  unk104c = 0;
+  unk104d = 0;
+  unk104e = 0;
+  unk104f = 0;
+  unk1050 = 0;
+  unk1051 = 0;
+  unk1052 = 0;
+  unk1054 = 0;
+  unk000 = 0;
+  FUN_000114c0(tail, 0, 256);
   FUN_001beffc(this, 0);
 }

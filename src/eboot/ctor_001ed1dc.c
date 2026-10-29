@@ -1,39 +1,37 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ed1dc end=0x001ed27c symbol=FUN_001ed1dc lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: loop counter and pointer declaration order; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: loop counter and indexed entry stores (store order in the loop); readability pass; exact match verified; names and types await human review. */
 
-#include "hst/types.h"
+#include "hst/prize_camera.h"
 
-extern u8 DAT_00309524;
-extern u32 * FUN_00060e2c();
+extern unsigned char DAT_00309524;
+extern void * FUN_00060e2c();
 
-u32 * FUN_001ed1dc(u32 *param_1)
+/* Constructor: base constructor, then clears the state and gives both settings entries their defaults. */
+PrizeCamera * FUN_001ed1dc(PrizeCamera *cam)
 {
-  u32 uVar2;
-  u32 *puVar1;
+  unsigned int i;
   
   FUN_00060e2c();
-  *param_1 = (unsigned int)(&DAT_00309524);
-  param_1[0x24] = 0;
-  *(u8 *)(param_1 + 0x3a) = 0;
-  *(u8 *)((int)param_1 + 0xe9) = 0;
-  param_1[0x25] = 0;
-  *(u8 *)(param_1 + 0x26) = 0;
-  uVar2 = 0;
-  puVar1 = param_1;
+  cam->vtable = &DAT_00309524;
+  cam->res = 0;
+  cam->unke8 = 0;
+  cam->unke9 = 0;
+  cam->unk94 = 0;
+  cam->unk98 = 0;
+  i = 0;
   do {
-    puVar1[0x27] = 0;
-    puVar1[0x28] = 0;
-    puVar1[0x29] = 0;
-    puVar1[0x2a] = 0x40a00000;
-    puVar1[0x2b] = 0x42340000;
-    puVar1[0x2c] = 0;
-    puVar1[0x2d] = 0x3e4ccccd;
-    puVar1[0x2e] = 0x447a0000;
-    uVar2 = uVar2 + 1;
-    puVar1[0x2f] = 0;
-    puVar1 = puVar1 + 9;
-  } while (uVar2 < 2);
-  param_1[0x39] = 0;
-  *(u8 *)((int)param_1 + 0xea) = 0;
-  return param_1;
+    cam->ent[i].rot_speed = 0;
+    cam->ent[i].tilt = 0;
+    cam->ent[i].tilt_win = 0;
+    cam->ent[i].distance = 5.0f;
+    cam->ent[i].fov_x = 45.0f;
+    cam->ent[i].offset_y = 0;
+    cam->ent[i].near_plane = 0.2f;
+    cam->ent[i].far_plane = 1000.0f;
+    cam->ent[i].default_angle_y = 0;
+    i = i + 1;
+  } while (i < 2);
+  cam->sel = 0;
+  cam->unkea = 0;
+  return cam;
 }

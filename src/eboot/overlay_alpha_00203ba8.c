@@ -2,10 +2,7 @@
 /* Hand-written reconstruction from the disassembly; names and types await human review. */
 #include "hst/types.h"
 
-typedef union {
-    unsigned int w;
-    unsigned char b[4];
-} Col;
+#include "hst/look_obj.h"
 
 typedef struct {
     float x;
@@ -27,59 +24,61 @@ extern float DAT_002ef1d0;
 extern float DAT_0032b190[];
 
 extern void FUN_00051490(int, int, int, int, int, int, int);
-extern void FUN_00203dcc(int, int, int);
+extern void FUN_00203dcc(LookObj *, int, int);
 extern void FUN_0005185c(int);
 extern void FUN_00022548(Ext *, float *, Ext *);
 extern void FUN_00051398(int, float);
 extern void FUN_00051a10(int, unsigned int, float, float, float, float, float);
 
-void FUN_00203ba8(int param_1)
+/* Draws the overlay: renders the entries into the first target, then, while the global scale is non-zero and the
+   fade has progressed past the fade-in start, draws a full-screen quad whose alpha follows the progress. */
+void FUN_00203ba8(LookObj *self)
 {
   int i;
-  int a;
-  int n;
-  int m;
-  int d;
-  int den;
+  int step;
+  int peak;
+  int progress;
+  int span;
+  int divisor;
   unsigned char alpha;
-  float f20;
-  float fv;
+  float aspect;
+  float value;
   Blk blk;
 
-  if (*(unsigned char *)(param_1 + 0x4e4) == 0) return;
-  FUN_00051490(*(int *)(param_1 + 0x520), 0, 0, 0x1e0, 0x110, 0, 0);
+  if (self->active == 0) return;
+  FUN_00051490(self->unk520, 0, 0, 0x1e0, 0x110, 0, 0);
   i = 1;
-  if (*(int *)(param_1 + 0x14) > 1) {
+  if (self->unk14 > 1) {
     do {
-      FUN_00203dcc(param_1, i, 0);
+      FUN_00203dcc(self, i, 0);
       i = i + 1;
-    } while (i < *(int *)(param_1 + 0x14));
+    } while (i < self->unk14);
   }
-  FUN_0005185c(*(int *)(param_1 + 0x520));
+  FUN_0005185c(self->unk520);
   if (DAT_002ef1d0 == 0.0f) return;
-  a = *(int *)(param_1 + 0xe4);
-  n = (int)(*(float *)(param_1 + 0x514) * (float)(a << 3));
-  if (n > 0xff) n = 0xff;
-  m = (int)(*(float *)(param_1 + 0x510) * 4096.0f);
-  d = a << 4;
-  if (4096 - d < m) {
-    den = d;
-    if (den == 0) den = 1;
-    blk.col = *(unsigned int *)(param_1 + 0xf0);
-    fv = (float)((n * (m - (4096 - d))) / den);
-    fv = fv * DAT_002ef1d0;
-    alpha = (unsigned char)(fv / 2.0f);
+  step = self->unke4;
+  peak = (int)(self->unk514 * (float)(step << 3));
+  if (peak > 0xff) peak = 0xff;
+  progress = (int)(self->unk510 * 4096.0f);
+  span = step << 4;
+  if (4096 - span < progress) {
+    divisor = span;
+    if (divisor == 0) divisor = 1;
+    blk.col = self->unkf0;
+    value = (float)((peak * (progress - (4096 - span))) / divisor);
+    value = value * DAT_002ef1d0;
+    alpha = (unsigned char)(value / 2.0f);
     ((unsigned char *)&blk.col)[3] = alpha;
     blk.x = 0.0f;
     blk.y = 0.0f;
     blk.w = 1000.0f;
     blk.h = 1.0f;
     FUN_00022548((Ext *)&blk, DAT_0032b190, (Ext *)&blk);
-    f20 = blk.w / blk.h;
-    FUN_00051398(*(int *)(param_1 + 0x524), 3000.0f);
-    FUN_00051490(*(int *)(param_1 + 0x524), 0, 0, 0x1e0, 0x110, 0, 0);
-    FUN_00051a10(*(int *)(param_1 + 0x524), blk.col, 0.0f, 0.0f, 480.0f, 272.0f, f20);
-    FUN_0005185c(*(int *)(param_1 + 0x524));
+    aspect = blk.w / blk.h;
+    FUN_00051398(self->unk524, 3000.0f);
+    FUN_00051490(self->unk524, 0, 0, 0x1e0, 0x110, 0, 0);
+    FUN_00051a10(self->unk524, blk.col, 0.0f, 0.0f, 480.0f, 272.0f, aspect);
+    FUN_0005185c(self->unk524);
   }
 }
 

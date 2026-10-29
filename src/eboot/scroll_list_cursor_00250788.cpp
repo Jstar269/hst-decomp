@@ -4,49 +4,39 @@
    edge the row is pinned (0 / 15) and the first visible index (+0x364) is taken from +0x300 or +0x2fc (chosen by
    FUN_00250cc4) and clamped between the global minimum DAT_002fcbc0 / DAT_002fcbc4 and count (+0x308) - 16.
    FUN_002508b4 then refreshes the list. Names provisional. */
-struct List_00250788 {
-    char pad0[0x2fc];
-    int f2fc;
-    int f300;
-    int f304;
-    int count;
-    char pad1[0x35c - 0x30c];
-    int row;
-    int f360;
-    int top;
-};
+#include "hst/scroll_list_obj.h"
 extern "C" {
 extern int DAT_002fcbc0;
 extern int DAT_002fcbc4;
-int FUN_00250cc4(List_00250788 *self);
-void FUN_002508b4(List_00250788 *self);
+int FUN_00250cc4(ScrollListObj *self);
+void FUN_002508b4(ScrollListObj *self);
 }
 static inline int Clamp(const int &v, const int &lo, const int &hi)
 {
     return v < lo ? lo : (hi < v ? hi : v);
 }
-extern "C" void FUN_00250788(List_00250788 *self, int delta)
+extern "C" void FUN_00250788(ScrollListObj *self, int delta)
 {
     int max;
-    if (self->count < 16) {
+    if (self->count < SCROLL_LIST_ROWS) {
         max = 0;
     } else {
-        max = self->count - 16;
+        max = self->count - SCROLL_LIST_ROWS;
     }
     if (delta < 0) {
         int row = self->row + delta;
         if (row < 0) {
             self->row = 0;
-            self->top = FUN_00250cc4(self) != 0 ? self->f300 : self->f2fc;
+            self->top = FUN_00250cc4(self) != 0 ? self->unk300 : self->unk2fc;
             self->top = Clamp(self->top, DAT_002fcbc0, max);
         } else {
             self->row = row;
         }
     } else {
         int row = self->row + delta;
-        if (row > 15) {
-            self->row = 15;
-            self->top = (FUN_00250cc4(self) != 0 ? self->f300 : self->f2fc) - 15;
+        if (row > SCROLL_LIST_ROWS - 1) {
+            self->row = SCROLL_LIST_ROWS - 1;
+            self->top = (FUN_00250cc4(self) != 0 ? self->unk300 : self->unk2fc) - (SCROLL_LIST_ROWS - 1);
             self->top = Clamp(self->top, DAT_002fcbc4, max);
         } else {
             self->row = row;

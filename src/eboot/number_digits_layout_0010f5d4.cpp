@@ -1,6 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0010f5d4 end=0x0010f9d8 symbol=FUN_0010f5d4 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-/* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 #pragma opt_strength_reduction off
 struct Digit {
     int pad0;

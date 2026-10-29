@@ -6,6 +6,7 @@ extern u32 DAT_003e19f0;
 extern void FUN_0001f4a0();
 extern void FUN_0008c348();
 
+/* Calls the first helper on the global object, then the second with 0x16 and two zeros. */
 void FUN_00122d88(void)
 {
   FUN_0008c348(DAT_003e19f0);

@@ -5,10 +5,16 @@
 extern u8 DAT_003b0808;
 extern u8 DAT_003b081c;
 
-u32 * FUN_000d24e4(u32 *param_1)
+typedef struct FxBase {
+  const void *vtable; /* 0x00 */
+  int unk04;          /* 0x04 */
+} FxBase;
+
+/* Constructor: sets the base vtable, clears the field, then sets the derived vtable. */
+FxBase * FUN_000d24e4(FxBase *self)
 {
-  *param_1 = (unsigned int)(&DAT_003b0808);
-  param_1[1] = 0;
-  *param_1 = (unsigned int)(&DAT_003b081c);
-  return param_1;
+  self->vtable = &DAT_003b0808;
+  self->unk04 = 0;
+  self->vtable = &DAT_003b081c;
+  return self;
 }

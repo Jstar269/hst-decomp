@@ -1,14 +1,16 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00255cf8 end=0x00255d34 symbol=FUN_00255cf8 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s64a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s64a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/cell_grid.h"
 
-void FUN_00255cf8(int param_1,int param_2,int param_3,u32 param_4)
+/* Sets both counters of the cell at (row, col) to value, when that cell exists. */
+void FUN_00255cf8(CellGrid *grid,int row,int col,u32 value)
 {
-  int iVar1;
+  GridCell *cell;
   
-  iVar1 = *(int *)(param_1 + param_2 * 0xa4 + param_3 * 4);
-  if (iVar1 != 0) {
-    *(u32 *)(iVar1 + 0x24) = param_4;
-    *(u32 *)(iVar1 + 0x28) = param_4;
+  cell = grid->rows[row].cells[col];
+  if (cell != 0) {
+    cell->unk24 = value;
+    cell->unk28 = value;
   }
 }

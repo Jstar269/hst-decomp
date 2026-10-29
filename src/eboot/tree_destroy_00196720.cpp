@@ -15,30 +15,30 @@ void *FUN_0019694c(Tree_00196720 *t);
 void *FUN_00196954(Tree_00196720 *t);
 void FUN_00196720(Tree_00196720 *t, Node_00196720 *n);
 }
-inline void Destroy2_00196720(Tree_00196720 *t, Node_00196720 *n)
+inline void Destroy2_00196720(Tree_00196720 *tree, Node_00196720 *node)
 {
-    if (n->left)
-        FUN_00196720(t, n->left);
-    if (n->right)
-        FUN_00196720(t, n->right);
-    FUN_00066efc(FUN_00196954(t), &n->value);
-    FUN_00196944(FUN_0019694c(t), n, 1);
+    if (node->left)
+        FUN_00196720(tree, node->left);
+    if (node->right)
+        FUN_00196720(tree, node->right);
+    FUN_00066efc(FUN_00196954(tree), &node->value);
+    FUN_00196944(FUN_0019694c(tree), node, 1);
 }
-inline void Destroy1_00196720(Tree_00196720 *t, Node_00196720 *n)
+inline void Destroy1_00196720(Tree_00196720 *tree, Node_00196720 *node)
 {
-    if (n->left)
-        Destroy2_00196720(t, n->left);
-    if (n->right)
-        Destroy2_00196720(t, n->right);
-    FUN_00196954(t);
-    FUN_0019694c(t);
-    delete n;
+    if (node->left)
+        Destroy2_00196720(tree, node->left);
+    if (node->right)
+        Destroy2_00196720(tree, node->right);
+    FUN_00196954(tree);
+    FUN_0019694c(tree);
+    delete node;
 }
-extern "C" void FUN_00196720(Tree_00196720 *t, Node_00196720 *n)
+extern "C" void FUN_00196720(Tree_00196720 *tree, Node_00196720 *node)
 {
-    if (n->left)
-        Destroy1_00196720(t, n->left);
-    if (n->right)
-        Destroy1_00196720(t, n->right);
-    delete n;
+    if (node->left)
+        Destroy1_00196720(tree, node->left);
+    if (node->right)
+        Destroy1_00196720(tree, node->right);
+    delete node;
 }

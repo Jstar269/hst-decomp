@@ -1,18 +1,19 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000d8408 end=0x000d8460 symbol=FUN_000d8408 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s128a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s128a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 
 extern void FUN_00000a00();
 extern int * FUN_000d8dcc();
 
-int FUN_000d8408(int param_1,short param_2)
+/* Element destructor: tear down elem, free it when flag > 0. */
+int FUN_000d8408(int elem,short flag)
 {
-  if (param_1 != 0) {
-    if (param_1 != 0) {
-      FUN_000d8dcc(param_1,0);
+  if (elem != 0) {
+    if (elem != 0) {
+      FUN_000d8dcc(elem,0);
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flag) {
+      FUN_00000a00(elem);
     }
   }
-  return param_1;
+  return elem;
 }

@@ -1,44 +1,58 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002387dc end=0x002388d4 symbol=FUN_002387dc lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: unified element pointer in reverse destruction loop, typed buffer delete; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: unified element pointer in reverse destruction loop, typed buffer delete; readability pass; exact match verified; names and types await human review. */
 
 extern void FUN_00000788(void *, void *, int, int);
 extern void FUN_00000a00(void *);
 extern int FUN_002388d4(void *);
 extern void FUN_00235c04(void);
 
+enum { ELEM_SIZE = 560, PART_COUNT = 3, PART_SIZE = 24 };
+
 typedef struct Elem {
-    char pad[560];
+    char pad00[196];
+    char parts[PART_COUNT][PART_SIZE]; /* 0xc4, destroyed with an array-destroy helper */
+    char padec[ELEM_SIZE - 196 - PART_COUNT * PART_SIZE];
 } Elem;
 
-int * FUN_002387dc(int *param_1, short param_2)
+/* Block-array container: element storage pointer, element count and a start offset in elements. */
+typedef struct ElemBlock {
+    Elem *data;     /* 0x00 */
+    int count;      /* 0x04 */
+    int unk8;       /* 0x08 */
+    int unkc;       /* 0x0c */
+    int start;      /* 0x10 first live element */
+} ElemBlock;
+
+/* Deleting destructor: destroy the live elements back to front, release the storage, free self when requested. */
+ElemBlock * FUN_002387dc(ElemBlock *self, short flags)
 {
   Elem *first;
   Elem *last;
-  
-  if (param_1 != (int *)0) {
-    first = (Elem *)(*param_1 + param_1[4] * 560);
-    last = (Elem *)((char *)first + param_1[1] * 560);
+
+  if (self != (ElemBlock *)0) {
+    first = self->data + self->start;
+    last = first + self->count;
     if (first < last) {
       do {
         --last;
         if (last != 0) {
-          FUN_00000788((char *)last + 196, FUN_00235c04, 24, 3);
+          FUN_00000788(last->parts, FUN_00235c04, PART_SIZE, PART_COUNT);
         }
       } while (first < last);
-      param_1[1] = 0;
+      self->count = 0;
     }
     else {
-      param_1[1] = 0;
+      self->count = 0;
     }
-    if (param_1 != 0) {
-      FUN_002388d4(param_1);
-      if ((void *)*param_1 != 0) {
-        FUN_00000a00((void *)*param_1);
+    if (self != 0) {
+      FUN_002388d4(self);
+      if (self->data != 0) {
+        FUN_00000a00(self->data);
       }
     }
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    if (0 < flags) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

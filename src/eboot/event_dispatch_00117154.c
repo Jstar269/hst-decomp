@@ -2,31 +2,16 @@
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review.
    The case order is inverted relative to the retail chain: MWCC lays switch bodies out in reverse source
    order, so the cases are listed ascending here to emit retail's descending compare chain. */
+#include "hst/wheel_state.h"
+
 extern int DAT_003386b0;
 
-typedef struct State {
-  char pad0[0x3c];
-  int f3c;
-  unsigned char f40;
-  char pad1[0x4c - 0x41];
-  unsigned char f4c;
-  char pad2[0x50 - 0x4d];
-  int f50;
-  unsigned char f54;
-  char pad3[0x58 - 0x55];
-  int f58;
-  int f5c;
-  int f60;
-  int f64;
-  char pad4[0x6c - 0x68];
-  int f6c;
-} State;
-
-extern void FUN_0001f20c(State *, int, int);
-extern void FUN_00117300(State *, int);
+extern void FUN_0001f20c(WheelState *, int, int);
+extern void FUN_00117300(WheelState *, int);
 extern void FUN_00117c74(void);
 
-int FUN_00117154(State *self, int event)
+/* Handles an event code by updating the wheel state; always returns 0. */
+int FUN_00117154(WheelState *self, int event)
 {
   switch (event) {
   case 0:
@@ -37,7 +22,7 @@ int FUN_00117154(State *self, int event)
     break;
   case 0x14:
     if (*(int *)(DAT_003386b0 + 0x3c) != 7)
-      self->f50 = self->f58 + 1;
+      self->unk50 = self->unk58 + 1;
     break;
   case 0xe:
     FUN_00117c74();
@@ -53,21 +38,21 @@ int FUN_00117154(State *self, int event)
     FUN_00117300(self, 4);
     break;
   case 0x12:
-    self->f4c = 0;
-    self->f50 = 0;
-    self->f54 = 0;
-    self->f58 = 0;
-    self->f5c = -1;
-    self->f60 = -1;
-    self->f64 = -1;
-    self->f6c = -1;
-    self->f40 = 0;
+    self->unk4c = 0;
+    self->unk50 = 0;
+    self->unk54 = 0;
+    self->unk58 = 0;
+    self->unk5c = -1;
+    self->unk60 = -1;
+    self->unk64 = -1;
+    self->unk6c = -1;
+    self->unk40 = 0;
     FUN_0001f20c(self, 0, 0);
     FUN_0001f20c(self, 1, 0);
     FUN_0001f20c(self, 2, 0);
     break;
   case 0x18:
-    self->f3c = 4;
+    self->unk3c = 4;
     FUN_0001f20c(self, 0, 1);
     FUN_0001f20c(self, 1, 1);
     FUN_0001f20c(self, 2, 1);

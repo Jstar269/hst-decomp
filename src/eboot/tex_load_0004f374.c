@@ -8,9 +8,13 @@ extern char DAT_002d0da0[]; /* "I3rRoot__AssignTex failed.\n" */
 extern char DAT_002d0a6c[]; /* "i3d.cpp" */
 extern char DAT_00311170[];
 
-struct Obj {
+#define TEXINFO_SIZE 576  /* bytes of texture info handed to SetTexInfo/AssignTex */
+#define TEX_LOAD_FLAGS 0x40
+#define I3D_LINE_TEX_LOAD 1199  /* line number reported with the failure */
+
+struct TexBank {
     char pad[516];
-    char buf[576];
+    char texinfo[TEXINFO_SIZE];
 };
 
 extern void FUN_00049194(void);
@@ -23,10 +27,10 @@ extern int FUN_00035094(void *, void *, int);
 extern void FUN_0004ea98(void *);
 extern void FUN_0004f010(void *, int, void *, int, void *);
 
-void FUN_0004f374(struct Obj *self, void *root, int param_3, int param_4, int param_5)
+void FUN_0004f374(struct TexBank *self, void *root, int arg3, int arg4, int arg5)
 {
     int err = 0;
-    int n;
+    int n; /* texture count */
     int i;
     void *name;
 
@@ -44,17 +48,17 @@ void FUN_0004f374(struct Obj *self, void *root, int param_3, int param_4, int pa
                 FUN_0004ea98(&DAT_002d0d60);
                 goto fail;
             }
-            if (FUN_0004f6b4(self, name, param_3, param_4, 0, param_5, 0x40, 1) < 0)
+            if (FUN_0004f6b4(self, name, arg3, arg4, 0, arg5, TEX_LOAD_FLAGS, 1) < 0)
                 goto fail;
         }
         FUN_00049194();
-        err = FUN_00039914(self, &self->buf, 576);
+        err = FUN_00039914(self, &self->texinfo, TEXINFO_SIZE);
         FUN_000491cc();
         if (err != 0) {
             FUN_0004ea98(&DAT_002d0d80);
         } else {
             FUN_00049194();
-            err = FUN_00035094(root, &self->buf, 576);
+            err = FUN_00035094(root, &self->texinfo, TEXINFO_SIZE);
             FUN_000491cc();
             if (err != 0) {
                 FUN_0004ea98(&DAT_002d0da0);
@@ -64,5 +68,5 @@ void FUN_0004f374(struct Obj *self, void *root, int param_3, int param_4, int pa
         }
     }
 fail:
-    FUN_0004f010(&DAT_00311170, err, &DAT_002d0a6c, 1199, &DAT_002d0d40);
+    FUN_0004f010(&DAT_00311170, err, &DAT_002d0a6c, I3D_LINE_TEX_LOAD, &DAT_002d0d40);
 }

@@ -1,23 +1,25 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0006531c end=0x00065364 symbol=FUN_0006531c lang=c99 */
 /* CSV table reader: FindRowByKey; see docs/DATA-TABLES.md */
 /* Clone of src/sharing_main/FUN_000663b8.c (hstclone.py tag u1ae): addresses substituted; exact match verified; names and types await human review. */
-/* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: typed the helper arguments, used pointer arithmetic for the object subobject, and reversed the comparison arms; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag v0) corrected by hand: typed the helper arguments, used pointer arithmetic for the object subobject, and reversed the comparison arms; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/csv_table.h"
 
-extern void FUN_00065c60(int *,u32 *,u32 *);
+extern void FUN_00065c60(TreeNode **,TreeMap *,u32 *);
 
-u32 FUN_0006531c(int param_1,u32 param_2)
+/* Looks key up in the table's key tree; returns the stored row index, or -1 when absent. */
+u32 FUN_0006531c(CsvTable *table,u32 key)
 {
-  u32 uVar1;
-  int local_8 [2];
-  u32 local_c;
+  u32 row;
+  TreeNode *iter [2];
+  u32 key_copy;
   
-  local_c = param_2;
-  FUN_00065c60(local_8,(u32 *)param_1 + 4,&local_c);
-  if (local_8[0] != param_1 + 0x14) {
-    uVar1 = *(u32 *)(local_8[0] + 0x10);
+  key_copy = key;
+  FUN_00065c60(iter,&table->by_key,&key_copy);
+  if ((char *)iter[0] != (char *)&table->by_key.root) {
+    row = iter[0]->value;
   } else {
-    uVar1 = 0xffffffff;
+    row = 0xffffffff;
   }
-  return uVar1;
+  return row;
 }

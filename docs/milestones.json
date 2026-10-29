@@ -1,6 +1,6 @@
 {
  "schema": "hst-decomp.milestone-record.v1",
- "generated": "2026-10-28",
+ "generated": "2026-10-29",
  "milestones": [
   {
    "id": "inventory",
@@ -13,40 +13,40 @@
   {
    "id": "game-code",
    "title": "Game code matched",
-   "progress": 36.935411938574795,
-   "detail": "2,090,336 of 5,659,436 code bytes (103,644 B of Sony code kept out of this repository are not counted)",
+   "progress": 37.918500528505724,
+   "detail": "2,145,224 of 5,657,460 code bytes (105,620 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "all-code",
    "title": "All code matched",
-   "progress": 36.935411938574795,
-   "detail": "2,090,336 of 5,659,436 code bytes (230,252 B of Sony code kept out of this repository are not counted)",
+   "progress": 37.918500528505724,
+   "detail": "2,145,224 of 5,657,460 code bytes (232,228 B of Sony code kept out of this repository are not counted)",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-rebuild",
    "title": "PSP rebuild",
-   "progress": 30.20953190275189,
-   "detail": "2,727,354 of 9,028,124 image bytes from source in the whole-module build",
+   "progress": 30.70672007593937,
+   "detail": "2,771,634 of 9,026,148 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "psp-moddable",
    "title": "Moddable PSP rebuild",
-   "progress": 30.18534083049812,
-   "detail": "2,725,170 of 9,028,124 image bytes from source in the relocated build",
+   "progress": 30.684296335491066,
+   "detail": "2,769,610 of 9,026,148 image bytes from source in the relocated build",
    "reached": null,
    "regressed": false
   },
   {
    "id": "full-rebuild",
    "title": "Every module rebuilt",
-   "progress": 30.20953190275189,
-   "detail": "2,727,354 of 9,028,124 image bytes from source in the whole-module build",
+   "progress": 30.70672007593937,
+   "detail": "2,771,634 of 9,026,148 image bytes from source in the whole-module build",
    "reached": null,
    "regressed": false
   },

@@ -1,29 +1,28 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000ddbb0 end=0x000ddc6c symbol=FUN_000ddbb0 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/side_tally.h"
 
-extern u32 DAT_003386b0;
-extern int FUN_0008882c();
+extern TallyOwner *DAT_003386b0;
+extern SideInfo *FUN_0008882c();
 
-void FUN_000ddbb0(u32 param_1,int param_2,int param_3)
+/* Bumps tally counters depending on whether id_a and id_b equal the current side identifier. */
+void FUN_000ddbb0(u32 unused,int id_b,int id_a)
 {
-  int iVar1;
+  SideInfo *side;
   
-  iVar1 = FUN_0008882c(DAT_003386b0);
-  if (param_3 == *(int *)(iVar1 + 0x144)) {
-    *(int *)(*(int *)(DAT_003386b0 + 0xa0) + 500) =
-         *(int *)(*(int *)(DAT_003386b0 + 0xa0) + 500) + 1;
-    iVar1 = FUN_0008882c(DAT_003386b0);
-    if (param_2 == *(int *)(iVar1 + 0x144)) {
-      *(int *)(*(int *)(DAT_003386b0 + 0xa0) + 0x1f0) =
-           *(int *)(*(int *)(DAT_003386b0 + 0xa0) + 0x1f0) + 1;
+  side = FUN_0008882c(DAT_003386b0);
+  if (id_a == side->unk144) {
+    DAT_003386b0->tally->unk1f4 = DAT_003386b0->tally->unk1f4 + 1;
+    side = FUN_0008882c(DAT_003386b0);
+    if (id_b == side->unk144) {
+      DAT_003386b0->tally->unk1f0 = DAT_003386b0->tally->unk1f0 + 1;
     }
   }
   else {
-    iVar1 = FUN_0008882c(DAT_003386b0);
-    if (param_2 == *(int *)(iVar1 + 0x144)) {
-      *(int *)(*(int *)(DAT_003386b0 + 0xa0) + 0x1f8) =
-           *(int *)(*(int *)(DAT_003386b0 + 0xa0) + 0x1f8) + 1;
+    side = FUN_0008882c(DAT_003386b0);
+    if (id_b == side->unk144) {
+      DAT_003386b0->tally->unk1f8 = DAT_003386b0->tally->unk1f8 + 1;
     }
   }
 }

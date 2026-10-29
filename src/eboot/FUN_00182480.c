@@ -1,28 +1,34 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00182480 end=0x001825ac symbol=FUN_00182480 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s512a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s512a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
-typedef int code();
+#include "hst/indexed_ctx.h"
+
+typedef struct Screen {
+  char pad00[0x285c];
+  u32 handle;       /* 0x285c */
+} Screen;
 
 extern void FUN_0010b6d4();
 extern void FUN_0010b980();
-extern u32 FUN_0016bc70();
+extern IndexedCtx * FUN_0016bc70();
 extern void FUN_001821b0();
 extern void FUN_00185970();
 extern void FUN_0018629c();
 
-void FUN_00182480(int param_1,u32 param_2,u32 param_3,u32 param_4, u32 param_5,u32 param_6,u32 param_7,u32 param_8, u8 uStackX_0)
+/* Run the context callback, set up the screen's handle and forward all arguments; follow up unless the current entry is 4. */
+void FUN_00182480(Screen *self,u32 a1,u32 a2,u32 a3, u32 a4,u32 a5,u32 a6,u32 a7, u8 a8)
 {
-  int iVar1;
-  u32 uVar2;
+  IndexedCtx *ctx;
+  u32 result;
   
-  iVar1 = FUN_0016bc70();
-  uVar2 = (**(code **)(iVar1 + 0x558))();
-  FUN_001821b0(param_1,uVar2);
-  FUN_0010b6d4(*(u32 *)(param_1 + 0x285c),0xd,0x11);
-  FUN_0010b980(*(u32 *)(param_1 + 0x285c),param_2,0);
-  FUN_00185970(param_1,param_2,param_3,param_4,param_5,param_7,param_6,1,param_8,uStackX_0);
-  iVar1 = FUN_0016bc70();
-  if (*(int *)(*(int *)(iVar1 + 0x5c0) + *(int *)(iVar1 + 0x5b8) * 4) != 4) {
-    FUN_0018629c(param_1,param_2,param_3,param_4,param_5,0,param_7,param_8);
+  ctx = FUN_0016bc70();
+  result = ctx->callback();
+  FUN_001821b0(self,result);
+  FUN_0010b6d4(self->handle,0xd,0x11);
+  FUN_0010b980(self->handle,a1,0);
+  FUN_00185970(self,a1,a2,a3,a4,a6,a5,1,a7,a8);
+  ctx = FUN_0016bc70();
+  if (ctx->entries[ctx->index] != INDEXED_CTX_ENTRY_NONE) {
+    FUN_0018629c(self,a1,a2,a3,a4,0,a6,a7);
   }
 }

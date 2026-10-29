@@ -1,18 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000c3f38 end=0x000c3f84 symbol=FUN_000c3f38 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: used a four-float temporary and float field copies; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: used a four-float temporary and float field copies; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
-
-typedef struct { float x, y, z, w; } Float4;
+#include "hst/vec.h"
 
 extern void FUN_00022518(Float4 *);
 
-void FUN_000c3f38(Float4 *param_1)
+/* Takes a vector from FUN_00022518, clears its w word and copies it to out. */
+void FUN_000c3f38(Float4 *out)
 {
-  Float4 local;
-  FUN_00022518(&local);
-  *(u32 *)&local.w = 0;
-  param_1->x = local.x;
-  param_1->y = local.y;
-  param_1->z = local.z;
-  param_1->w = local.w;
+  Float4 tmp;
+  FUN_00022518(&tmp);
+  *(u32 *)&tmp.w = 0;
+  out->x = tmp.x;
+  out->y = tmp.y;
+  out->z = tmp.z;
+  out->w = tmp.w;
 }

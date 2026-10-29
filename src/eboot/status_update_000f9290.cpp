@@ -1,18 +1,17 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000f9290 end=0x000f9508 symbol=FUN_000f9290 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; outer switch default-first places case 8 at fallthrough; inner switch case 3..1 lowers to ascending beq chain; 3rd arg 1 to FUN_001ec488 hoists li a2, 1 before switch comparison; names and types await human review. */
 
-struct Global3386b0 {
-    char pad[0x3c];
-    int field_3c;
-};
+#include "hst/root_state.h"
 
-struct Global338b44 {
+/* Session context: two words at +0xb8 are summed. */
+struct SessionExtra {
     char pad[0xb8];
     int fb8;
     int fbc;
 };
 
-struct Global2cfc8c {
+/* Flag block: a signed 2-bit field at +0x88 (bits 6..7). */
+struct FlagBlock {
     char pad[0x88];
     signed char pad_bits:6;
     signed char flag:2;
@@ -71,9 +70,9 @@ struct BaseObj {
 };
 
 extern "C" {
-extern Global3386b0 *DAT_003386b0;
-extern Global338b44 *DAT_00338b44;
-extern Global2cfc8c *DAT_002cfc8c;
+extern RootState *DAT_003386b0;
+extern SessionExtra *DAT_00338b44;
+extern FlagBlock *DAT_002cfc8c;
 extern int FUN_000889ec();
 extern int FUN_000487dc();
 extern int FUN_000487c8();
@@ -83,7 +82,7 @@ extern void FUN_00103480(void *);
 }
 
 extern "C" void FUN_000f9290(BaseObj *self) {
-    switch (DAT_003386b0->field_3c) {
+    switch (DAT_003386b0->mode) {
     default:
         if (DAT_003386b0 != 0 && FUN_000889ec()) {
             if (FUN_000487dc() && self->f155 == 0) {
@@ -92,7 +91,7 @@ extern "C" void FUN_000f9290(BaseObj *self) {
             self->f155 = FUN_000487dc();
             break;
         }
-        switch (DAT_003386b0->field_3c) {
+        switch (DAT_003386b0->mode) {
         case 3:
         case 2:
         case 1:
@@ -102,7 +101,7 @@ extern "C" void FUN_000f9290(BaseObj *self) {
                 if (DAT_002cfc8c->flag == 0) {
                     FUN_001ec488(self->p94, 0, 1);
                     self->f155 = 1;
-                    Global2cfc8c *fb = DAT_002cfc8c;
+                    FlagBlock *fb = DAT_002cfc8c;
                     fb->flag = -1;
                 }
             } else if (self->p94->f0c == 11) {
@@ -122,7 +121,7 @@ extern "C" void FUN_000f9290(BaseObj *self) {
     if (!FUN_000487c8()) {
         self->v2();
         self->f150 = 0;
-    } else if (DAT_003386b0->field_3c != 4) {
+    } else if (DAT_003386b0->mode != 4) {
         FUN_001ecbc4(self->p94);
     } else {
         if (self->f150 == 0) {

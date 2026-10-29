@@ -15,13 +15,13 @@ struct Color {
 };
 
 struct Rec {
-  int f0;
-  int f4;
+  int unk0;
+  int unk4;
 };
 
 struct Player {
   char pad0[0x5bc];
-  Rec *f5bc;
+  Rec *rec;
 };
 
 struct Game {
@@ -31,10 +31,10 @@ struct Game {
 
 struct Cam {
   char pad0[0x198];
-  int f198;
+  int player_index;
 };
 
-struct Slot {
+struct PlayerFlag {
   unsigned char flag;
   char pad[0x11f];
 };
@@ -46,6 +46,8 @@ struct Self {
   int tex;
 };
 
+enum { SCREEN_W = 480, SCREEN_H = 272 };
+
 extern unsigned char DAT_003386b8;
 extern Cam *DAT_00338ac4;
 extern Game *DAT_003386b0;
@@ -53,7 +55,7 @@ extern void *DAT_003313c4;
 extern char DAT_00311170;
 extern Mat4 DAT_0032b1d0;
 extern float DAT_002d7a10;
-extern Slot DAT_003418bc[];
+extern PlayerFlag DAT_003418bc[];
 
 extern "C" {
 void FUN_000938b8(Mat4 *, Rec *, int);
@@ -68,11 +70,11 @@ void FUN_0005185c(int);
 extern "C" void FUN_000f293c(Self *self)
 {
   if (self->hidden == 0) {
-    int idx = (DAT_003386b8 != 0 && DAT_00338ac4 != 0) ? DAT_00338ac4->f198 : 0;
-    Rec *rec = DAT_003386b0->players[idx]->f5bc;
+    int idx = (DAT_003386b8 != 0 && DAT_00338ac4 != 0) ? DAT_00338ac4->player_index : 0;
+    Rec *rec = DAT_003386b0->players[idx]->rec;
     Vec4 v;
     Mat4 m;
-    FUN_000938b8(&m, rec, rec->f4);
+    FUN_000938b8(&m, rec, rec->unk4);
     v.w = 1.0f;
     v.x = m.r3.x;
     v.y = m.r3.y;
@@ -89,8 +91,8 @@ extern "C" void FUN_000f293c(Self *self)
       v.y = v.y + off.y * DAT_002d7a10;
       int tex = self->tex;
       float u = 0.0f;
-      if (DAT_003418bc[idx].flag != 0) u = 32.0f;
-      FUN_00051490(tex, 0, 0, 480, 272, 0, 0);
+      if (DAT_003418bc[idx].flag != 0) u = 32.0f; /* u offset when the player's flag is set */
+      FUN_00051490(tex, 0, 0, SCREEN_W, SCREEN_H, 0, 0);
       Color c;
       c.r = 128;
       c.g = 128;

@@ -22,6 +22,7 @@ void FUN_000edec0(float, float, float, float, float, void *, Rect *, int, int);
 void FUN_001031e8(void *);
 }
 
+/* Draws the two panel sprites per player (and the alternate pair when the config byte is clear), then calls FUN_001031e8. */
 extern "C" void FUN_001eb504(Self *self)
 {
     for (int i = 0; i < 2; i++) {

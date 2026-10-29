@@ -10,35 +10,38 @@ extern void *FUN_0002e650(void *, int);
 extern int FUN_0002e40c(void *);
 extern void *FUN_0002e3d0(void *, int);
 
+#define SCENE_LIST_OFFSET 0x10 /* the list head sits this far into the member at +8 */
+#define ITEM_FLAG_MARK 0x10    /* bit set or cleared on every leaf item */
+
 typedef struct {
   char pad[0x33];
-  u8 flags;
+  u8 flags; /* 0x33 */
 } Item;
 
 void FUN_00053f30(void *self, int mode)
 {
-  void *arr;
-  int n;
+  void *list;
+  int group_count;
   int i;
-  void *elem;
-  int m;
+  void *group;
+  int item_count;
   int j;
   void *slot;
   Item *it;
-  arr = (char *)*(void **)((char *)self + 8) + 0x10;
-  n = FUN_0002e840(arr);
+  list = (char *)*(void **)((char *)self + 8) + SCENE_LIST_OFFSET;
+  group_count = FUN_0002e840(list);
   i = 0;
-  while (i < n) {
-    elem = FUN_0002e650(arr, i);
-    m = FUN_0002e40c(elem);
+  while (i < group_count) {
+    group = FUN_0002e650(list, i);
+    item_count = FUN_0002e40c(group);
     j = 0;
-    while (j < m) {
-      slot = FUN_0002e3d0(elem, j);
+    while (j < item_count) {
+      slot = FUN_0002e3d0(group, j);
       it = *(Item **)slot;
       if (mode != 0) {
-        it->flags |= 0x10;
+        it->flags |= ITEM_FLAG_MARK;
       } else {
-        it->flags &= 0xef;
+        it->flags &= ~ITEM_FLAG_MARK;
       }
       j++;
     }

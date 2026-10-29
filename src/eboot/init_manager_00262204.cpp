@@ -1,5 +1,5 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00262204 end=0x00262310 symbol=FUN_00262204 lang=c++ */
-/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: C++ virtual call, declaration order for saved registers, merged alloc/ctor pattern; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: C++ virtual call, declaration order for saved registers, merged alloc/ctor pattern; exact match verified; readability pass; names and types await human review. */
 
 extern "C" {
 extern char DAT_002fdddc[];
@@ -22,10 +22,17 @@ extern void FUN_00258294(void *p);
 extern void *FUN_00262310(void *p, void *name);
 }
 
+/* Object whose child (created here) sits at +0x3c. */
 struct Obj_00262204 {
     void *vptr;           // +0
     char pad[56];         // +4 .. +59
-    void *f3C;            // +60 (0x3c)
+    void *child;          // +60 (0x3c)
+};
+
+enum {
+    ARENA_ALIGN = 64,
+    ARENA_SIZE = 0x300000,   /* temporary arena swapped in while the child is built */
+    CHILD_SIZE = 0x1870      /* allocation size of the child object */
 };
 
 struct Target_00262204 {
@@ -38,37 +45,38 @@ struct Target_00262204 {
     virtual void v6();
 };
 
+/* Initialises the manager: builds its child object inside a temporary arena, restores the previous arena, then runs the child's slot-6 method. */
 extern "C" void *FUN_00262204(struct Obj_00262204 *self)
 {
-    void *iVar1;
-    void *uVar3;
+    void *arena;
+    void *prev_base;
     void *p;
-    int uVar4;
+    int prev_size;
 
     FUN_0001f06c(self);
     self->vptr = &DAT_00309a38;
-    iVar1 = FUN_00010184(64, 0x300000);
-    FUN_0001bfb4(&DAT_0030ab9c, iVar1, 0x300000);
+    arena = FUN_00010184(ARENA_ALIGN, ARENA_SIZE);
+    FUN_0001bfb4(&DAT_0030ab9c, arena, ARENA_SIZE);
     FUN_0001cad0(&DAT_0030ebf4, 1, DAT_002fdddc);
 
-    p = FUN_00000bcc(0x1870);
+    p = FUN_00000bcc(CHILD_SIZE);
     if (p != 0) {
         p = FUN_00262310(p, DAT_002fddf4);
     }
-    self->f3C = p;
+    self->child = p;
 
     FUN_00253da0();
     FUN_0001cb88(&DAT_0030ebf4);
-    uVar3 = FUN_0001cbfc();
-    uVar4 = FUN_0001cc54();
-    FUN_0001bfb4(&DAT_0030ab9c, uVar3, uVar4);
+    prev_base = FUN_0001cbfc();
+    prev_size = FUN_0001cc54();
+    FUN_0001bfb4(&DAT_0030ab9c, prev_base, prev_size);
 
-    if (iVar1 != 0) {
-        FUN_000104e0(iVar1);
+    if (arena != 0) {
+        FUN_000104e0(arena);
     }
 
-    FUN_00258294(self->f3C);
-    ((struct Target_00262204 *)self->f3C)->v6();
+    FUN_00258294(self->child);
+    ((struct Target_00262204 *)self->child)->v6();
 
     return self;
 }

@@ -1,26 +1,26 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00288a84 end=0x00288af0 symbol=FUN_00288a84 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-#include "hst/types.h"
+#include "hst/mode_obj.h"
 
-struct Interface {
-  virtual int m0(); virtual int m1(); virtual int m2(); virtual int m3();
-  virtual int m4(); virtual int m5(); virtual int m6(); virtual int m7();
-  virtual int m8(); virtual int m9(); virtual int m10(); virtual int m11();
-};
-extern "C" int *FUN_00288a84(int *param_1)
+/* The mode object sits this many bytes into the object that contains it. */
+enum { CONTAINER_OFFSET = 0xe0 };
+
+/* In mode 2 or 3 return the containing object (null stays null), otherwise null. */
+extern "C" int *FUN_00288a84(VirtualModeObj *self)
 {
-  int result;
+  int mode;
   bool match;
-  result = ((Interface *)param_1)->m11();
-  match = result == 2;
+  int *result = (int *)self;
+  mode = self->mode();
+  match = mode == 2;
   if (!match) {
-    result = ((Interface *)param_1)->m11();
-    match = result == 3;
+    mode = self->mode();
+    match = mode == 3;
   }
   if (match) {
-    if (param_1 != (int *)0) param_1 = (int *)((char *)param_1 - 0xe0);
+    if (result != (int *)0) result = (int *)((char *)result - CONTAINER_OFFSET);
   } else {
     return (int *)0;
   }
-  return param_1;
+  return result;
 }

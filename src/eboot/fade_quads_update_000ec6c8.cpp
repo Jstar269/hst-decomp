@@ -7,25 +7,16 @@ struct Vec4 {
 struct Mat {
     Vec4 r[4];
 };
-struct Vert {
-    unsigned char r, g, b, a;
-    float x, y, z;
-    float u, v, q;
-};
-struct Batch {
-    char pad[0x54];
-    int idx;
-    char pad58[0xc];
-    Vert *buf[2];
-};
+#include "hst/fade_quads.h"
+
 struct Entry {
     Mat m;
-    Batch *batch;
+    QuadBatch *batch;
     unsigned kind;
     float scale;
-    int arg;
-    int zero;
-    float one;
+    int delay;   /* 0x4c frames to wait before fading starts */
+    int state;   /* 0x50 0 = waiting, 1 = fading */
+    float life;  /* 0x54 starts at 1.0, drops each frame while fading */
     char pad58[8];
 };
 template <class T> struct It {
@@ -57,8 +48,8 @@ extern Vec4 DAT_002c07f0[4];
 Vec4 *FUN_00022498(Vec4 *, const Vec4 *, float);
 void FUN_000513a0(void *, int);
 int FUN_000ca4a4(void);
-void FUN_0005a650(Batch *);
-void FUN_0005a670(Batch *, int);
+void FUN_0005a650(QuadBatch *);
+void FUN_0005a670(QuadBatch *, int);
 double FUN_00020f5c(float);
 double FUN_00021748(double, double);
 float FUN_000223a0(double);
@@ -78,13 +69,13 @@ extern "C" void FUN_000ec6c8(Owner *self)
 {
     for (It<Entry> e = self->items.begin(); e != self->items.end(); ++e) {
         Entry *p = &*e;
-        if (p->kind == 6)
+        if (p->kind == QUAD_KIND_DEAD)
             continue;
-        switch (p->zero) {
+        switch (p->state) {
         case 0:
-            if (p->arg > 0) {
-                if (--p->arg == 0)
-                    p->zero = 1;
+            if (p->delay > 0) {
+                if (--p->delay == 0)
+                    p->state = 1;
             }
             break;
         case 1:
@@ -93,22 +84,22 @@ extern "C" void FUN_000ec6c8(Owner *self)
             float c;
             if (FUN_000ca4a4() == 1 && p->kind < 4) {
                 c = 128.0f;
-                a = FUN_000223a0(FUN_00021748(1.125, FUN_00020f5c(p->one * 32.0f)));
+                a = FUN_000223a0(FUN_00021748(1.125, FUN_00020f5c(p->life * 32.0f)));
             } else if (p->kind == 5) {
-                a = p->one * 32.0f * 2.0f;
+                a = p->life * 32.0f * 2.0f;
                 c = 128.0f;
             } else if (p->kind == 4) {
                 c = 128.0f;
-                a = p->one * self->alpha;
+                a = p->life * self->alpha;
             } else {
                 c = 128.0f;
-                a = FUN_000223a0(FUN_00021748(1.125, FUN_00020f5c(p->one * 32.0f)));
+                a = FUN_000223a0(FUN_00021748(1.125, FUN_00020f5c(p->life * 32.0f)));
             }
-            Batch *b = p->batch;
-            p->one -= 0.1f;
-            p->one = Max(p->one, DAT_002d6c84);
-            if (p->one <= 0.0f) {
-                p->kind = 6;
+            QuadBatch *b = p->batch;
+            p->life -= 0.1f;
+            p->life = Max(p->life, DAT_002d6c84);
+            if (p->life <= 0.0f) {
+                p->kind = QUAD_KIND_DEAD;
             } else {
                 FUN_0005a650(b);
                 float aa = a * 1.9921875f;

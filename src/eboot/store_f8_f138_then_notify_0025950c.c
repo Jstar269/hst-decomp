@@ -1,35 +1,38 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0025950c end=0x002595e8 symbol=FUN_0025950c lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: typed Obj struct, bool flags as ints, the && test on the two values as !((x != 0) ^ 1) && !((y != 0) ^ 1) (matching idiom: materialised sltu/xori tests), `if (bVar4 == 0)` with one shared store, and bVar1 = 0 on equality instead of a != materialisation; exact match verified; names and types await human review. */
-typedef struct Obj { char pad[0xf8]; int f_f8; char pad2[0x3c]; int f_138; } Obj;
+/* Ghidra pseudocode (hstgen.py tag a1/v0) corrected by hand: typed Obj struct, bool flags as ints, the && test on the two values as !((x != 0) ^ 1) && !((y != 0) ^ 1) (matching idiom: materialised sltu/xori tests), `if (need_id_check == 0)` with one shared store, and notify = 0 on equality instead of a != materialisation; readability pass; exact match verified; names and types await human review. */
+/* Obj fields: the name at +0xf8 (a string pointer kept as int) and the id at +0x138. */
+typedef struct Obj { char pad00[0xf8]; int name; char pad_fc[0x3c]; int id; } Obj;
 extern int FUN_00014934(int, int);
 extern void FUN_0010d4a8(Obj *);
 
-void FUN_0025950c(Obj *param_1, int param_2, int param_3, int param_4)
+/* Stores a new name and id. The change helper runs when forced, when the name differs (a missing name counts as
+   different) or when the id differs. */
+void FUN_0025950c(Obj *obj, int new_name, int new_id, int force)
 {
-  int bVar1;
-  int bVar4;
-  int bVar3;
-  int bVar2;
+  int notify;
+  int need_id_check;
+  int names_differ;
+  int not_both_set;
 
-  bVar1 = 1;
-  bVar4 = 1;
-  if (param_4 == 0) {
-    bVar3 = 1;
-    bVar2 = 1;
-    if (!((param_1->f_f8 != 0) ^ 1) && !((param_2 != 0) ^ 1)) bVar2 = 0;
-    if ((bVar2 == 0) && (FUN_00014934(param_1->f_f8, param_2) == 0)) {
-      bVar3 = 0;
+  notify = 1;
+  need_id_check = 1;
+  if (force == 0) {
+    names_differ = 1;
+    not_both_set = 1;
+    if (!((obj->name != 0) ^ 1) && !((new_name != 0) ^ 1)) not_both_set = 0;
+    if ((not_both_set == 0) && (FUN_00014934(obj->name, new_name) == 0)) {
+      names_differ = 0;
     }
-    if (bVar3 == 0) {
-      bVar4 = 0;
+    if (names_differ == 0) {
+      need_id_check = 0;
     }
   }
-  if (bVar4 == 0) {
-    if (param_1->f_138 == param_3) bVar1 = 0;
+  if (need_id_check == 0) {
+    if (obj->id == new_id) notify = 0;
   }
-  param_1->f_f8 = param_2;
-  param_1->f_138 = param_3;
-  if (bVar1) {
-    FUN_0010d4a8(param_1);
+  obj->name = new_name;
+  obj->id = new_id;
+  if (notify) {
+    FUN_0010d4a8(obj);
   }
 }

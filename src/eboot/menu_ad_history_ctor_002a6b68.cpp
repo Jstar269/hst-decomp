@@ -1,5 +1,10 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002a6b68 end=0x002a6dd8 symbol=__ct__10C_002a6b68Fv lang=c++ data=0x00301c68 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x00301c68-0x00301c8f) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+#define PAGE_COUNT 3     /* page objects found by name */
+#define ITEM_COUNT 140   /* items looked up in the page tables */
+#define LIST_A_COUNT 38  /* entries taken from the first index table */
+#define LIST_B_COUNT 12  /* entries taken from the second index table */
+
 struct Obj {
     virtual void v0();
     virtual void Show(int on);
@@ -36,10 +41,10 @@ struct B_00102e38 {
 };
 
 struct C_002a6b68 : B_00102e38 {
-    Obj *pages[3];
-    Item *items[140];
-    Obj *a[38];
-    Obj *b[12];
+    Obj *pages[PAGE_COUNT];
+    Item *items[ITEM_COUNT];
+    Obj *a[LIST_A_COUNT];
+    Obj *b[LIST_B_COUNT];
     Obj *cursor;
     Obj *frame;
     unsigned char f360;
@@ -73,6 +78,7 @@ Item *FUN_001026b8(Obj *page, char *name);
 void FUN_000ffb3c(Item *it, int on);
 }
 
+/* Constructor: load the ad-history layout, look up its pages and items by name, and fetch the two object lists from the index tables. */
 C_002a6b68::C_002a6b68()
 {
     FUN_00104118(this, "data/menu/ad_history/ad_history_02.lay", 0);
@@ -89,7 +95,7 @@ C_002a6b68::C_002a6b68()
             i++;
             n++;
             off += 4;
-        } while (i < 3);
+        } while (i < PAGE_COUNT);
     }
     {
         int i = 0;
@@ -103,7 +109,7 @@ C_002a6b68::C_002a6b68()
             i++;
             l++;
             off += 4;
-        } while (i < 140);
+        } while (i < ITEM_COUNT);
     }
     {
         int i = 0;
@@ -116,7 +122,7 @@ C_002a6b68::C_002a6b68()
             i++;
             t++;
             off += 4;
-        } while (i < 38);
+        } while (i < LIST_A_COUNT);
     }
     {
         int i = 0;
@@ -129,7 +135,7 @@ C_002a6b68::C_002a6b68()
             i++;
             t++;
             off += 4;
-        } while (i < 12);
+        } while (i < LIST_B_COUNT);
     }
     FUN_000ffb3c(this->items[0x83], 1);
     FUN_000ffb3c(this->items[0x85], 1);
@@ -159,4 +165,3 @@ C_002a6b68::C_002a6b68()
     this->f1688 = 0;
     
 }
-

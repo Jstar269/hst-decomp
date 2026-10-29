@@ -2,17 +2,20 @@
 /* Clone of src/eboot/FUN_002acd28.c (hstclone.py tag u4r3s): addresses substituted; exact match verified; names and types await human review. */
 #include "hst/types.h"
 
-extern u8 DAT_002dc5b8;
+#define FLAG_TABLE_SIZE 0x28 /* entries of the flag table */
 
-bool FUN_002bc4e4(int param_1)
+extern u8 DAT_002dc5b8[];
+
+/* Looks up index in the flag table; an index outside the table reads as false. */
+bool FUN_002bc4e4(int index)
 {
-  bool bVar1;
+  bool is_set;
   
-  if (param_1 >= 0 && (param_1 < 0x28)) {
-    bVar1 = (&DAT_002dc5b8)[param_1] != '\0';
+  if (index >= 0 && (index < FLAG_TABLE_SIZE)) {
+    is_set = DAT_002dc5b8[index] != '\0';
   }
   else {
-    bVar1 = false;
+    is_set = false;
   }
-  return bVar1;
+  return is_set;
 }

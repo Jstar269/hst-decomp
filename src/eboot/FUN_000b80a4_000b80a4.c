@@ -4,19 +4,31 @@
 
 extern void FUN_000b8118(void);
 
-u32 FUN_000b80a4(int param_1, int param_2)
+typedef struct EventObj {
+  char pad00[0x3d];
+  u8 unk3d;       /* 0x3d set by event 0x14 */
+  char pad3e[0x64 - 0x3e];
+  int unk64;      /* 0x64 copy of unk68 (event 8) or unk6c (event 0xe) */
+  int unk68;      /* 0x68 */
+  int unk6c;      /* 0x6c */
+} EventObj;
+
+enum { EVENT_A = 8, EVENT_B = 0xe, EVENT_C = 0x14 };
+
+/* Event handler: events 8 and 0xe select a value and run the helper, event 0x14 sets a flag; always returns 0. */
+u32 FUN_000b80a4(EventObj *self, int event)
 {
-  switch (param_2) {
-  case 8:
-  case 0xe:
-    if (param_2 == 8)
-      *(u32 *)(param_1 + 100) = *(u32 *)(param_1 + 0x68);
+  switch (event) {
+  case EVENT_A:
+  case EVENT_B:
+    if (event == EVENT_A)
+      self->unk64 = self->unk68;
     else
-      *(u32 *)(param_1 + 100) = *(u32 *)(param_1 + 0x6c);
+      self->unk64 = self->unk6c;
     FUN_000b8118();
     break;
-  case 0x14:
-    *(u8 *)(param_1 + 0x3d) = 1;
+  case EVENT_C:
+    self->unk3d = 1;
     break;
   default:
     break;

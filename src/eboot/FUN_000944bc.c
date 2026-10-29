@@ -1,9 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000944bc end=0x000944c8 symbol=FUN_000944bc lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/bone_link.h"
 
-void FUN_000944bc(int param_1,u32 param_2,u32 param_3)
+/* Sets the two bone names. */
+void FUN_000944bc(BoneLink *self,const char *name_a,const char *name_b)
 {
-  *(u32 *)(param_1 + 0x20) = param_2;
-  *(u32 *)(param_1 + 0x24) = param_3;
+  self->nameA = name_a;
+  self->nameB = name_b;
 }

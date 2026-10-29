@@ -1,32 +1,34 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001b4464 end=0x001b4528 symbol=FUN_001b4464 lang=c99 */
 /* Hand-written reconstruction from the disassembly; matching idiom: typed helper calls include their float and mode arguments, with an explicit negative early return; exact match verified; names and types await human review. */
+#include "hst/slot_fade.h"
 
-extern void FUN_000628e4(int param_1,int param_2);
-extern void FUN_00062b1c(int param_1,float param_2,int param_3);
+extern void FUN_000628e4(int handle,int arg);
+extern void FUN_00062b1c(int handle,float amount,int level);
 
-void FUN_001b4464(int *param_1,int param_2)
+/* Switch between the two handles: nonzero `first` starts handle_a and quiets handle_b, zero does the reverse. */
+void FUN_001b4464(SlotFadeTable **ctx,int first)
 {
-  int self = *param_1;
+  SlotFadeTable *self = *ctx;
 
-  if (param_2 != 0) {
-    if (*(int *)(self + 0x7ac) >= 0) {
-      FUN_00062b1c(*(int *)(self + 0x7ac),0.5f,0);
-      *(int *)(self + 2000) = *(int *)(self + 0x7ac);
-      *(float *)(self + 0x7d4) = 0.0f;
+  if (first != 0) {
+    if (self->handle_a >= 0) {
+      FUN_00062b1c(self->handle_a,0.5f,0);
+      self->handle_cur = self->handle_a;
+      self->level = 0.0f;
     }
-    if (*(int *)(self + 0x7b4) >= 0) {
-      FUN_00062b1c(*(int *)(self + 0x7b4),0.0f,128);
+    if (self->handle_b >= 0) {
+      FUN_00062b1c(self->handle_b,0.0f,128);
     }
   } else {
-    if (*(int *)(self + 0x7b4) >= 0) {
-      FUN_00062b1c(*(int *)(self + 0x7b4),0.5f,0);
+    if (self->handle_b >= 0) {
+      FUN_00062b1c(self->handle_b,0.5f,0);
     }
-    if (*(int *)(self + 0x7ac) < 0) return;
-    FUN_00062b1c(*(int *)(self + 0x7ac),0.0f,128);
-    if (*(int *)(self + 2000) >= 0) {
-      FUN_000628e4(*(int *)(self + 2000),0);
-      *(int *)(self + 2000) = -1;
+    if (self->handle_a < 0) return;
+    FUN_00062b1c(self->handle_a,0.0f,128);
+    if (self->handle_cur >= 0) {
+      FUN_000628e4(self->handle_cur,0);
+      self->handle_cur = -1;
     }
-    *(float *)(self + 0x7d4) = 1.0f;
+    self->level = 1.0f;
   }
 }

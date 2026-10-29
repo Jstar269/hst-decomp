@@ -1,29 +1,31 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002052b8 end=0x00205374 symbol=FUN_002052b8 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: typed object views; the if/else on param_2 is a done flag (matching idiom: done = 0; if (param_2 != 0) { F(..param_3); done = 1; } if (done == 0) F(..0);), #pragma opt_strength_reduction off for the recomputed index*4, and iVar2 declared before iVar1 for the s-registers; exact match verified; names and types await human review. */
-typedef struct { char pad[0x58]; int f58; } Sub;
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: typed object views; the if/else on use_arg is a done flag (matching idiom: done = 0; if (use_arg != 0) { F(..arg); done = 1; } if (done == 0) F(..0);), #pragma opt_strength_reduction off for the recomputed index*4, and handle declared before slot for the s-registers; exact match verified; readability pass; names and types await human review. */
+typedef struct { char pad[0x58]; int handle; } Sub;
 #pragma opt_strength_reduction off
-typedef struct { Sub *f0; int f4; int f8; int *fc; } Obj;
+typedef struct { Sub *sub; int unk4; int unk8; int *slots; } Obj;
+enum { SLOT_COUNT = 6 };
 extern void FUN_0005743c(int a, int b, int c, int d);
 
-void FUN_002052b8(Obj *param_1, int param_2, int param_3)
+/* For each of the six slots calls the helper with the sub-object's handle, the slot value and arg (or 0). */
+void FUN_002052b8(Obj *obj, int use_arg, int arg)
 {
-  int iVar2;
-  int iVar1;
+  int handle;
+  int slot;
   int done;
 
-  iVar2 = param_1->f0->f58;
-  if (iVar2 != 0) {
-    iVar1 = 0;
+  handle = obj->sub->handle;
+  if (handle != 0) {
+    slot = 0;
     do {
       done = 0;
-      if (param_2 != 0) {
-        FUN_0005743c(iVar2, iVar1, param_1->fc[iVar1], param_3);
+      if (use_arg != 0) {
+        FUN_0005743c(handle, slot, obj->slots[slot], arg);
         done = 1;
       }
       if (done == 0) {
-        FUN_0005743c(iVar2, iVar1, param_1->fc[iVar1], 0);
+        FUN_0005743c(handle, slot, obj->slots[slot], 0);
       }
-      iVar1 = iVar1 + 1;
-    } while (iVar1 < 6);
+      slot = slot + 1;
+    } while (slot < SLOT_COUNT);
   }
 }

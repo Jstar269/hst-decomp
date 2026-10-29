@@ -1,18 +1,20 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0009444c end=0x0009447c symbol=FUN_0009444c lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag probe1); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag probe1) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/bone_link.h"
 
-u32 * FUN_0009444c(u32 *param_1)
+/* Constructor: clears every field. */
+BoneLink * FUN_0009444c(BoneLink *self)
 {
-  *param_1 = 0;
-  param_1[1] = 0;
-  param_1[2] = 0;
-  param_1[3] = 0;
-  param_1[4] = 0;
-  param_1[5] = 0;
-  param_1[6] = 0;
-  param_1[7] = 0;
-  param_1[8] = 0;
-  param_1[9] = 0;
-  return param_1;
+  self->unk00[0] = 0;
+  self->unk00[1] = 0;
+  self->unk00[2] = 0;
+  self->unk00[3] = 0;
+  self->unk00[4] = 0;
+  self->unk00[5] = 0;
+  self->unk00[6] = 0;
+  self->unk00[7] = 0;
+  self->nameA = 0;
+  self->nameB = 0;
+  return self;
 }

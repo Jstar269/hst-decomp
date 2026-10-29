@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00165004 end=0x001650a8 symbol=FUN_00165004 lang=c99 data=0x002e03c4 */
-/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed entry/table structs, #pragma opt_strength_reduction off; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002e03c4-0x002e03e7) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
+/* Ghidra pseudocode (hstgen.py tag a1) corrected by hand: typed entry/table structs, #pragma opt_strength_reduction off; readability pass; exact match verified; names and types await human review. Data: its string literals (1 strings, 0x002e03c4-0x002e03e7) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
 #include "hst/types.h"
+#include "hst/char_param.h"
 
 extern void FUN_000143b0(char *buf, const char *fmt, ...);
 extern int FUN_000146ec(const char *s1, const char *s2);
@@ -8,31 +9,22 @@ extern void FUN_0010a6f0(char *buf, int);
 
 #pragma opt_strength_reduction off
 
-struct Entry {
-  char pad[2];
-  char name[554];
-};
-
-struct Table {
-  struct Entry *entries;
-  u32 count;
-};
-
-u32 FUN_00165004(struct Table *param_1, const char *param_2)
+/* Returns the index of the record called `name`; reports the missing name and returns 0 if there is none. */
+u32 FUN_00165004(CharParamTable *table, const char *name)
 {
-  u32 uVar2;
-  char auStack_100[256];
+  u32 index;
+  char msg[256];
 
-  uVar2 = 0;
-  if (param_1->count != 0) {
+  index = 0;
+  if (table->count != 0) {
     do {
-      if (FUN_000146ec(param_2, param_1->entries[uVar2].name) == 0) {
-        return uVar2;
+      if (FUN_000146ec(name, table->entries[index].name) == 0) {
+        return index;
       }
-      uVar2 = uVar2 + 1;
-    } while (uVar2 < param_1->count);
+      index = index + 1;
+    } while (index < table->count);
   }
-  FUN_000143b0(auStack_100, "CharacterParameter '%s' not found.", param_2);
-  FUN_0010a6f0(auStack_100, 0);
+  FUN_000143b0(msg, "CharacterParameter '%s' not found.", name);
+  FUN_0010a6f0(msg, 0);
   return 0;
 }

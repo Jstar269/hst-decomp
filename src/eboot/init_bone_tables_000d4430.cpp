@@ -1,8 +1,11 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000d4430 end=0x000d4758 symbol=FUN_000d4430 lang=c++ */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
 /* Pushes a new 72-byte object onto the pointer vector at +0x3c (inline push_back, out-of-line grow takes an empty tag), resizes the 32-byte record vector at +0x48 to 4 entries (pad-derived local record = 8 never-written bytes above it), then fills one record per player with seven bone indices (-1 when player, part or skeleton root is missing). The first loop is written as a do-while with an explicit pointer so the compiler keeps the rolled loop; names provisional. */
+/* Empty marker argument passed by value to the out-of-line helpers. */
 struct Tag {};
 struct Obj;
+
+enum { PLAYER_COUNT = 4, BONE_COUNT = 7, OBJ_SIZE = 0x48 };
 struct PtrVec {
   Obj **data;
   unsigned size;
@@ -21,6 +24,7 @@ inline void PtrVec::push_back(Obj *const &x)
     FUN_0006ea5c(this, (Obj **)&x, Tag());
   }
 }
+/* One record per player: BONE_COUNT bone indices (-1 = missing), then a zero word. */
 struct Rec {
   int v[8];
 };
@@ -55,7 +59,7 @@ struct Player {
 };
 struct Game {
   char pad[0x70];
-  Player *players[4];
+  Player *players[PLAYER_COUNT];
 };
 extern "C" {
 extern Game *DAT_003386b0;
@@ -79,27 +83,29 @@ void FUN_000d4430(Self *self)
   unsigned k = 0;
   const int *src = DAT_002d6788;
   do {
-    Obj *mem = (Obj *)FUN_00000bcc(0x48);
+    Obj *mem = (Obj *)FUN_00000bcc(OBJ_SIZE);
     if (mem) mem = FUN_00050ff4(mem, *src, 0);
     Obj *o = mem;
     self->items.push_back(o);
     k++;
     src++;
   } while (k == 0);
+  /* resize the record vector to one record per player */
   unsigned n = self->recs.size;
-  if (n < 4) {
+  if (n < PLAYER_COUNT) {
     RecP r;
-    for (int j = 0; j < 7; j++) r.v[j] = -1;
+    for (int j = 0; j < BONE_COUNT; j++) r.v[j] = -1;
     r.v[7] = 0;
-    FUN_000d57a8(&self->recs, 4 - n, &r, Tag());
-  } else if (4 < n) {
-    FUN_000d5798(&self->recs, n - 4, Tag());
+    FUN_000d57a8(&self->recs, PLAYER_COUNT - n, &r, Tag());
+  } else if (PLAYER_COUNT < n) {
+    FUN_000d5798(&self->recs, n - PLAYER_COUNT, Tag());
   }
+  /* fill one record per player: bone indices looked up from the skeleton root, -1 where missing */
   int i = 0;
   int off = 0;
-  for (; i < 4; i++, off += 4) {
-    Player *pl = *(Player **)((char *)DAT_003386b0 + 0x70 + off);
-    if (pl == 0) {
+  for (; i < PLAYER_COUNT; i++, off += 4) {
+    Player *player = *(Player **)((char *)DAT_003386b0 + 0x70 + off);
+    if (player == 0) {
       Rec *r = &self->recs.at(i);
       r->v[0] = -1;
       r->v[1] = -1;
@@ -110,8 +116,8 @@ void FUN_000d4430(Self *self)
       r->v[6] = -1;
       r->v[7] = 0;
     } else {
-      Part *x = pl->part;
-      if (x == 0) {
+      Part *part = player->part;
+      if (part == 0) {
         Rec *r = &self->recs.at(i);
         r->v[0] = -1;
         r->v[1] = -1;
@@ -124,37 +130,37 @@ void FUN_000d4430(Self *self)
       } else {
         int b0, b1, b2, b3, b4, b5, b6;
         void *root;
-        root = x->mdl->skel->root;
+        root = part->mdl->skel->root;
         if (root != 0)
           b0 = FUN_0002fe80(root, DAT_002d678c);
         else
           b0 = -1;
-        root = x->mdl->skel->root;
+        root = part->mdl->skel->root;
         if (root != 0)
           b1 = FUN_0002fe80(root, DAT_002d5e70);
         else
           b1 = -1;
-        root = x->mdl->skel->root;
+        root = part->mdl->skel->root;
         if (root != 0)
           b2 = FUN_0002fe80(root, DAT_002d679c);
         else
           b2 = -1;
-        root = x->mdl->skel->root;
+        root = part->mdl->skel->root;
         if (root != 0)
           b3 = FUN_0002fe80(root, DAT_002d5e7c);
         else
           b3 = -1;
-        root = x->mdl->skel->root;
+        root = part->mdl->skel->root;
         if (root != 0)
           b4 = FUN_0002fe80(root, DAT_002d67ac);
         else
           b4 = -1;
-        root = x->mdl->skel->root;
+        root = part->mdl->skel->root;
         if (root != 0)
           b5 = FUN_0002fe80(root, DAT_002d67bc);
         else
           b5 = -1;
-        root = x->mdl->skel->root;
+        root = part->mdl->skel->root;
         if (root != 0)
           b6 = FUN_0002fe80(root, DAT_002d5ea0);
         else

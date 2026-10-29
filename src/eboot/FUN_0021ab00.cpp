@@ -1,17 +1,18 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0021ab00 end=0x0021ab48 symbol=FUN_0021ab00 lang=c++ */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a5); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a5) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
+#include "hst/selection_menu.h"
 
-extern "C" {
-}
-struct VC_0 { virtual ~VC_0(); };
+/* Object with a virtual destructor. */
+struct Deletable { virtual ~Deletable(); };
 
-extern "C" void FUN_0021ab00(int *param_1)
+/* Deletes the menu through its virtual destructor and clears the pointer. */
+extern "C" void FUN_0021ab00(SelectionState *self)
 {
-  int *piVar1;
+  SelectionMenu *menu;
   
-  piVar1 = (int *)*param_1;
-  if (piVar1 != (int *)0x0) {
-    delete ((VC_0 *)(piVar1));
-    *param_1 = 0;
+  menu = self->menu;
+  if (menu != 0) {
+    delete ((Deletable *)(menu));
+    self->menu = 0;
   }
 }

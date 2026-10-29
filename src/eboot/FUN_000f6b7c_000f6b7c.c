@@ -4,10 +4,14 @@
 
 extern u32 FUN_0001342c();
 
-void FUN_000f6b7c(int param_1)
+#define SLOT_COUNT 0x20   /* slots walked */
+#define SLOT_STRIDE 0x40  /* bytes between slots */
+
+/* Count down every active slot; on each even count with a positive source value, draw a new random-style value into the slot. */
+void FUN_000f6b7c(int self)
 {
   u32 index = 0;
-  char *entry = (char *)param_1;
+  char *entry = (char *)self;
   do {
     if (*(unsigned char *)(entry + 0x30) != 0) {
       int count = *(int *)(entry + 0x60);
@@ -15,7 +19,7 @@ void FUN_000f6b7c(int param_1)
         count = count - 1;
         *(int *)(entry + 0x60) = count;
         if (*(unsigned char *)(entry + 0x30) != 0) {
-          float value = *(float *)(*(int *)(*(int *)(param_1 + 0x830) +
+          float value = *(float *)(*(int *)(*(int *)(self + 0x830) +
                                       *(int *)(entry + 0x34) * 4) + 8);
           if (value > 0.0f) {
             count = *(int *)(entry + 0x60);
@@ -29,6 +33,6 @@ void FUN_000f6b7c(int param_1)
       }
     }
     index = index + 1;
-    entry = entry + 0x40;
-  } while (index < 0x20);
+    entry = entry + SLOT_STRIDE;
+  } while (index < SLOT_COUNT);
 }

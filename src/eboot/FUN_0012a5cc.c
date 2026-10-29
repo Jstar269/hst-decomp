@@ -4,9 +4,9 @@ typedef struct {
   char pad[0x190];
   int state;
   char pad1[0x32d - 0x194];
-  unsigned char f32d;
+  unsigned char unk32d;
   char pad2[0x330 - 0x32e];
-  int f330;
+  int countdown;
 } Obj;
 
 extern int FUN_0012b868(Obj *self);
@@ -15,17 +15,18 @@ extern void FUN_00093cc8(Obj *self);
 extern void FUN_0012b2b0(Obj *self, int a, int b, float f);
 extern void FUN_0012a254(Obj *self, int a, int b, int c);
 
+/* Per-state update: state 0 counts down and then calls the helper; states 1..10 and 13 run the other helper. Does nothing when the gate helper returns 0. */
 void FUN_0012a5cc(Obj *self)
 {
   if (FUN_0012b868(self) == 0)
     return;
   switch (self->state) {
   case 0:
-    if (self->f330 > 0) {
-      self->f330--;
+    if (self->countdown > 0) {
+      self->countdown--;
       FUN_000935b0(self, 0.0f);
       FUN_00093cc8(self);
-    } else if (self->f32d == 0) {
+    } else if (self->unk32d == 0) {
       FUN_0012b2b0(self, 1, 1, -1.0f);
     }
     break;

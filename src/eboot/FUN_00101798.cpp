@@ -6,7 +6,7 @@ extern "C" u8 DAT_002d8ad0;
 extern "C" char DAT_002d8ab4[];
 extern "C" void FUN_001006b0(char *);
 
-struct Frame_00101798 {
+struct FrameObj {
   virtual void Slot0();
   virtual void Slot1();
   virtual void Slot2();
@@ -19,7 +19,7 @@ struct Frame_00101798 {
   short y;
 };
 
-struct Main_00101798 {
+struct DrawOwner {
   virtual void Slot0();
   virtual void Slot1();
   virtual void Slot2();
@@ -34,27 +34,28 @@ struct Main_00101798 {
   virtual void Slot11();
   virtual void Slot12();
   virtual void Draw(int, int, int, int, int, int, int, int, int, int, void *);
-  Frame_00101798 **frames;
-  int count;
+  FrameObj **frames; /* 0x4 frame objects, indexed by frame id */
+  int count;       /* 0x8 */
 };
 
-extern "C" void FUN_00101798(Main_00101798 *param_1,int param_2,int param_3,int param_4,int param_5, int param_6,int param_7)
+/* Draw one part of a frame at (x, y) shifted by the part's own offset (or the frame's when part is negative). */
+extern "C" void FUN_00101798(DrawOwner *self,int frameId,int part,int x,int y, int colorA,int colorB)
 {
-  short dx;
-  short dy;
-  Frame_00101798 *frame;
-  if (param_1->count == 0) {
+  short dx; /* offset added to x */
+  short dy; /* offset added to y */
+  FrameObj *frame;
+  if (self->count == 0) {
     FUN_001006b0(DAT_002d8ab4);
   }
-  frame = param_1->frames[param_2];
-  if (param_3 < 0) {
+  frame = self->frames[frameId];
+  if (part < 0) {
     dx = frame->x;
     dy = frame->y;
   }
   else {
-    dx = frame->GetX(param_3);
-    dy = frame->GetY(param_3);
+    dx = frame->GetX(part);
+    dy = frame->GetY(part);
   }
-  param_1->Draw(param_2,param_3,param_4,param_5,(int)(short)((short)param_4 + dx),
-                (int)(short)((short)param_5 + dy),param_6,param_7,0,0,&DAT_002d8ad0);
+  self->Draw(frameId,part,x,y,(int)(short)((short)x + dx),
+                (int)(short)((short)y + dy),colorA,colorB,0,0,&DAT_002d8ad0);
 }

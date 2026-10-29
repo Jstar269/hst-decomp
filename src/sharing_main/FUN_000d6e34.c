@@ -4,9 +4,20 @@
 
 extern void FUN_000ec194();
 
-void FUN_000d6e34(int param_1)
+typedef struct Child {
+  char pad00[0xd0];
+  u8 active;  /* 0xd0 */
+} Child;
+
+typedef struct Parent {
+  char pad00[0x180];
+  Child *child;  /* 0x180 */
+} Parent;
+
+/* If the child is active, run its update with 0. */
+void FUN_000d6e34(Parent *self)
 {
-  if (*(u8 *)(*(int *)(param_1 + 0x180) + 0xd0) != '\0') {
-    FUN_000ec194(*(int *)(param_1 + 0x180),0);
+  if (self->child->active != '\0') {
+    FUN_000ec194(self->child,0);
   }
 }

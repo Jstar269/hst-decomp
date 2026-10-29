@@ -8,12 +8,15 @@ extern void FUN_000649c0(void *obj);
 extern void FUN_000651b8(void *obj, char *name, int a, int b, char *c);
 extern void FUN_0008c230(void *p);
 
+#define PARTS_OBJ_SIZE 0x30 /* allocation size of the parts-table object */
+
+/* Create the parts-set table object once and load its table file. */
 void FUN_00195b08(void)
 {
   int obj;
 
   if (DAT_0034174c == 0) {
-    if ((obj = (int)FUN_00000bcc(0x30)) != 0) {
+    if ((obj = (int)FUN_00000bcc(PARTS_OBJ_SIZE)) != 0) {
       FUN_000649c0((void *)obj);
       *(int *)obj = (int)&DAT_003070bc;
       FUN_0008c230((void *)(obj + 0x10));

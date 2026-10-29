@@ -1,53 +1,58 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000bc99c end=0x000bcc88 symbol=FUN_000bc99c lang=c99 data=0x002d53d8 */
 /* Hand-written reconstruction from the disassembly; exact match verified; matching idiom: result variable r merged at a `done:` label (goto) so the -1 shares the loop counter's register; names and types await human review. Data: its string literals (1 strings, 0x002d53d8-0x002d53e9) are defined in place and placed with data= (tools/hstdatapool.py); before, the source named them through address externs. */
-typedef struct { char c[6]; } Str6;
-typedef struct { Str6 name; unsigned char used; } Slot;
-typedef struct {
-  char pad[0x38];
-  Str6 key;
-  char pad1[0x58 - 0x3e];
-  Slot slots[16];
-  int vals[16];
-  char pad2[0x190 - 0x108];
-  int count;
-  int pad3;
-  int found;
-  char pad4[0x21c - 0x19c];
-  unsigned char flags[16];
-} Obj;
-typedef struct { int f0, f1, f2, f3, f4; } Hdr;
-typedef struct { int f0, f1, f2; unsigned char f3; } Item;
-extern Str6 DAT_00338abc;
+#include "hst/member_session.h"
+
+/* Wire header of the member packet (field 1 is the total size, field 4 the entry count). */
+typedef struct PacketHeader {
+  int unk0;
+  int size;
+  int unk8;
+  int unkc;
+  int entry_count;
+} PacketHeader;
+
+/* One received member entry. */
+typedef struct PacketEntry {
+  int unk0;
+  int unk4;
+  int param;
+  unsigned char flag;
+} PacketEntry;
+
+enum { HEADER_SIZE = 20, ENTRY_SIZE = 16 };
+
+extern MemberName DAT_00338abc;
 extern int FUN_0001100c(void *, void *, int);
 extern void *FUN_00011090(void *, void *, int);
 extern void FUN_000ba3ac(char *);
-extern void FUN_000bb888(Obj *, Item *, int, int, int);
+extern void FUN_000bb888(MemberSession *, PacketEntry *, int, int, int);
 
-void FUN_000bc99c(Obj *o, char *src)
+void FUN_000bc99c(MemberSession *session, char *src)
 {
   int i;
-  Hdr h;
-  Item it;
-  for (i = 0; i < 16; i++) {
-    o->slots[i].name = DAT_00338abc;
-    o->slots[i].used = 0;
-    o->vals[i] = 0;
+  PacketHeader hdr;
+  PacketEntry entry;
+  /* clear the member table */
+  for (i = 0; i < MEMBER_MAX; i++) {
+    session->members[i].name = DAT_00338abc;
+    session->members[i].used = 0;
+    session->values[i] = 0;
   }
-  h.f0 = 0;
-  FUN_00011090(&h, src, 20);
-  src += 20;
-  if (h.f1 == h.f4 * 16 + 20) FUN_000ba3ac("recv mbr pkt ok\n");
-  o->count = h.f4;
-  for (i = 0; i < h.f4; i++) {
-    FUN_00011090(&it, src, 16);
-    src += 16;
-    FUN_000bb888(o, &it, 0, 0, it.f2);
-    o->flags[i] = it.f3;
+  hdr.unk0 = 0;
+  FUN_00011090(&hdr, src, HEADER_SIZE);
+  src += HEADER_SIZE;
+  if (hdr.size == hdr.entry_count * ENTRY_SIZE + HEADER_SIZE) FUN_000ba3ac("recv mbr pkt ok\n");
+  session->count = hdr.entry_count;
+  for (i = 0; i < hdr.entry_count; i++) {
+    FUN_00011090(&entry, src, ENTRY_SIZE);
+    src += ENTRY_SIZE;
+    FUN_000bb888(session, &entry, 0, 0, entry.param);
+    session->flags[i] = entry.flag;
   }
   {
-    char *key = (char *)o + 0x38;
+    MemberName *key = &session->key;
     int n = 0;
-    unsigned char *p = (unsigned char *)o;
+    unsigned char *p = (unsigned char *)session;
     int r;
     do {
       if (p[0x5e] != 0 && FUN_0001100c(p + 0x58, key, 6) == 0) {
@@ -56,9 +61,9 @@ void FUN_000bc99c(Obj *o, char *src)
       }
       n++;
       p += 7;
-    } while (n < 16);
+    } while (n < MEMBER_MAX);
     r = -1;
   done:
-    o->found = r;
+    session->found = r;
   }
 }

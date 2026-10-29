@@ -1,6 +1,7 @@
 /* HSTMATCH module=EBOOT.BIN start=0x000d4d34 end=0x000d4ddc symbol=FUN_000d4d34 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag a7); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag a7) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/effect_set.h"
 
 extern u8 DAT_0030744c;
 extern void FUN_00000788();
@@ -10,26 +11,27 @@ extern int FUN_00053718();
 extern int FUN_00055e48();
 extern void FUN_00056cb0();
 
-u32 * FUN_000d4d34(u32 *param_1,short param_2)
+/* Destructor: frees the two owned members, destroys the slot array, runs the base destructor, frees the object if delete_flag > 0. */
+EffectSet * FUN_000d4d34(EffectSet *self,short delete_flag)
 {
-  int iVar1;
+  void *member;
   
-  if (param_1 != (u32 *)0x0) {
-    *param_1 = (unsigned int)(&DAT_0030744c);
-    if (param_1[0xf] != 0) {
-      FUN_00053718(param_1[0xf],1);
-      param_1[0xf] = 0;
+  if (self != (EffectSet *)0x0) {
+    self->vtable = &DAT_0030744c;
+    if (self->unk3c != 0) {
+      FUN_00053718(self->unk3c,1);
+      self->unk3c = 0;
     }
-    iVar1 = param_1[0x10];
-    if (iVar1 != 0) {
-      FUN_00055e48(iVar1,1);
-      param_1[0x10] = 0;
+    member = self->unk40;
+    if (member != 0) {
+      FUN_00055e48(member,1);
+      self->unk40 = 0;
     }
-    FUN_00000788(param_1 + 0x14,FUN_00056cb0,0x1b0,4);
-    FUN_0001f0f0(param_1,0);
-    if (0 < param_2) {
-      FUN_00000a00(param_1);
+    FUN_00000788(self->slots,FUN_00056cb0,EFFECT_SLOT_SIZE,EFFECT_SLOTS);
+    FUN_0001f0f0(self,0);
+    if (0 < delete_flag) {
+      FUN_00000a00(self);
     }
   }
-  return param_1;
+  return self;
 }

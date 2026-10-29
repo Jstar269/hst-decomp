@@ -29,28 +29,29 @@ extern void FUN_00110a78(void *, int, int);
 extern void FUN_000ffb3c(struct Child *, int);
 extern void FUN_00103128(Self *);
 
+/* Refresh after a count change (sound, owner update, value lookup), then apply the signed offset to the child's two values. */
 void FUN_002a6a40(Self *self)
 {
-    int n = self->count;
+    int prev_count = self->count;
 
     FUN_002a5ca0(self);
-    if (n != self->count) {
+    if (prev_count != self->count) {
         FUN_001b1c44(&DAT_0034179c, 1);
-        n = self->count;
-        FUN_0010b8cc(self->owner, n, 0);
+        prev_count = self->count;
+        FUN_0010b8cc(self->owner, prev_count, 0);
         if (DAT_0034b354 != 0) {
-            int id = DAT_00300af4[n];
-            int v = FUN_001fea10(18, 49, id);
-            FUN_00110a78(DAT_0034b354, v, 0);
+            int id = DAT_00300af4[prev_count];
+            int value = FUN_001fea10(18, 49, id);
+            FUN_00110a78(DAT_0034b354, value, 0);
         }
     }
     if (self->offset >= 0) {
         FUN_000ffb3c(self->child, 0);
-        int d = DAT_00300e54 + 2 - self->offset;
-        struct Child *c = self->child;
+        int shifted = DAT_00300e54 + 2 - self->offset;
+        struct Child *child = self->child;
 
-        c->a = d;
-        c->b = d;
+        child->a = shifted;
+        child->b = shifted;
     } else {
         FUN_000ffb3c(self->child, 1);
     }

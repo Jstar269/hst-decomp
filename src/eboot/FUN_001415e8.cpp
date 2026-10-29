@@ -15,33 +15,34 @@ extern const char DAT_002dbb34[];
 
 struct Obj {
     char pad0[0x1300];
-    float f1300;
-    float f1304;
-    float f1308;
-    float f130c;
-    float f1310;
-    float f1314;
+    float min_a;
+    float max_a;
+    float min_b;
+    float max_b;
+    float max_c;
+    float min_c;
 };
 
+/* Loads one row of the area-clip table into three min/max pairs; falls back to +-3, +-3, +-1000 when the file or row is missing. */
 extern "C" void FUN_001415e8(Obj *self, int row, const char *name)
 {
     CsvFile csv;
 
     FUN_000649c0(&csv);
     if (FUN_00064bf4(&csv, name, 1, DAT_002dbb34) != 0 && FUN_000650e0(&csv) > row) {
-        self->f1300 = -FUN_00065140(&csv, row, 1);
-        self->f1304 = -FUN_00065140(&csv, row, 0);
-        self->f1308 = FUN_00065140(&csv, row, 2);
-        self->f130c = FUN_00065140(&csv, row, 3);
-        self->f1314 = FUN_00065140(&csv, row, 4);
-        self->f1310 = FUN_00065140(&csv, row, 5);
+        self->min_a = -FUN_00065140(&csv, row, 1);
+        self->max_a = -FUN_00065140(&csv, row, 0);
+        self->min_b = FUN_00065140(&csv, row, 2);
+        self->max_b = FUN_00065140(&csv, row, 3);
+        self->min_c = FUN_00065140(&csv, row, 4);
+        self->max_c = FUN_00065140(&csv, row, 5);
     } else {
-        self->f1300 = -3.0f;
-        self->f1304 = 3.0f;
-        self->f1308 = -3.0f;
-        self->f130c = 3.0f;
-        self->f1314 = -1000.0f;
-        self->f1310 = 1000.0f;
+        self->min_a = -3.0f;
+        self->max_a = 3.0f;
+        self->min_b = -3.0f;
+        self->max_b = 3.0f;
+        self->min_c = -1000.0f;
+        self->max_c = 1000.0f;
     }
     FUN_00064a08(&csv, -1);
 }

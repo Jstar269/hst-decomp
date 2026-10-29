@@ -55,8 +55,9 @@ extern "C" int FUN_00215888(Obj *self) {
             Vec4 t1;
             Vec4 pt;
 
-            for (int i = 0; i < 4; i++) {
-                Other *other = DAT_003386b0->others[i];
+            int i, off;
+            for (i = 0, off = 0; i < 4; i++, off += 4) {
+                Other *other = *(Other **)((char *)DAT_003386b0 + off + 0x70);
                 if (other == 0)
                     continue;
                 if (self->f144 == other->f144)
@@ -78,7 +79,8 @@ extern "C" int FUN_00215888(Obj *self) {
     return 0;
 }
 
-// Differs by 15 words: exactly the s1 vs s2 register allocation between `s2` (DAT pointer) and `other`.
-// Retail assigns other=s1, s2=s2, i=s3, self=s4.
-// Tested declaration order variations, scopes, and C vs C++; s2's longer live range consistently claims s1 in mwccpsp.
-// near miss from lane ag4 (unreviewed)
+// lane sx4: 9 words differ (was 15). Explicit offset/index in the for header
+//   `for (i = 0, off = 0; i < 4; i++, off += 4) { Other *other = *(Other **)((char *)DAT_003386b0 + off + 0x70);`
+// gives retail's off=s0 / other=s1 / i=s3 / self=s4 shape except ptr(s2 var) and off swap: ours ptr=s0, off=s2; retail ptr=s2, off=s0.
+// Ruled out: all 24 function-top declaration orders of {ptr, i, off, other}; ptr/off initialisers; for-header update order; +0x70 before/after off.
+// improved by lane sx4 (unreviewed): 15 -> 9 differing words

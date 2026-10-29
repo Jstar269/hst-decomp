@@ -1,29 +1,24 @@
 /* HSTMATCH module=EBOOT.BIN start=0x001ef0fc end=0x001ef1ac symbol=FUN_001ef0fc lang=c99 */
 /* Hand-written reconstruction from the disassembly; exact match verified; names and types await human review. */
-typedef struct Self {
-    char pad0[0x40];
-    int mode;
-    char pad1[0x514 - 0x44];
-    unsigned char flag;
-    char pad2[0x564 - 0x515];
-    void *obj;
-} Self;
+#include "hst/prize_screen.h"
 
-extern void FUN_001f2934(Self *self);
-extern void FUN_001f293c(Self *self);
-extern void FUN_001f2944(Self *self);
-extern void FUN_001f294c(Self *self);
-extern int FUN_001f92ec(Self *self);
+extern void FUN_001f2934(PrizeScreen *self);
+extern void FUN_001f293c(PrizeScreen *self);
+extern void FUN_001f2944(PrizeScreen *self);
+extern void FUN_001f294c(PrizeScreen *self);
+extern int FUN_001f92ec(PrizeScreen *self);
 extern void FUN_002199c8(void *obj);
 
-void FUN_001ef0fc(Self *self)
+/* Per-frame step while the screen is on: common helper, then a helper chosen by mode, then the helper
+   object is updated when the check helper reports non-zero. */
+void FUN_001ef0fc(PrizeScreen *self)
 {
-    if (self->flag == 0)
+    if (self->active == 0)
         return;
 
     FUN_001f2934(self);
 
-    switch (self->mode) {
+    switch (self->sub.mode) {
     case 1:
         FUN_001f293c(self);
         break;

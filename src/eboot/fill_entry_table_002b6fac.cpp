@@ -5,18 +5,19 @@ extern "C" void *FUN_000114c0(void *, int, unsigned);
 extern "C" void FUN_002b71e0(...);
 struct Tag {};
 
+/* One row of the judge database: "got" flag (-1 unused), table number and id; the class name stays because the compiler derives the vtable symbol from it. */
 class C_002b6eb0 {
 public:
   virtual void key();
   virtual ~C_002b6eb0() {}
-  signed char a, b, c;
-  C_002b6eb0() { FUN_000114c0(this, 0, sizeof(*this)); a = -1; c = -1; }
+  signed char got, no, id;
+  C_002b6eb0() { FUN_000114c0(this, 0, sizeof(*this)); got = -1; id = -1; }
 };
 
 struct EntryVec { C_002b6eb0 *data; unsigned size; unsigned cap; C_002b6eb0 &operator[](unsigned i) { return data[i]; } unsigned Size() const { return size; } };
 struct IntVec { int *data; unsigned size; unsigned cap; int &operator[](unsigned i) { return data[i]; } };
 struct Self { void *vptr; EntryVec entries; IntVec ints; };
-struct Pair { int key; int idx; };
+struct Pair { int key; int idx; }; /* sort key and entry index */
 
 extern "C" {
 extern signed char DAT_002cc530[];
@@ -43,12 +44,12 @@ void FUN_002b6fac(Self *self)
     do {
       C_002b6eb0 *e = &self->entries[i];
       if (i == 0) {
-        e->a = 1;
+        e->got = 1;
       } else {
-        e->a = 0;
+        e->got = 0;
       }
-      e->b = *t;
-      e->c = i;
+      e->no = *t;
+      e->id = i;
       i++;
       t++;
     } while ((unsigned)i < self->entries.size);
@@ -61,9 +62,9 @@ void FUN_002b6fac(Self *self)
   if (self->entries.size != 0) {
     do {
       C_002b6eb0 *e = &self->entries[j];
-      if (e->a >= 0) {
+      if (e->got >= 0) {
         count++;
-        q->key = e->b;
+        q->key = e->no;
         q->idx = j;
       } else {
         q->key = 0x7fff;
@@ -79,7 +80,7 @@ void FUN_002b6fac(Self *self)
   if (self->ints.size != 0) {
     q = pairs;
     do {
-      self->ints[k] = self->entries[q->idx].c;
+      self->ints[k] = self->entries[q->idx].id;
       k++;
       q++;
     } while ((unsigned)k < self->ints.size);
@@ -87,7 +88,7 @@ void FUN_002b6fac(Self *self)
   FUN_002b71e0("--- JudgeDatabase ---\n");
   for (i = 0; i < self->entries.size; i++) {
     C_002b6eb0 *e = &self->entries[i];
-    FUN_002b71e0("ID=%d: Get=%d, No=%d\n", i, e->a, e->b);
+    FUN_002b71e0("ID=%d: Get=%d, No=%d\n", i, e->got, e->no);
   }
   for (i = 0; i < self->ints.size; i++) {
     FUN_002b71e0("No=%d: ID=%d\n", i, self->ints[i]);

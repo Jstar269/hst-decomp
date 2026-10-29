@@ -3,21 +3,22 @@
 
 struct Alloc {};
 
-typedef struct Item Item;
-struct Item {
-    void *a;
-    void *b;
+/* Two-pointer entry stored in the queue vector. */
+typedef struct Entry Entry;
+struct Entry {
+    void *first;
+    void *second;
 };
 
 typedef struct Vector Vector;
 struct Vector {
-    Item **data;
+    Entry **data;
     unsigned int size;
     unsigned int cap;
 };
 
 struct VectorAlias_000bc434 {
-    Item **data;
+    Entry **data;
     unsigned int size;
     unsigned int cap;
 };
@@ -25,9 +26,9 @@ struct VectorAlias_000bc434 {
 typedef struct Obj Obj;
 struct Obj {
     char pad0[0x34];
-    void *f34;
+    void *unk34;
     char pad1[0xc];
-    Vector *vec;
+    Vector *queue;
 };
 
 extern "C" {
@@ -35,40 +36,41 @@ extern const char DAT_002d538c[];
 extern void *FUN_00000bcc(unsigned int size);
 extern void FUN_002b7928(void *, int, int);
 extern void FUN_002b7910(void *, int);
-extern void FUN_000bea68(Vector *, Item **, Alloc);
+extern void FUN_000bea68(Vector *, Entry **, Alloc);
 
 static void FUN_000ba3ac(...) { }
 
-void FUN_000bc434(Obj *self, void *a, void *b)
+/* Appends the pair (first, second) to the object's entry vector, creating the vector on first use. */
+void FUN_000bc434(Obj *self, void *first, void *second)
 {
     FUN_000ba3ac(DAT_002d538c);
-    FUN_002b7928(self->f34, 1, 0);
+    FUN_002b7928(self->unk34, 1, 0);
 
-    if (self->vec == 0) {
+    if (self->queue == 0) {
         Vector *v = (Vector *)FUN_00000bcc(sizeof(Vector));
         if (v != 0) {
             v->data = 0;
             v->size = 0;
             v->cap = 0;
         }
-        self->vec = v;
+        self->queue = v;
     }
 
-    Item *item = (Item *)FUN_00000bcc(sizeof(Item));
-    item->a = a;
-    item->b = b;
+    Entry *entry = (Entry *)FUN_00000bcc(sizeof(Entry));
+    entry->first = first;
+    entry->second = second;
 
-    Vector *vec = self->vec;
+    Vector *vec = self->queue;
     if (vec->size < vec->cap) {
         ++vec->size;
         VectorAlias_000bc434 *alias = (VectorAlias_000bc434 *)vec;
         unsigned int index = alias->size - 1;
-        vec->data[index] = item;
+        vec->data[index] = entry;
     } else {
-        FUN_000bea68(vec, &item, Alloc());
+        FUN_000bea68(vec, &entry, Alloc());
     }
 
-    FUN_002b7910(self->f34, 1);
+    FUN_002b7910(self->unk34, 1);
 }
 }
 

@@ -1,23 +1,36 @@
 /* HSTMATCH module=EBOOT.BIN start=0x00101590 end=0x00101630 symbol=FUN_00101590 lang=c99 */
-/* Mechanical translation of Ghidra pseudocode (hstgen.py tag s256a); exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag s256a) corrected by hand: readability pass (names, structs, constants); exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/draw_list.h"
 
-extern void FUN_00101798(int *param_1,int param_2,int param_3,u32 param_4,u32 param_5, u32 param_6,u32 param_7);
-extern void FUN_00107174(int *param_1,u32 param_2);
+extern void FUN_00101798(DrawList *list,int frame,int part,u32 x,u32 y, u32 colorA,u32 colorB);
+extern void FUN_00107174(RawVec *queue,u32 count);
 
-void FUN_00101590(int param_1,u32 *param_2,u32 param_3)
+/* One entry of the input array: frame, part, x and y offsets, and two more words. */
+typedef struct DrawEntry {
+  u32 frame;     /* 0x00 */
+  u32 part;      /* 0x04 */
+  short x;       /* 0x08 */
+  short y;       /* 0x0a */
+  short colorA;  /* 0x0c */
+  char pad0e[2];
+  u32 colorB;    /* 0x10 */
+} DrawEntry;
+
+/* Reserve room for count entries in the queue (when it is still empty), then draw each entry. */
+void FUN_00101590(DrawList *list,DrawEntry *entries,u32 count)
 {
-  int iVar1;
-  
-  if ((*(int *)(param_1 + 0x14) == 0) && (*(u32 *)(param_1 + 0x18) < param_3)) {
-    FUN_00107174((int *)(param_1 + 0x10),(u32)(param_3));
+  int i;
+
+  if ((list->queue.size == 0) && (list->queue.capacity < count)) {
+    FUN_00107174(&list->queue,(u32)(count));
   }
-  iVar1 = 0;
-  if (0 < (int)param_3) {
+  i = 0;
+  if (0 < (int)count) {
     do {
-      FUN_00101798((int *)(param_1),(int)(*param_2),(int)(param_2[1]),(u32)((int)*(short *)(param_2 + 2)),(u32)((int)*(short *)((int)param_2 + 10)),(u32)((int)*(short *)(param_2 + 3)),(u32)(param_2[4]));
-      iVar1 = iVar1 + 1;
-      param_2 = param_2 + 5;
-    } while (iVar1 < (int)param_3);
+      FUN_00101798(list,(int)(entries->frame),(int)(entries->part),(u32)((int)entries->x),(u32)((int)entries->y),(u32)((int)entries->colorA),(u32)(entries->colorB));
+      i = i + 1;
+      entries = entries + 1;
+    } while (i < (int)count);
   }
 }

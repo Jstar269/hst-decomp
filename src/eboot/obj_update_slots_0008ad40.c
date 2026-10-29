@@ -1,30 +1,30 @@
 /* HSTMATCH module=EBOOT.BIN start=0x0008ad40 end=0x0008add8 symbol=FUN_0008ad40 lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag gen-a3/v10) corrected by hand: the byte flag at +0x4c is unsigned char (lbu) and the loop counter is declared before the pointer for the s-register assignment; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag gen-a3/v10) corrected by hand: the byte flag at +0x4c is unsigned char (lbu) and the loop counter is unsigned and indexes the slot table; readability pass; exact match verified; names and types await human review. */
 #include "hst/types.h"
+#include "hst/play_flow.h"
 
 extern u8 DAT_003386b8;
 extern u32 DAT_00338af0;
 extern void FUN_0009619c();
 
-void FUN_0008ad40(char *param_1)
+enum { COUNTDOWN_START = 0x708 }; /* initial value of the countdown when first armed */
+
+/* Pass every non-empty slot on to the helper; the first time through, arm the object and start its countdown. */
+void FUN_0008ad40(PlayFlowObj *self)
 {
-  u32 uVar2;
-  char *iVar1;
-  
-  if ((DAT_003386b8 != '\0') && (DAT_00338af0 != 0)) {
-    uVar2 = 0;
-    iVar1 = param_1;
+  u32 i;
+
+  if ((DAT_003386b8 != 0) && (DAT_00338af0 != 0)) {
+    i = 0;
     do {
-      if (*(int *)(iVar1 + 0x70) != 0) {
-        FUN_0009619c(*(int *)(iVar1 + 0x70),*(int *)(param_1 + 0x5c),*(u32 *)(param_1 + 100))
-        ;
+      if (self->slots[i] != 0) {
+        FUN_0009619c(self->slots[i],self->unk5c,self->unk64);
       }
-      uVar2 = uVar2 + 1;
-      iVar1 = iVar1 + 4;
-    } while (uVar2 < 4);
-    if (*(unsigned char *)(param_1 + 0x4c) == 0) {
-      *(u8 *)(param_1 + 0x4c) = 1;
-      *(u32 *)(param_1 + 0x50) = 0x708;
+      i = i + 1;
+    } while (i < PLAY_FLOW_SLOTS);
+    if (self->armed == 0) {
+      self->armed = 1;
+      self->countdown = COUNTDOWN_START;
     }
   }
 }

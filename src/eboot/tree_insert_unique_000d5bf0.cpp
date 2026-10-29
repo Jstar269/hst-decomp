@@ -5,30 +5,32 @@
    equals k (string compare 0x430c), and return pair<iterator, bool>. The two bool values are read from
    writable byte globals (0x2d6835 true, 0x2d6836 false): declared `const`, MWCC hoists their loads above
    the node store. Locals declared in retail's frame order (flags at 47/46, j at 40). Names provisional. */
-struct String_000d5bf0 { int rep_[3]; };
-extern "C" int FUN_0000430c(const String_000d5bf0 *self, const String_000d5bf0 &x); /* compare */
-struct Node_000d5bf0 {
-    Node_000d5bf0 *left_;
-    Node_000d5bf0 *right_;
+/* String object (three words). */
+struct String { int rep_[3]; };
+extern "C" int FUN_0000430c(const String *self, const String &x); /* compare */
+struct StrNode {
+    StrNode *left_;
+    StrNode *right_;
     unsigned parent_;
-    String_000d5bf0 key_;
+    String key_;
 };
-struct Tree_000d5bf0;
-struct Result_000d5bf0 { Node_000d5bf0 *node; bool inserted; };
+struct StrTree;
+struct InsertResult { StrNode *node; bool inserted; };
 extern "C" {
 extern bool DAT_002d6835; /* true */
 extern bool DAT_002d6836; /* false */
-Node_000d5bf0 *FUN_000d5d04(Tree_000d5bf0 *t, const String_000d5bf0 &k, Node_000d5bf0 *&j, bool &left, bool &leftmost);
-Node_000d5bf0 *FUN_000d7460(Tree_000d5bf0 *t, Node_000d5bf0 *parent, bool left, bool leftmost, const String_000d5bf0 &k);
+StrNode *FUN_000d5d04(StrTree *t, const String &k, StrNode *&j, bool &left, bool &leftmost);
+StrNode *FUN_000d7460(StrTree *t, StrNode *parent, bool left, bool leftmost, const String &k);
 }
-extern "C" void FUN_000d5bf0(Result_000d5bf0 *r, Tree_000d5bf0 *t, const String_000d5bf0 &k)
+/* Insert-unique: inserts k unless an equal key exists; r receives the node and whether it was inserted. */
+extern "C" void FUN_000d5bf0(InsertResult *r, StrTree *t, const String &k)
 {
     bool left;
     bool leftmost;
-    Node_000d5bf0 *j;
-    Node_000d5bf0 *y = FUN_000d5d04(t, k, j, left, leftmost);
+    StrNode *j;
+    StrNode *parent = FUN_000d5d04(t, k, j, left, leftmost);
     if (j == 0 || FUN_0000430c(&j->key_, k) < 0) {
-        r->node = FUN_000d7460(t, y, left, leftmost, k);
+        r->node = FUN_000d7460(t, parent, left, leftmost, k);
         r->inserted = DAT_002d6835;
     } else {
         r->node = j;

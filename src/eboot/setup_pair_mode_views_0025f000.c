@@ -2,21 +2,34 @@
 /* Hand-written reconstruction (external matching lane); exact match verified; names and types await human review. */
 /* Derived from: try/gen-a7/v21/FUN_0025f000.c (tag: a7) */
 extern unsigned char DAT_003417be;
-extern void FUN_000ffb3c(int, int);
 
-void FUN_0025f000(int param_1, int param_2)
+typedef struct PairScreen {
+    char pad0[0x64];
+    unsigned char enabled;   /* 0x64 */
+    unsigned char altFlag;   /* 0x65 */
+    char pad66[0x7c - 0x66];
+    void *viewA;             /* 0x7c */
+    void *viewB;             /* 0x80 */
+    char pad84[4];
+    void *viewC;             /* 0x88 */
+    void *viewD;             /* 0x8c */
+} PairScreen;
+
+extern void FUN_000ffb3c(void *, int);
+
+void FUN_0025f000(PairScreen *screen, int visible)
 {
-    if (*(unsigned char *)(param_1 + 0x64) != 0 && (*(unsigned char *)(param_1 + 0x65) == 0 || DAT_003417be != 0)) {
-        FUN_000ffb3c(*(int *)(param_1 + 0x7c), 1);
-        FUN_000ffb3c(*(int *)(param_1 + 0x80), 1);
-        FUN_000ffb3c(*(int *)(param_1 + 0x88), 1);
-        FUN_000ffb3c(*(int *)(param_1 + 0x8c), 1);
+    if (screen->enabled != 0 && (screen->altFlag == 0 || DAT_003417be != 0)) {
+        FUN_000ffb3c(screen->viewA, 1);
+        FUN_000ffb3c(screen->viewB, 1);
+        FUN_000ffb3c(screen->viewC, 1);
+        FUN_000ffb3c(screen->viewD, 1);
     } else {
-        if (*(unsigned char *)(param_1 + 0x65) != 0) {
-            FUN_000ffb3c(*(int *)(param_1 + 0x7c), 0);
-            FUN_000ffb3c(*(int *)(param_1 + 0x80), 0);
+        if (screen->altFlag != 0) {
+            FUN_000ffb3c(screen->viewA, 0);
+            FUN_000ffb3c(screen->viewB, 0);
         }
-        FUN_000ffb3c(*(int *)(param_1 + 0x88), param_2);
-        FUN_000ffb3c(*(int *)(param_1 + 0x8c), param_2);
+        FUN_000ffb3c(screen->viewC, visible);
+        FUN_000ffb3c(screen->viewD, visible);
     }
 }

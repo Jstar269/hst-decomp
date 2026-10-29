@@ -1,25 +1,27 @@
 /* HSTMATCH module=EBOOT.BIN start=0x002475bc end=0x00247674 symbol=FUN_002475bc lang=c99 */
-/* Ghidra pseudocode (hstgen.py tag gen-s256a/v2) corrected by hand: Vec4 struct value copy, explicit field assignments for subsequent float stores; exact match verified; names and types await human review. */
+/* Ghidra pseudocode (hstgen.py tag gen-s256a/v2) corrected by hand: Vec4 struct value copy, explicit field assignments for subsequent float stores; readability pass; exact match verified; names and types await human review. */
+#include "hst/posed_obj.h"
 
 typedef struct {
     float x, y, z, w;
 } Vec4;
 
-extern void FUN_000550c8(int, Vec4 *);
+extern void FUN_000550c8(void *, Vec4 *);
 
-void FUN_002475bc(int param_1, const Vec4 *param_2)
+/* Apply a position to the sub-objects (the second one unless the state is 150 or 151) and store it in both position slots. */
+void FUN_002475bc(PosedObj *self, const Vec4 *pos)
 {
-    Vec4 local_10 = *param_2;
-    FUN_000550c8(param_1 + 0xe0, &local_10);
-    if (*(int *)(param_1 + 0x454) != 150 && *(int *)(param_1 + 0x454) != 151) {
-        FUN_000550c8(param_1 + 0x290, &local_10);
+    Vec4 local_pos = *pos;
+    FUN_000550c8(self->sub_e0, &local_pos);
+    if (self->state != 150 && self->state != 151) {
+        FUN_000550c8(self->sub_290, &local_pos);
     }
-    *(float *)(param_1 + 0x40) = local_10.x;
-    *(float *)(param_1 + 0x44) = local_10.y;
-    *(float *)(param_1 + 0x48) = local_10.z;
-    *(float *)(param_1 + 0x4c) = local_10.w;
-    *(float *)(param_1 + 0x50) = *(float *)(param_1 + 0x40);
-    *(float *)(param_1 + 0x54) = *(float *)(param_1 + 0x44);
-    *(float *)(param_1 + 0x58) = *(float *)(param_1 + 0x48);
-    *(float *)(param_1 + 0x5c) = *(float *)(param_1 + 0x4c);
+    self->pos[0] = local_pos.x;
+    self->pos[1] = local_pos.y;
+    self->pos[2] = local_pos.z;
+    self->pos[3] = local_pos.w;
+    self->pos2[0] = self->pos[0];
+    self->pos2[1] = self->pos[1];
+    self->pos2[2] = self->pos[2];
+    self->pos2[3] = self->pos[3];
 }

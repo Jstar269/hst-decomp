@@ -3,10 +3,17 @@
 
 extern void FUN_00108e6c(float, int);
 
-void FUN_000fbe24(int *param_1,int param_2)
+typedef struct ValueHolder {
+  int target;     /* 0x0 object told the new value (may be 0) */
+  char pad4[0xc];
+  int value;      /* 0x10 */
+} ValueHolder;
+
+/* Store value; if there is a target, pass it the value as a float first. */
+void FUN_000fbe24(ValueHolder *self,int value)
 {
-  if (*param_1 != 0) {
-    FUN_00108e6c((float)((float)param_2),(int)(*param_1));
+  if (self->target != 0) {
+    FUN_00108e6c((float)((float)value),(int)(self->target));
   }
-  param_1[4] = param_2;
+  self->value = value;
 }
